@@ -18,3 +18,9 @@ class CRL(Device):
     lens6 = C(EpicsMotor, 'L6}Mtr')
 
 crl = CRL('XF:12IDC-OP:2{Lens:CRL-Ax:', name='crl')
+
+
+mtr = EpicsMotor('XF12ID:m67', name='p2x')
+
+
+
