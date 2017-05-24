@@ -13,7 +13,7 @@ from ophyd.areadetector.filestore_mixins import (FileStoreTIFFIterativeWrite,
                                                  FileStoreBase, new_short_uid)
 from ophyd import Component as Cpt, Signal
 from ophyd.utils import set_and_wait
-import filestore.api as fs
+
 
 
 #White Beam Stop camera ROI detectors
@@ -65,7 +65,9 @@ class StandardProsilicaWithTIFF(StandardProsilica):
     tiff = Cpt(TIFFPluginWithFileStore,
                suffix='TIFF1:',
                write_path_template='/tmp/%Y/%m/%d/',
-               read_path_template='/tmp/%Y/%m/%d/')
+               read_path_template='/tmp/%Y/%m/%d/',
+               root='/tmp/',
+               fs=db.fs)
 
 FS = StandardProsilica('XF:12IDA-BI{Cam:FS}', name='FS')
 FS.read_attrs = ['stats1', 'stats2', 'stats3', 'stats4']

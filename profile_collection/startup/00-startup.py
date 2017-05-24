@@ -61,6 +61,7 @@ RE.md['beamline_id'] = 'SMI'
 # ophyd.logger.setLevel(logging.DEBUG)
 # logging.basicConfig(level=logging.DEBUG)
 
+
 from functools import partial
 from pyOlog import SimpleOlogClient
 from bluesky.callbacks.olog import logbook_cb_factory
@@ -79,3 +80,5 @@ RE.subscribe('start', cb)
 # This is for ophyd.commands.get_logbook, which simply looks for
 # a variable called 'logbook' in the global IPython namespace.
 logbook = simple_olog_client
+
+
