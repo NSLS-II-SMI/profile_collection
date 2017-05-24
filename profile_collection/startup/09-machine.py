@@ -58,7 +58,7 @@ class UndulatorGap(PVPositioner):
     # positioner signals
     setpoint = Cpt(EpicsSignalOverridePrec, '-Mtr:2}Inp:Pos')
     readback = Cpt(EpicsSignalOverridePrecRO, '-LEnc}Gap')
-    stop_signal = Cpt(EpicsSignal, '-Mtr:2}Pos:STOP')
+    stop_signal = Cpt(EpicsSignal, '-Mtr:2}Pos.STOP')
     actuate = Cpt(EpicsSignal, '-Mtr:2}Sw:Go')
     actuate_value = 1
     done = Cpt(EpicsSignalRO, '-Mtr:2}Sw:Serv-On')
@@ -72,11 +72,6 @@ class UndulatorGap(PVPositioner):
     # brake status
     # brake_on = Cpt(EpicsSignalRO, '-Mtr:2}Rb:Brk')
 
-ivugap = UndulatorGap('SR:C12-ID:G1{IVU:1', name='ivugap',
-                read_attrs=['readback', 'setpoint'],
-                configuration_attrs=['corrfunc_sta',
-                                     'corrfunc_dis',
-                                     'corrfunc_en'])
 
 class UndulatorElev(PVPositioner):
     # positioner signals

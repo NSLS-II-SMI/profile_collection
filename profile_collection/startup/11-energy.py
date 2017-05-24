@@ -10,10 +10,10 @@ from ophyd import Component as Cpt
 from scipy.interpolate import InterpolatedUnivariateSpline
 
 ANG_OVER_EV = 12398.4  # A*eV
+# TODO move inside energy class
 D_Si111 = 3.1293
 #D_Si111 = 3.135555
-delta_bragg = 0.0
-dcm_offset = 25
+
 
 # Converters:
 def energy_to_gap(target_energy, undulator_harmonic=1):
@@ -31,7 +31,7 @@ def energy_to_gap(target_energy, undulator_harmonic=1):
     return gap
 
 
-def energy_to_bragg(target_energy, delta_bragg=delta_bragg):
+def energy_to_bragg(target_energy, delta_bragg=0):
     bragg_angle = np.arcsin((ANG_OVER_EV / target_energy) / (2 * D_Si111)) / np.pi * 180 - delta_bragg
     return bragg_angle
 
@@ -52,7 +52,7 @@ def wait_all(motors_list, sleep=0.0, debug=False):
             break
 
 
-def move_und_and_dcm(target_energy, undulator_harmonic, delta_bragg=delta_bragg):
+def move_und_and_dcm(target_energy, undulator_harmonic, delta_bragg=0):
     gap = energy_to_gap(target_energy, undulator_harmonic)
     bragg_angle = energy_to_bragg(target_energy, delta_bragg)
     dcm_gap = (dcm_offset/2)/np.cos(bragg_angle * np.pi / 180)
@@ -70,7 +70,7 @@ def move_und_and_dcm(target_energy, undulator_harmonic, delta_bragg=delta_bragg)
     print('Undulator gap from PV   : {0:.5f}'.format(ivugap.readback.value))
 
 
-def move_dcm(target_energy, delta_bragg=delta_bragg):
+def move_dcm(target_energy, delta_bragg=0):
     bragg_angle = energy_to_bragg(target_energy, delta_bragg)
 
     dcm_gap = (dcm_offset/2)/np.cos(bragg_angle * np.pi / 180)
@@ -85,194 +85,101 @@ def move_dcm(target_energy, delta_bragg=delta_bragg):
     print('Bragg angle calculated  : {:.5f}'.format(bragg_angle))
     print('Bragg angle from PV     : {:.5f}'.format(dcm.bragg.get().user_readback))
 
-'''
-class FixedPVPositioner(PVPositioner):
-    """This subclass ensures that the setpoint is really set before
-    """
-
-    def _move_async(self, position, **kwargs):
-        """Move and do not wait until motion is complete (asynchronous)"""
-        if self.actuate is not None:
-            set_and_wait(self.setpoint, position)
-            self.actuate.put(self.actuate_value, wait=False)
-        else:
-            self.setpoint.put(position, wait=False)
-
-    def move(self, v, *args, **kwargs):
-        kwargs['timeout'] = None
-        self.done.reset(v)
-        ret = super().move(v, *args, **kwargs)
-        self.brake_on.subscribe(self.done._watcher,
-                                event_type=self.brake_on.SUB_VALUE)
-        self.readback.subscribe(self.done._watcher,
-                                event_type=self.readback.SUB_VALUE)
-
-        self.stop_signal.subscribe(self.done._stop_watcher,
-                                   event_type=self.stop_signal.SUB_VALUE, run=False)
-        return ret
+    
+class DCMInternals(Device):
+    pitch = Cpt(EpicsMotor, 'XF12ID:m67')
+    roll = Cpt(EpicsMotor, 'XF12ID:m68')
+    x = Cpt(EpicsMotor, 'XF12ID:m69')
+  
 
 class Energy(PseudoPositioner):
     # synthetic axis
     energy = Cpt(PseudoSingle)
     # real motors
-
-    u_gap = ivugap
-    # bragg = dcm.th  # defined in /home/xf12id/.ipython/profile_collection-17Q1.0/startup/10-motors.py
-
-    # motor enable flags
-    move_u_gap = Cpt(Signal, None, add_prefix=(), value=True)
-    harmonic = Cpt(Signal, None, add_prefix=(), value=None)
-
-    # experimental
-    detune = Cpt(Signal, None, add_prefix=(), value=0)
-
-    def energy_to_positions(self, target_energy, undulator_harmonic, u_detune):
-        """Compute undulator and mono positions given a target energy
-
-        Paramaters
-        ----------
-        target_energy : float
-            Target energy in keV
-
-        undulator_harmonic : int, optional
-            The harmonic in the undulator to use
-
-        uv_mistune : float, optional
-            Amount to 'mistune' the undulator in keV.  Will settings such that the
-            peak of the undulator spectrum will be at `target_energy + uv_mistune`.
-
-        Returns
-        -------
-        bragg : float
-             The angle to set the monocromotor
-        """
-        # set up constants
-        Xoffset = self._xoffset
-        d_111 = self._d_111
-        delta_bragg = self._delta_bragg
-        C2Xcal = self._c2xcal
-        T2cal = self._t2cal
-        etoulookup = self.u_gap.etoulookup
+    dcmgap = Cpt(EpicsMotor, 'XF12ID:m66', read_attrs=['readback'])
+    bragg = Cpt(EpicsMotor, 'XF12ID:m65', read_attrs=['readback'])
 
 
-        #calculate Bragg RBV
-        BraggRBV = np.arcsin((ANG_OVER_EV / target_energy)/(2 * d_111))/np.pi*180 - delta_bragg
+    ivugap = Cpt(UndulatorGap,
+                 'SR:C12-ID:G1{IVU:1',
+                 read_attrs=['readback'],
+                 configuration_attrs=['corrfunc_sta',
+                                      'corrfunc_dis',
+                                      'corrfunc_en'])
 
-        #calculate C2X
-        Bragg = BraggRBV + delta_bragg
-        T2 = Xoffset * np.sin(Bragg * np.pi / 180)/np.sin(2 * Bragg * np.pi / 180)
-        dT2 = T2 - T2cal
-        C2X = C2Xcal - dT2
+    enableivu = Cpt(Signal, value=True)
+    enabledcmgap = Cpt(Signal, value=True)
 
-        #calculate undulator gap
-        # TODO make this more sohpisticated to stay a fixed distance off the
-        # peak of the undulator energy
-        ugap = float(etoulookup((target_energy + u_detune)/undulator_harmonic))
+    # this is also the maximum harmonic that will be tried
+    target_harmonic =  Cpt(Signal, value=15)
+    # TODO make this a derived component
+    # wlambda = Cpt(Signal, value=0)
 
-        ugap = energy_to_gap(target_energy, undulator_harmonic)
-
-        return BraggRBV, C2X, ugap
-
-    def undulator_energy(self, harmonic=3):
-        """Return the current enegry peak of the undulator at the given harmonic
-
-        Paramaters
-        ----------
-        harmanic : int, optional
-            The harmonic to use, defaults to 3
-        """
-        ugap = self.u_gap.get().readback
-        utoelookup = self.u_gap.utoelookup
-
-        fundemental = float(utoelookup(ugap))
-
-        energy = fundemental * harmonic
-
-        return energy
-
-    def __init__(self, *args,
-                 xoffset=None, d_111=None, delta_bragg=None, C2Xcal=None, T2cal=None,
-                 **kwargs):
-        super().__init__(*args, **kwargs)
-        self._xoffset = xoffset
-        self._d_111 = d_111
-        self._delta_bragg = delta_bragg
-        self._c2xcal = C2Xcal
-        self._t2cal = T2cal
-
-    def crystal_gap(self):
-        """Return the current physical gap between first and second crystals
-        """
-        C2X = self.c2_x.get().user_readback
-        bragg = self.bragg.get().user_readback
-
-        T2cal = self._t2cal
-        delta_bragg = self._delta_bragg
-        d_111 = self._d_111
-        c2x_cal = self._c2xcal
-
-        Bragg = np.pi/180 * (bragg + delta_bragg)
-
-        dT2 = c2x_cal - C2X
-        T2 = dT2 + T2cal
-
-        XoffsetVal = T2/(np.sin(Bragg)/np.sin(2*Bragg))
-
-        return XoffsetVal
 
     @pseudo_position_argument
     def forward(self, p_pos):
         energy = p_pos.energy
-        harmonic = self.harmonic.get()
-        detune = self.detune.get()
-        if energy <= 4.4:
-            raise ValueError("The energy you entered is too low ({} keV). "
-                             "Minimum energy = 4.4 keV".format(energy))
-        if energy >= 25:
-            raise ValueError('The energy you entered is too high ({} keV). '
-                             'Maximum energy = 25.0 keV'.format(energy))
-
-        if harmonic is None:
-            harmonic = 3
-            #choose the right harmonic
-            braggcal, c2xcal, ugapcal = self.energy_to_positions(energy, harmonic, detune)
-            # try higher harmonics until the required gap is too small
-            while True:
-                braggcal, c2xcal, ugapcal = self.energy_to_positions(energy, harmonic + 2, detune)
-                if ugapcal < 6.4:
-                    break
-                harmonic += 2
-
+        harmonic = self.target_harmonic.get()
+        if not harmonic % 2:
+            raise RuntimeError('harmonic must be odd')
+        
+        
+        if energy <= 2000:
+            raise ValueError("The energy you entered is too low ({} eV). "
+                             "Minimum energy = 2000 eV".format(energy))
+        if energy >= 24000:
+            raise ValueError('The energy you entered is too high ({} eV). '
+                             'Maximum energy = 24000 eV'.format(energy))
+        
         # compute where we would move everything to in a perfect world
-        bragg, c2_x, u_gap = self.energy_to_positions(energy, harmonic, detune)
 
+        target_ivu_gap = energy_to_gap(energy, harmonic)
+        while not (6.2 < target_ivu_gap < 25.10):
+             harmonic -= 2
+             if harmonic < 1:
+                 raise RuntimeError('can not find a valid gap')
+             target_ivu_gap = energy_to_gap(energy, harmonic)
+            
+        target_bragg_angle = energy_to_bragg(energy)
+        
+        dcm_offset = 25
+        target_dcm_gap = (dcm_offset/2)/np.cos(target_bragg_angle * np.pi / 180)
+        
         # sometimes move the crystal gap
-        if not self.move_c2_x.get():
-            c2_x = self.c2_x.position
+        if not self.enabledcmgap.get():
+            target_dcm_gap = self.dcmgap.position
 
         # sometimes move the undulator
-        if not self.move_u_gap.get():
-            u_gap = self.u_gap.position
+        if not self.enableivu.get():
+            target_ivu_gap = self.ivugap.position
 
-        return self.RealPosition(bragg=bragg, c2_x=c2_x, u_gap=u_gap)
+        return self.RealPosition(bragg=target_bragg_angle,
+                                 ivugap=target_ivu_gap,
+                                 dcmgap=target_dcm_gap)
+        
 
     @real_position_argument
     def inverse(self, r_pos):
         bragg = r_pos.bragg
-        e = ANG_OVER_EV / (2 * self._d_111 * math.sin(math.radians(bragg + self._delta_bragg)))
+        e = ANG_OVER_EV / (2 * D_Si111 * math.sin(math.radians(bragg)))
         return self.PseudoPosition(energy=float(e))
 
     @pseudo_position_argument
     def set(self, position):
         return super().set([float(_) for _ in position])
 
-data = {
-    'd_111': 3.135555,
-    'delta_bragg': 0.317209816326,
-    'C2Xcal': 3.6,
-    'T2cal': 14.2470486188,
-    'xoffset': 25.056582386746765,
-}
-'''
+    
+energy = Energy(prefix='', name='energy',
+                read_attrs=['energy', 'ivugap', 'bragg'],
+                configuration_attrs=['enableivu', 'enabledcmgap', 'target_harmonic'])
 
-# energy = Energy(prefix='', name='energy', **data)
+dcm = energy
+ivugap = energy.ivugap
+# DCM motor shortcuts. Early scans used the names at right (p2h, etc).
+dcm_gap = dcm.dcmgap  # Height in CSS # EpicsMotor('XF12ID:m66', name='p2h')
+# dcm_pitch = dcm.pitch  # pitch in CSS # EpicsMotor('XF12ID:m67', name='p2x')
+# dcm_roll = dcm.roll  # Roll in CSS # EpicsMotor('XF12ID:m68', name='p2r')
+bragg = dcm.bragg  # Theta in CSS  # EpicsMotor('XF12ID:m65', name='bragg')
+# dcm_x = dcm.x  # E Mono X in CSS
+
+bragg.read_attrs = ['user_readback']
