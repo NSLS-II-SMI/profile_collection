@@ -2,9 +2,6 @@ from ophyd import EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as C
 
 # xbpm2 positioner shortcut for scans 5 april 2017
 
-xbpm2X = EpicsMotor('XF:12IDA-BI:2{XBPM:2-Ax:X}Mtr', name='xbpm2X')
-xbpm2Y = EpicsMotor('XF:12IDA-BI:2{XBPM:2-Ax:Y}Mtr', name='xbpm2Y')
-
 # Note: this class isn't really different from APER ifle only motor axes
 # are here. But I can imagine inputting numerical values pertaining 
 # to each diamond, or special in/out or quad1/quad2 commands that would
@@ -24,10 +21,6 @@ xbpm3 = XBPM('XF:12IDB1-BI:2{XBPM:3-Ax:', name='xbpm3')
 
 #Prototype new electrometer, currently looking at XBPM2.
 #ch1,2,3,4 = pads 2,3,5,4 respectively; thick active area
-XBPM2ch1 = EpicsSignal('XF:12IDA-BI:2{EM:BPM1}Current1:MeanValue_RBV', name='XBPM2ch1')
-XBPM2ch2 = EpicsSignal('XF:12IDA-BI:2{EM:BPM1}Current2:MeanValue_RBV', name='XBPM2ch2')
-XBPM2ch3 = EpicsSignal('XF:12IDA-BI:2{EM:BPM1}Current3:MeanValue_RBV', name='XBPM2ch3')
-XBPM2ch4 = EpicsSignal('XF:12IDA-BI:2{EM:BPM1}Current4:MeanValue_RBV', name='XBPM2ch4')
 
 # bias voltage command should be limited to 2V or 0V only
 

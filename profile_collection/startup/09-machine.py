@@ -4,6 +4,7 @@ from ophyd import (PVPositioner, EpicsSignal, EpicsSignalRO, EpicsMotor,
                    Device, Signal, PseudoPositioner, PseudoSingle)
 from ophyd.utils.epics_pvs import set_and_wait
 from ophyd.ophydobj import StatusBase, MoveStatus
+from ophyd.status import DeviceStatus
 from ophyd import Component as Cpt
 from scipy.interpolate import InterpolatedUnivariateSpline
 from epics import (caput, caget)
@@ -71,6 +72,18 @@ class UndulatorGap(PVPositioner):
 
     # brake status
     # brake_on = Cpt(EpicsSignalRO, '-Mtr:2}Rb:Brk')
+    def set(self, new_position, **kwargs):
+        if np.abs(self.position - new_position) < .0008:
+             print('bailing')
+             return DeviceStatus(self, done=True, success=True)	
+        return super().set(new_position, **kwargs)
+
+    def move(self, new_position, **kwargs):
+        print(np.abs(self.position - new_position),  .0008, self.position, new_position)
+        if np.abs(self.position - new_position) < .0008:
+             print('bailing mv')
+             return DeviceStatus(self, done=True, success=True)
+        return super().move(new_position, **kwargs)
 
 
 class UndulatorElev(PVPositioner):

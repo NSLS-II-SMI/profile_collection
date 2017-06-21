@@ -9,7 +9,7 @@ from ophyd.pseudopos import (pseudo_position_argument, real_position_argument)
 from ophyd import Component as Cpt
 from scipy.interpolate import InterpolatedUnivariateSpline
 
-ANG_OVER_EV = 12398.4  # A*eV
+ANG_OVER_EV = 12398.42  # A*eV
 # TODO move inside energy class
 D_Si111 = 3.1293
 #D_Si111 = 3.135555
@@ -27,7 +27,7 @@ def energy_to_gap(target_energy, undulator_harmonic=1):
     b5 = 4.734179e-14
     b6 = -7.633003e-18
     b7 = 5.14881e-22
-    gap = a + b1*f + b2*f**2 + b3 * f**3 + b4 * f**4 + b5 * f**5 + b6 * f**6 + b7 * f**7
+    gap = a + b1*f + b2*f**2 + b3 * f**3 + b4 * f**4 + b5 * f**5 + b6 * f**6 + b7 * f**7 - 0.07
     return gap
 
 
@@ -111,8 +111,11 @@ class Energy(PseudoPositioner):
     enabledcmgap = Cpt(Signal, value=True)
 
     # this is also the maximum harmonic that will be tried
-    target_harmonic =  Cpt(Signal, value=15)
+    target_harmonic =  Cpt(Signal, value=17)
     # TODO make this a derived component
+
+    # TODO: if the energy.move is commanded to go to the current energy, then it will wait forever because nothing moves.
+
     # wlambda = Cpt(Signal, value=0)
 
 
@@ -122,7 +125,6 @@ class Energy(PseudoPositioner):
         harmonic = self.target_harmonic.get()
         if not harmonic % 2:
             raise RuntimeError('harmonic must be odd')
-        
         
         if energy <= 2000:
             raise ValueError("The energy you entered is too low ({} eV). "
@@ -134,7 +136,7 @@ class Energy(PseudoPositioner):
         # compute where we would move everything to in a perfect world
 
         target_ivu_gap = energy_to_gap(energy, harmonic)
-        while not (6.2 < target_ivu_gap < 25.10):
+        while not (6.3 < target_ivu_gap < 25.10):
              harmonic -= 2
              if harmonic < 1:
                  raise RuntimeError('can not find a valid gap')

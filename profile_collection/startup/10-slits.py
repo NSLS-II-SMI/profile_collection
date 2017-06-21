@@ -17,7 +17,7 @@ ssa = SLIT('XF:12IDB1-OP:2{Slt:SSA-Ax:', name='ssa')
 
 # C hutch slits
 # chs = SLIT('XF:12IDC-OP:2{Slt:C-Ax:', name='chs')
-# can't use same class unless we rename the PVs: AB, CD to H, V
+# can't use same class unless we rename the PVs: AB, CD to V, H
 # temporary names for now, needs to be checked:
 chs_ABgap = EpicsMotor('XF:12IDC-OP:2{Slt:C-Ax:AB_gap}Mtr', name='chs_ABgap')
 chs_ABpos = EpicsMotor('XF:12IDC-OP:2{Slt:C-Ax:AB_pos}Mtr', name='chs_ABpos')

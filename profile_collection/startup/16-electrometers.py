@@ -21,10 +21,10 @@ from ophyd.utils import set_and_wait
 
 #Prototype new electrometer, currently looking at XBPM2.
 #ch1,2,3,4 = pads 2,3,5,4 respectively; thick active area
-XBPM2ch1 = EpicsSignal('XF:12IDA-BI:2{EM:BPM1}Current1:MeanValue_RBV', name='XBPM2ch1')
-XBPM2ch2 = EpicsSignal('XF:12IDA-BI:2{EM:BPM1}Current2:MeanValue_RBV', name='XBPM2ch2')
-XBPM2ch3 = EpicsSignal('XF:12IDA-BI:2{EM:BPM1}Current3:MeanValue_RBV', name='XBPM2ch3')
-XBPM2ch4 = EpicsSignal('XF:12IDA-BI:2{EM:BPM1}Current4:MeanValue_RBV', name='XBPM2ch4')
+XBPM2ch1 = EpicsSignal('XF:12IDA-BI:2{EM:BPM2}Current1:MeanValue_RBV', name='XBPM2ch1')
+XBPM2ch2 = EpicsSignal('XF:12IDA-BI:2{EM:BPM2}Current2:MeanValue_RBV', name='XBPM2ch2')
+XBPM2ch3 = EpicsSignal('XF:12IDA-BI:2{EM:BPM2}Current3:MeanValue_RBV', name='XBPM2ch3')
+XBPM2ch4 = EpicsSignal('XF:12IDA-BI:2{EM:BPM2}Current4:MeanValue_RBV', name='XBPM2ch4')
 
 # this doesn't work, because the PV names do not end in .VAL ??
 # full PV names are given in the above.
