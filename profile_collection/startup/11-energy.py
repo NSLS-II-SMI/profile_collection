@@ -178,6 +178,7 @@ class Energy(PseudoPositioner):
 energy = Energy(prefix='', name='energy',
                 read_attrs=['energy', 'ivugap', 'bragg'],
                 configuration_attrs=['enableivu', 'enabledcmgap', 'target_harmonic'])
+energy.hints = {'fields': ['energy_energy']}
 
 dcm = energy
 ivugap = energy.ivugap
