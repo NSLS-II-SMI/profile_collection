@@ -16,23 +16,27 @@ mstr_shutter_enable = EpicsSignalRO('SR-EPS{PLC:1}Sts:MstrSh-Sts', name='mstr_sh
 ivu_permit = EpicsSignalRO('XF:12ID-CT{}Prmt:Remote-Sel', name='ivu_permit')
 smi_shutter_enable = EpicsSignalRO('SR:C12-EPS{PLC:1}Sts:ID_BE_Enbl-Sts', name='smi_shutter_enable')
 
+
 def ring_check():
-	if ring_ops.value == 'Operations' and mstr_shutter_enable.value == 1 and smi_shutter_enable.value == 1 and ivu_permit.value == 1:
-		ring_ok=1
-		print('SR ring status: Operations, shutters and IVU enabled. All is OK')
-	else:
-		ring_ok=0
-		print('SR ring status alert: check if shutters and/or IVU enabled! ')		
-	return ring_ok
+    if (ring_ops.value == 'Operations' 
+            and mstr_shutter_enable.value == 1
+            and smi_shutter_enable.value == 1
+            and ivu_permit.value == 1):
+        ring_ok=1
+        print('SR ring status: Operations, shutters and IVU enabled. All is OK')
+    else:
+        ring_ok=0
+        print('SR ring status alert: check if shutters and/or IVU enabled! ')           
+    return ring_ok
 
 def wait_for_ring():
-	ring_ok=ring_check()
-	if ring_ok==0:
-		while ring_ok==0:
-			print('SR ring is down and/or beamline shutters and IVU not enabled...checking again in 5 minutes.')
-			sleep(300)
-			ring_ok=ring_check()
-	if ring_ok==1: pass
+        ring_ok=ring_check()
+        if ring_ok==0:
+                while ring_ok==0:
+                        print('SR ring is down and/or beamline shutters and IVU not enabled...checking again in 5 minutes.')
+                        sleep(300)
+                        ring_ok=ring_check()
+        if ring_ok==1: pass
 
 
 class EpicsSignalOverridePrecRO(EpicsSignalRO):
@@ -70,20 +74,29 @@ class UndulatorGap(PVPositioner):
     corrfunc_dis = Cpt(EpicsSignal, '-MtrC}DisAdj:out')
     corrfunc_sta = Cpt(EpicsSignal, '-MtrC}AdjSta:RB')
 
+    permit = Cpt(EpicsSignalRO, 'XF:12ID-CT{}Prmt:Remote-Sel',
+                 name='permit',
+                 add_prefix=())
+
     # brake status
     # brake_on = Cpt(EpicsSignalRO, '-Mtr:2}Rb:Brk')
     def set(self, new_position, **kwargs):
         if np.abs(self.position - new_position) < .0008:
-             print('bailing')
              return DeviceStatus(self, done=True, success=True)	
         return super().set(new_position, **kwargs)
 
-    def move(self, new_position, **kwargs):
+    def move(self, new_position, moved_cb=None, **kwargs):
         print(np.abs(self.position - new_position),  .0008, self.position, new_position)
         if np.abs(self.position - new_position) < .0008:
-             print('bailing mv')
+             if moved_cb is not None:
+                 moved_cb(obj=self)
              return DeviceStatus(self, done=True, success=True)
-        return super().move(new_position, **kwargs)
+        return super().move(new_position, moved_cb=moved_cb, **kwargs)
+
+    def stop(self, *, success=False):
+        if self.permit.get():
+            super().stop(success=success)
+
 
 
 class UndulatorElev(PVPositioner):

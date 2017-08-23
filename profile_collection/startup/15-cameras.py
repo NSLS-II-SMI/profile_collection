@@ -67,7 +67,7 @@ class StandardProsilicaWithTIFF(StandardProsilica):
                write_path_template='/tmp/%Y/%m/%d/',
                read_path_template='/tmp/%Y/%m/%d/',
                root='/tmp/',
-               fs=db.fs)
+               reg=db.reg)
 
 FS = StandardProsilica('XF:12IDA-BI{Cam:FS}', name='FS')
 FS.read_attrs = ['stats1', 'stats2', 'stats3', 'stats4']
@@ -77,13 +77,13 @@ FS.stats3.read_attrs = ['total']
 FS.stats4.read_attrs = ['total']
 FS.configuration_attrs = ['cam.acquire_time']
 
-VFM = StandardProsilica('XF:12IDA-BI{Cam:VFM}', name='VFM')
-VFM.read_attrs = ['stats1', 'stats2']
-VFM.stats1.read_attrs = ['total']
-VFM.stats2.read_attrs = ['total']
+#VFM = StandardProsilica('XF:12IDA-BI{Cam:VFM}', name='VFM')
+#VFM.read_attrs = ['stats1', 'stats2']
+#VFM.stats1.read_attrs = ['total']
+#VFM.stats2.read_attrs = ['total']
 #VFM.stats3.read_attrs = ['total']
 #VFM.stats4.read_attrs = ['total']
-VFM.configuration_attrs = ['cam.acquire_time']
+#VFM.configuration_attrs = ['cam.acquire_time']
 
 
 

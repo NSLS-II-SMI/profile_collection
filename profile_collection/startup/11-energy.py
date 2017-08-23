@@ -167,6 +167,11 @@ class Energy(PseudoPositioner):
 
     @pseudo_position_argument
     def set(self, position):
+        energy, = position
+        print(position, self.position)
+        if np.abs(energy - self.position[0]) < .01:
+            return MoveStatus(self, energy, success=True, done=True)
+
         return super().set([float(_) for _ in position])
 
     

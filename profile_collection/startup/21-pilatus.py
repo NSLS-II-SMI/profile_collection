@@ -7,7 +7,7 @@ from ophyd import ( Component as Cpt, ADComponent,
 from ophyd.areadetector.filestore_mixins import FileStoreTIFFIterativeWrite
 
 from ophyd.utils import set_and_wait
-from filestore.handlers_base import HandlerBase
+from databroker.assets.handlers_base import HandlerBase
 import fabio
 import os
 
@@ -21,7 +21,7 @@ class Pilatus(SingleTrigger, PilatusDetector):
                suffix="TIFF1:",
                write_path_template="/data/PLACEHOLDER",  # override this on instances using instance.tiff.write_file_path
                root='/data',
-               fs=db.fs)
+               reg=db.reg)
 
     roi1 = Cpt(ROIPlugin, 'ROI1:')
     roi2 = Cpt(ROIPlugin, 'ROI2:')
@@ -36,7 +36,7 @@ class Pilatus(SingleTrigger, PilatusDetector):
     over1 = Cpt(OverlayPlugin, 'Over1:')
 
 
-pil1M = Pilatus("XF:12IDC-ES:2{Det:1M}", name="pil1M", detector_id="SAXS")
-pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW", detector_id="WAXS")
+pil1M = Pilatus("XF:12IDC-ES:2{Det:1M}", name="pil1M") #, detector_id="SAXS")
+pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW") #, detector_id="WAXS")
 pil1M.tiff.write_path_template = '/data/1M/images/'
 pil300KW.tiff.write_path_template = '/data/300KW/images/'

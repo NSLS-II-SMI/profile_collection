@@ -20,5 +20,5 @@ else:
     RE.unsubscribe(token2)
 
 
-token1 = RE.subscribe('all', post_run(exporter_1M, db=db))
-token2 = RE.subscribe('all', post_run(exporter_300KW, db=db))
+token1 = RE.subscribe(post_run(exporter_1M, db=db))
+token2 = RE.subscribe(post_run(exporter_300KW, db=db))
