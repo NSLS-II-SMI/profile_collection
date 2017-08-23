@@ -51,7 +51,7 @@ def wait_all(motors_list, sleep=0.0, debug=False):
         else:
             break
 
-
+'''
 def move_und_and_dcm(target_energy, undulator_harmonic, delta_bragg=0):
     gap = energy_to_gap(target_energy, undulator_harmonic)
     bragg_angle = energy_to_bragg(target_energy, delta_bragg)
@@ -68,19 +68,18 @@ def move_und_and_dcm(target_energy, undulator_harmonic, delta_bragg=0):
 
     print('Undulator gap calculated: {0:.5f}'.format(gap))
     print('Undulator gap from PV   : {0:.5f}'.format(ivugap.readback.value))
-
+'''
 
 def move_dcm(target_energy, delta_bragg=0):
     bragg_angle = energy_to_bragg(target_energy, delta_bragg)
-
-    dcm_gap = (dcm_offset/2)/np.cos(bragg_angle * np.pi / 180)
+    dcm_gap_value = (12.5)/np.cos(bragg_angle * np.pi / 180)
     dcm.bragg.move(bragg_angle, wait=False)
-    dcm.gap.move(dcm_gap, wait=True)
+    dcm.dcmgap.move(dcm_gap_value, wait=True)
 
-    wait_all([dcm.bragg, dcm.gap], sleep=0, debug=False)
+    wait_all([dcm.bragg, dcm.dcmgap], sleep=0, debug=False)
 
-    print('DCM gap calculated      : {:.5f}'.format(dcm_gap))
-    print('DCM gap from PV         : {:.5f}'.format(dcm.gap.get().user_readback))
+    print('DCM gap calculated      : {:.5f}'.format(dcm_gap_value))
+    print('DCM gap from PV         : {:.5f}'.format(dcm.dcmgap.get().user_readback))
 
     print('Bragg angle calculated  : {:.5f}'.format(bragg_angle))
     print('Bragg angle from PV     : {:.5f}'.format(dcm.bragg.get().user_readback))
