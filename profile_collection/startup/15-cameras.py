@@ -60,7 +60,12 @@ class StandardProsilica(SingleTrigger, ProsilicaDetector):
     roi4 = Cpt(ROIPlugin, 'ROI4:')
     proc1 = Cpt(ProcessPlugin, 'Proc1:')
 
+    def set_primary_roi(self, num):
+        st = f'stats{num}'
+        self.hints = {'fields': [getattr(self, st).total.name]}
+        self.read_attrs = [st]
 
+        
 class StandardProsilicaWithTIFF(StandardProsilica):
     tiff = Cpt(TIFFPluginWithFileStore,
                suffix='TIFF1:',
@@ -69,13 +74,14 @@ class StandardProsilicaWithTIFF(StandardProsilica):
                root='/tmp/',
                reg=db.reg)
 
+
 FS = StandardProsilica('XF:12IDA-BI{Cam:FS}', name='FS')
 FS.read_attrs = ['stats1', 'stats2', 'stats3', 'stats4']
 FS.stats1.read_attrs = ['total']
 FS.stats2.read_attrs = ['total']
 FS.stats3.read_attrs = ['total']
 FS.stats4.read_attrs = ['total']
-FS.configuration_attrs = ['cam.acquire_time']
+#FS.configuration_attrs = ['cam.acquire_time']
 
 #VFM = StandardProsilica('XF:12IDA-BI{Cam:VFM}', name='VFM')
 #VFM.read_attrs = ['stats1', 'stats2']

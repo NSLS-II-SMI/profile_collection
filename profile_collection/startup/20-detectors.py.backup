@@ -25,7 +25,6 @@ class PilatusFilePlugin(Device, FileStoreBulkWrite):
         global proposal_id
         global run_id
         current_sample = 'test1'
-        data_path = '/data/images/'
         set_and_wait(self.file_template, '%s%s_%6.6d_'+self.parent.detector_id+'.tif', timeout=99999)
 
         set_and_wait(self.file_path, data_path, timeout=99999)
@@ -36,7 +35,8 @@ class PilatusFilePlugin(Device, FileStoreBulkWrite):
                       'filename': self.file_name.get(),
                       'frame_per_point': self.get_frames_per_point(),
                       'initial_number': self.file_number.get()}
-        self._resource = self.fs.insert_resource('AD_CBF', data_path, res_kwargs, root="/")
+        fn = PurePath(self._fn).relative_to(self.fs_root)
+        self._resource = self._fs.insert_resource('AD_CBF', str(fn), res_kwargs, root=self.fs_root)
         
        
     def unstage(self):
@@ -48,7 +48,7 @@ class PilatusFilePlugin(Device, FileStoreBulkWrite):
 
 class SMIPilatus(SingleTrigger, PilatusDetector):
     file = Cpt(PilatusFilePlugin, suffix="cam1:",
-               write_path_template="", fs=db.fs)
+               write_path_template="PLACEHOLDER", fs=db.fs, fs_root='/data')
 
     roi1 = Cpt(ROIPlugin, 'ROI1:')
     roi2 = Cpt(ROIPlugin, 'ROI2:')
@@ -82,12 +82,15 @@ def set_pilatus_defaults(det):
     det.cam.read_attrs = []
     det.cam.configuration_attrs = ['acquire_time', 'acquire_period', 'num_images', 'threshold_energy']
 
-#pil300KW = SMIPilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW", detector_id="WAXS")
 pil1M = SMIPilatus("XF:12IDC-ES:2{Det:1M}", name="pil1M", detector_id="SAXS")
-#pilatus_detectors = [pil300KW, pil1M]
+pil1M.file.write_file_path = '/data/1M/images/'
+
+pil300KW = SMIPilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW", detector_id="WAXS")
+pil300KW.file.write_file_path = '/data/300KW/images/'
+
+# pilatus_detectors = [pil300KW, pil1M]
 pilatus_detectors = [pil1M]
 
 
 for det in pilatus_detectors:
     set_pilatus_defaults(det)
-
