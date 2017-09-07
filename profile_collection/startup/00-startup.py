@@ -23,15 +23,15 @@ RE.preprocessors.append(sd)
 # Add a progress bar.
 from bluesky.utils import ProgressBarManager
 # HACK
-# pbar_manager = ProgressBarManager()
-# RE.waiting_hook = pbar_manager
-# RE.waiting_hook.delay_draw = 0
+pbar_manager = ProgressBarManager()
+RE.waiting_hook = pbar_manager
+RE.waiting_hook.delay_draw = 0
 
 # Register bluesky IPython magics.
 from bluesky.magics import BlueskyMagics
 get_ipython().register_magics(BlueskyMagics)
 # HACK
-BlueskyMagics.pbar_manager = None
+# BlueskyMagics.pbar_manager = None
 
 # Set up the BestEffortCallback.
 from bluesky.callbacks.best_effort import BestEffortCallback

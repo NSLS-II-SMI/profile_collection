@@ -20,15 +20,15 @@ def change_sample(*, user_name, sample_name, tray_number=None):
         fname = f"{user_name}_{sample_name}"
     else:
         fname = f"{user_name}_{sample_name}_{tray_number}"
-    # DIRTY HACK, do not cpoy
+    # DIRTY HACK, do not copy
     pil1M.cam.file_name.put(fname)
     pil1M.cam.file_number.put(0)
     pil300KW.cam.file_name.put(fname)
     pil300KW.cam.file_number.put(0)    
 
 
-def set_proposal_id(*, proposal_id):
+def proposal_id(proposal_id):
     RE.md['proposal_id'] = proposal_id
     
-    pil1M.cam.file_path.put(f"/data/1M/images/{proposal_id}/")
-    pil300KW.cam.file_path.put(f"/data/300KW/images/{proposal_id}/")
+    pil1M.cam.file_path.put(f"/data/1M/images/users/{proposal_id}/")
+    pil300KW.cam.file_path.put(f"/data/300KW/images/users/{proposal_id}/")
