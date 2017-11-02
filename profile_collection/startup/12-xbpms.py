@@ -19,6 +19,8 @@ xbpm3 = XBPM('XF:12IDB1-BI:2{XBPM:3-Ax:', name='xbpm3')
 
 # need work to input elecetrometer current PVs - what headers needed?
 
+xbpm3y = EpicsSignal('XF:12IDB-BI:2{EM:BPM3}PosY:MeanValue_RBV', name='xbpm3y')
+
 #Prototype new electrometer, currently looking at XBPM2.
 #ch1,2,3,4 = pads 2,3,5,4 respectively; thick active area
 

@@ -50,4 +50,5 @@ hp430 = HEXAPOD('XF:12IDC-OP:2{HEX:430-Ax:', name='hp430')
 for hp in [stage, sample, hp140, hp430]:
     hp.configuration_attrs = hp.read_attrs
 
+prs = EpicsMotor('XF:12IDC-OP:2{HEX:PRS-Ax:Rot}Mtr', name='prs')
 

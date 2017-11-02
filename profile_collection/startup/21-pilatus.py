@@ -1,5 +1,5 @@
-from ophyd import ( Component as Cpt, ADComponent,
-                    EpicsSignal, EpicsSignalRO,
+from ophyd import ( Component as Cpt, ADComponent, Device, PseudoPositioner,
+                    EpicsSignal, EpicsSignalRO, EpicsMotor,
                     ROIPlugin, StatsPlugin, ImagePlugin,
                     SingleTrigger, PilatusDetector,
                     OverlayPlugin, FilePlugin)
@@ -60,3 +60,19 @@ pil300KW.set_primary_roi(1)
 
 pil1M.tiff.write_path_template = '/data/1M/images/%Y/%m/%d/'
 pil300KW.tiff.write_path_template = '/data/300KW/images/%Y/%m/%d/'
+
+
+class WAXS(Device):
+    arc = Cpt(EpicsMotor, 'Arc}Mtr')
+
+waxs = WAXS('XF:12IDC-ES:2{WAXS:1-Ax:', name='waxs')
+
+
+pil1mstats1 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats1:Total_RBV', name='pil1mstats1')
+pil1mstats2 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats2:Total_RBV', name='pil1mstats2')
+pil1mstats3 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats3:Total_RBV', name='pil1mstats3')
+pil1mstats4 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats4:Total_RBV', name='pil1mstats4')
+
+
+
+

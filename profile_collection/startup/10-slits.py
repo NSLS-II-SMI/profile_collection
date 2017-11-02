@@ -13,7 +13,7 @@ wbs = SLIT('XF:12IDA-OP:2{Slt:WB-Ax:', name='wbs')
 
 # ssa
 ssa = SLIT('XF:12IDB1-OP:2{Slt:SSA-Ax:', name='ssa')
-
+ssacurrent = EpicsSignal('XF:12IDB-BI{EM:SSASlit}SumAll:MeanValue_RBV', name='ssacurrent')
 
 # C hutch slits
 # chs = SLIT('XF:12IDC-OP:2{Slt:C-Ax:', name='chs')
@@ -54,7 +54,7 @@ class APER(Device):
     y = Cpt(EpicsMotor, 'Yap}Mtr')
 
 # C hutch aperture (after crls)
-cap = APER('XF:12IDC-OP:2{Lens:CRL-Ax:', name='cap')
+dsa = APER('XF:12IDC-OP:2{Lens:CRL-Ax:', name='dsa')
 
 # pinhole mask (phm) ,or A hutch aperture (aap)
 # not currently installed, needs PV change to work w/same class as above

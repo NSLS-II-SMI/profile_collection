@@ -9,7 +9,7 @@ BlueskyMagics.positioners = ([getattr(stage, m) for m in stage.signal_names] +
 # this is the default list for %ct
 BlueskyMagics.detectors = [FS]
 
-def change_sample(*, user_name, sample_name, tray_number=None):
+def sample_id(*, user_name, sample_name, tray_number=None):
     RE.md['user_name'] = user_name
     RE.md['sample_name'] = sample_name
     if tray_number is None:
@@ -32,3 +32,28 @@ def proposal_id(proposal_id):
     
     pil1M.cam.file_path.put(f"/data/1M/images/users/{proposal_id}/")
     pil300KW.cam.file_path.put(f"/data/300KW/images/users/{proposal_id}/")
+
+
+def beamline_mode(mode=None):
+    allowed_modes = ['tender', 'hard']
+    assert mode in allowed_modes, f'Wrong mode: {mode}, must choose: {" or ".join(allowed_modes)}'
+    if mode == 'hard':
+        hfm.y.move(11.6)
+        hfm.th.move(-0.1722)
+        vfm.x.move(12.3)
+        vfm.y.move(-2.5)
+        vfm.th.move(-0.18)
+        vdm.x.move(12.3)
+        vdm.th.move(-0.1801)
+        vdm.y.move(-2.5)
+    elif mode == 'tender':
+        hfm.y.move(-12.4)
+        hfm.th.move(-0.1718)
+        vfm.x.move(-11.7)
+        vfm.y.move(-4.85)
+        vfm.th.move(-0.35)
+        vdm.x.move(-11.7)
+        vdm.th.move(-0.3564)
+        vdm.y.move(-2.42)
+
+

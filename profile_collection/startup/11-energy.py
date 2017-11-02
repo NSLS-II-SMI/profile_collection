@@ -30,6 +30,13 @@ def energy_to_gap(target_energy, undulator_harmonic=1):
     gap = a + b1*f + b2*f**2 + b3 * f**3 + b4 * f**4 + b5 * f**5 + b6 * f**6 + b7 * f**7 - 0.07
     return gap
 
+def energy_to_dcm_pitch(target_energy, offset=0.0):
+    x0 = 2189
+    x = target_energy
+    dcm_pitch = -1.086 + 4.6e-4 * np.exp(-(x-x0)/36) + 0.015 * np.exp(-(x-x0)/894) + 2.004 * np.exp(-(x-x0)/8.2e6)
+    print(f'dcm_pitch = {dcm_pitch}')
+    dcm_pitch += offset
+    return dcm_pitch
 
 def energy_to_bragg(target_energy, delta_bragg=0):
     bragg_angle = np.arcsin((ANG_OVER_EV / target_energy) / (2 * D_Si111)) / np.pi * 180 - delta_bragg
@@ -51,25 +58,6 @@ def wait_all(motors_list, sleep=0.0, debug=False):
         else:
             break
 
-'''
-def move_und_and_dcm(target_energy, undulator_harmonic, delta_bragg=0):
-    gap = energy_to_gap(target_energy, undulator_harmonic)
-    bragg_angle = energy_to_bragg(target_energy, delta_bragg)
-    dcm_gap = (dcm_offset/2)/np.cos(bragg_angle * np.pi / 180)
-
-    ivugap.move(gap, wait=False)
-    dcm.bragg.move(bragg_angle, wait=False)
-    dcm.gap.move(dcm_gap, wait=True)
-
-    wait_all([ivugap, dcm.bragg, dcm.gap], sleep=0, debug=False)
-
-    print('Bragg angle calculated  : {0:.5f}'.format(bragg_angle))
-    print('Bragg angle from PV     : {0:.5f}'.format(dcm.bragg.get().user_readback))
-
-    print('Undulator gap calculated: {0:.5f}'.format(gap))
-    print('Undulator gap from PV   : {0:.5f}'.format(ivugap.readback.value))
-'''
-
 def move_dcm(target_energy, delta_bragg=0):
     bragg_angle = energy_to_bragg(target_energy, delta_bragg)
     dcm_gap_value = (12.5)/np.cos(bragg_angle * np.pi / 180)
@@ -84,12 +72,13 @@ def move_dcm(target_energy, delta_bragg=0):
     print('Bragg angle calculated  : {:.5f}'.format(bragg_angle))
     print('Bragg angle from PV     : {:.5f}'.format(dcm.bragg.get().user_readback))
 
+
     
 class DCMInternals(Device):
     pitch = Cpt(EpicsMotor, 'XF12ID:m67')
     roll = Cpt(EpicsMotor, 'XF12ID:m68')
     x = Cpt(EpicsMotor, 'XF12ID:m69')
-  
+
 
 class Energy(PseudoPositioner):
     # synthetic axis
@@ -97,7 +86,7 @@ class Energy(PseudoPositioner):
     # real motors
     dcmgap = Cpt(EpicsMotor, 'XF12ID:m66', read_attrs=['readback'])
     bragg = Cpt(EpicsMotor, 'XF12ID:m65', read_attrs=['readback'])
-
+#    dcmpitch = Cpt(EpicsMotor, 'XF12ID:m67', read_attrs=['readback'])
 
     ivugap = Cpt(UndulatorGap,
                  'SR:C12-ID:G1{IVU:1',
@@ -110,7 +99,7 @@ class Energy(PseudoPositioner):
     enabledcmgap = Cpt(Signal, value=True)
 
     # this is also the maximum harmonic that will be tried
-    target_harmonic =  Cpt(Signal, value=17)
+    target_harmonic =  Cpt(Signal, value=19)
     # TODO make this a derived component
 
     # TODO: if the energy.move is commanded to go to the current energy, then it will wait forever because nothing moves.
@@ -128,14 +117,14 @@ class Energy(PseudoPositioner):
         if energy <= 2000:
             raise ValueError("The energy you entered is too low ({} eV). "
                              "Minimum energy = 2000 eV".format(energy))
-        if energy >= 24000:
+        if energy >= 24001:
             raise ValueError('The energy you entered is too high ({} eV). '
                              'Maximum energy = 24000 eV'.format(energy))
         
         # compute where we would move everything to in a perfect world
 
         target_ivu_gap = energy_to_gap(energy, harmonic)
-        while not (6.3 < target_ivu_gap < 25.10):
+        while not (6.21 < target_ivu_gap < 25.10):
              harmonic -= 2
              if harmonic < 1:
                  raise RuntimeError('can not find a valid gap')
