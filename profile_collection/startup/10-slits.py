@@ -16,13 +16,13 @@ ssa = SLIT('XF:12IDB1-OP:2{Slt:SSA-Ax:', name='ssa')
 ssacurrent = EpicsSignal('XF:12IDB-BI{EM:SSASlit}SumAll:MeanValue_RBV', name='ssacurrent')
 
 # C hutch slits
-# chs = SLIT('XF:12IDC-OP:2{Slt:C-Ax:', name='chs')
+cslit = SLIT('XF:12IDC-OP:2{Slt:C-Ax:', name='cslit')
 # can't use same class unless we rename the PVs: AB, CD to V, H
 # temporary names for now, needs to be checked:
-chs_ABgap = EpicsMotor('XF:12IDC-OP:2{Slt:C-Ax:AB_gap}Mtr', name='chs_ABgap')
-chs_ABpos = EpicsMotor('XF:12IDC-OP:2{Slt:C-Ax:AB_pos}Mtr', name='chs_ABpos')
-chs_CDgap = EpicsMotor('XF:12IDC-OP:2{Slt:C-Ax:CD_gap}Mtr', name='chs_CDgap')
-chs_CDpos = EpicsMotor('XF:12IDC-OP:2{Slt:C-Ax:CD_pos}Mtr', name='chs_CDpos')
+#chs_ABgap = EpicsMotor('XF:12IDC-OP:2{Slt:C-Ax:AB_gap}Mtr', name='chs_ABgap')
+#chs_ABpos = EpicsMotor('XF:12IDC-OP:2{Slt:C-Ax:AB_pos}Mtr', name='chs_ABpos')
+#chs_CDgap = EpicsMotor('XF:12IDC-OP:2{Slt:C-Ax:CD_gap}Mtr', name='chs_CDgap')
+#chs_CDpos = EpicsMotor('XF:12IDC-OP:2{Slt:C-Ax:CD_pos}Mtr', name='chs_CDpos')
 
 
 # SLTH, SLTV = 2-axis position/gap device

@@ -31,8 +31,8 @@ class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
 class Pilatus(SingleTrigger, PilatusDetector):
     tiff = Cpt(TIFFPluginWithFileStore,
                suffix="TIFF1:",
-               write_path_template="/data/PLACEHOLDER",  # override this on instances using instance.tiff.write_file_path
-               root='/data',
+               write_path_template="/GPFS/xf12id1/data/PLACEHOLDER",  # override this on instances using instance.tiff.write_file_path
+               root='/GPFS',
                reg=db.reg)
 
     roi1 = Cpt(ROIPlugin, 'ROI1:')
@@ -58,8 +58,8 @@ pil1M.set_primary_roi(1)
 pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW") #, detector_id="WAXS")
 pil300KW.set_primary_roi(1)
 
-pil1M.tiff.write_path_template = '/data/1M/images/%Y/%m/%d/'
-pil300KW.tiff.write_path_template = '/data/300KW/images/%Y/%m/%d/'
+pil1M.tiff.write_path_template = '/GPFS/xf12id1/data/1M/images/%Y/%m/%d/'
+pil300KW.tiff.write_path_template = '/GPFS/xf12id1/data/300KW/images/%Y/%m/%d/'
 
 
 class WAXS(Device):
@@ -68,11 +68,13 @@ class WAXS(Device):
 waxs = WAXS('XF:12IDC-ES:2{WAXS:1-Ax:', name='waxs')
 
 
-pil1mstats1 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats1:Total_RBV', name='pil1mstats1')
-pil1mstats2 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats2:Total_RBV', name='pil1mstats2')
-pil1mstats3 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats3:Total_RBV', name='pil1mstats3')
-pil1mstats4 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats4:Total_RBV', name='pil1mstats4')
+pil1mroi1 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats1:Total_RBV', name='pil1mroi1')
+pil1mroi2 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats2:Total_RBV', name='pil1mroi2')
+pil1mroi3 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats3:Total_RBV', name='pil1mroi3')
+pil1mroi4 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats4:Total_RBV', name='pil1mroi4')
 
-
-
+pil300kwroi1 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats1:Total_RBV', name='pil300kwroi1')
+pil300kwroi2 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats2:Total_RBV', name='pil300kwroi2')
+pil300kwroi3 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats3:Total_RBV', name='pil300kwroi3')
+pil300kwroi4 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats4:Total_RBV', name='pil300kwroi4')
 

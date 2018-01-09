@@ -22,16 +22,16 @@ def sample_id(*, user_name, sample_name, tray_number=None):
         fname = f"{user_name}_{sample_name}_{tray_number}"
     # DIRTY HACK, do not copy
     pil1M.cam.file_name.put(fname)
-    pil1M.cam.file_number.put(0)
+    pil1M.cam.file_number.put(1)
     pil300KW.cam.file_name.put(fname)
-    pil300KW.cam.file_number.put(0)    
+    pil300KW.cam.file_number.put(1)    
 
 
 def proposal_id(proposal_id):
     RE.md['proposal_id'] = proposal_id
     
-    pil1M.cam.file_path.put(f"/data/1M/images/users/{proposal_id}/")
-    pil300KW.cam.file_path.put(f"/data/300KW/images/users/{proposal_id}/")
+    pil1M.cam.file_path.put(f"/GPFS/xf12id1/data/1M/images/users/{proposal_id}/")
+    pil300KW.cam.file_path.put(f"/GPFS/xf12id1/data/300KW/images/users/{proposal_id}/")
 
 
 def beamline_mode(mode=None):
@@ -39,6 +39,7 @@ def beamline_mode(mode=None):
     assert mode in allowed_modes, f'Wrong mode: {mode}, must choose: {" or ".join(allowed_modes)}'
     if mode == 'hard':
         hfm.y.move(11.6)
+        hfm.x.move(0)
         hfm.th.move(-0.1722)
         vfm.x.move(12.3)
         vfm.y.move(-2.5)
@@ -48,12 +49,13 @@ def beamline_mode(mode=None):
         vdm.y.move(-2.5)
     elif mode == 'tender':
         hfm.y.move(-12.4)
-        hfm.th.move(-0.1718)
+        hfm.x.move(-0.01)
+        hfm.th.move(-0.17165)
         vfm.x.move(-11.7)
         vfm.y.move(-4.85)
         vfm.th.move(-0.35)
         vdm.x.move(-11.7)
-        vdm.th.move(-0.3564)
-        vdm.y.move(-2.42)
+        vdm.th.move(-0.3583)
+        vdm.y.move(-2.2)
 
 

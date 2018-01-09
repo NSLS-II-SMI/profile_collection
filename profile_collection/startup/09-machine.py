@@ -16,27 +16,13 @@ mstr_shutter_enable = EpicsSignalRO('SR-EPS{PLC:1}Sts:MstrSh-Sts', name='mstr_sh
 ivu_permit = EpicsSignalRO('XF:12ID-CT{}Prmt:Remote-Sel', name='ivu_permit')
 smi_shutter_enable = EpicsSignalRO('SR:C12-EPS{PLC:1}Sts:ID_BE_Enbl-Sts', name='smi_shutter_enable')
 
+from bluesky.suspenders import SuspendFloor, SuspendBoolLow, SuspendBoolHigh
+susp_beam = SuspendFloor( ring_current, 100, resume_thresh= 290 )
+RE.install_suspender( susp_beam )
 
-def ring_check():
-    if (ring_ops.value == 'Operations' 
-            and mstr_shutter_enable.value == 1
-            and smi_shutter_enable.value == 1
-            and ivu_permit.value == 1):
-        ring_ok=1
-        print('SR ring status: Operations, shutters and IVU enabled. All is OK')
-    else:
-        ring_ok=0
-        print('SR ring status alert: check if shutters and/or IVU enabled! ')           
-    return ring_ok
 
-def wait_for_ring():
-        ring_ok=ring_check()
-        if ring_ok==0:
-                while ring_ok==0:
-                        print('SR ring is down and/or beamline shutters and IVU not enabled...checking again in 5 minutes.')
-                        sleep(300)
-                        ring_ok=ring_check()
-        if ring_ok==1: pass
+#RE.install_suspender( susp_fe_shutter
+
 
 
 class EpicsSignalOverridePrecRO(EpicsSignalRO):
@@ -47,6 +33,7 @@ class EpicsSignalOverridePrecRO(EpicsSignalRO):
     @property
     def precision(self):
         return self._precision
+
 
 class EpicsSignalOverridePrec(EpicsSignal):
     def __init__(self, *args, precision=4, **kwargs):

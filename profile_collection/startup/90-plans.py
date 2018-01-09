@@ -3,6 +3,14 @@ import bluesky.plans as bp
 import time
 from collections import ChainMap
 
+
+
+def ramya1():
+    sample_id(user_name='BSpec_RT_FullSample_Meso_Endo', sample_name='Coarse_Scan')
+    RE(bp.outer_product_scan([pil1M, pil300KW, pil1mroi2, pil1mroi3, pil300kwroi2, pil300kwroi3, pil300kwroi4, ssacurrent], sample.x, 16.723, 16.775, 3, sample.y, -4.134, -3.134, 21, 0,  waxs.arc, 5, 29, 5, 1))
+
+'''
+
 def scan(detectors, motor, start, stop, num, md=None, idle_time=0):
 
     def per_step(dets, motor, step):
@@ -53,5 +61,5 @@ def cam_scan(detectors, camera, motor, start, stop, num, md=None, idle_time=0):
         LiveTable(detectors + [motor]))
     )
 
-
+'''
 

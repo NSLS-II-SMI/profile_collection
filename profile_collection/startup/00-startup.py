@@ -76,6 +76,3 @@ def print_scan_ids(name, start_doc):
     print("Persistent Unique Scan ID: '{0}'".format(start_doc['uid']))
 
 RE.subscribe(print_scan_ids, 'start')
-
-
-
