@@ -11,7 +11,6 @@ from ophyd.areadetector.base import EpicsSignalWithRBV as SignalWithRBV
 
 from ophyd.utils import set_and_wait
 from databroker.assets.handlers_base import HandlerBase
-import fabio
 import os
 
 class PilatusDetectorCam(PilatusDetectorCam):

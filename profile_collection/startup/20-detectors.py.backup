@@ -7,7 +7,6 @@ from ophyd.areadetector.filestore_mixins import FileStoreBulkWrite
 
 from ophyd.utils import set_and_wait
 from filestore.handlers_base import HandlerBase
-import fabio
 import os
 
 
