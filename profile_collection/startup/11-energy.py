@@ -81,6 +81,10 @@ class DCMInternals(Device):
 
 
 class Energy(PseudoPositioner):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._hints = None
+
     # synthetic axis
     energy = Cpt(PseudoSingle)
     # real motors
@@ -105,7 +109,6 @@ class Energy(PseudoPositioner):
     # TODO: if the energy.move is commanded to go to the current energy, then it will wait forever because nothing moves.
 
     # wlambda = Cpt(Signal, value=0)
-
 
     @pseudo_position_argument
     def forward(self, p_pos):
@@ -146,7 +149,6 @@ class Energy(PseudoPositioner):
         return self.RealPosition(bragg=target_bragg_angle,
                                  ivugap=target_ivu_gap,
                                  dcmgap=target_dcm_gap)
-        
 
     @real_position_argument
     def inverse(self, r_pos):
@@ -160,14 +162,29 @@ class Energy(PseudoPositioner):
         print(position, self.position)
         if np.abs(energy - self.position[0]) < .01:
             return MoveStatus(self, energy, success=True, done=True)
-
         return super().set([float(_) for _ in position])
 
-    
+    @property
+    def hints(self):
+        if self._hints is None:
+            return {'fields': ['energy_energy']}
+        else:
+            return self._hints
+
+    @hints.setter
+    def hints(self, val):
+        if val is not None:
+            read_keys = list(self.describe())
+            for key in val.get('fields', []):
+                if key not in read_keys:
+                    raise ValueError(f'{key} is not allowed -- must be one of {read_keys}')
+        self._hints = val
+
+
 energy = Energy(prefix='', name='energy',
                 read_attrs=['energy', 'ivugap', 'bragg'],
                 configuration_attrs=['enableivu', 'enabledcmgap', 'target_harmonic'])
-energy.hints = {'fields': ['energy_energy']}
+energy._hints = {'fields': ['energy_energy']}
 
 dcm = energy
 ivugap = energy.ivugap
