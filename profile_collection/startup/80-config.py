@@ -2,8 +2,8 @@
 sd.baseline = [energy, sample, stage]
 
 # this is the defalt list for %wa
-BlueskyMagics.positioners = ([getattr(stage, m) for m in stage.signal_names] +
-                             [getattr(sample, m) for m in sample.signal_names] +
+BlueskyMagics.positioners = ([getattr(stage, m) for m in stage.component_names] +
+                             [getattr(sample, m) for m in sample.component_names] +
                              [energy.bragg, energy.energy, energy.ivugap])
 
 # this is the default list for %ct

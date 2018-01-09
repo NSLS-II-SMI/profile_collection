@@ -6,7 +6,7 @@ class MotorBundle(Device):
     def hints(self):
         if self._hints is None:
             return {'fields': [getattr(self, m).name
-                               for m in self.signal_names]}
+                               for m in self.component_names]}
         return self._hints
 
     @hints.setter
