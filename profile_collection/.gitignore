@@ -1,3 +1,4 @@
 *.swp
 history.sqlite
 db
+startup/00-startup.corrupt
