@@ -124,7 +124,9 @@ def one_nd_step_pseudo_shutter(detectors, step, pos_cache):
     pos_cache : dict
         mapping motors to their last-set positions
     """
-    from bluesky.plans import Msg, trigger_and_read, mv, _short_uid
+    from bluesky.plans import Msg
+    from bluesky.preprocessors import trigger_and_read
+    from bluesky.plan_stubs import mv, _short_uid
     def move():
         yield Msg('checkpoint')
         grp = _short_uid('set')
@@ -152,7 +154,9 @@ def one_1d_step_pseudo_shutter(detectors, motor, step):
 
     This is the default function for ``per_step`` param in 1D plans.
     """
-    from bluesky.plans import Msg, trigger_and_read, mv, _short_uid
+    from bluesky.plans import Msg
+    from bluesky.preprocessors import trigger_and_read
+    from bluesky.plan_stubs import mv, _short_uid
     def move():
         grp = _short_uid('set')
         yield Msg('checkpoint')
@@ -191,7 +195,9 @@ def wait_for_ring():
 #def shutter_check():
 
 def one_nd_step_check_beam(detectors, step, pos_cache): 
-    from bluesky.plans import Msg, trigger_and_read, mv, _short_uid
+    from bluesky.plans import Msg
+    from bluesky.preprocessors import trigger_and_read
+    from bluesky.plan_stubs import mv, _short_uid
     def move():
         yield Msg('checkpoint')
         grp = _short_uid('set')
@@ -215,7 +221,9 @@ def one_nd_step_check_beam(detectors, step, pos_cache):
 
 
 def one_1d_step_check_beam( detectors, motor, step ):
-    from bluesky.plans import Msg, trigger_and_read, mv, _short_uid
+    from bluesky.plans import Msg
+    from bluesky.preprocessors import trigger_and_read
+    from bluesky.plan_stubs import mv, _short_uid
     def move():
         grp = _short_uid('set')
         yield Msg('checkpoint')
