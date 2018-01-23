@@ -63,3 +63,19 @@ def cam_scan(detectors, camera, motor, start, stop, num, md=None, idle_time=0):
 
 '''
 
+class FakeDetector(Device):
+    acq_time = Cpt(Signal, value=10)
+
+    _default_configuration_attrs = ('acq_time', )
+    _default_read_attrs = ()
+
+    def trigger(self):
+        st = self.st = DeviceStatus(self)
+
+        from threading import Timer
+
+        self.t = Timer(self.acq_time.get(), st._finished)
+        self.t.start()
+        return st
+
+fd = FakeDetector(name='fd')
