@@ -58,14 +58,15 @@ acquire  time: TODO
 """
 
 TEMPLATES = defaultdict(lambda: simple_template)
-TEMPLATES['ct'] = count_template
-TEMPLATES['count'] = count_template
-TEMPLATES['relative_scan'] = single_motor_template
-TEMPLATES['scan_nd'] = single_motor_template
-TEMPLATES['manual_count'] = manual_count_template
-TEMPLATES['dscan'] = single_motor_template
-TEMPLATES['ascan'] = single_motor_template
-TEMPLATES['ID_calibration'] = single_motor_template
+#TEMPLATES['ct'] = count_template
+#TEMPLATES['count'] = count_template
+#TEMPLATES['relative_scan'] = single_motor_template
+#TEMPLATES['scan_nd'] = single_motor_template
+#TEMPLATES['manual_count'] = manual_count_template
+#TEMPLATES['dscan'] = single_motor_template
+#TEMPLATES['ascan'] = single_motor_template
+TEMPLATES['scan'] = single_motor_template
+#TEMPLATES['ID_calibration'] = single_motor_template
 
 from jinja2 import Template
 
@@ -109,4 +110,8 @@ def send_to_olog_queue(name, doc):
     except queue.Full:
         warn('The olog queue is full. This will not be logged.')
 
-RE.subscribe(send_to_olog_queue, 'start')
+#RE.subscribe(send_to_olog_queue, 'start')
+
+
+
+

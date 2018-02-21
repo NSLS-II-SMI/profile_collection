@@ -4,8 +4,8 @@ import time as ttime  # tea time
 from datetime import datetime
 from ophyd import (ProsilicaDetector, SingleTrigger, TIFFPlugin,
                    ImagePlugin, StatsPlugin, DetectorBase, HDF5Plugin,
-                  AreaDetector, EpicsSignal, EpicsSignalRO, ROIPlugin,
-                   TransformPlugin, ProcessPlugin)
+                   AreaDetector, EpicsSignal, EpicsSignalRO, ROIPlugin,
+                   TransformPlugin, ProcessPlugin, MarCCDDetector)
 from ophyd.areadetector.cam import AreaDetectorCam
 from ophyd.areadetector.base import ADComponent, EpicsSignalWithRBV
 from ophyd.areadetector.filestore_mixins import (FileStoreTIFFIterativeWrite,
@@ -44,6 +44,37 @@ VFMcamera = EpicsSignal('XF:12IDA-BI{Cam:VFM}TIFF1:WriteFile', name='VFMcamera')
 
 class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
     pass
+
+class HDF5PluginWithFileStore(HDF5Plugin, FileStoreHDF5IterativeWrite):
+    def get_frames_per_point(self):
+        return self.parent.cam.num_images.get()
+
+class StandardRayonix(SingleTrigger, MarCCDDetector):                      
+    hdf5 = Cpt(HDF5PluginWithFileStore, suffix='HDF1:',
+               write_path_template='/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/',
+               root='/GPFS/xf12id1/data/MAXS/images/',
+               reg=db.reg)
+    stats1 = Cpt(StatsPlugin, 'Stats1:')
+    stats2 = Cpt(StatsPlugin, 'Stats2:')
+    stats3 = Cpt(StatsPlugin, 'Stats3:')
+    stats4 = Cpt(StatsPlugin, 'Stats4:')
+    stats5 = Cpt(StatsPlugin, 'Stats5:')
+    trans1 = Cpt(TransformPlugin, 'Trans1:')
+    roi1 = Cpt(ROIPlugin, 'ROI1:')
+    roi2 = Cpt(ROIPlugin, 'ROI2:')
+    roi3 = Cpt(ROIPlugin, 'ROI3:')
+    roi4 = Cpt(ROIPlugin, 'ROI4:')
+
+rayonix = StandardRayonix('XF:12IDC-ES:2{Det:RayonixMAXS}', name='rayonix')
+rayonix.read_attrs = ['hdf5', 'stats1', 'stats2', 'stats3', 'stats4', 'stats5']
+rayonix.stats1.read_attrs = ['total']
+rayonix.stats2.read_attrs = ['total']
+rayonix.stats3.read_attrs = ['total']
+rayonix.stats4.read_attrs = ['total']
+rayonix.stats5.read_attrs = ['total']
+rayonix.cam.configuration_attrs.append('num_images')
+rayonix.configuration_attrs.append('roi1')
+rayonix.hints = {'fields': ['rayonix_stats1_total']}
 
 
 class StandardProsilica(SingleTrigger, ProsilicaDetector):

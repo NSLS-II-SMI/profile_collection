@@ -117,9 +117,9 @@ class Energy(PseudoPositioner):
         if not harmonic % 2:
             raise RuntimeError('harmonic must be odd')
         
-        if energy <= 2000:
+        if energy <= 2050:
             raise ValueError("The energy you entered is too low ({} eV). "
-                             "Minimum energy = 2000 eV".format(energy))
+                             "Minimum energy = 2050 eV".format(energy))
         if energy >= 24001:
             raise ValueError('The energy you entered is too high ({} eV). '
                              'Maximum energy = 24000 eV'.format(energy))
@@ -127,7 +127,7 @@ class Energy(PseudoPositioner):
         # compute where we would move everything to in a perfect world
 
         target_ivu_gap = energy_to_gap(energy, harmonic)
-        while not (6.21 < target_ivu_gap < 25.10):
+        while not (6.2 < target_ivu_gap < 25.10):
              harmonic -= 2
              if harmonic < 1:
                  raise RuntimeError('can not find a valid gap')
