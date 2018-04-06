@@ -171,27 +171,40 @@ def run_gi_energy (angle, t=1, name='test'):
     sample_id( user_name = 'test', sample_name= 'test')
    
 
-def run_saxs_lipids (y=1, t=2, name='DOPC622_8.3m'):
-    posx = stage.x.position
-    stage.x.move(17.24)
-    stage.y.move(y)
-    det_exposure_time(t)
-    sample='A_full'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_grid_scan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1, stage.y, y, y+1, 21, 0))
-    stage.x.move(13.34)
-    stage.y.move(y)
-    det_exposure_time(t)
-    sample='A_half'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_grid_scan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1, stage.y, y, y+1, 21, 0))
-#    stage.x.move(8.55)
-#    stage.y.move(y)
-#    det_exposure_time(t)
-#    sample='A_third'
-#    sample_id( user_name = name, sample_name= sample)
-#    RE(e_grid_scan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1, stage.y, y, y+1, 21, 0))
-#
+def run_saxs_lipids(y=1, t=2):
+    # Parameters:
+    x_list  = [20.20, 17.17, 13.87, 10.01, 6.07, 2.68, -0.84, -5.61, -11.08]
+    samples = [
+                'DOPC226a_A_full',
+                'DOPC226a_A_half',
+                'DOPC226a_B_full',
+                'DOPC226a_B_half',
+                'POPC622a_A_full',
+                'POPC622a_A_half',
+                'POPC622a_B_full',
+                'POPC622a_B_half',
+                'water',
+              ]
+    param   = '8.3m'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+
+    # Detectors, motors:
+    dets = [pil1M, pil300KW, ssacurrent]
+    waxs_arc = [11, 11.1, 1]
+    stage_y = [y, y+1, 21]
+
+    for x, sample in zip(x_list, samples):
+        yield from bps.mv(stage.x, x)
+        yield from bps.mv(stage.y, y)
+        det_exposure_time(t)
+        sample_id(user_name=sample,
+                  sample_name=param)
+        # print(RE.md)
+        yield from e_grid_scan(dets, waxs.arc, *waxs_arc, stage.y, *stage_y, 0)
+
+    sample_id(user_name='test', sample_name='test')
+
+    """
     stage.x.move(8.55)
     stage.y.move(y)
     det_exposure_time(t)
@@ -245,8 +258,7 @@ def run_saxs_lipids (y=1, t=2, name='DOPC622_8.3m'):
 #    stage.y.move(y-0.15)
 #    RE(escan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1))
 #
-    sample_id( user_name = 'test', sample_name= 'test')
-
+    """
 
 
 def run_giwaxs_res (angle, name='test'):
