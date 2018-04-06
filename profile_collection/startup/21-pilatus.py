@@ -77,3 +77,10 @@ pil300kwroi2 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats2:Total_RBV', name='pil
 pil300kwroi3 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats3:Total_RBV', name='pil300kwroi3')
 pil300kwroi4 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats4:Total_RBV', name='pil300kwroi4')
 
+def det_exposure_time (t):
+    pil1M.cam.acquire_time.put(t)
+    pil300KW.cam.acquire_time.put(t)
+
+
+
+

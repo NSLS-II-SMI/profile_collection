@@ -8,8 +8,11 @@ import threading
 
 
 simple_template = """{{- start.plan_name }} ['{{ start.uid[:6] }}'] (scan num: {{ start.scan_id }})"""
-
 manual_count_template =  """{{- start.plan_name }} ['{{ start.uid[:6] }}'] (scan num: {{ start.scan_id }}) (Measurement: {{start.Measurement}} )"""
+grid_template = """{{- start.plan_name}} :  {{ start.motors[0]}}  {{'%0.3f' %start.plan_args.start|float}}    {{'%0.3f' %start.plan_args.stop|float}} {{ start.motors[1]}}  {{'%0.3f' %start.plan_args.start|float}}    {{'%0.3f' %start.plan_args.stop|float}} {{start.plan_args.num}} ['{{ start.uid[:6] }}'] (scan num: {{ start.scan_id }})"""
+
+
+
 
  
 
@@ -67,6 +70,8 @@ TEMPLATES = defaultdict(lambda: simple_template)
 #TEMPLATES['ascan'] = single_motor_template
 TEMPLATES['scan'] = single_motor_template
 #TEMPLATES['ID_calibration'] = single_motor_template
+TEMPLATES['grid_scan'] = grid_template
+
 
 from jinja2 import Template
 

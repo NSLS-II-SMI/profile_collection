@@ -11,9 +11,12 @@ from ophyd.areadetector.base import ADComponent, EpicsSignalWithRBV
 from ophyd.areadetector.filestore_mixins import (FileStoreTIFFIterativeWrite,
                                                  FileStoreHDF5IterativeWrite,
                                                  FileStoreBase, new_short_uid)
+
+from ophyd.areadetector.base import EpicsSignalWithRBV as SignalWithRBV
 from ophyd import Component as Cpt, Signal
 from ophyd.utils import set_and_wait
 
+from ophyd.areadetector.cam import MarCCDDetectorCam
 
 
 #White Beam Stop camera ROI detectors
@@ -49,11 +52,34 @@ class HDF5PluginWithFileStore(HDF5Plugin, FileStoreHDF5IterativeWrite):
     def get_frames_per_point(self):
         return self.parent.cam.num_images.get()
 
-class StandardRayonix(SingleTrigger, MarCCDDetector):                      
-    hdf5 = Cpt(HDF5PluginWithFileStore, suffix='HDF1:',
-               write_path_template='/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/',
-               root='/GPFS/xf12id1/data/MAXS/images/',
-               reg=db.reg)
+
+
+class RayonixDetectorCam(MarCCDDetectorCam):
+    file_path = Cpt(SignalWithRBV, 'FilePath', string=True)
+    file_name = Cpt(SignalWithRBV, 'FileName', string=True)
+    file_template = Cpt(SignalWithRBV, 'FileName', string=True)        
+    file_number = Cpt(SignalWithRBV, 'FileNumber')
+
+class RayonixDetector(MarCCDDetector):
+    cam = Cpt(RayonixDetectorCam, 'cam1:')
+    
+
+
+#class StandardRayonix(SingleTrigger, MarCCDDetector):
+class StandardRayonix(SingleTrigger, RayonixDetector):                      
+
+    #hdf5 = Cpt(HDF5PluginWithFileStore, suffix='HDF1:',
+               #write_path_template='/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/',
+               #root='/GPFS/xf12id1/data/MAXS/images/',
+               #reg=db.reg)
+    
+    tiff = Cpt(TIFFPluginWithFileStore,
+	    suffix="TIFF1:",
+	    write_path_template='/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/', # override this on instances using instance.tiff.write_file_path
+	    root='/GPFS/xf12id1/data/MAXS/images/',
+	    reg=db.reg)
+    
+    
     stats1 = Cpt(StatsPlugin, 'Stats1:')
     stats2 = Cpt(StatsPlugin, 'Stats2:')
     stats3 = Cpt(StatsPlugin, 'Stats3:')
@@ -66,7 +92,8 @@ class StandardRayonix(SingleTrigger, MarCCDDetector):
     roi4 = Cpt(ROIPlugin, 'ROI4:')
 
 rayonix = StandardRayonix('XF:12IDC-ES:2{Det:RayonixMAXS}', name='rayonix')
-rayonix.read_attrs = ['hdf5', 'stats1', 'stats2', 'stats3', 'stats4', 'stats5']
+#rayonix.read_attrs = ['hdf5', 'stats1', 'stats2', 'stats3', 'stats4', 'stats5']
+rayonix.read_attrs = ['tiff', 'stats1', 'stats2', 'stats3', 'stats4', 'stats5']
 rayonix.stats1.read_attrs = ['total']
 rayonix.stats2.read_attrs = ['total']
 rayonix.stats3.read_attrs = ['total']
@@ -75,6 +102,8 @@ rayonix.stats5.read_attrs = ['total']
 rayonix.cam.configuration_attrs.append('num_images')
 rayonix.configuration_attrs.append('roi1')
 rayonix.hints = {'fields': ['rayonix_stats1_total']}
+
+rayonix.tiff.write_path_template = '/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/'
 
 
 class StandardProsilica(SingleTrigger, ProsilicaDetector):

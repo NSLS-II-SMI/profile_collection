@@ -25,6 +25,10 @@ def sample_id(*, user_name, sample_name, tray_number=None):
     pil1M.cam.file_number.put(1)
     pil300KW.cam.file_name.put(fname)
     pil300KW.cam.file_number.put(1)    
+    
+    rayonix.cam.file_name.put(fname)
+    rayonix.cam.file_number.put(1)    
+    
 
 
 def proposal_id(proposal_id):
@@ -32,30 +36,30 @@ def proposal_id(proposal_id):
     
     pil1M.cam.file_path.put(f"/GPFS/xf12id1/data/1M/images/users/{proposal_id}/")
     pil300KW.cam.file_path.put(f"/GPFS/xf12id1/data/300KW/images/users/{proposal_id}/")
-
+    rayonix.cam.file_path.put(f"/GPFS/xf12id1/data/MAXS/images/users/{proposal_id}/")
 
 def beamline_mode(mode=None):
     allowed_modes = ['tender', 'hard']
     assert mode in allowed_modes, f'Wrong mode: {mode}, must choose: {" or ".join(allowed_modes)}'
     if mode == 'hard':
         hfm.y.move(11.6)
-        hfm.x.move(0.32)
-        hfm.th.move(-0.1750)
+        hfm.x.move(0.0)
+        hfm.th.move(-0.1748)
         vfm.x.move(12.3)
         vfm.y.move(-2.5)
         vfm.th.move(-0.18)
         vdm.x.move(12.3)
-        vdm.th.move(-0.1795)
-        vdm.y.move(-2.55)
+        vdm.th.move(-0.1798)
+        vdm.y.move(-2.59)
     elif mode == 'tender':
         hfm.y.move(-12.4)
-        hfm.x.move(0.32)
-        hfm.th.move(-0.1744)
+        hfm.x.move(0.0)
+        hfm.th.move(-0.1742)
         vfm.x.move(-11.7)
-        vfm.y.move(-4.85)
+        vfm.y.move(-4.7)
         vfm.th.move(-0.35)
         vdm.x.move(-11.7)
-        vdm.th.move(-0.3583)
+        vdm.th.move(-0.3571)
         vdm.y.move(-2.2)
 
 

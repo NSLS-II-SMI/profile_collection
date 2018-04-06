@@ -6,12 +6,18 @@ from collections import ChainMap
 
 
 def ramya1():
-    sample_id(user_name='BSpec_RT_FullSample_Meso_Endo', sample_name='Coarse_Scan')
-    RE(bp.outer_product_scan([pil1M, pil300KW, pil1mroi2, pil1mroi3, pil300kwroi2, pil300kwroi3, pil300kwroi4, ssacurrent], sample.x, 16.723, 16.775, 3, sample.y, -4.134, -3.134, 21, 0,  waxs.arc, 5, 29, 5, 1))
+    sample_id(user_name='plant', sample_name='mesoendo_waxd')
+    RE(bp.grid_scan([pil300KW, pil1M, pil300kwroi2, pil300kwroi3, pil300kwroi4], waxs.arc, 6, 30, 5, stage.x, 7.29, 7.34, 3, 0,  stage.y, -7.35, -6.1, 251, 0))
+   #sample_id(user_name='plant', sample_name='coarse1')
+   #RE(bp.grid_scan([pil300KW, pil1M, pil300kwroi2, pil300kwroi3, pil300kwroi4], stage.x, 7.77, 7.82, 3, stage.y, -9, -5.9, 63, 0, waxs.arc, 6, 30, 5, 1))
+   # sample_id(user_name='test', sample_name='stylusLine')
+   # stage.x.move(9.74)
+   # stage.y.move(-8.42)
+   # RE(bp.scan([pil300KW, pil300kwroi2, pil300kwroi3, pil300kwroi4], sample.y, -8.42, -8.33, 2))
+    
 
 
-
-def scan(detectors, motor, start, stop, num, md=None, idle_time=0):
+def scan(detectors, motor, start, stop, num, md=None, idle_time=1):
 
     def per_step(dets, motor, step):
         yield from one_1d_step(dets, motor, step)
@@ -36,7 +42,7 @@ def scan(detectors, motor, start, stop, num, md=None, idle_time=0):
 
 
 
-def cam_scan(detectors, camera, motor, start, stop, num, md=None, idle_time=0):
+def cam_scan(detectors, camera, motor, start, stop, num, md=None, idle_time=1):
 
     def per_step(dets, motor, step):
         yield from one_1d_step(dets, motor, step)
