@@ -10,6 +10,10 @@ from lmfit import  Model
 from lmfit import minimize, Parameters, Parameter, report_fit
 from scipy.special import erf
 
+# TODO: create a conda package for it and include to collection profiles
+import peakutils
+
+
 def get_scan(scan_id, debug=False):
     """Get scan from databroker using provided scan id.
 from Maksim
@@ -393,16 +397,6 @@ def ring_check():
         print('SR ring status alert: check if shutters and/or IVU enabled! ')
     return ring_ok
 
-def wait_for_ring():
-        ring_ok=ring_check()
-        if ring_ok==0:
-                while ring_ok==0:
-                        print('SR ring is down and/or beamline shutters and IVU not enabled...checking again in 5 minutes.')
-                        sleep(300)
-                        ring_ok=ring_check()
-        if ring_ok==1: pass
-
-#def shutter_check():
 
 def one_nd_step_check_beam(detectors, step, pos_cache): 
     from bluesky.plans import Msg
@@ -418,8 +412,6 @@ def one_nd_step_check_beam(detectors, step, pos_cache):
             yield Msg('set', motor, pos, group=grp)
             pos_cache[motor] = pos
         yield Msg('wait', None, group=grp)
-        # this means "take the attenuator out of the beam"
-        yield from wait_for_ring()
 
     motors = step.keys()
     yield from move()
@@ -465,4 +457,18 @@ def e_grid_scan(*args, **kwargs):
     return (yield from bp.grid_scan(*args, per_step=one_nd_step_pseudo_shutter, **kwargs))
 
 
+
+def find_peaks_peakutils(uid='8537b7', x='stage_x', y='pil300KW_stats1_total', plot=True):
+    xx = np.array(db[uid].table()[x])
+    yy = np.array(db[uid].table()[y])
+    peak_idx = peakutils.interpolate(xx, yy, width=0)
+
+    if plot:
+        plt.plot(xx, yy)
+        plt.grid()
+        plt.scatter(xx[peak_idx], yy[peak_idx], c='r')
+
+    print(f'Peaks indices: {peak_idx}\nX coords: {xx[peak_idx]}\nY coords: {yy[peak_idx]}')
+
+    return peak_idx, xx[peak_idx], yy[peak_idx]
 
