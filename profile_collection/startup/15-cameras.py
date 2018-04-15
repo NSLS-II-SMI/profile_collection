@@ -76,7 +76,7 @@ class StandardRayonix(SingleTrigger, RayonixDetector):
     tiff = Cpt(TIFFPluginWithFileStore,
 	    suffix="TIFF1:",
 	    write_path_template='/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/', # override this on instances using instance.tiff.write_file_path
-	    root='/GPFS/xf12id1/data/MAXS/images/',
+	    root='/GPFS',#/xf12id1/data/MAXS/images/',
 	    reg=db.reg)
     
     

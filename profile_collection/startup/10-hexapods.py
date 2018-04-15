@@ -52,3 +52,7 @@ for hp in [stage, sample, hp140, hp430]:
 
 prs = EpicsMotor('XF:12IDC-OP:2{HEX:PRS-Ax:Rot}Mtr', name='prs')
 
+class WAXS(Device):
+    arc = Cpt(EpicsMotor, 'Arc}Mtr')
+
+waxs = WAXS('XF:12IDC-ES:2{WAXS:1-Ax:', name='waxs')

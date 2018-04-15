@@ -1,5 +1,8 @@
 #!/usr/bin/python
-
+from bluesky.plan_stubs import one_1d_step, abs_set, wait, sleep
+import time
+from collections import ChainMap
+import bluesky.plans as bp
 import matplotlib.ticker as mtick
 get_fields = db.get_fields
 get_images = db.get_images
@@ -181,51 +184,13 @@ def ps(uid='-1',det='default',suffix='default',shift=.5,logplot='off'):
     ps.com=COM
 
 
-
-pv_th = 'XF:12IDC-OP:2{HEX:Stg-Ax:theta}'
-pv_y =  'XF:12IDC-OP:2{HEX:Stg-Ax:Y}'
-
-
-def set_abs_value( pv_prefix, abs_value ):
-    """
-    Use an absolute value for a PV
-    Input
-    ---
-    pv_prefix:string, the prefix of a pv, e.g., 'XF:11IDB-ES{Dif-Ax:YV}' for diff.yv
-    abs_value, float, the absolute value to be set
-
-    Example:
-    set_abs_value( 'XF:11IDB-ES{Dif-Ax:YV}', 0 ) #set diff.yv abolute value to 0
-    """
-    pv_set = pv_prefix  + 'Mtr.VAL'
-    pv_use_button = pv_prefix + 'Mtr.SET'
-    caput( pv_use_button, 'Set')
-    old_val = caget( pv_set )
-    #import bluesky.plans as bp
-    #yield from bp.abs_set( pv_set, abs_value)  not working
-    caput( pv_set, abs_value )
-    caput( pv_use_button, 'Use')
-    print('The absolute value of %s was changed from %s to %s.'%(pv_set, old_val, abs_value))
-
-
-
-
-
-
-
-
-
-
-def get_incident_angle(inc_y, ref_y, Ldet=1599, pixel_size=172 ):
-   """Get incident beam angle by giving direct beam-y pixel and reflective beam-y pixel and sample-to-detector distance
-      Input:
-	inc_y: in pixel
-        ref_y: in pixel
-        Ldet: in mm
-        pixel_size: in  um
+def get_incident_angle(db_y, rb_y, Ldet=1599, pixel_size=172 ):
+   """Calculate incident beam angle by putting  direct beam-y pixel, reflected beam-y pixel, and sample-to-detector distance in mm
+      Input: db_y: in pixel, rb_y: in pixel, Ldet: in mm
+        pixel_size: in  um, defauls 172 um for Pilatus
    """
 
-   return np.degrees( np.arctan2( (-ref_y + inc_y)*pixel_size*10**(-3), Ldet ) )/2
+   return np.degrees( np.arctan2( (-rb_y + db_y)*pixel_size*10**(-3), Ldet ) )/2
 
 
 def plot_1d(scans, x='dsa_x', y='pil1M_stats1_total', grid=True, **kwargs):
@@ -248,6 +213,20 @@ def plot_1d(scans, x='dsa_x', y='pil1M_stats1_total', grid=True, **kwargs):
     ax.set_xlabel(x)
     ax.set_ylabel(y)
     # ax.yaxis.set_major_formatter(mtick.FormatStrFormatter('%.2e'))    
+
+def find_peaks_peakutils(uid='8537b7', x='stage_x', y='pil300KW_stats1_total', plot=True):
+    xx = np.array(db[uid].table()[x])
+    yy = np.array(db[uid].table()[y])
+    peak_idx = peakutils.interpolate(xx, yy, width=0)
+
+    if plot:
+        plt.plot(xx, yy)
+        plt.grid()
+        plt.scatter(xx[peak_idx], yy[peak_idx], c='r')
+
+    print(f'Peaks indices: {peak_idx}\nX coords: {xx[peak_idx]}\nY coords: {yy[peak_idx]}')
+
+    return peak_idx, xx[peak_idx], yy[peak_idx]
 
     
 class TwoButtonShutter(Device):
@@ -456,19 +435,31 @@ def e_inner_scan(*args, **kwargs):
 def e_grid_scan(*args, **kwargs):
     return (yield from bp.grid_scan(*args, per_step=one_nd_step_pseudo_shutter, **kwargs))
 
+def cam_scan(detectors, camera, motor, start, stop, num, md=None, idle_time=1):
+
+    def per_step(dets, motor, step):
+        yield from one_1d_step(dets, motor, step)
+        yield from bp.abs_set(camera, 1, wait=True)
+        yield from bp.abs_set(camera, 0, wait=True)
+        yield from bp.sleep(idle_time)
+
+    if md is None:
+        md = {}
+    md = ChainMap(
+        md,
+        {'plan_args': {'detectors': list(map(repr, detectors)), 'num': num,
+                       'motor': repr(motor),
+                       'start': start, 'stop': stop,
+                       'per_step': repr(per_step),
+                       'idle_time': float(idle_time)},
+         'plan_name': 'cam_scan',
+         })
 
 
-def find_peaks_peakutils(uid='8537b7', x='stage_x', y='pil300KW_stats1_total', plot=True):
-    xx = np.array(db[uid].table()[x])
-    yy = np.array(db[uid].table()[y])
-    peak_idx = peakutils.interpolate(xx, yy, width=0)
+    return (yield from bp.subs_wrapper(
+        bp.scan(detectors, motor, start, stop, num, per_step=per_step, md=md),
+        LiveTable(detectors + [motor]))
+    )
 
-    if plot:
-        plt.plot(xx, yy)
-        plt.grid()
-        plt.scatter(xx[peak_idx], yy[peak_idx], c='r')
 
-    print(f'Peaks indices: {peak_idx}\nX coords: {xx[peak_idx]}\nY coords: {yy[peak_idx]}')
-
-    return peak_idx, xx[peak_idx], yy[peak_idx]
 

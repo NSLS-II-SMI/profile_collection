@@ -173,25 +173,21 @@ def run_gi_energy (angle, t=1, name='test'):
 
 def run_saxs_lipids(y=1, t=2):
     # Parameters:
-    x_list  = [20.20, 17.17, 13.87, 10.01, 6.07, 2.68, -0.84, -5.61, -11.08]
+    x_list  = [11.4, 7.5, 1.8, -2.17, -11.1]
     samples = [
-                'DOPC226a_A_full',
-                'DOPC226a_A_half',
-                'DOPC226a_B_full',
-                'DOPC226a_B_half',
-                'POPC622a_A_full',
-                'POPC622a_A_half',
-                'POPC622a_B_full',
-                'POPC622a_B_half',
-                'water',
+                'POPC352_A_full',
+                'POPC352_A_half',
+                'POPC352_B_full',
+                'POPC352_B_half',
+                'water352',
               ]
-    param   = '8.3m'
+    param   = '16.1keV'
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
 
     # Detectors, motors:
     dets = [pil1M, pil300KW, ssacurrent]
-    waxs_arc = [11, 11.1, 1]
-    stage_y = [y, y+1, 21]
+    waxs_arc = [11, 11, 1]
+    stage_y = [y, y+4, 81]
 
     for x, sample in zip(x_list, samples):
         yield from bps.mv(stage.x, x)
@@ -204,61 +200,7 @@ def run_saxs_lipids(y=1, t=2):
 
     sample_id(user_name='test', sample_name='test')
 
-    """
-    stage.x.move(8.55)
-    stage.y.move(y)
-    det_exposure_time(t)
-    sample='B_full'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_grid_scan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1, stage.y, y, y+1, 21, 0))
-    stage.x.move(3.77)
-    stage.y.move(y)
-    det_exposure_time(t)
-    sample='B_half'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_grid_scan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1, stage.y, y, y+1, 21, 0))
-    ''' 
-    stage.x.move(5.54)
-    stage.y.move(y)
-    det_exposure_time(t)
-    sample='B_third'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_grid_scan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1, stage.y, y, y+1, 21, 0))
-#    
-    stage.x.move(1.44)
-    stage.y.move(y)
-    det_exposure_time(t)
-    sample='C_full'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_grid_scan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1, stage.y, y, y+1, 21, 0))
-    stage.x.move(-2)
-    stage.y.move(y)
-    det_exposure_time(t)
-    sample='C_half'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_grid_scan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1, stage.y, y, y+1, 21, 0))
-    stage.x.move(-6.7)
-    stage.y.move(y)
-    det_exposure_time(t)
-    sample='C_third'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_grid_scan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1, stage.y, y, y+1, 21, 0))
-    '''
-#
-#    stage.x.move(-16.27)
-#    stage.y.move(y)
-#    det_exposure_time(t)
-#    sample='water'
-#    sample_id( user_name = name, sample_name= sample)
-#    RE(escan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1))
-#    stage.y.move(y-0.05)
-#    RE(escan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1))
-#    stage.y.move(y-0.1)
-#    RE(escan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1))
-#    stage.y.move(y-0.15)
-#    RE(escan([pil300KW, pil1M, ssacurrent], waxs.arc, 11, 11, 1))
-#
-    """
+
 
 
 def run_giwaxs_res (angle, name='test'):
