@@ -22,6 +22,12 @@ import bluesky.plans as bp
 #Prototype new electrometer, currently looking at XBPM2.
 #ch1,2,3,4 = pads 2,3,5,4 respectively; thick active area
 
+#Lakeshore SP for temerpature
+
+ls_temp1 = EpicsSignal('XF:12IDC:LS336:TC1:OUT1:SP', name='ls_temp1')
+
+
+
 class XBPM(Device):
     ch1 = Cpt(EpicsSignal,'Current1:MeanValue_RBV')
     ch2 = Cpt(EpicsSignal, 'Current2:MeanValue_RBV')
