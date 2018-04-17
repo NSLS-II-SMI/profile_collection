@@ -201,8 +201,6 @@ def run_saxs_lipids(y=1, t=2):
     sample_id(user_name='test', sample_name='test')
 
 
-
-
 def run_giwaxs_res (angle, name='test'):
     stage.th.move(angle-0.24)
     energy.move(2472)
@@ -233,9 +231,6 @@ def run_giwaxs_res (angle, name='test'):
     sample_id( user_name = 'test', sample_name= 'test')
 
 
-
-
- 
 ### For one smaple, collect all detector data for different incident angle and different waxs_arc
 def run(  inc_list = [  -0.07,   -0.11, -0.22 ],  arc_list=[4, 10, 16], exposure_time=0.5,  step=-0.03, axis='x'  ):
 
@@ -270,8 +265,6 @@ def run(  inc_list = [  -0.07,   -0.11, -0.22 ],  arc_list=[4, 10, 16], exposure
             mvr( stage.y, step )
         else:
             print('Error!!!, Please give axis either x or y.' )                    
-                    
- 
  
     
 #  %run -i /home/xf12id/.ipython/profile_collection/startup/30-user.py 
@@ -305,7 +298,6 @@ def move_pos(  pos=1  ):
     sample_id(  user_name = user_name, sample_name= sam )    
   
             
-            
 #Aligam GiSAXS sample
 #        
 def align_gisaxs_height(  rang = 0.3, point = 21   ):     
@@ -333,9 +325,418 @@ def align_gisax( ):
       align_gisaxs_manual(  rang = 0.1, point = 11   )
       
 
+def grating(det, motor, name='Water_upRepeat', cycle=1, cycle_t=11, n_cycles=20):
+    # Slowest cycle:
+    temperatures = [302, 305, 310]
+
+    # Medium cycle:
+    samples = ['RogerC12', 'C12poly']
+    x = [-8.4, 12]
+    y = [1.485, 1.47]
+    start_angle = [-0.412, -0.35]
+    phi = [-0.693, -0.773]
+    chi = [0.2, -0.43]
+
+    # Fastest cycle:
+    angles = [0.35, 0.25, 0.2]
+    # angle_offset = [0.0, 0.1, 0.15]
+    angle_offset = [0.35 - x for x in angles]
+    x_offset = [0.0, 0.2, 0.4]
+
+    name_fmt = '{sample}_{temperature}K_{angle}deg'
+
+    for i_t, t in enumerate(temperatures):
+        yield from bps.mv(ls_temp1, t)
+        if i_t > 0:
+            yield from bps.sleep(1800)
+        for i_s, s in enumerate(samples):
+            for i_a, a in enumerate(angles):
+                sample_name = name_fmt.format(sample=s, temperature=t, angle=a)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bps.mv(stage.x, x[i_s] + x_offset[i_a])
+                yield from bps.mv(stage.ch, chi[i_s])
+                yield from bps.mv(stage.y, y[i_s])
+                yield from bps.mv(stage.th, start_angle[i_s] + angle_offset[i_a])
+                yield from bps.mv(prs, phi[i_s])
+                sample_id(user_name=name, sample_name=sample_name)
+                yield from bps.mv(det.cam.acquire_time, cycle*cycle_t)
+                yield from bps.mv(attn_shutter, 'Retract')
+                yield from count([det], num=1)
+                sample_id(user_name=name, sample_name=f'{sample_name}_sweep20')
+                print(f'\n\t=== Sample: {sample_name}_sweep20 ===\n')
+                print('... doing fly_scan here ...')
+                for i in range(n_cycles):
+                    yield from fly_scan(det, motor, cycle, cycle_t, phi[i_s])
+                yield from bps.sleep(1)
+                yield from bps.mv(attn_shutter, 'Insert')
 
 
+def fly_scan_gisaxs1(det, motor, name='DMPC', cycle=1, cycle_t=10.5, n_cycles=20):
+    x1 = -10.55
+    y1 = 1.61
+    start_angle1 = -0.359
+    phi1 = -0.635
+    x2 = 10.7
+    y2 = 1.64
+    start_angle2 = -0.439
+    phi2 = 0.176
+    '''
+    #the loop for 302 K   
+    #sample 1
+    ls_temp1.put(302)
+    yield from bps.mv(stage.th, start_angle1)
+    yield from bps.mv(prs, phi1)
+    sample_id(user_name=name, sample_name='C72_poly-b_302K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(attn_shutter, 'Retract')
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_302K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.x, x1+0.2)
+    sample_id(user_name=name, sample_name='C72_poly-b_302K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle1+0.1)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_302K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.x, x1+0.4)
+    sample_id(user_name=name, sample_name='C72_poly-b_302K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle1+0.15)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_302K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    yield from bps.mv(attn_shutter, 'Insert')
+    #sample 2
+    yield from bps.mv(stage.th, start_angle2)
+    yield from bps.mv(prs, phi2)
+    sample_id(user_name=name, sample_name='C36_poly_302K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(attn_shutter, 'Retract')
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C36_poly_302K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.x, x2+0.2)
+    sample_id(user_name=name, sample_name='C36_poly_302K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle2+0.1)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C36_poly_302K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.x, x2+0.4)
+    sample_id(user_name=name, sample_name='C36_poly_302K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle2+0.15)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C36_poly_302K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    yield from bps.mv(attn_shutter, 'Insert')
+
+    #loop for 305K
+    #ls_temp1.put(305)
+    #bp.time.sleep(1800)
+    #sample 1
+    x1 = x1 #+ 0.6
+    yield from bps.mv(stage.x, x1)
+    yield from bps.mv(stage.th, start_angle1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.y, y1)
+    sample_id(user_name=name, sample_name='C72_poly-b_305K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(attn_shutter, 'Retract')
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_305K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.x, x1+0.2)
+    sample_id(user_name=name, sample_name='C72_poly-b_305K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle1+0.1)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_305K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.x, x1+0.4)
+    sample_id(user_name=name, sample_name='C72_poly-b_305K_
+    yield from count([pil1M], num=1)0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle1+0.15)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_305K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    yield from bps.mv(attn_shutter, 'Insert')
+    #sample 2
+    x2 = x2 #+ 0.6
+    yield from bps.mv(stage.x, x2)
+    yield from bps.mv(stage.th, start_angle2)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.y, y2)
+    sample_id(user_name=name, sample_name='C36_poly_305K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(attn_shutter, 'Retract')
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C36_poly_305K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi2)
+    yield from count([pil1M], num=1)
+    yield from bps.mv(stage.x, x2+0.2)
+    sample_id(user_name=name, sample_name='C36_poly_305K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle2+0.1)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C36_poly_305K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.x, x2+0.4)
+    sample_id(user_name=name, sample_name='C36_poly_305K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle2+0.15)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C36_poly_305K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    yield from bps.mv(attn_shutter, 'Insert')
 
 
-            
-            
+    #loop for 310K
+    #ls_temp1.put(310)
+    #bp.time.sleep(1800)
+    #sample 1
+    x1 = x1 #+0.6
+    yield from bps.mv(stage.x, x1)
+    yield from bps.mv(stage.th, start_angle1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.y, y1)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_310K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(attn_shutter, 'Retract')
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_310K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.x, x1+0.2)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_310K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle1+0.1)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_310K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.x, x1+0.4)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_310K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle1+0.15)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_310K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    yield from bps.mv(attn_shutter, 'Insert')
+    #sample 2
+    x2 = x2 #+0.6
+    yield from bps.mv(stage.x, x2)
+    yield from bps.mv(stage.th, start_angle2)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.y, y2)
+    sample_id(user_name=name, sample_name='C36_poly_down_310K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(attn_shutter, 'Retract')
+    yield from count([pil1M], num=1)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C36_poly_down_310K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.x, x2+0.2)
+    sample_id(user_name=name, sample_name='C36_poly_down_310K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle2+0.1)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C36_poly_down_310K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.x, x2+0.4)
+    sample_id(user_name=name, sample_name='C36_poly_down_310K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle2+0.15)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C36_poly_down_310K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    yield from bps.mv(attn_shutter, 'Insert')
+    
+    #loop for 305K
+    ls_temp1.put(305)
+    bp.time.sleep(1800)
+    #sample 1
+    x1 = x1 + 0.6
+    yield from bps.mv(stage.x, x1)
+    yield from bps.mv(stage.th, start_angle1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.y, y1)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_305K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(attn_shutter, 'Retract')
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_305K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.x, x1+0.2)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_305K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle1+0.1)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_305K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.x, x1+0.4)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_305K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle1+0.15)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_305K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    yield from bps.mv(attn_shutter, 'Insert')
+    #sample 2
+    x2 = x2 #+ 0.6
+    yield from bps.mv(stage.x, x2)
+    yield from bps.mv(stage.th, start_angle2)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.y, y2)
+    sample_id(user_name=name, sample_name='C36_poly_down_305K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(attn_shutter, 'Retract')
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C36_poly_down_305K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.x, x2+0.2)
+    sample_id(user_name=name, sample_name='C36_poly_down_305K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle2+0.1)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C36_poly_down_305K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.x, x2+0.4)
+    sample_id(user_name=name, sample_name='C36_poly_down_305K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle2+0.15)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C36_poly_down_305K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    yield from bps.mv(attn_shutter, 'Insert')
+    '''    
+    #loop for 302K
+    #ls_temp1.put(302)
+    #bp.time.sleep(1800)
+    '''
+    #sample 1
+    x1 = x1 + 1.2
+    yield from bps.mv(stage.x, x1)
+    yield from bps.mv(stage.th, start_angle1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.y, y1)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_302K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(attn_shutter, 'Retract')
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_302K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.x, x1+0.2)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_302K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle1+0.1)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_302K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi1)
+    yield from bps.mv(stage.x, x1+0.4)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_302K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle1+0.15)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C72_poly-b_down_302K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi1)
+    yield from bps.mv(attn_shutter, 'Insert')
+    '''
+    #sample 2
+    x2 = x2 #+ 1.2
+    yield from bps.mv(stage.x, x2)
+    yield from bps.mv(stage.th, start_angle2)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.y, y2)
+    sample_id(user_name=name, sample_name='C11.7_w_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(attn_shutter, 'Retract')
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C11.7_w_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.x, x2+0.2)
+    sample_id(user_name=name, sample_name='C11.7_w_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle2+0.1)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C11.7_w_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    bp.time.sleep(1)
+    yield from bps.mv(prs, phi2)
+    yield from bps.mv(stage.x, x2+0.4)
+    sample_id(user_name=name, sample_name='C11.7_w_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    yield from bps.mv(stage.th, start_angle2+0.15)
+    yield from count([pil1M], num=1)
+    sample_id(user_name=name, sample_name='C11.7_w_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        yield from fly_scan(det, motor, cycle, cycle_t, phi2)
+    yield from bps.mv(attn_shutter, 'Insert')
+

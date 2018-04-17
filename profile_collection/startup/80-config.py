@@ -69,23 +69,235 @@ def beamline_mode(mode=None):
         vdm.y.move(-2.2)
 
 
-def myplan(det, motor, num_cycles=1, cycle_duration=10, start=9.4, stop=-10.6):
-    #caput XF:12IDC-OP:2{Fltr:1-8}Cmd:Cls-Cmd 1
-    acq_time = num_cycles * cycle_duration
+def fly_scan(det, motor, cycle=1, cycle_t=10, phi = -0.6):
+    start = phi +10
+    stop = phi-10
+    acq_time = cycle * cycle_t
     yield from bps.mv(motor, start)
-    yield from bps.mv(attn_shutter, 'Retract')
+    #yield from bps.mv(attn_shutter, 'Retract')
     det.stage()
     det.cam.acquire_time.put(acq_time)
     print(f'Acquire time before staging: {det.cam.acquire_time.get()}')
     st = det.trigger()
-    for i in range(num_cycles):
+    for i in range(cycle):
         yield from list_scan([], motor, [start, stop, start])
     while not st.done:
         pass
     det.unstage()
     print(f'We are done after {acq_time}s of waiting')
-    yield from bps.mv(attn_shutter, 'Insert')
+    #yield from bps.mv(attn_shutter, 'Insert')
+    
+'''    
+def fly_scan_gisaxs(det, motor, name='SNS', cycle=1, cycle_t=10, n_cycles=3):
+    x1 = -11.55
+    y1 = 1.65
+    start_angle1 = -0.416
+    phi1 = -0.641
+    x2 = 17
+    y2 = 1.605
+    start_angle2 = -0.356
+    phi2 = -0.603    
+    #the loop for 302 K   
+    #sample 1
+    stage.th.move(start_angle1)
+    prs.move(phi1)
+    sample_id(user_name=name, sample_name='C72_poly-b_302K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    RE(bps.mv(attn_shutter, 'Retract'))
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C72_poly-b_302K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi1))
+    bp.time.sleep(1)
+    prs.move(phi1)
+    stage.x.move(x1+0.2)
+    sample_id(user_name=name, sample_name='C72_poly-b_302K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    stage.th.move(start_angle1+0.1)
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C72_poly-b_302K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi1))
+    bp.time.sleep(1)
+    prs.move(phi1)
+    stage.x.move(x1+0.4)
+    sample_id(user_name=name, sample_name='C72_poly-b_302K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    stage.th.move(start_angle1+0.15)
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C72_poly-b_302K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi1))
+    RE(bps.mv(attn_shutter, 'Insert'))   
+    #sample 2
+    stage.th.move(start_angle2)
+    prs.move(phi2)
+    sample_id(user_name=name, sample_name='C36_poly_302K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    RE(bps.mv(attn_shutter, 'Retract'))
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C36_poly_302K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi2))
+    bp.time.sleep(1)
+    prs.move(phi2)
+    stage.x.move(x2+0.2)
+    sample_id(user_name=name, sample_name='C36_poly_302K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    stage.th.move(start_angle2+0.1)
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C36_poly_302K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi2))
+    bp.time.sleep(1)
+    prs.move(phi2)
+    stage.x.move(x2+0.4)
+    sample_id(user_name=name, sample_name='C36_poly_302K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    stage.th.move(start_angle2+0.15)
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C36_poly_302K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi2))
+    RE(bps.mv(attn_shutter, 'Insert'))
 
-    #caput XF:12IDC-OP:2{Fltr:1-8}Cmd:Opn-Cmd 1
+    #loop for 305K
+    #sample 1
+    x1 = x1+0.6
+    stage.x.move(x1)
+    stage.th.move(start_angle1)
+    prs.move(phi1)
+    sample_id(user_name=name, sample_name='C72_poly-b_305K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    RE(bps.mv(attn_shutter, 'Retract'))
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C72_poly-b_305K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi1))
+    bp.time.sleep(1)
+    prs.move(phi1)
+    stage.x.move(x1+0.2)
+    sample_id(user_name=name, sample_name='C72_poly-b_305K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    stage.th.move(start_angle1+0.1)
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C72_poly-b_305K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi1))
+    bp.time.sleep(1)
+    prs.move(phi1)
+    stage.x.move(x1+0.4)
+    sample_id(user_name=name, sample_name='C72_poly-b_305K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    stage.th.move(start_angle1+0.15)
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C72_poly-b_305K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi1))
+    RE(bps.mv(attn_shutter, 'Insert'))   
+    #sample 2
+    x2 = x2+0.6
+    stage.x.move(x2)
+    stage.th.move(start_angle2)
+    prs.move(phi2)
+    sample_id(user_name=name, sample_name='C36_poly_305K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    RE(bps.mv(attn_shutter, 'Retract'))
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C36_poly_305K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi2))
+    bp.time.sleep(1)
+    prs.move(phi2)
+    stage.x.move(x2+0.2)
+    sample_id(user_name=name, sample_name='C36_poly_305K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    stage.th.move(start_angle2+0.1)
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C36_poly_305K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi2))
+    bp.time.sleep(1)
+    prs.move(phi2)
+    stage.x.move(x2+0.4)
+    sample_id(user_name=name, sample_name='C36_poly_305K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    stage.th.move(start_angle2+0.15)
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C36_poly_305K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi2))
+    RE(bps.mv(attn_shutter, 'Insert'))
+
+    #loop for 310K
+    #sample 1
+    x1 = x1+1.2
+    stage.x.move(x1)
+    stage.th.move(start_angle1)
+    prs.move(phi1)
+    sample_id(user_name=name, sample_name='C72_poly-b_310K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    RE(bps.mv(attn_shutter, 'Retract'))
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C72_poly-b_310K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi1))
+    bp.time.sleep(1)
+    prs.move(phi1)
+    stage.x.move(x1+0.2)
+    sample_id(user_name=name, sample_name='C72_poly-b_310K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    stage.th.move(start_angle1+0.1)
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C72_poly-b_310K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi1))
+    bp.time.sleep(1)
+    prs.move(phi1)
+    stage.x.move(x1+0.4)
+    sample_id(user_name=name, sample_name='C72_poly-b_310K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    stage.th.move(start_angle1+0.15)
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C72_poly-b_310K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi1))
+    RE(bps.mv(attn_shutter, 'Insert'))   
+    #sample 2
+    x2 = x2+1.2
+    stage.x.move(x2)
+    stage.th.move(start_angle2)
+    prs.move(phi2)
+    sample_id(user_name=name, sample_name='C36_poly_310K_0.35deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    RE(bps.mv(attn_shutter, 'Retract'))
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C36_poly_310K_0.35deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi2))
+    bp.time.sleep(1)
+    prs.move(phi2)
+    stage.x.move(x2+0.2)
+    sample_id(user_name=name, sample_name='C36_poly_310K_0.25deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    stage.th.move(start_angle2+0.1)
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C36_poly_310K_0.25deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi2))
+    bp.time.sleep(1)
+    prs.move(phi2)
+    stage.x.move(x2+0.4)
+    sample_id(user_name=name, sample_name='C36_poly_310K_0.2deg')
+    det.cam.acquire_time.put(cycle*cycle_t)
+    stage.th.move(start_angle2+0.15)
+    RE(count([pil1M], num=1))
+    sample_id(user_name=name, sample_name='C36_poly_310K_0.2deg_sweep20')
+    for i in range(n_cycles):    
+        RE(fly_scan(det, motor, cycle, cycle_t, phi2))
+    RE(bps.mv(attn_shutter, 'Insert'))
 
 
+
+
+'''
