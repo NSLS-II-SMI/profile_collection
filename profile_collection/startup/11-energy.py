@@ -86,10 +86,10 @@ class Energy(PseudoPositioner):
         self._hints = None
 
     # synthetic axis
-    energy = Cpt(PseudoSingle)
+    energy = Cpt(PseudoSingle, kind='hinted', labels=['mono'])
     # real motors
-    dcmgap = Cpt(EpicsMotor, 'XF12ID:m66', read_attrs=['readback'])
-    bragg = Cpt(EpicsMotor, 'XF12ID:m65', read_attrs=['readback'])
+    dcmgap = Cpt(EpicsMotor, 'XF12ID:m66', read_attrs=['user_readback'])
+    bragg = Cpt(EpicsMotor, 'XF12ID:m65', read_attrs=['user_readback'], labels=['mono'])
 #    dcmpitch = Cpt(EpicsMotor, 'XF12ID:m67', read_attrs=['readback'])
 
     ivugap = Cpt(UndulatorGap,
@@ -97,7 +97,8 @@ class Energy(PseudoPositioner):
                  read_attrs=['readback'],
                  configuration_attrs=['corrfunc_sta',
                                       'corrfunc_dis',
-                                      'corrfunc_en'])
+                                      'corrfunc_en'],
+                 labels=['mono'])
 
     enableivu = Cpt(Signal, value=True)
     enabledcmgap = Cpt(Signal, value=True)
@@ -164,27 +165,10 @@ class Energy(PseudoPositioner):
             return MoveStatus(self, energy, success=True, done=True)
         return super().set([float(_) for _ in position])
 
-    @property
-    def hints(self):
-        if self._hints is None:
-            return {'fields': ['energy_energy']}
-        else:
-            return self._hints
-
-    @hints.setter
-    def hints(self, val):
-        if val is not None:
-            read_keys = list(self.describe())
-            for key in val.get('fields', []):
-                if key not in read_keys:
-                    raise ValueError(f'{key} is not allowed -- must be one of {read_keys}')
-        self._hints = val
-
 
 energy = Energy(prefix='', name='energy',
                 read_attrs=['energy', 'ivugap', 'bragg'],
                 configuration_attrs=['enableivu', 'enabledcmgap', 'target_harmonic'])
-energy._hints = {'fields': ['energy_energy']}
 
 dcm = energy
 ivugap = energy.ivugap

@@ -50,9 +50,10 @@ class Pilatus(SingleTrigger, PilatusDetector):
 
     def set_primary_roi(self, num):
         st = f'stats{num}'
-        self.hints = {'fields': [getattr(self, st).total.name]}
         self.read_attrs = [st, 'tiff']
-        
+        getattr(self, st).kind = 'hinted'
+
+
 pil1M = Pilatus("XF:12IDC-ES:2{Det:1M}", name="pil1M") #, detector_id="SAXS")
 pil1M.set_primary_roi(1)
 

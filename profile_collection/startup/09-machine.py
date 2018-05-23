@@ -101,7 +101,3 @@ ivuelev = UndulatorElev('SR:C12-ID:G1{IVU:1', name='ivuelev',
                 configuration_attrs=[])
 
 
-
-
-
-

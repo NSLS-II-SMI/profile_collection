@@ -1,40 +1,25 @@
 from ophyd import EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt, PseudoPositioner
 
-class MotorBundle(Device):
-    _hints = None
-    @property
-    def hints(self):
-        if self._hints is None:
-            return {'fields': [getattr(self, m).name
-                               for m in self.component_names]}
-        return self._hints
 
-    @hints.setter
-    def hints(self, val):
-        if val is None:
-            self._hints = None
-        else:
-            self._hints = dict(val)
-
-class STG(MotorBundle):
-    x = Cpt(EpicsMotor, 'X}Mtr')
-    y = Cpt(EpicsMotor, 'Y}Mtr')
-    z = Cpt(EpicsMotor, 'Z}Mtr')
-    th = Cpt(EpicsMotor, 'theta}Mtr')
-    ph = Cpt(EpicsMotor, 'phi}Mtr')
-    ch = Cpt(EpicsMotor, 'chi}Mtr')
+class STG(Device):
+    x = Cpt(EpicsMotor, 'X}Mtr', labels=['stage'])
+    y = Cpt(EpicsMotor, 'Y}Mtr', labels=['stage'])
+    z = Cpt(EpicsMotor, 'Z}Mtr', labels=['stage'])
+    th = Cpt(EpicsMotor, 'theta}Mtr', labels=['stage'])
+    ph = Cpt(EpicsMotor, 'phi}Mtr', labels=['stage'])
+    ch = Cpt(EpicsMotor, 'chi}Mtr', labels=['stage'])
 
 
-class SMPL(MotorBundle):
-    x = Cpt(EpicsMotor, 'X}Mtr')
-    y = Cpt(EpicsMotor, 'Y}Mtr')
-    z = Cpt(EpicsMotor, 'Z}Mtr')
-    al = Cpt(EpicsMotor, 'alpha}Mtr')
-    az = Cpt(EpicsMotor, 'azimuth}Mtr')
-    ka = Cpt(EpicsMotor, 'kappa}Mtr')
+class SMPL(Device):
+    x = Cpt(EpicsMotor, 'X}Mtr', labels=['sample'])
+    y = Cpt(EpicsMotor, 'Y}Mtr', labels=['sample'])
+    z = Cpt(EpicsMotor, 'Z}Mtr', labels=['sample'])
+    al = Cpt(EpicsMotor, 'alpha}Mtr', labels=['sample'])
+    az = Cpt(EpicsMotor, 'azimuth}Mtr', labels=['sample'])
+    ka = Cpt(EpicsMotor, 'kappa}Mtr', labels=['sample'])
 
 
-class HEXAPOD(MotorBundle):
+class HEXAPOD(Device):
     x = Cpt(EpicsMotor, 'X}Mtr')
     y = Cpt(EpicsMotor, 'Y}Mtr')
     z = Cpt(EpicsMotor, 'Z}Mtr')
