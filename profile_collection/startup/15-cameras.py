@@ -101,7 +101,8 @@ rayonix.stats4.read_attrs = ['total']
 rayonix.stats5.read_attrs = ['total']
 rayonix.cam.configuration_attrs.append('num_images')
 rayonix.configuration_attrs.append('roi1')
-rayonix.hints = {'fields': ['rayonix_stats1_total']}
+
+rayonix.stats1.total.kind = 'hinted'
 
 rayonix.tiff.write_path_template = '/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/'
 
