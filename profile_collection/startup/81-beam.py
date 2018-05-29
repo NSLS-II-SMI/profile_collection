@@ -41,17 +41,16 @@
 #moved to 20-area-detectors.py
 #pilatus_name = pilatus2M
 #pilatus_Epicsname = '{Det:PIL2M}'
+from time import time
+
+pilatus_name = pil1M
 
 
 class BeamlineDetector(object):
-    
     def __init__(self, detector, **md):
-        
         self.detector = detector
-        
         self.md = md
-        
-    
+
     def get_md(self, prefix='detector_', **md):
         '''Returns a dictionary of the current metadata.
         The 'prefix' argument is prepended to all the md keys, which allows the
@@ -68,21 +67,20 @@ class BeamlineDetector(object):
             md_return = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_return.items() }
     
         return md_return
-            
-            
-class CMS_SAXS_Detector(BeamlineDetector):
 
+
+class SMI_SAXS_Detector(BeamlineDetector):
     def setCalibration(self, direct_beam, distance, detector_position=None, pixel_size=0.172):
         
         self.direct_beam = direct_beam
         self.distance = distance
         if detector_position is None:
+            #TODO: figure out what "SAXSx" is:
             self.detector_position = [SAXSx.user_readback.value, SAXSy.user_readback.value]
         else:
             self.detector_position = detector_position
         self.pixel_size = pixel_size
-        
-    
+
     def get_md(self, prefix='detector_SAXS_', **md):
         
         md_return = self.md.copy()
@@ -90,64 +88,40 @@ class CMS_SAXS_Detector(BeamlineDetector):
         x0, y0 = self.direct_beam
         position_defined_x, position_defined_y = self.detector_position
         position_current_x, position_current_y = SAXSx.user_readback.value, SAXSy.user_readback.value
-        
-            
+
         md_return['name'] = self.detector.name
 
-        #if pilatus_name==pilatus300k:
-            #md_return['x0_pix'] = round( x0 + (position_current_x-position_defined_x)/self.pixel_size , 2 )
-            #md_return['y0_pix'] = round( y0 + (position_current_y-position_defined_y)/self.pixel_size , 2 )
-        if pilatus_name==pilatus2M:
-            md_return['x0_pix'] = round( x0 + (position_current_x-position_defined_x)/self.pixel_size , 2 )
-            md_return['y0_pix'] = round( y0 - (position_current_y-position_defined_y)/self.pixel_size , 2 )
+        if pilatus_name == pil1M:
+            md_return['x0_pix'] = round( x0 + (position_current_x-position_defined_x)/self.pixel_size, 2)
+            md_return['y0_pix'] = round( y0 - (position_current_y-position_defined_y)/self.pixel_size, 2)
         md_return['distance_m'] = self.distance
-    
-        md_return['ROI1_X_min'] = caget('XF:11BMB-ES{}:ROI1:MinX'.format(pilatus_Epicsname))
-        md_return['ROI1_X_size'] = caget('XF:11BMB-ES{}:ROI1:SizeX'.format(pilatus_Epicsname))
-        md_return['ROI1_Y_min'] = caget('XF:11BMB-ES{}:ROI1:MinY'.format(pilatus_Epicsname))
-        md_return['ROI1_Y_size'] = caget('XF:11BMB-ES{}:ROI1:SizeY'.format(pilatus_Epicsname))
 
-        md_return['ROI2_X_min'] = caget('XF:11BMB-ES{}:ROI2:MinX'.format(pilatus_Epicsname))
-        md_return['ROI2_X_size'] = caget('XF:11BMB-ES{}:ROI2:SizeX'.format(pilatus_Epicsname))
-        md_return['ROI2_Y_min'] = caget('XF:11BMB-ES{}:ROI2:MinY'.format(pilatus_Epicsname))
-        md_return['ROI2_Y_size'] = caget('XF:11BMB-ES{}:ROI2:SizeY'.format(pilatus_Epicsname))
+        for roi_num in [1, 2, 3, 4]:
+            md_return[f'ROI{roi_num}_X_min'] = getattr(self.detector, 'min_xyz').min_x.value
+            md_return[f'ROI{roi_num}_Y_min'] = getattr(self.detector, 'min_xyz').min_y.value
+            md_return[f'ROI{roi_num}_X_size'] = getattr(self.detector, 'size').x.value
+            md_return[f'ROI{roi_num}_Y_size'] = getattr(self.detector, 'size').y.value
 
-        md_return['ROI3_X_min'] = caget('XF:11BMB-ES{}:ROI3:MinX'.format(pilatus_Epicsname))
-        md_return['ROI3_X_size'] = caget('XF:11BMB-ES{}:ROI3:SizeX'.format(pilatus_Epicsname))
-        md_return['ROI3_Y_min'] = caget('XF:11BMB-ES{}:ROI3:MinY'.format(pilatus_Epicsname))
-        md_return['ROI3_Y_size'] = caget('XF:11BMB-ES{}:ROI3:SizeY'.format(pilatus_Epicsname))
-
-        md_return['ROI4_X_min'] = caget('XF:11BMB-ES{}:ROI4:MinX'.format(pilatus_Epicsname))
-        md_return['ROI4_X_size'] = caget('XF:11BMB-ES{}:ROI4:SizeX'.format(pilatus_Epicsname))
-        md_return['ROI4_Y_min'] = caget('XF:11BMB-ES{}:ROI4:MinY'.format(pilatus_Epicsname))
-        md_return['ROI4_Y_size'] = caget('XF:11BMB-ES{}:ROI4:SizeY'.format(pilatus_Epicsname))
-        
         # Include the user-specified metadata
         md_return.update(md)
 
         # Add an optional prefix
         if prefix is not None:
-            md_return = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_return.items() }
+            md_return = { '{:s}{:s}'.format(prefix, key): value for key, value in md_return.items() }
     
         return md_return
 
 
 class BeamlineElement(object):
     '''Defines a component of the beamline that (may) intersect the x-ray beam.'''
-    
     def __init__(self, name, zposition, description="", pv=None, **args):
-        
         self.name = name
         self.zposition = zposition
         self.description = description
-        
         self.conversion_factor = 1
-        
         self._pv_main = pv
-        
         self.has_flux = True
-        
-        
+
     def state(self):
         """
         Returns the current state of the beamline element. Common states:
@@ -156,10 +130,8 @@ class BeamlineElement(object):
         block - Element is in the beam, and should be blocking the beam.
         undefined - Element is in an unexpected state.
         """
-        
         return "out"
 
-    
     def transmission(self, t=None, verbosity=0):
         """
         Returns the predicted transmission of this beamline element, based on 
@@ -176,13 +148,10 @@ class BeamlineElement(object):
         if verbosity>=2:
             print('{:s} transmission = {:.6g}'.format(self.name, tr_tot))
         
-        
         # Assume a generic beamline element doesn't block/perturb the beam
         return tr_tot
-        
-        
+
     def flux(self, verbosity=3):
-        
         reading = self.reading(verbosity=0)
         flux = self.conversion_factor*reading # ph/s
         
@@ -190,24 +159,19 @@ class BeamlineElement(object):
             print('flux = {:.4g} ph/s'.format(flux))
         
         return flux
-    
-    
-        
-        
+
+
+#TODO: consider replacing with TwoButtonShutter
 class Shutter(BeamlineElement):
-    
     # Example
     #          XF:11BMA-PPS{PSh}Enbl-Sts
     #  Status: XF:11BMA-PPS{PSh}Pos-Sts       0 for open, 1 for close
     #  Open:   XF:11BMA-PPS{PSh}Cmd:Opn-Cmd
     #  Close:  XF:11BMA-PPS{PSh}Cmd:Cls-Cmd
-    
     def __init__(self, name, zposition, description="", pv=None, **args):
-        
         super().__init__(name=name, zposition=zposition, description=description, pv=pv, **args)
         self.has_flux = False
-        
-    
+
     def state(self):
         """
         Returns the current state of the beamline element. Common states:
@@ -216,7 +180,7 @@ class Shutter(BeamlineElement):
         block - Element is in the beam, and should be blocking the beam.
         undefined - Element is in an unexpected state.
         """
-        
+        # TODO: get rid of caget
         state_n = caget(self._pv_main+'Pos-Sts')
         
         if state_n is 0:
@@ -225,8 +189,7 @@ class Shutter(BeamlineElement):
             return "block"
         else:
             return "undefined" 
-        
-        
+
     def open(self, verbosity=3):
         
         if verbosity>=3:
@@ -237,25 +200,18 @@ class Shutter(BeamlineElement):
         #caput(pv, 1) # TODO: Test this.
     
     def close(self, verbosity=3):
-        
         if verbosity>=3:
             print('Closing {:s}...'.format(self.name))
             
         pv = self._pv_main + 'Cmd:Cls-Cmd'
         #caput(pv, 1) # TODO: Test this.
 
-        
-
-
 
 class GateValve(Shutter):
-    
     # Example
     #  Status: XF:11BMB-VA{Slt:4-GV:1}Pos-Sts        1 for open, 0 for close
     #  Open:   XF:11BMB-VA{Slt:4-GV:1}Cmd:Opn-Cmd
     #  Close:  XF:11BMB-VA{Slt:4-GV:1}Cmd:Cls-Cmd
-    
-    
     def state(self):
         """
         Returns the current state of the beamline element. Common states:
@@ -265,6 +221,7 @@ class GateValve(Shutter):
         undefined - Element is in an unexpected state.
         """
         
+        #TODO: get rid of caget
         state_n = caget(self._pv_main+'Pos-Sts')
         
         if state_n is 1:
@@ -273,19 +230,15 @@ class GateValve(Shutter):
             return "block"
         else:
             return "undefined"     
-    
 
 
+#TODO: Replace it with Undulator
 class ThreePoleWiggler(BeamlineElement):
-    
     def __init__(self, name='3PW', zposition=0.0, description='Three-pole wiggler source of x-rays', **args):
-        
-        
         super().__init__(name=name, zposition=zposition, description=description, **args)
         
         # TODO: Find out the right conversion factor
         self.conversion_factor = 3e18/500.0 #(ph/s)/mA
-        
 
     def state(self):
         """
@@ -295,7 +248,7 @@ class ThreePoleWiggler(BeamlineElement):
         block - Element is in the beam, and should be blocking the beam.
         undefined - Element is in an unexpected state.
         """
-        
+
         position = caget('SR:C11-ID:G5{3PW:1}Mtr.RBV')
         
         # TODO: Instead use the 'inserted' flag?
@@ -303,33 +256,24 @@ class ThreePoleWiggler(BeamlineElement):
         
         if abs(position-0)<3:
             return "in"
-        
         elif abs(position - -189.0)<10:
             return "out"
-        
         else:
             return "undefined"
-        
-        
+
     def reading(self, verbosity=3):
-        
         if self.state() is 'in':
-            
             ring_current = caget('SR:OPS-BI{DCCT:1}I:Real-I')
             if verbosity>=2:
                 print('{:s} is inserted; ring current = {:.1f} mA'.format(self.name, ring_current))
-                
             return ring_current
-        
         else:
             if verbosity>=2:
                 print('{:s} is not inserted.'.format(self.name))
-                
             return 0
-        
+
 
 class Monitor(BeamlineElement):
-    
     def quickReading(self, verbosity=3, delay=1.0):
         """
         Puts the diagnostic into the beam, takes a reading, and removes the
@@ -344,9 +288,8 @@ class Monitor(BeamlineElement):
         time.sleep(delay)
         
         return value
-    
-    
-    
+
+
 class DiagnosticScreen(Monitor):
     
     #XF:11BMB-BI{FS:4}Pos-Sts
@@ -356,8 +299,7 @@ class DiagnosticScreen(Monitor):
         super().__init__(name=name, zposition=zposition, description=description, pv=pv, **args)
         self.epics_signal = epics_signal
         self.has_flux = False
-        
-    
+
     def state(self):
         """
         Returns the current state of the beamline element. Common states:
@@ -375,8 +317,7 @@ class DiagnosticScreen(Monitor):
             return "block"
         else:
             return "undefined" 
-            
-    
+
     def insert(self, verbosity=3):
         
         if verbosity>=3:
@@ -393,8 +334,7 @@ class DiagnosticScreen(Monitor):
             
         pv = self._pv_main + 'Cmd:Out-Cmd'
         caput(pv, 1)
-        
-        
+
     def reading(self, verbosity=3):
         
         value = self.epics_signal.stats1.total.value
@@ -412,12 +352,9 @@ class DiagnosticScreen(Monitor):
                 print('{:s} is not inserted.'.format(self.name))
                 
             return 0
-        
-        
-        
-        
+
+
 class PointDiode_CMS(Monitor):
-    
     def __init__(self, name='bim6 point diode', zposition=59.1, description="Bar holding a point-diode, downstream of sample.", pv='XF:11BMB-BI{IM:2}EM180:Current1:MeanValue_RBV', epics_signal=None, **args):
         
         super().__init__(name=name, zposition=zposition, description=description, pv=pv, **args)
@@ -1887,7 +1824,7 @@ class CMS_Beamline(Beamline):
         self.beam = beam
         #self.SAXS = CMS_SAXS_Detector(pilatus300)
         #self.WAXS = CMS_WAXS_Detector()
-        self.SAXS = CMS_SAXS_Detector(pilatus_name)
+        self.SAXS = SMI_SAXS_Detector(pilatus_name)
         
         from epics import PV
         
