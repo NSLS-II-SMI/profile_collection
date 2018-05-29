@@ -63,3 +63,7 @@ target/
 
 # emacs scratch
 *~
+
+# Ignore PyCharm's project files:
+.idea/
+
