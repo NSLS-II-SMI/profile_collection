@@ -96,4 +96,6 @@ class FakeDetector(Device):
 
 fd = FakeDetector(name='fd')
 
+pil1M.stats1.kind = 'hinted'
+pil1M.stats1.total.kind = 'hinted'
 

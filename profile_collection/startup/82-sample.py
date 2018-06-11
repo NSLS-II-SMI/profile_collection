@@ -1,3 +1,6 @@
+from nslsii.devices import TwoButtonShutter
+
+
 BS_POSITION_X = 1.15
 BS_POSITION_Y = 13.1
 
