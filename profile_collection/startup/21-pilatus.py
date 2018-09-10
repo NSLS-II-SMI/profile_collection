@@ -1,6 +1,6 @@
 from ophyd import ( Component as Cpt, ADComponent, Device, PseudoPositioner,
                     EpicsSignal, EpicsSignalRO, EpicsMotor,
-                    ROIPlugin, StatsPlugin, ImagePlugin,
+                    ROIPlugin, ImagePlugin,
                     SingleTrigger, PilatusDetector,
                     OverlayPlugin, FilePlugin)
 

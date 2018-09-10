@@ -3,8 +3,8 @@ from ophyd import EpicsMotor, EpicsSignal, Device, Component as C
 import time as ttime  # tea time
 from datetime import datetime
 from ophyd import (ProsilicaDetector, SingleTrigger, TIFFPlugin,
-                   ImagePlugin, StatsPlugin, DetectorBase, HDF5Plugin,
-                  AreaDetector, EpicsSignal, EpicsSignalRO, ROIPlugin,
+                   ImagePlugin, DetectorBase, HDF5Plugin,
+                   AreaDetector, EpicsSignal, EpicsSignalRO, ROIPlugin,
                    TransformPlugin, ProcessPlugin)
 from ophyd.areadetector.cam import AreaDetectorCam
 from ophyd.areadetector.base import ADComponent, EpicsSignalWithRBV
