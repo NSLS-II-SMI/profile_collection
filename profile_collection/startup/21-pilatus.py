@@ -99,3 +99,6 @@ fd = FakeDetector(name='fd')
 pil1M.stats1.kind = 'hinted'
 pil1M.stats1.total.kind = 'hinted'
 
+pil300KW.stats1.kind = 'hinted'
+pil300KW.stats1.total.kind = 'hinted'
+

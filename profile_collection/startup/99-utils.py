@@ -229,7 +229,7 @@ def find_peaks_peakutils(uid='8537b7', x='stage_x', y='pil300KW_stats1_total', p
     return peak_idx, xx[peak_idx], yy[peak_idx]
 
     
-attn_shutter = TwoButtonShutter('XF:12IDC-OP:2{Fltr:1-8}', name='attn_shutter')
+attn_shutter = TwoButtonShutter('XF:12IDC-OP:2{Fltr:1-4}', name='attn_shutter')
 #fe_shutter =   TwoButtonShutter('XF:12ID-PPS{Sh:FE}', name='fe_shutter')
         
 def one_nd_step_pseudo_shutter(detectors, step, pos_cache):
@@ -358,6 +358,9 @@ def c_inner_scan(*args, **kwargs):
 
 def escan(*args, **kwargs):
     return (yield from bp.scan(*args, per_step=one_1d_step_pseudo_shutter, **kwargs))
+    
+def rel_escan(*args, **kwargs):
+    return (yield from bp.rel_scan(*args, per_step=one_1d_step_pseudo_shutter, **kwargs))
 
 def e_inner_scan(*args, **kwargs):
     return (yield from bp.inner_product_scan(*args, per_step=one_nd_step_pseudo_shutter, **kwargs))

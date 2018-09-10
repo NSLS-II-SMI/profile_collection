@@ -24,30 +24,8 @@ xbpm3y = EpicsSignal('XF:12IDB-BI:2{EM:BPM3}PosY:MeanValue_RBV', name='xbpm3y')
 #Prototype new electrometer, currently looking at XBPM2.
 #ch1,2,3,4 = pads 2,3,5,4 respectively; thick active area
 
-# bias voltage command should be limited to 2V or 0V only
-
-
-
-### idea - put info here how to restart ioc, location of medms, etc
 
 
 
 
-###
-# from ophyd import EpicsMotor, EpicsSignal, Device, Component as C
 
-# import time as ttime  # tea time
-# from datetime import datetime
-# from ophyd import (ProsilicaDetector, SingleTrigger, TIFFPlugin,
-#                    ImagePlugin, StatsPlugin, DetectorBase, HDF5Plugin,
-#                   AreaDetector, EpicsSignal, EpicsSignalRO, ROIPlugin,
-#                    TransformPlugin, ProcessPlugin)
-# from ophyd.areadetector.cam import AreaDetectorCam
-# from ophyd.areadetector.base import ADComponent, EpicsSignalWithRBV
-# from ophyd.areadetector.filestore_mixins import (FileStoreTIFFIterativeWrite,
-#                                                  FileStoreHDF5IterativeWrite,
-#                                                  FileStoreBase, new_short_uid)
-# from ophyd import Component as Cpt, Signal
-# from ophyd.utils import set_and_wait
-
-### placeholder - fluoro screen - decide don't need

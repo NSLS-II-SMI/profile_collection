@@ -91,7 +91,7 @@ class StandardRayonix(SingleTrigger, RayonixDetector):
     roi3 = Cpt(ROIPlugin, 'ROI3:')
     roi4 = Cpt(ROIPlugin, 'ROI4:')
 
-rayonix = StandardRayonix('XF:12IDC-ES:2{Det:RayonixMAXS}', name='rayonix')
+rayonix = StandardRayonix('XF:12IDC-ES:2{Det:MAXS}', name='rayonix')
 #rayonix.read_attrs = ['hdf5', 'stats1', 'stats2', 'stats3', 'stats4', 'stats5']
 rayonix.read_attrs = ['tiff', 'stats1', 'stats2', 'stats3', 'stats4', 'stats5']
 rayonix.stats1.read_attrs = ['total']
