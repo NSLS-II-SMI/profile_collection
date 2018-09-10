@@ -67,3 +67,8 @@ target/
 # Ignore PyCharm's project files:
 .idea/
 
+*.swp
+history.sqlite
+db
+startup/00-startup.corrupt
+
