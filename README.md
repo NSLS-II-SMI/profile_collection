@@ -1,2 +1,2 @@
-# ipython_ophyd
+# Collection IPython profile
 beamline configuration of SMI
