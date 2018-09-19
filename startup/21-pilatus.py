@@ -14,6 +14,8 @@ from databroker.assets.handlers_base import HandlerBase
 import os
 import bluesky.plans as bp
 import time
+from nslsii.ad33 import StatsPluginV33 as StatsPlugin
+
 
 class PilatusDetectorCam(PilatusDetectorCam):
     file_path = Cpt(SignalWithRBV, 'FilePath', string=True)

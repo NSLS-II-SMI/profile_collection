@@ -17,6 +17,7 @@ from ophyd import Component as Cpt, Signal
 from ophyd.utils import set_and_wait
 
 from ophyd.areadetector.cam import MarCCDDetectorCam
+from nslsii.ad33 import StatsPluginV33 as StatsPlugin
 
 
 #White Beam Stop camera ROI detectors
