@@ -19,15 +19,16 @@ D_Si111 = 3.1293
 def energy_to_gap(target_energy, undulator_harmonic=1):
     fundamental_energy = target_energy / float(undulator_harmonic)
     f = fundamental_energy
-    a = -53.025391
-    b1 = 0.220837
-    b2 = -3.537803e-4
-    b3 = 3.105219e-7
-    b4 = -1.587795e-10
-    b5 = 4.734179e-14
-    b6 = -7.633003e-18
-    b7 = 5.14881e-22
-    gap = a + b1*f + b2*f**2 + b3 * f**3 + b4 * f**4 + b5 * f**5 + b6 * f**6 + b7 * f**7 - 0.07
+    #measured fundamnetal harmonic on the 20th September 2018
+    a = 24.31415 #-53.025391 values until 20Sep'18
+    b1 = -0.08224 #0.220837
+    b2 = 1.38266e-4 #-3.537803e-4
+    b3 = -1.18903e-7 #-13.105219e-7
+    b4 = 5.90784e-11 #-1.587795e-10
+    b5 = -1.70272e-14 #4.734179e-14
+    b6 = 2.64385e-18 #-7.633003e-18
+    b7 = -1.70455e-22 #5.14881e-22
+    gap = a + b1*f + b2*f**2 + b3 * f**3 + b4 * f**4 + b5 * f**5 + b6 * f**6 + b7 * f**7
     return gap
 
 def energy_to_dcm_pitch(target_energy, offset=0.0):
@@ -128,7 +129,7 @@ class Energy(PseudoPositioner):
         # compute where we would move everything to in a perfect world
 
         target_ivu_gap = energy_to_gap(energy, harmonic)
-        while not (6.2 < target_ivu_gap < 25.10):
+        while not (6.2 <= target_ivu_gap < 25.10):
              harmonic -= 2
              if harmonic < 1:
                  raise RuntimeError('can not find a valid gap')

@@ -327,7 +327,7 @@ def align_gisax( ):
       align_gisaxs_manual(  rang = 0.1, point = 11   )
       
 
-def grating_rana(det, motor, name='Water_upRepeat', cycle=1, cycle_t=11, n_cycles=20):
+def grating_rana_temp(det, motor, name='Water_upRepeat', cycle=1, cycle_t=11, n_cycles=20):
     # Slowest cycle:
     temperatures = [302, 305, 310]
 
@@ -362,6 +362,7 @@ def grating_rana(det, motor, name='Water_upRepeat', cycle=1, cycle_t=11, n_cycle
                 yield from bps.mv(prs, phi[i_s])
                 sample_id(user_name=name, sample_name=sample_name)
                 yield from bps.mv(det.cam.acquire_time, cycle*cycle_t)
+                yield from bps.mv(pil1m_bs.x, pil1m_bs.x_center)
                 yield from bps.mv(attn_shutter, 'Retract')
                 yield from count([det], num=1)
                 sample_id(user_name=name, sample_name=f'{sample_name}_sweep20')
@@ -371,6 +372,45 @@ def grating_rana(det, motor, name='Water_upRepeat', cycle=1, cycle_t=11, n_cycle
                     yield from fly_scan(det, motor, cycle, cycle_t, phi[i_s])
                 yield from bps.sleep(1)
                 yield from bps.mv(attn_shutter, 'Insert')
+      
+def grating_rana(det, motor, name='SNS2', cycle=1, cycle_t=10.0, n_cycles=10):
+    # Medium cycle:
+    samples = ['C14.3-0808-150-D45','C16.7-0808-150-D45','C20-0808-150-D45', 'C14.8-2430-170P']
+    x = [20, 12, 3, -12]
+    y = [1.851, 1.875, 1.9, 1.88]
+    align_angle01 = [0.088, 0.155, -0.061, 0.084]
+    phi = [-0.405, 0.515, -1.505, -0.547]
+    chi = [-0.2,-0.2, -0.2, -0.2]
+
+    # Fastest cycle:
+    angles = [0.2, 0.25, 0.35]
+    angle_offset = [0.1, 0.15, 0.25]
+    name_fmt = '{sample}_{angle}deg'
+
+    for i_s, s in enumerate(samples):
+        for i_a, a in enumerate(angles):
+            sample_name = name_fmt.format(sample=s, angle=a)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bps.mv(prs, phi[i_s])
+            yield from bps.mv(sample.x, x[i_s])
+            yield from bps.mv(stage.ch, chi[i_s])
+            yield from bps.mv(stage.y, y[i_s])
+            yield from bps.mv(sample.al, align_angle01[i_s] - angle_offset[i_a])
+            sample_id(user_name=name, sample_name=sample_name)
+            yield from bps.mv(det.cam.acquire_time, 1)
+            yield from bps.mv(pil1m_bs.x, pil1m_bs.x_center)
+            yield from bps.mv(attn_shutter, 'Retract')
+            yield from count([det], num=1)
+            yield from bps.mv(det.cam.acquire_time, cycle*cycle_t)
+            sample_id(user_name=name, sample_name=f'{sample_name}_sweep20')
+            print(f'\n\t=== Sample: {sample_name}_sweep20 ===\n')
+            print('... doing fly_scan here ...')
+            for i in range(n_cycles):
+                yield from fly_scan(det, motor, cycle, cycle_t, phi[i_s])
+            yield from bps.sleep(1)
+            yield from bps.mv(attn_shutter, 'Insert')
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5)
                 
 def run_saxs_caps(t=1): 
     x_list  = [-15,-12.8,-6.45,-0.25, 6.43, 12.5, 19.05,25.2]#

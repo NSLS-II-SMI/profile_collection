@@ -1,5 +1,5 @@
-BS_POSITION_X = 1.15
-BS_POSITION_Y = 13.1
+BS_POSITION_X = 1.25
+BS_POSITION_Y = 13.2
 
 class PIL1MPositions(Device):
     x = Cpt(EpicsMotor, 'X}Mtr')
@@ -24,7 +24,7 @@ att1_4 = TwoButtonShutter('XF:12IDC-OP:2{Fltr:1-4}', name='att1_4')
 pil1m_pos = PIL1MPositions('XF:12IDC-ES:2{Det:1M-Ax:', name='pil1m_pos')
 pil1m_bs = PIL1MBS('XF:12IDC-ES:2{BS:SAXS-Ax:', name='pil1m_bs')
 
-pil1m_bs.x_center = 1.2
+pil1m_bs.x_center = 1.25
 pil1m_bs.y_center = 13.1
 
 # Plans:
