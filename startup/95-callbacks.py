@@ -1,3 +1,5 @@
+print(f'Loading {__file__}')
+
 from bluesky.callbacks.broker import LiveTiffExporter
 from bluesky.callbacks.broker import post_run
 
@@ -6,8 +8,8 @@ from bluesky.callbacks.broker import post_run
 template_1M = "/data/1M/images/user/{start[remark]}_{event[seq_num]}_{i}.tif"
 template_300KW = "/data/300KW/images/user/{start[remark]}_{event[seq_num]}_{i}.tif"
 
-exporter_1M = LiveTiffExporter('pil1M_image', template_1M, db=db)
-exporter_300KW = LiveTiffExporter('pil300KW_image', template_300KW, db=db)
+# exporter_1M = LiveTiffExporter('pil1M_image', template_1M, db=db)
+# exporter_300KW = LiveTiffExporter('pil300KW_image', template_300KW, db=db)
 
 try:
     token1

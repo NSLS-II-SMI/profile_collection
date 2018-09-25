@@ -1,3 +1,5 @@
+print(f'Loading {__file__}')
+
 from ophyd import ( Component as Cpt, ADComponent, Device, PseudoPositioner,
                     EpicsSignal, EpicsSignalRO, EpicsMotor,
                     ROIPlugin, ImagePlugin,
@@ -54,8 +56,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
     tiff = Cpt(TIFFPluginWithFileStore,
                suffix="TIFF1:",
                write_path_template="/GPFS/xf12id1/data/PLACEHOLDER",  # override this on instances using instance.tiff.write_file_path
-               root='/GPFS',
-               reg=db.reg)
+               root='/GPFS')
 
     roi1 = Cpt(ROIPlugin, 'ROI1:')
     roi2 = Cpt(ROIPlugin, 'ROI2:')
@@ -119,10 +120,9 @@ fd = FakeDetector(name='fd')
 
 pil1M.stats1.kind = 'hinted'
 pil1M.stats1.total.kind = 'hinted'
+pil1M.cam.ensure_nonblocking()
 
 pil300KW.stats1.kind = 'hinted'
 pil300KW.stats1.total.kind = 'hinted'
-
-pil1M.cam.ensure_nonblocking()
 pil300KW.cam.ensure_nonblocking()
 

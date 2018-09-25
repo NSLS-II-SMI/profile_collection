@@ -1,3 +1,5 @@
+print(f'Loading {__file__}')
+
 from bluesky.callbacks.olog import logbook_cb_factory
 import readline
 from collections import defaultdict

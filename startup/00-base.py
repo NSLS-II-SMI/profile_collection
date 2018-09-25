@@ -1,3 +1,5 @@
+print(f'Loading {__file__}')
+
 import nslsii
 nslsii.configure_base(get_ipython().user_ns, 'smi')
 nslsii.configure_olog(get_ipython().user_ns)

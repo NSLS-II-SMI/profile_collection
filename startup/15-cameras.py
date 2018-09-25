@@ -1,3 +1,5 @@
+print(f'Loading {__file__}')
+
 from ophyd import EpicsMotor, EpicsSignal, Device, Component as C
 
 import time as ttime  # tea time
@@ -71,14 +73,13 @@ class StandardRayonix(SingleTrigger, RayonixDetector):
 
     #hdf5 = Cpt(HDF5PluginWithFileStore, suffix='HDF1:',
                #write_path_template='/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/',
-               #root='/GPFS/xf12id1/data/MAXS/images/',
-               #reg=db.reg)
+               #root='/GPFS/xf12id1/data/MAXS/images/')
     
     tiff = Cpt(TIFFPluginWithFileStore,
 	    suffix="TIFF1:",
 	    write_path_template='/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/', # override this on instances using instance.tiff.write_file_path
 	    root='/GPFS',#/xf12id1/data/MAXS/images/',
-	    reg=db.reg)
+        )
     
     
     stats1 = Cpt(StatsPlugin, 'Stats1:')
@@ -133,8 +134,7 @@ class StandardProsilicaWithTIFF(StandardProsilica):
                suffix='TIFF1:',
                write_path_template='/tmp/%Y/%m/%d/',
                read_path_template='/tmp/%Y/%m/%d/',
-               root='/tmp/',
-               reg=db.reg)
+               root='/tmp/')
 
 
 FS = StandardProsilica('XF:12IDA-BI{Cam:FS}', name='FS')
@@ -152,6 +152,4 @@ FS.stats4.read_attrs = ['total']
 #VFM.stats3.read_attrs = ['total']
 #VFM.stats4.read_attrs = ['total']
 #VFM.configuration_attrs = ['cam.acquire_time']
-
-
 

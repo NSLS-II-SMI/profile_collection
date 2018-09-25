@@ -1,3 +1,5 @@
+print(f'Loading {__file__}')
+
 from ophyd import EpicsMotor, EpicsSignal, Device, Component as C
 
 import time as ttime  # tea time

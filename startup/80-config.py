@@ -1,3 +1,5 @@
+print(f'Loading {__file__}')
+
 from ophyd import EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt
 # things to read at begining and end of every scan
 sd.baseline = [energy, sample, stage]

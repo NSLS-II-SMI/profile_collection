@@ -1,3 +1,5 @@
+print(f'Loading {__file__}')
+
 import time as ttime
 import os
 import numpy as np

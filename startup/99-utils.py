@@ -1,4 +1,7 @@
 #!/usr/bin/python
+
+print(f'Loading {__file__}')
+
 from bluesky.plan_stubs import one_1d_step, abs_set, wait, sleep
 import time
 from collections import ChainMap

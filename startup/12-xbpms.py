@@ -1,3 +1,5 @@
+print(f'Loading {__file__}')
+
 from ophyd import EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt, PseudoPositioner
 
 # xbpm2 positioner shortcut for scans 5 april 2017

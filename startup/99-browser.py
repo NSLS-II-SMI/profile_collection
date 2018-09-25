@@ -1,3 +1,5 @@
+print(f'Loading {__file__}')
+
 # We assume this is being run in a namespace (e.g. an IPython profile startup
 # script) where an instance of databroker.Broker named `db` is already defined.
 

@@ -1,3 +1,5 @@
+print(f'Loading {__file__}')
+
 from bluesky.callbacks.olog import logbook_cb_factory
 from functools import partial
 from pyOlog import SimpleOlogClient

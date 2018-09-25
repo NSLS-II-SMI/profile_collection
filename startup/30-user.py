@@ -1,4 +1,4 @@
-
+print(f'Loading {__file__}')
 
 def export_scan( sid, filename='', path='/home/xf12id/tmp/',verbose=True ):
     '''Export table by giving a scan id'''

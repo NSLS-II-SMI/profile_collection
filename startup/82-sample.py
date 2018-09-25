@@ -1,3 +1,5 @@
+print(f'Loading {__file__}')
+
 BS_POSITION_X = 1.25
 BS_POSITION_Y = 13.2
 
