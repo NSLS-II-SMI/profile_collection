@@ -100,6 +100,11 @@ def det_exposure_time (t):
     pil1M.cam.acquire_time.put(t)
     pil300KW.cam.acquire_time.put(t)
     rayonix.cam.acquire_time.put(t)
+    
+def det_next_file (n):
+    pil1M.cam.file_number.put(n)
+    pil300KW.cam.file_number.put(n)    
+    rayonix.cam.file_number.put(n) 
 
 class FakeDetector(Device):
     acq_time = Cpt(Signal, value=10)

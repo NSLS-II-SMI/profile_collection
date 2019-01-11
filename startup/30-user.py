@@ -50,6 +50,31 @@ def create_string( d  ):
     return s
     
     
+def run3( t ):    
+        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Cls-Cmd','1');
+        collect_data( t, meta_string=[ 'X', 'Y', 'Exp', 'Arc',  ], dets=[ pil300KW, pil1M   ] );
+        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Opn-Cmd','1')   
+    
+def run2( t ):    
+        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Cls-Cmd','1');
+        collect_data( t, meta_string=[ 'X', 'Y', 'Exp', 'Arc',  ], dets=[ pil300KW   ] );
+        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Opn-Cmd','1')    
+    
+        
+    
+def run1( t ):    
+        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Cls-Cmd','1');
+        collect_data( t, meta_string=[ 'X', 'Y', 'Exp' ], dets=[ pil1M   ] );
+        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Opn-Cmd','1')
+    
+def run2( t ):    
+        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Cls-Cmd','1');
+        collect_data( t, meta_string=[ 'X', 'Y', 'Exp', 'Arc',  ], dets=[ pil300KW   ] );
+        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Opn-Cmd','1')    
+    
+    
+    
+    
 def collect_data( exposure_time=1, meta_string=['X','Y', 'Exp'], dets= [  pil1M   ]  ): 
         '''
         dets: [pil1M], collect SAXS data
@@ -204,36 +229,6 @@ def run_saxs_lipids(y=1, t=2):
     sample_id(user_name='test', sample_name='test')
 
 
-def run_giwaxs_res (angle, name='test'):
-    stage.th.move(angle-0.24)
-    energy.move(2472)
-    posx = stage.x.position
-    sample='2472eV'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_inner_scan([pil300KW, pil1M, pil1mroi2,pil1mroi3, ssacurrent], 1, energy, 2472, 2472, hfm.th, -0.17390, -0.17390, vdm.th, -0.35710, -0.35710))
-    energy.move(2450)
-    sample='2450eV'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_inner_scan([pil300KW, pil1M, pil1mroi2,pil1mroi3, ssacurrent], 1, energy, 2450, 2450, hfm.th, -0.17375, -0.17375, vdm.th, -0.35725, -0.35725))
-    energy.move(2400)
-    sample='2400eV'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_inner_scan([pil300KW, pil1M, pil1mroi2,pil1mroi3, ssacurrent], 1, energy, 2400, 2400, hfm.th, -0.17355, -0.17355, vdm.th, -0.3576, -0.3576))
-    stage.x.move(posx+0.5)
-    sample='2400eV_offset05'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_inner_scan([pil300KW, pil1M, pil1mroi2,pil1mroi3, ssacurrent], 1, energy, 2400, 2400, hfm.th, -0.17355, -0.17355, vdm.th, -0.3576, -0.3576))
-    energy.move(2450)
-    sample='2450eV_offset05'
-    sample_id( user_name = name, sample_name= sample)
-    RE(e_inner_scan([pil300KW, pil1M, pil1mroi2,pil1mroi3, ssacurrent], 1, energy, 2450, 2450, hfm.th, -0.17375, -0.17375, vdm.th, -0.35725, -0.35725))
-    sample='2472eV_offset05'
-    sample_id( user_name = name, sample_name= sample)
-    energy.move(2472)
-    RE(e_inner_scan([pil300KW, pil1M, pil1mroi2,pil1mroi3, ssacurrent], 1, energy, 2472, 2472, hfm.th, -0.17390, -0.17390, vdm.th, -0.35710, -0.35710))
-    sample_id( user_name = 'test', sample_name= 'test')
-
-
 ### For one smaple, collect all detector data for different incident angle and different waxs_arc
 def run(  inc_list = [  -0.07,   -0.11, -0.22 ],  arc_list=[4, 10, 16], exposure_time=0.5,  step=-0.03, axis='x'  ):
 
@@ -270,28 +265,6 @@ def run(  inc_list = [  -0.07,   -0.11, -0.22 ],  arc_list=[4, 10, 16], exposure
             print('Error!!!, Please give axis either x or y.' )                    
  
     
-#  %run -i /home/xf12id/.ipython/profile_collection/startup/30-user.py 
-
-#try:
-#    hdr = db[  -1 ]
-#    d = hdr.table()
-#    x= d['stage_x']
-#    y= d['pil300KW_stats1_total']
-#except:
-#    x=[0]
-#    y=[0]
-       
-#user_name = 'LC'
-#sample_list=['O22-E-0Cto25C','O27-5-0Cto25C','O22-I-quenchto0C-5Cmin','O27-9-quenchto0C-1Cmin','027-8-quenchto0C-fast','O22-G-quenchto0C-15Cmin','O22-L-quenchto0C-30Cmin']
-#posx_list = [8.68, 11.22,13.75, 16.41, 19.3, 21.85,24]
-#sample_list=['test3']
-#posx_list = [7]
-# 2018 Cycle 1
-#Xrange [-15, 25]  --> center = 5.0
-#Y range [-2.3, 4.3 ] --> center = 1.0
-# RE(bp.scan([pil300KW], stage.x, -15,25, 301))  #WAXS det, for capillary sample
-# RE(bp.scan([pil1M], stage.x, -15,25, 301))  #SAXS det, for Kapton sample
-       
     
 def move_pos(  pos=1  ):
     sam = sample_list[pos-1]

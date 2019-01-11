@@ -65,7 +65,7 @@ from Maksim
     return x, y, t
 
 
-def ps(uid='-1',det='default',suffix='default',shift=.5,logplot='off'):
+def ps(uid='-1',det='default',suffix='default',shift=.5,logplot='off', der  = False ):
     '''
     YG Copied from CHX beamline@March 18, 2018
     function to determine statistic on line profile (assumes either peak or erf-profile)
@@ -112,7 +112,11 @@ def ps(uid='-1',det='default',suffix='default',shift=.5,logplot='off'):
     [x,y,t]=get_data(uid,field=field, intensity_field=intensity_field, det=None, debug=False)  #need to re-write way to get data
     x=np.array(x)
     y=np.array(y)
-
+    #print(t)
+    if der:
+        y = np.diff( y )
+        x = x[1:]
+        
     PEAK=x[np.argmax(y)]
     PEAK_y=np.max(y)
     COM=np.sum(x * y) / np.sum(y)
@@ -149,7 +153,7 @@ def ps(uid='-1',det='default',suffix='default',shift=.5,logplot='off'):
         ### estimate starting values:
         x0=np.mean(x)
         #k=0.1*(np.max(x)-np.min(x))
-        pars  = mod.make_params( x0=x0, k=2,  A = 1., base = 0. )
+        pars  = mod.make_params( x0=x0, k=200,  A = 1., base = 0. )
         result = mod.fit(ym, pars, x = x )
         CEN=result.best_values['x0']
         FWHM = result.best_values['k']
@@ -185,6 +189,7 @@ def ps(uid='-1',det='default',suffix='default',shift=.5,logplot='off'):
     ### assign values of interest as function attributes:
     ps.peak=PEAK
     ps.com=COM
+    #return x, y 
 
 
 def get_incident_angle(db_y, rb_y, Ldet=1599, pixel_size=172 ):
@@ -232,9 +237,7 @@ def find_peaks_peakutils(uid='8537b7', x='stage_x', y='pil300KW_stats1_total', p
     return peak_idx, xx[peak_idx], yy[peak_idx]
 
     
-attn_shutter = TwoButtonShutter('XF:12IDC-OP:2{Fltr:1-4}', name='attn_shutter')
-#fe_shutter =   TwoButtonShutter('XF:12ID-PPS{Sh:FE}', name='fe_shutter')
-        
+       
 def one_nd_step_pseudo_shutter(detectors, step, pos_cache):
     """
     Inner loop of an N-dimensional step scan

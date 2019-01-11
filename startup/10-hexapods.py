@@ -29,10 +29,20 @@ class HEXAPOD(Device):
     b = Cpt(EpicsMotor, 'B}Mtr')
     c = Cpt(EpicsMotor, 'C}Mtr')
 
+class SMARACT(Device):
+    x = Cpt(EpicsMotor, '0}Mtr')
+    y = Cpt(EpicsMotor, '3}Mtr')
+    z = Cpt(EpicsMotor, '6}Mtr')
+    th = Cpt(EpicsMotor, '4}Mtr')
+    ch = Cpt(EpicsMotor, '1}Mtr')
+    
+   
 stage = STG('XF:12IDC-OP:2{HEX:Stg-Ax:', name='stage')
 sample = SMPL('XF:12IDC-OP:2{HEX:Sam-Ax:', name='sample')
 hp140 = HEXAPOD('XF:12IDC-OP:2{HEX:140-Ax:', name='hp140')
 hp430 = HEXAPOD('XF:12IDC-OP:2{HEX:430-Ax:', name='hp430')
+piezo = SMARACT('XF:12IDC-ES:2{MCS:1-Ax:', name='piezo')
+
 
 for hp in [stage, sample, hp140, hp430]:
     hp.configuration_attrs = hp.read_attrs

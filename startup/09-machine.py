@@ -19,9 +19,11 @@ ivu_permit = EpicsSignalRO('XF:12ID-CT{}Prmt:Remote-Sel', name='ivu_permit')
 smi_shutter_enable = EpicsSignalRO('SR:C12-EPS{PLC:1}Sts:ID_BE_Enbl-Sts', name='smi_shutter_enable')
 
 from bluesky.suspenders import SuspendFloor, SuspendBoolLow, SuspendBoolHigh
-susp_beam = SuspendFloor( ring_current, 0, resume_thresh= 290 )
+susp_beam = SuspendFloor( ring_current, 100, resume_thresh= 397 )
 RE.install_suspender( susp_beam )
 
+susp_smi_shutter = SuspendFloor( smi_shutter_enable, 0.1, resume_thresh= 0.9 )
+RE.install_suspender( susp_smi_shutter )
 
 #RE.install_suspender( susp_fe_shutter
 
@@ -50,18 +52,18 @@ class EpicsSignalOverridePrec(EpicsSignal):
 
 class UndulatorGap(PVPositioner):
     # positioner signals
-    setpoint = Cpt(EpicsSignalOverridePrec, '-Mtr:2}Inp:Pos')
-    readback = Cpt(EpicsSignalOverridePrecRO, '-LEnc}Gap')
-    stop_signal = Cpt(EpicsSignal, '-Mtr:2}Pos.STOP')
-    actuate = Cpt(EpicsSignal, '-Mtr:2}Sw:Go')
+    setpoint = Cpt(EpicsSignalOverridePrec, '-Ax:Gap}-Mtr-SP')
+    readback = Cpt(EpicsSignalOverridePrecRO, '-Ax:Gap}-Mtr.RBV')
+    stop_signal = Cpt(EpicsSignal, '-Ax:Gap}-Mtr.STOP')
+    actuate = Cpt(EpicsSignal, '-Ax:Gap}-Mtr-Go')
     actuate_value = 1
-    done = Cpt(EpicsSignalRO, '-Mtr:2}Sw:Serv-On')
+    done = Cpt(EpicsSignalRO, '-Ax:Gap}-Mtr.MOVN')
     done_value = 0
 
     # correction function signals, need to be merged into single object
-    corrfunc_en = Cpt(EpicsSignal, '-MtrC}EnaAdj:out')
-    corrfunc_dis = Cpt(EpicsSignal, '-MtrC}DisAdj:out')
-    corrfunc_sta = Cpt(EpicsSignal, '-MtrC}AdjSta:RB')
+    #corrfunc_en = Cpt(EpicsSignal, '-MtrC}EnaAdj:out')
+    #corrfunc_dis = Cpt(EpicsSignal, '-MtrC}DisAdj:out')
+    #corrfunc_sta = Cpt(EpicsSignal, '-MtrC}AdjSta:RB')
 
     permit = Cpt(EpicsSignalRO, 'XF:12ID-CT{}Prmt:Remote-Sel',
                  name='permit',
@@ -70,13 +72,13 @@ class UndulatorGap(PVPositioner):
     # brake status
     # brake_on = Cpt(EpicsSignalRO, '-Mtr:2}Rb:Brk')
     def set(self, new_position, **kwargs):
-        if np.abs(self.position - new_position) < .0008:
+        if np.abs(self.position - new_position) < .2:
              return DeviceStatus(self, done=True, success=True)	
         return super().set(new_position, **kwargs)
 
     def move(self, new_position, moved_cb=None, **kwargs):
-        print(np.abs(self.position - new_position),  .0008, self.position, new_position)
-        if np.abs(self.position - new_position) < .0008:
+        print(np.abs(self.position - new_position),  .2, self.position, new_position)
+        if np.abs(self.position - new_position) < .2:
              if moved_cb is not None:
                  moved_cb(obj=self)
              return DeviceStatus(self, done=True, success=True)
@@ -87,7 +89,7 @@ class UndulatorGap(PVPositioner):
             super().stop(success=success)
 
 
-
+'''
 class UndulatorElev(PVPositioner):
     # positioner signals
     setpoint = Cpt(EpicsSignalOverridePrec, '-Mtr:1}Inp:Pos')
@@ -101,5 +103,5 @@ class UndulatorElev(PVPositioner):
 ivuelev = UndulatorElev('SR:C12-ID:G1{IVU:1', name='ivuelev',
                 read_attrs=['readback', 'setpoint'],
                 configuration_attrs=[])
-
+'''
 

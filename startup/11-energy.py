@@ -30,7 +30,8 @@ def energy_to_gap(target_energy, undulator_harmonic=1):
     b5 = -1.70272e-14 #4.734179e-14
     b6 = 2.64385e-18 #-7.633003e-18
     b7 = -1.70455e-22 #5.14881e-22
-    gap = a + b1*f + b2*f**2 + b3 * f**3 + b4 * f**4 + b5 * f**5 + b6 * f**6 + b7 * f**7
+    gap_mm = a + b1*f + b2*f**2 + b3 * f**3 + b4 * f**4 + b5 * f**5 + b6 * f**6 + b7 * f**7
+    gap = gap_mm*1000
     return gap
 
 def energy_to_dcm_pitch(target_energy, offset=0.0):
@@ -98,9 +99,8 @@ class Energy(PseudoPositioner):
     ivugap = Cpt(UndulatorGap,
                  'SR:C12-ID:G1{IVU:1',
                  read_attrs=['readback'],
-                 configuration_attrs=['corrfunc_sta',
-                                      'corrfunc_dis',
-                                      'corrfunc_en'],
+                 #configuration_attrs=['corrfunc_sta', 'corrfunc_dis', 'corrfunc_en'],
+                 configuration_attrs=[],
                  labels=['mono'])
 
     enableivu = Cpt(Signal, value=True)
@@ -131,7 +131,7 @@ class Energy(PseudoPositioner):
         # compute where we would move everything to in a perfect world
 
         target_ivu_gap = energy_to_gap(energy, harmonic)
-        while not (6.2 <= target_ivu_gap < 25.10):
+        while not (6200 <= target_ivu_gap < 15100):
              harmonic -= 2
              if harmonic < 1:
                  raise RuntimeError('can not find a valid gap')
@@ -183,3 +183,5 @@ bragg = dcm.bragg  # Theta in CSS  # EpicsMotor('XF12ID:m65', name='bragg')
 # dcm_x = dcm.x  # E Mono X in CSS
 
 bragg.read_attrs = ['user_readback']
+
+new_ivu_gap = EpicsMotor('SR:C12-ID:G1{IVU:1-Ax:Gap}-Mtr', name='new_ivu_gap')
