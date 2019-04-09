@@ -66,5 +66,6 @@ def run_saxs_caps_temp_Bolm(name = 'DB'):
     det_exposure_time(0.5)
     yield from bps.mv(ls.ch1_sp, 28)    
         
-   
+def test_en(en): 
+    yield from bps.mv(energy, en)
 

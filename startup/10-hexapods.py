@@ -30,12 +30,27 @@ class HEXAPOD(Device):
     c = Cpt(EpicsMotor, 'C}Mtr')
 
 class SMARACT(Device):
-    x = Cpt(EpicsMotor, '0}Mtr')
-    y = Cpt(EpicsMotor, '3}Mtr')
-    z = Cpt(EpicsMotor, '6}Mtr')
-    th = Cpt(EpicsMotor, '4}Mtr')
-    ch = Cpt(EpicsMotor, '1}Mtr')
+    x = Cpt(EpicsMotor, '0}Mtr', labels = ['piezo'])
+    y = Cpt(EpicsMotor, '3}Mtr', labels = ['piezo'])
+    z = Cpt(EpicsMotor, '6}Mtr', labels = ['piezo'])
+    th = Cpt(EpicsMotor, '4}Mtr', labels = ['piezo'])
+    ch = Cpt(EpicsMotor, '1}Mtr', labels = ['piezo'])
     
+
+   
+class BDMStage(Device):
+    x = Cpt(EpicsSignal, 'ACT2:POSITION', write_pv='ACT2:CMD:TARGET',kind='hinted')
+    y = Cpt(EpicsSignal, 'ACT1:POSITION', write_pv='ACT1:CMD:TARGET',kind='hinted')
+    th = Cpt(EpicsSignal, 'ACT0:POSITION', write_pv='ACT0:CMD:TARGET',kind='hinted')
+
+bdm = BDMStage('XF:12IDC-ES:2:', name='bdm')
+#bdm_x = BDM('XF:12IDC-ES:2:ACT2:', name='bdm_x')
+#bdm_y = BDM('XF:12IDC-ES:2:ACT1:', name='bdm_y')
+#bdm_th = BDM('XF:12IDC-ES:2:ACT0:', name='bdm_th')   
+    
+  
+
+
    
 stage = STG('XF:12IDC-OP:2{HEX:Stg-Ax:', name='stage')
 sample = SMPL('XF:12IDC-OP:2{HEX:Sam-Ax:', name='sample')
@@ -47,7 +62,13 @@ piezo = SMARACT('XF:12IDC-ES:2{MCS:1-Ax:', name='piezo')
 for hp in [stage, sample, hp140, hp430]:
     hp.configuration_attrs = hp.read_attrs
 
-prs = EpicsMotor('XF:12IDC-OP:2{HEX:PRS-Ax:Rot}Mtr', name='prs')
+for pz in [piezo]:
+    pz.configuration_attrs = pz.read_attrs
+
+prs = EpicsMotor('XF:12IDC-OP:2{HEX:PRS-Ax:Rot}Mtr', name='prs', labels=['prs'])
+
+for pr in [prs]:
+    pr.configuration_attrs = pr.read_attrs
 
 class WAXS(Device):
     arc = Cpt(EpicsMotor, 'Arc}Mtr')

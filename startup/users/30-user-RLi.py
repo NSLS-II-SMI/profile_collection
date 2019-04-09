@@ -1,4 +1,4 @@
-# %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Francisco.py
+
 
 
             
@@ -15,27 +15,28 @@ def ROI_yale():
         yield from bps.mv(att2_11, 'Retract')
  
 def do_grazing(meas_t=0.5):
-        dets = [pil300KW, pil300kwroi2, xbpm3.sumY, xbpm2.sumY]
+        #dets = [pil300KW, pil300kwroi2, xbpm3.sumY, xbpm2.sumY]
+        dets = [pil1M, pil300KW, pil300kwroi2, xbpm3.sumY, xbpm2.sumY]
         #xlocs = [ 40000,25500,9000,-6000,-22000]
         #names = ['ctrl_glass','ctrl_assq_thin','ctrl_ASSQ_thick','ctrl_PDCBT_ITIC_pt9weight','ctrl_PDCBT_ITIC_ASSQ_1per_pt9weight']
       
       
-        xlocs = [ 9000]
-        names = ['ctrl_ASSQ_thick_finescan']  
+        xlocs = [ 23800]
+        names = ['Sample5-155']  
         assert len(xlocs) == len(names), f'Number of X coordinates ({len(x_list)}) is different from number of x offset ({len(samples)})'
         
         for xloc, name in zip(xlocs, names):
                 yield from bps.mv(piezo.x, xloc)
-                yield from bps.mv(piezo.th,0.9) #ask misha for the value
+                yield from bps.mv(piezo.th,0.9) #
                 yield from alignCai()
                 plt.close('all')
                 
-                angle_offset = [0.1, 0.22, 0.3] #ask misha
+                angle_offset = [0.1, 0.2, 0.3, 0.4] #
                 a_off = piezo.th.position
                 det_exposure_time(meas_t)                
                 
                 e_list  = [2460, 2477, 2500]
-                waxs_arc = [2.8, 32.8, 6]
+                waxs_arc = [2.8] #[2.8, 32.8, 6]
                 name_fmt = '{sample}_{energ}eV_{angle}deg'
                
                 offset_idx = 0
@@ -48,9 +49,8 @@ def do_grazing(meas_t=0.5):
                         yield from bps.mv(piezo.th, ang)
                         sample_name = name_fmt.format(sample=name, angle=real_ang, energ = e)
 
-                        sample_id(user_name='FA', sample_name=sample_name)
+                        sample_id(user_name='RL', sample_name=sample_name)
                         print(f'\n\t=== Sample: {sample_name} ===\n')
-                        
                         yield from bp.inner_product_scan(dets, int(waxs_arc[2]), waxs.arc, float(waxs_arc[0]), float(waxs_arc[1]), piezo.x, x_offset-600, x_offset + 600)
 
         det_exposure_time(0.5)
@@ -59,33 +59,28 @@ def do_grazing(meas_t=0.5):
 def do_grazing_fine(meas_t=0.5):
         dets = [pil300KW, pil300kwroi2, xbpm3.sumY, xbpm2.sumY]
         det1 = [pil300KW]
-        #xlocs = [ -51500, -34700, -20500, -5500, 10000, 25000, 40000]
-        #names = ['ctrl_ITO_finescan','P_I_A_90perA_finescan', 'P_I_A_50perA_finescan', 'P_I_A_10perA_finescan', 'P_I_A_01perA_finescan', 'P_I_A_00perA_finescan', 'ctrl_ASSQ_thickagain_finescan']
-      
-        #xlocs = [ -11500, -33500, -50000]
-        #names = ['P_I_00perA_navy_b', 'P_I_A_01perA_teal_b', 'ctrl_ASSQ_thick_magenta_b']
         
-        xlocs = [ -45600, -27500, -10500, 6400]
-        names = ['P_I_navy2', 'P_I_10perA_green', 'P_I_50perA_lightblue', 'P_I_90perA_pink']
-
+        #xlocs = [ 500]
+        #names = [ 'Sample5-130_b'] 
+        xlocs = [ 24000, 500, -29500 ]
+        names = ['Sample5-155_c', 'Sample5-130_c', 'Sample5-126_c']         
         assert len(xlocs) == len(names), f'Number of X coordinates ({len(x_list)}) is different from number of x offset ({len(samples)})'
         
-        waxs_arc = np.linspace(2.8, 32.8, 6)
-        #waxs_arc = np.linspace(2.8, 32.8, 2)
+        waxs_arc = np.linspace(2.8, 8.8, 2) #np.linspace(2.8, 32.8, 6)
         
         for xloc, name in zip(xlocs, names):
                 yield from bps.mv(piezo.x, xloc)
-                yield from bps.mv(piezo.th,0.9)
+                yield from bps.mv(piezo.th, 0.9)
                 yield from alignCai()
                 plt.close('all')
                 
-                angle_offset = [0.22]
+                angle_offset = [0.1, 0.5]
                 a_off = piezo.th.position
                 det_exposure_time(meas_t)                
                 
-                e_list  = [2470, 2475, 2476, 2477, 2478, 2480, 2482, 2484, 2486] #, 2465, 2467, 2470, 2473, 2475, 2477, 2500]
+                e_list  = [2460, 2470, 2474, 2480, 2483, 2500]  #[2460, 2465, 2470, 2475, 2500]
                 name_fmt = '{sample}_{energ}eV_{angle}deg_waxs{num}_x{xpos}'
-
+               
                 for i_e, e in enumerate(e_list):
                     yield from bps.mv(energy, e)
                     for j, ang in enumerate(a_off + np.array(angle_offset)):
@@ -93,16 +88,16 @@ def do_grazing_fine(meas_t=0.5):
                         yield from bps.mv(piezo.th, ang)
                         for waxs_pos in waxs_arc:
                                 yield from bps.mv(waxs.arc, waxs_pos)
-                                sample_name = name_fmt.format(sample=name, angle=real_ang, energ = e , num = '%05.2f'%waxs_pos, xpos = '%07.1f'%piezo.x.position)
-                                sample_id(user_name='FA2', sample_name=sample_name)
+                                sample_name = name_fmt.format(sample=name, angle='%04.2f'%real_ang, energ = e , num = '%05.2f'%waxs_pos, xpos = '%07.1f'%piezo.x.position)
+                                sample_id(user_name='RL', sample_name=sample_name)
                                 if waxs_pos < 4:
                                         det_exposure_time(0.5)                
                                         yield from bp.count(det1, num = 1)
-                                        yield from bps.mvr(piezo.x, 200)
+                                        yield from bps.mvr(piezo.x, 150)
                                 else:
-                                        det_exposure_time(5)                
+                                        det_exposure_time(0.5)                
                                         yield from bp.count(det1, num = 1)
-                                        yield from bps.mvr(piezo.x, 200)
+                                        yield from bps.mvr(piezo.x, 150)
                                 
                         
                         print(f'\n\t=== Sample: {sample_name} ===\n')

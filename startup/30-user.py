@@ -50,29 +50,6 @@ def create_string( d  ):
     return s
     
     
-def run3( t ):    
-        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Cls-Cmd','1');
-        collect_data( t, meta_string=[ 'X', 'Y', 'Exp', 'Arc',  ], dets=[ pil300KW, pil1M   ] );
-        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Opn-Cmd','1')   
-    
-def run2( t ):    
-        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Cls-Cmd','1');
-        collect_data( t, meta_string=[ 'X', 'Y', 'Exp', 'Arc',  ], dets=[ pil300KW   ] );
-        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Opn-Cmd','1')    
-    
-        
-    
-def run1( t ):    
-        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Cls-Cmd','1');
-        collect_data( t, meta_string=[ 'X', 'Y', 'Exp' ], dets=[ pil1M   ] );
-        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Opn-Cmd','1')
-    
-def run2( t ):    
-        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Cls-Cmd','1');
-        collect_data( t, meta_string=[ 'X', 'Y', 'Exp', 'Arc',  ], dets=[ pil300KW   ] );
-        caput(' XF:12IDC-OP:2{Fltr:1-8}Cmd:Opn-Cmd','1')    
-    
-    
     
     
 def collect_data( exposure_time=1, meta_string=['X','Y', 'Exp'], dets= [  pil1M   ]  ): 

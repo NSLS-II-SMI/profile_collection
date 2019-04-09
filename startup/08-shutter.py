@@ -18,6 +18,8 @@ class TwoButtonShutter(Device):
     # user facing commands
     open_str = 'Insert'
     close_str = 'Retract'
+    #!!these commands are correct with open_str = 'Insert'  close_str = 'Retract'for FOILS ONLY, to trigger gatevalevs this has to be swapped!!!
+    #to check with Bluesky guys!!!
 
     def set(self, val):
         if self._set_st is not None:
@@ -72,4 +74,20 @@ class TwoButtonShutter(Device):
         super().__init__(*args, **kwargs)
         self._set_st = None
         self.read_attrs = ['status']
+
+ph_shutter = TwoButtonShutter('XF:12IDA-PPS:2{PSh}', name='ph_shutter')
+
+def shopen():
+    yield from bps.mv(ph_shutter, 'Insert')
+    time.sleep(1)
+    yield from bps.mv(manual_PID_disable_pitch, '0')
+    yield from bps.mv(manual_PID_disable_roll, '0')
+        
+def shclose():
+    yield from bps.mv(manual_PID_disable_pitch,'1')
+    yield from bps.mv(manual_PID_disable_roll, '1')
+    time.sleep(1)
+    yield from bps.mv (ph_shutter, 'Retract')
+    
+
 

@@ -34,13 +34,6 @@ def energy_to_gap(target_energy, undulator_harmonic=1):
     gap = gap_mm*1000
     return gap
 
-def energy_to_dcm_pitch(target_energy, offset=0.0):
-    x0 = 2189
-    x = target_energy
-    dcm_pitch = -1.086 + 4.6e-4 * np.exp(-(x-x0)/36) + 0.015 * np.exp(-(x-x0)/894) + 2.004 * np.exp(-(x-x0)/8.2e6)
-    print(f'dcm_pitch = {dcm_pitch}')
-    dcm_pitch += offset
-    return dcm_pitch
 
 def energy_to_bragg(target_energy, delta_bragg=0):
     bragg_angle = np.arcsin((ANG_OVER_EV / target_energy) / (2 * D_Si111)) / np.pi * 180 - delta_bragg

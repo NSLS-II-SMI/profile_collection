@@ -2,7 +2,7 @@ print(f'Loading {__file__}')
 
 from ophyd import EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt
 # things to read at begining and end of every scan
-sd.baseline = [energy, pil1m_pos, stage, prs, piezo]
+sd.baseline = [energy, stage, prs, piezo]
 
 # this is the default list for %ct
 # BlueskyMagics.detectors = [FS]
@@ -29,11 +29,13 @@ def sample_id(*, user_name, sample_name, tray_number=None):
 
 def proposal_id(proposal_id):
     RE.md['proposal_id'] = proposal_id
+    pil1M.cam.file_path.put(f"/GPFS/xf12id1/data/images/users/{proposal_id}/1M")
+    pil300KW.cam.file_path.put(f"/GPFS/xf12id1/data/images/users/{proposal_id}/300KW")
+    rayonix.cam.file_path.put(f"/GPFS/xf12id1/data/images/users/{proposal_id}/MAXS")
     # 2018-04-10: Maksim asked Tom about why this 'put' does not create the folder,
     # Tom suggested to ask PoC to update AD installation.
     import stat
-    
-    newDir = "/GPFS/xf12id1/data/images/users/" + str(proposal_id) + "/MAXS"
+    newDir = "/GPFS/xf12id1/data/MAXS/images/users/" + str(proposal_id) + "/"
     #newDir = "/GPFS/xf12id1/data/images/users/{proposal_id}/MAXS"
     try:
         os.stat(newDir)
@@ -41,36 +43,20 @@ def proposal_id(proposal_id):
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     
-    newDir = "/GPFS/xf12id1/data/images/users/" + str(proposal_id) + "/1M"
-    try:
-        os.stat(newDir)
-    except FileNotFoundError:
-        os.makedirs(newDir)
-        os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
-    newDir = "/GPFS/xf12id1/data/images/users/" + str(proposal_id) + "/300KW"
-    try:
-        os.stat(newDir)
-    except FileNotFoundError:
-        os.makedirs(newDir)
-        os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
-    
-    pil1M.cam.file_path.put(f"/GPFS/xf12id1/data/images/users/{proposal_id}/1M")
-    pil300KW.cam.file_path.put(f"/GPFS/xf12id1/data/images/users/{proposal_id}/300KW")
-    rayonix.cam.file_path.put(f"/GPFS/xf12id1/data/images/users/{proposal_id}/MAXS")
 
 def beamline_mode(mode=None):
     allowed_modes = ['sulfur', 'hard']
     assert mode in allowed_modes, f'Wrong mode: {mode}, must choose: {" or ".join(allowed_modes)}'
     if mode == 'hard':
-        hfm.y.move(3.6) #3.6 for Rh stripe 11.6 for Pt
-        hfm.x.move(-0.0)
-        hfm.th.move(-0.1746) #-0.1746 for Rh stripe
-        vfm.x.move(4.3)
+        hfm.y.move(11.6) #3.6 for Rh stripe
+        hfm.x.move(-0.055)
+        hfm.th.move(-0.1756) #-0.1754 for Rh stripe
+        vfm.x.move(12.3)
         vfm.y.move(-2.5)
         vfm.th.move(-0.18)
-        vdm.x.move(4.3)
-        vdm.th.move(-0.1804)
-        vdm.y.move(-2.56)
+        vdm.x.move(12.3)
+        vdm.th.move(-0.18)
+        vdm.y.move(-2.59)
     elif mode == 'sulfur':
         hfm.y.move(-12.4)
         hfm.x.move(-0.055)
