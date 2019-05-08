@@ -44,14 +44,8 @@ class BDMStage(Device):
     th = Cpt(EpicsSignal, 'ACT0:POSITION', write_pv='ACT0:CMD:TARGET',kind='hinted')
 
 bdm = BDMStage('XF:12IDC-ES:2:', name='bdm')
-#bdm_x = BDM('XF:12IDC-ES:2:ACT2:', name='bdm_x')
-#bdm_y = BDM('XF:12IDC-ES:2:ACT1:', name='bdm_y')
-#bdm_th = BDM('XF:12IDC-ES:2:ACT0:', name='bdm_th')   
-    
+
   
-
-
-   
 stage = STG('XF:12IDC-OP:2{HEX:Stg-Ax:', name='stage')
 sample = SMPL('XF:12IDC-OP:2{HEX:Sam-Ax:', name='sample')
 hp140 = HEXAPOD('XF:12IDC-OP:2{HEX:140-Ax:', name='hp140')

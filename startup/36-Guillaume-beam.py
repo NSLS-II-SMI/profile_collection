@@ -190,12 +190,13 @@ class SMIBeam(object):
         elif 11500 < self.dcm.energy.position < 13000:
             target_state = [att1_9, att1_10, att1_11]
         elif 13000 < self.dcm.energy.position < 14000:
-            target_state = [att1_10, att1_12]
+            #target_state = [att1_10, att1_12]
+            target_state = [att1_12]                   #Low div in vacuum
         elif 14000 < self.dcm.energy.position < 14700:
             target_state = [att1_6, att1_7]
         elif 14700 < self.dcm.energy.position < 16100:
-            target_state = [att1_5, att1_6, att1_7]
-            #target_state = [att1_6, att1_7] micro focus, low div in air
+            target_state = [att1_5, att1_6, att1_7]    #Low div in vacuum
+            #target_state = [att1_6, att1_7]             #micro focus, low div in air
         elif 16100 < self.dcm.energy.position < 17500:
             target_state = [att1_8]
         elif 17500 < self.dcm.energy.position < 18500:
@@ -400,6 +401,10 @@ class SMI_Beamline(Beamline):
         self.setReflectedBeamROI()
         self.setDirectBeamROI()
         
+        #Move the waxs detector out of the way
+        if waxs.arc.position < 10:
+            yield from bps.mv(waxs.arc, 10)
+        
         #self.detselect(self.SAXS.detector, roi=4)
         #self.SAXS.detector.cam.acquire_time.set(0.5)
         #self.SAXS.detector.cam.acquire_period.set(0.6)
@@ -438,7 +443,7 @@ class SMI_Beamline(Beamline):
 
     def setDirectBeamROI(self, size=[24,12], verbosity=3):
         '''
-        Update the ROI (pil1m.roi4) for the direct beam on the SAXS detector.
+        Update the ROI (pil1m.roi1) for the direct beam on the SAXS detector.
         size: tuple argument: size in pixels) of the ROI [width, height]).
         '''
         

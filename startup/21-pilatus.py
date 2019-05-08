@@ -96,10 +96,16 @@ pil300kwroi2 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats2:Total_RBV', name='pil
 pil300kwroi3 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats3:Total_RBV', name='pil300kwroi3')
 pil300kwroi4 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats4:Total_RBV', name='pil300kwroi4')
 
-def det_exposure_time (t):
-    pil1M.cam.acquire_time.put(t)
-    pil300KW.cam.acquire_time.put(t)
-    rayonix.cam.acquire_time.put(t)
+def det_exposure_time(exp_t, meas_t=1):
+    pil1M.cam.acquire_time.put(exp_t)
+    pil1M.cam.acquire_period.put(exp_t+0.002)
+    pil1M.cam.num_images.put(int(meas_t/exp_t))
+    pil300KW.cam.acquire_time.put(exp_t)
+    pil300KW.cam.acquire_period.put(exp_t+0.002)
+    pil300KW.cam.num_images.put(int(meas_t/exp_t))
+    rayonix.cam.acquire_time.put(exp_t)
+    rayonix.cam.acquire_period.put(exp_t+0.01)
+    rayonix.cam.num_images.put(int(meas_t/exp_t))
     
 def det_next_file (n):
     pil1M.cam.file_number.put(n)

@@ -1,0 +1,22 @@
+
+
+def track_printer():
+
+        while  caget(monitor_pv) == 1:
+                if  caget(trigger_signal_pv) == 1: # trigger signal to execute
+                    caput(ready_for_trigger_pv,0) # that's the sign to the outside world that this function is busy
+                    print('this is "function_triggered"! \nGoing to trigger detector...')
+                    trigger_count=trigger_count=1
+                    #series(expt=.1,imnum=100,comment='testing eiger triggering from m1 session')
+                    triggered_series(scantype = scantype)
+                    print('function_triggered successfully executed...waiting for next call.')
+                    caput(trigger_signal_pv,0) # reset trigger signal
+                    caput(ready_for_trigger_pv,1) # that's the sign that this function is ready for the next call
+                    if trigger_num != -1 and trigger_count >= trigger_num:
+                        caput(monitor_pv,0)
+                        print('number of requested triggers reached, stopping monitoring...')
+                    else:
+                        pass
+                RE(sleep(.5))
+                print('monitoring trigger signal')
+

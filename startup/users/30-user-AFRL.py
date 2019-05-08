@@ -5,8 +5,8 @@ def saxsafrl( t = 1):
     x_list  = [-6.45]
     # Detectors, motors:
     dets = [pil1M, ls.ch1_read, xbpm3.sumY, pin_diode, pdcurrent1]
-    y_range = [-0.01, 0.01, 11]
-    samples = ['test']
+    y_range = [-0.0, 0.0, 1]
+    samples = ['AuPS_PGN_0.43nM_20nm_21kDa']
     name_fmt = '{sample}_{pinread}uA_{temperature}C'
     #    param   = '16.1keV'
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'

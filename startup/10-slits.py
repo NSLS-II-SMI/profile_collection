@@ -15,7 +15,7 @@ wbs = SLIT('XF:12IDA-OP:2{Slt:WB-Ax:', name='wbs')
 
 # ssa
 ssa = SLIT('XF:12IDB1-OP:2{Slt:SSA-Ax:', name='ssa')
-ssacurrent = EpicsSignal('XF:12IDB-BI{EM:SSASlit}SumAll:MeanValue_RBV', name='ssacurrent')
+
 
 # C hutch slits
 cslit = SLIT('XF:12IDC-OP:2{Slt:C-Ax:', name='cslit')

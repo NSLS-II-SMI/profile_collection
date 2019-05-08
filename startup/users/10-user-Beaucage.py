@@ -1,7 +1,7 @@
 #Align GiSAXS sample
 import numpy as np
         
-#============================ SMI GI Alignment ===============================#
+#============================ SMI GI Alignment ===============================#R
 alignbspos = 11
 measurebspos = 1.15
 GV7 = TwoButtonShutter('XF:12IDC-VA:2{Det:1M-GV:7}', name='GV7')
@@ -112,22 +112,10 @@ def run_giwaxsBoc(t=0.5,th_step=0.001,x_list_offset=0,tag=''):
     name = 'PB'
     
     # define x-positions on sample bar
-    # x_list = [52000,44000,38000,30000,23000,18000,12000,6000,-2000,-12000,-23000,-35000,-44000,-51000] # GI bar 1 - Lee samples
-    # x_list = [-5500,-12500,-19500,-26500,-33500] # GI bar 2 - Peter membrane dry samples
-    # x_list = [49000,-5500,-13000,-20000,-27000,-33000] # GI bar 3 - Lee low priority and Nils samples
-    # x_list = [40000,14000,-12000,-39000]
-    # x_list = [49000,33500,23000,11500,300,-6200]
-    x_list = [47500,33500,23000,9500]
+    #x_list = [,,,,,,,,,]
 
     # define names of samples on sample bar
-    # sample_list = ['BTBT_noAu','BTBT_noPFBT','BTBT_PFBT','BTBT_Au','NEP25_1','NEP25_2','NEP50_4','NEP50_3','DIF_noAu','DIF_Au','DIF_noPFBT','DIF_PFBT','NEP75_6','NEP100_8'] # GI bar 1 - Lee samples
-    # sample_list = ['SWC4iTS_dry_7500','Dow6iTS_dry_7500','Dow7iTS_dry_7500','Dow8iTS_dry_7500', 'Dow10iTS_dry_7500'] # GI bar 2 - Peter membrane dry samples
-    # sample_list = ['','','','','','','','','',''] # GI bar 2 - Peter membrane dry samples
-    # sample_list = ['mLbL_dry_7500', 'SWC4iTS_dry_7500', 'Dow6iTS_dry_7500', 'Dow7iTS_dry_7500', 'Dow8iTS_dry_7500', 'Dow10iTS_dry_7500'] # GI bar 2 - Peter membrane dry samples
-    # sample_list = ['SWC4iTS_dry_7500', 'Dow6iTS_dry_7500', 'Dow7iTS_dry_7500', 'Dow8iTS_dry_7500', 'Dow10iTS_dry_7500'] # GI bar 2 - Peter membrane dry samples
-    # sample_list = ['Dow8-wet-100mMRbBr','Dow7-wet-100mMRbBr','Dow6-wet-100mMRbBr','mLbL-wet-100mMRbBr']
-    # sample_list = ['DIF_noOx','DIF_Ox','BTBT_noOx','BTBT_Ox','NEP_75_5','NEP_100_7']
-    sample_list = ['DIF_noOx','DIF_Ox','BTBT_noOx','BTBT_Ox']
+    #sample_list = ['TP14n','TP27n','TM9n','TM15n','TM18n','TM22n','TM39n','TM39r','TM15r','TP27r']
 
     #x_list = x_list[::-1]
     #sample_list = sample_list[::-1]
@@ -140,11 +128,11 @@ def run_giwaxsBoc(t=0.5,th_step=0.001,x_list_offset=0,tag=''):
 
     # Set up theta and waxs scans
     ## for Nils/Lee VAOI studies
-    th_array = np.arange(0.08,0.280,th_step) 
-    waxs_arc = [2.83, 20.83, 4] 
+    #th_array = np.arange(0.08,0.280,th_step) 
+    #waxs_arc = [2.83, 20.83, 4] 
     # ## for non VAOI studies
-    # th_array  = np.array([0.0, 0.15])
-    # waxs_arc = [2.83, 2.83, 1] 
+    th_array  = np.array([-0.12, 0])
+    waxs_arc = [2.83, 22.83, 4] 
 
     #sanity check
     waxs_step = (waxs_arc[1] - waxs_arc[0])/(waxs_arc[2]-1)
@@ -155,12 +143,12 @@ def run_giwaxsBoc(t=0.5,th_step=0.001,x_list_offset=0,tag=''):
     glob_walk_length = 2000 #microns
     glob_xstep = int(glob_walk_length/th_array.shape[0])
 
-    dets = [pil300KW,rayonix] 
+    dets = [pil300KW,pil1M] 
     for x,sample in zip(x_list,sample_list): #loop over samples on bar
         yield from bps.mv(piezo.x, x) #move to next sample
         yield from bps.mv(piezo.th,0.05) #set stage angle to ~0
         yield from alignBoc(6000) #run alignment routine 
-        plt.close('all') #close pesky alignment plots (memory issues)
+        plt.close('all') #close alignment plots (memory issues)
 
         th_start = piezo.th.position
         det_exposure_time(t) 
@@ -169,19 +157,19 @@ def run_giwaxsBoc(t=0.5,th_step=0.001,x_list_offset=0,tag=''):
             yield from bps.mv(piezo.x, (x-glob_xoff+j*glob_xstep))
 
             # convert angles to "real" angles
-            real_th = 0.2 + th_array[j] #0.2 = critical angle / alignment angle for Si
+            real_th = 0.2 + th_array[j] #0.2 = alignment angle for Si
             yield from bps.mv(piezo.th, th)
 
             sample_name = sample +  '_{th:5.4f}deg'.format(th=real_th)
             if tag:
                 sample_name += ('_' + tag)
-            sample_id(user_name=name, sample_name=sample_name) 
+            sample_id(user_name= 'PB', sample_name=sample_name) 
             print(f'\n\t=== Sample: {sample_name} ===\n')
 
             yield from bp.scan(dets, waxs.arc, *waxs_arc)
 
             #uncomment below for manual snake mode.
-            waxs_arc[1],waxs_arc[0] = waxs_arc[0],waxs_arc[1]
+            #waxs_arc[1],waxs_arc[0] = waxs_arc[0],waxs_arc[1]
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)
@@ -249,70 +237,433 @@ def run_giwaxsBocBulk(t=1,tag=''):
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)
 
-def run_giwaxsEnergyBoc(t=1,tag=''): 
-    ''' GIWAXS Run Routine '''
-    name = 'PB'
+def nexafs_scan(det, energies, incident_angle, ctime):
+    sample_name = '{sample}_{th:5.4f}deg_{e:5d}eV_DB'.format(sample = sample, th=incident_angle, e= int(energies[0]))
     
-    # define x-positions on sample bar
-    # x_list = [40000,14000,-12000,-39000]
-    # x_list = [-12000,-39000]
-    # x_list = [55000,5000,-25000,-46500,-51500]
-    # x_list = [-44500,-14500,14000,41000]
-    x_list = [-28000, 8000]
+    #move to theta 0 + value
+    yield from bps.mvr(piezo.th, incident_angle)
+
+    #Scan the energies
+    det_exposure_time(ctime, ctime)
+    yield from bp.scan([pil300KW,pil300kwroi2], energy,energies[0], energies[-1], len(energies))
+
+
+def giwaxsTempSingleWaxsSeries(x_list,y_list,th_list,sample_list,waxs_arc,num,t=1,user='BP'):
+    print(num)
+    for waxspos in waxs_arc:
+        for x, y, th, sample in zip(x_list,y_list,th_list,sample_list): #loop over samples on bar
+            yield from bps.mv(piezo.x, x) #move to next sample
+            yield from bps.mv(piezo.y, y) #move to next sample
+            yield from bps.mv(piezo.th, th) #move to next sample
+            print(x)
+            th_meas = 0.10 + piezo.th.position
+            th_real = 0.10		
+            
+            yield from bps.mv(piezo.th,th_meas)
+            yield from bps.mv(waxs.arc,waxspos) #move the waxs dectector to the measurement position
+            waxs_arc = [waxspos]
+            temp = ls.ch1_read.value
+            dets = [pil300KW,pil1M]
+            det_exposure_time(t,t) 
+            sample_name = '{sample}_inc{th:5.4f}deg_waxs{waxspos:5.4f}_{temp:5.4f}C_{num}'.format(sample = sample, th=th_real,waxspos=waxspos, temp = temp,num=num)
+            sample_id(user_name=user, sample_name=sample_name)  
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+           # yield from bp.scan(dets, waxs.arc, *waxs_arc)# should just be a single point "scan"
+            yield from bp.count(dets)
+def heatingLoop():
+    #Load 1 xpos = [-11000,2000] #2493 is from -2000 to -11000, 2523 is from 2000 to 11000
+    xpos = [-12000,1000] #2493 is from -2500 to -12000, 2523 is from 2000 to 11000
+    names = ['DPP_2493','DPP_2523']
+    
+    xstep = 200
+    quickalignevery = 15 #do a quickalign every n exposures
+    sleepbetweenexps = 10
+    nscans = 2000 #Arbitrary high number; I don't know how the runengine would handle an infinite loop but effectively this.  End the run with ctrl-c + RE.stop()
+    
+    
+    ypos = [7100,7100]
+    thpos = [0.06,0.06]
+    
+    for i,x in enumerate(xpos):
+        yield from bps.mv(piezo.x,x+4500)
+        yield from alignement_gisaxs(0.08)
+        ypos[i] = piezo.y.position
+        thpos[i] = piezo.th.position
+        
+    #continually measure, every 30 minutes re-align and shift 200 um in x
+    counter = 0
+    
+    print("Alignment Done:")
+    print(str(names))
+    print(str(xpos))
+    print(str(ypos))
+    print(str(thpos))
+    
+    xmodfwd = np.arange(0,9001,xstep)
+    xmodbck = np.arange(9001,0,xstep)
+    
+    xmod = np.concatenate((xmodfwd,xmodbck))
+    
+    while counter<nscans:
+        for xmv in xmod:
+            lclxpos = xpos + xmv
+            yield from giwaxsTempSingleWaxsSeries(lclxpos,ypos,thpos,names,[2.93,8.93],counter,t=3,user='BP2-1')
+            sleep(sleepbetweenexps)
+            counter+=1
+            yield from giwaxsTempSingleWaxsSeries(lclxpos,ypos,thpos,names,[8.93,2.93],counter,t=3,user='BP2-1')
+            sleep(sleepbetweenexps)
+            counter+=1    
+            if counter%quickalignevery is 0 or counter%quickalignevery is 1:
+                for i,x in enumerate(xpos):
+                    yield from bps.mv(waxs.arc,8.93)
+                    yield from bps.mv(piezo.x,x+4500)
+                    yield from alignement_gisaxs(0.08)
+                    ypos[i] = piezo.y.position
+                    thpos[i] = piezo.th.position
+              
+        
+
+def afterlunchrun():
+  #  xl1 = [-50000,-37500,-25000,-8000,2000,14000,24000]
+  #  sl1 = ['TP14n','TP27n','TM9n','TM15n','TM18n','TM22n','TM39n']
+  #  ea1 = [13480] 
+    xl2 = [36500]
+    sl2 = ['TM39r']
+    ea2 = [15195,15200,15205,15195] 
+    xl3 = [41000,47000]
+    sl3 = ['TM15r','TP27r']
+    ea3 = [15195,15200,15205,15195]
+    yield from run_giwaxsEnergyBoc(xl2,sl2,ea2,t=2)
+    yield from run_giwaxsEnergyBoc(xl3,sl3,ea3,t=2)
+
+def GIbar2res():
+    #Samples for which energy scans are needed
+    xl1 = [-48000,-39000,-29000,-19000]
+    sl1 = ['TP14r','TM9r','TM18r','TM22r']
+    #Samples for single energy shot
+    xl2 = [-9000,1000,9000,20000,26000,38000,46500]
+    sl2 = ['TM9b','TP27b','TM39b','TP14b','SVPS-10PEO','SVPS-10P2VP','SVPS']
+    ea_waxs_Rb = [15195,15200,15205,15195] 
+    ea_waxs_Br = [13480,13485,13490,13495,13480]
+    #yield from run_giwaxsEnergyBoc(xl1,sl1,ea_waxs_Br,t=2)
+    yield from run_giwaxsEnergyBoc(xl1,sl1,ea_waxs_Rb,t=2)
+
+def GIbar2nonres():
+        #WAXS and SAXS 
+    xl1 = [-9000,1000,9000,20000]
+    sl1 = ['TM9b','TP27b','TM39b','TP14b']
+        #SAXS only
+    xl2 = [26000,38000,46500]
+    sl2 = ['SVPS-10PEO','SVPS-10P2VP','SVPS']
+
+    xl2 = [38000,46500]
+    sl2 = ['SVPS-10P2VP','SVPS']
+
+
+    waxs_arc_nowaxs = [8.9, 8.9, 1]
+    waxs_arc_forwaxs = [2.9, 20.9, 4] 
+    
+    angle_arc_GISAXS = np.linspace(0.08,0.25,18)
+    angle_arc_GIWAXS = np.linspace(0.1,0.2,2)
+    #yield from run_gisaxsAngleBoc(xl1,sl1,angle_arc_GIWAXS,waxs_arc_forwaxs)
+    yield from run_gisaxsAngleBoc(xl2,sl2,angle_arc_GISAXS,waxs_arc_nowaxs,t=2)
+
+def earlyeveningtransmissionrun():
+    ea_nexafs_Br = np.linspace(13450, 13500, 51)
+    ea_nexafs_Rb = np.linspace(15150,15250,51)
+    ea_waxs_Rb = [15195,15200,15205,15195] 
+    ea_waxs_Br = [13480,13485,13490,13480]
+    #Samples for static runs
+    xl1 = [43500,37000,30500,23500,15500,8500,2500]
+    sl1 = ['Dow6bulk','Dow7bulk','Dow8bulk','Dow10bulk', 'SWC4bulk','Dow6BAbulk','SWC4BAbulk']
+    ea1 = [13480]
+    
+    #Sampls for energy scans
+    xl2 = [-4500,-11000,-17000,-22000,-26500]
+    sl2 = ['Dow6bulkRbBr100','Dow7bulkRbBr100','Dow8bulkRbBr100','Dow10bulkRbBr100','SWC4bulkRbBr100']
+    
+    yield from run_saxswaxsEnergyBoc(xl1,sl1,ea1,ea1,t=0.3)
+    yield from run_saxswaxsEnergyBoc(xl2,sl2,ea_waxs_Br,ea_nexafs_Br,t=0.3)
+    yield from run_saxswaxsEnergyBoc(xl2,sl2,ea_waxs_Rb,ea_nexafs_Rb,t=0.3)
+    #RE(run_saxswaxsEnergyBoc(-28000,'ScotchTape',[13480],[],t=0.3))
+    
+def tuesdaymorningtransmissionrun():
+    ea_nexafs_Br = np.linspace(13450, 13500, 51)
+    ea_nexafs_Rb = np.linspace(15150,15250,51)
+    ea_waxs_Rb = [15195,15200,15205,15195] 
+    ea_waxs_Br = [13480,13485,13490,13495,13480]
+    #Samples for static runs
+    xl = [30000.2,24500.2,19000.2,9250.2,-1000.2,-6000.2,-11500.2,-17500.2]
+    sl = ['Dow6bulkRbBr50','Dow7bulkRbBr50','Dow10bulkRbBr50', 'SWC4bulkRbBr50','Dow6bulkRbBr500','Dow7bulkRbBr500','Dow10bulkRbBr500', 'SWC4bulkRbBr500']
+
+    #yield from run_saxswaxsEnergyBoc([4000],['TapeBlank2'],[13480],[13480],t=1)   
+    #yield from run_saxswaxsEnergyBoc(xl,sl,ea_waxs_Br,ea_nexafs_Br,t=0.3)
+    yield from run_saxswaxsEnergyBoc(xl,sl,ea_waxs_Rb,ea_nexafs_Rb,t=0.3)
+def tuesdaylunchtransmission():
+    name1 = ['AS1-034','AS1-038A','AS1-038B','AS1-038C','AS1-038D','AS1-038E','AS1-036A','AS1-036B','AS1-036C','AS1-036D','AS1-036E']
+    pos1 = [-44000,-35000,-27000,-19000,-10000,-2000,8000,16500,25000,33000,41500] #centers
+    
+    name2 =  ['PT5E-010A','PT5E-010B','PT5E-010C','AS1-040A','AS1-040B','AS1-040C','AS1-040D','AS1-040E']
+    pos2 = [-35000,-27000,-19000,-10000,-2000,8000,16500,25000]
+    
+    x_range = [-500,500,4]
+    y_range = [-250,225,4]    
+    
+    #yield from run_saxsmapBoc(pos1,name1,x_range=x_range,y_range=y_range,t=1,y_cen=-4500)
+    yield from run_saxsmapBoc(pos2,name2,x_range=x_range,y_range=y_range,t=1,y_cen=10250)
+    
+def run_giwaxsEnergyBoc(x_list,sample_list,energy_arc_waxs,t=5,tag=''): 
+    ''' GIWAXS Run Routine '''
+    #x_list = [-50000,-37500,-25000,-8000,2000,14000,24000,36000,41000,47000]
 
     # define names of samples on sample bar
-    # sample_list = ['Dow8-wet-100mMRbBr','Dow7-wet-100mMRbBr','Dow6-wet-100mMRbBr','mLbL-wet-100mMRbBr']
-    # sample_list = ['Dow6-wet-100mMRbBr','mLbL-wet-100mMRbBr']
-    # sample_list = ['Dow10bulk-wet-100mMRbBr','Dow6bulk-wet-100mMRbBr','Dow10-wet-100mMRbBr','SWC4-wet-100mMRbBr','emptycell-wet-100mMRbBr']
-    #sample_list = ['SWC4-wet-100mMRbBr','emptycell-wet-100mMRbBr']
-    # sample_list = ['mLbL-wet-DIwater','mLbL-wet-100mMNaCl','mLbL-wet-100mMNaBr','mLbL-wet-100mMRbCl']
-    sample_list = ['mLbL-wet-50mMRbBr','mLbL-wet-500mMRbBr']
-    
+    #sample_list = ['TP14n','TP27n','TM9n','TM15n','TM18n','TM22n','TM39n','TM39r','TM15r','TP27r']
 
+    ct_nexafs = 0.2
+    #x_list = x_list[::-1]
+    #sample_list = sample_list[::-1]
+
+    # shift xlist
+    #x_list = [x+x_list_offset for x in x_list]
 
     #sanity check
     assert len(x_list) == len(sample_list), f'Sample name/position list is borked'
 
-    # # Set up theta and waxs scans
-    th_array = np.array([0.0, 0.025, 0.05, 0.15])
-    energy_arc = [13400,13473,13550,15125,15199,15275]
+    # Set up theta and waxs scans
+    ## for Nils/Lee VAOI studies
+    #th_array = np.arange(0.08,0.280,th_step) 
+    #waxs_arc = [2.83, 20.83, 4] 
+    # ## for non VAOI studies
 
-    dets = [pil300KW,rayonix] 
-    for x,sample in zip(x_list,sample_list): #loop over samples on bar
+    th_array  = np.array([0.08,0.14])
+    waxs_arc = [2.9, 20.9, 4] 
+    #energy_arc_waxs = [13480,13485,13490,13480]
+
+    energy_arc_nexafs_Br = np.linspace(13450, 13500, 51)
+    energy_arc_nexafs_Rb = np.linspace(15150,15250,51)
+
+
+    dets = [pil300KW,pil1M] 
+    for x, sample in zip(x_list,sample_list): #loop over samples on bar
         yield from bps.mv(piezo.x, x) #move to next sample
-        yield from bps.mv(piezo.th,0.05) #set stage angle to ~0
-        if 'bulk' in sample:
-            yield from alignBocBulk(4500) #run alignment routine    
-        else:
-            yield from alignBoc(5200) #run alignment routine 
-        plt.close('all') #close pesky alignment plots (memory issues)
 
-        yield from bps.mv(waxs.arc,2.83) #move the waxs dectector to the measurement position
+        yield from remove_suspender( susp_xbpm2_sum)
+        yield from bps.mv(energy, energy_arc_waxs[0])
+        
+        time.sleep(10)
+        yield from install_suspender( susp_xbpm2_sum)
+                
+        yield from alignement_gisaxs(0.1) #run alignment routine
 
-        th_start = piezo.th.position
-        det_exposure_time(t) 
-        for j, th in enumerate(th_start + th_array): #loop over incident angles
+        th_meas = np.array([0.10 + piezo.th.position])
+        th_real = [0.10]		
+
+        #yield from bps.mv(waxs.arc,2.9) #move the waxs dectector to the measurement position
+        #det_exposure_time(ct_nexafs, ct_nexafs)
+        #yield from nexafs_scan([pil1M], energy_arc_nexafs_Rb, 0.10, ct_nexafs)
+
+        #yield from remove_suspender( susp_xbpm2_sum)
+        #yield from bps.mv(energy, 15200)
+        #time.sleep(10)
+        #yield from install_suspender( susp_xbpm2_sum)
+        #
+        #yield from nexafs_scan([pil1M], energy_arc_nexafs_Rb, 0.10, ct_nexafs)
+		
+        yield from bps.mv(waxs.arc,2.9) #move the waxs dectector to the measurement position
+
+        det_exposure_time(t,t) 
+        for i, th in enumerate(th_meas): #loop over incident angles
             # convert angles to "real" angles
-            real_th = 0.2 + th_array[j] #0.2 = critical angle / alignment angle for Si
             yield from bps.mv(piezo.th, th)
 
-            for k,e in enumerate(energy_arc):
-
-                sample_name = sample +  '_{th:5.4f}deg_{e:5d}eV'.format(th=real_th,e=e)
-                if tag:
-                    sample_name += ('_' + tag)
-                sample_id(user_name=name, sample_name=sample_name) 
+            for k,e in enumerate(energy_arc_waxs):
+                sample_name = '{sample}_{th:5.4f}deg_{e:5d}eV_{num}'.format(sample = sample, th=th_real[i], e=e,num=k)
+                sample_id(user_name='PB', sample_name=sample_name) 
                 print(f'\n\t=== Sample: {sample_name} ===\n')
-                energy.move(e)
-                yield from bps.mv(energy,e)
                 
-                sleep(1)
-                yield from bp.scan(dets, energy, e, e, 1)
+                yield from remove_suspender( susp_xbpm2_sum)
+                yield from bps.mv(energy, e)
+                time.sleep(10)
+                yield from install_suspender( susp_xbpm2_sum)
+                
+                #yield from bp.scan(dets, energy, e, e, 1)
+                yield from bp.scan(dets, waxs.arc, *waxs_arc)
+                
+
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
+
+def run_gisaxsAngleBoc(x_list,sample_list,angle_arc,waxs_arc,t=5,tag=''): 
+    ''' GIWAXS Run Routine '''
+    #x_list = [-50000,-37500,-25000,-8000,2000,14000,24000,36000,41000,47000]
+
+    # define names of samples on sample bar
+    #sample_list = ['TP14n','TP27n','TM9n','TM15n','TM18n','TM22n','TM39n','TM39r','TM15r','TP27r']
+
+    ct_nexafs = 0.2
+    #x_list = x_list[::-1]
+    #sample_list = sample_list[::-1]
+
+    # shift xlist
+    #x_list = [x+x_list_offset for x in x_list]
+
+    #sanity check
+    assert len(x_list) == len(sample_list), f'Sample name/position list is borked'
+
+    # Set up theta and waxs scans
+    ## for Nils/Lee VAOI studies
+    #th_array = np.arange(0.08,0.280,th_step) 
+    #waxs_arc = [2.83, 20.83, 4] 
+    # ## for non VAOI studies
+
+    #th_array  = np.array([0.08,0.14])
+    #waxs_arc = [2.9, 20.9, 4] 
+    #energy_arc_waxs = [13480,13485,13490,13480]
+
+
+    dets = [pil300KW,pil1M] 
+    for x, sample in zip(x_list,sample_list): #loop over samples on bar
+        yield from bps.mv(piezo.x, x) #move to next sample
+
+                
+        yield from alignement_gisaxs(0.1) #run alignment routine
+
+        th_meas = angle_arc + piezo.th.position #np.array([0.10 + piezo.th.position, 0.20 + piezo.th.position])
+        th_real = angle_arc	
+
+        #yield from bps.mv(waxs.arc,2.9) #move the waxs dectector to the measurement position
+        #det_exposure_time(ct_nexafs, ct_nexafs)
+        #yield from nexafs_scan([pil1M], energy_arc_nexafs_Rb, 0.10, ct_nexafs)
+
+        #yield from remove_suspender( susp_xbpm2_sum)
+        #yield from bps.mv(energy, 15200)
+        #time.sleep(10)
+        #yield from install_suspender( susp_xbpm2_sum)
+        #
+        #yield from nexafs_scan([pil1M], energy_arc_nexafs_Rb, 0.10, ct_nexafs)
+		
+        yield from bps.mv(waxs.arc,2.9) #move the waxs dectector to the measurement position
+
+        det_exposure_time(t,t) 
+        for i, th in enumerate(th_meas): #loop over incident angles
+            # convert angles to "real" angles
+            yield from bps.mv(piezo.th, th)
+
+            sample_name = '{sample}_{th:5.4f}deg__{num}'.format(sample = sample, th=th_real[i],num=i)
+            sample_id(user_name='PB', sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+                
+            
+            #yield from bp.scan(dets, energy, e, e, 1)
+            yield from bp.scan(dets, waxs.arc, *waxs_arc)
+
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)
+    
+def run_saxswaxsEnergyBoc(x_list,sample_list,energy_arc_waxs,energy_arc_nexafs,t=5,tag=''): 
+    ''' GIWAXS Run Routine '''
+    #x_list = [-50000,-37500,-25000,-8000,2000,14000,24000,36000,41000,47000]
 
-def run_saxsBoc(t=1): 
+    # define names of samples on sample bar
+    #sample_list = ['TP14n','TP27n','TM9n','TM15n','TM18n','TM22n','TM39n','TM39r','TM15r','TP27r']
+
+    ct_nexafs = 0.2
+    #x_list = x_list[::-1]
+    #sample_list = sample_list[::-1]
+
+    # shift xlist
+    #x_list = [x+x_list_offset for x in x_list]
+
+    #sanity check
+    assert len(x_list) == len(sample_list), f'Sample name/position list is borked'
+
+    # Set up theta and waxs scans
+    ## for Nils/Lee VAOI studies
+    #th_array = np.arange(0.08,0.280,th_step) 
+    #waxs_arc = [2.83, 20.83, 4] 
+    # ## for non VAOI studies
+
+    #th_array  = np.array([0.08,0.14])
+    waxs_arc = [2.9, 20.9, 4] 
+    #energy_arc_waxs = [13480,13485,13490,13480]
+
+    #energy_arc_nexafs_Br = np.linspace(13450, 13500, 51)
+    #energy_arc_nexafs_Rb = np.linspace(15150,15250,51)
+
+
+    dets = [pil300KW,pil1M] 
+    for x, sample in zip(x_list,sample_list): #loop over samples on bar
+        yield from bps.mv(piezo.x, x) #move to next sample
+             
+        yield from bps.mv(waxs.arc,2.9) #move the waxs dectector to the measurement position
+        det_exposure_time(ct_nexafs, ct_nexafs)
+        yield from remove_suspender( susp_xbpm2_sum)
+        yield from bps.mv(energy, energy_arc_nexafs[0])
+        time.sleep(10)
+        yield from install_suspender( susp_xbpm2_sum)
+        
+        yield from nexafs_scan([pil1M], energy_arc_nexafs, 0.10, ct_nexafs)
+		
+        yield from bps.mv(waxs.arc,2.9) #move the waxs dectector to the measurement position
+
+        det_exposure_time(t,t) 
+        for k,e in enumerate(energy_arc_waxs):
+            sample_name = '{sample}_{e:5d}eV_{num}'.format(sample = sample, e=e,num=k)
+            sample_id(user_name='PB', sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            
+            yield from remove_suspender( susp_xbpm2_sum)
+            yield from bps.mv(energy, e)
+            time.sleep(10)
+            yield from install_suspender( susp_xbpm2_sum)
+            
+            #yield from bp.scan(dets, energy, e, e, 1)
+            yield from bp.scan(dets, waxs.arc, *waxs_arc)
+                
+
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5)
+    
+def mondaynightmaps():
+    samples = ['PT5E-015A','PT5E-015B']
+    positions = [-19000,21000] #centers
+    x_range = [-17500,17500,176]
+    y_range = [-10000,10000,101]    
+    
+    yield from run_saxsmapBoc(positions,samples,x_range=x_range,y_range=y_range,t=0.2)
+    
+def run_saxsmapBoc(x_list,samples,x_range=[-500,500,11],y_range=[-250,250,11],t=1,y_cen=0): 
+    '''Simple SAXS/WAXS transmission measurements
+
+    Runs a scan along a transmission bar where, for each sample center in the
+    x_list, measurements are taken in a grid defined by x_range and y_range
+    about this center.
+    
+    '''
+    name = 'PT'
+    
+    # Detectors, motors:
+    
+    yield from bps.mv(waxs.arc,8.9)
+    dets = [pil1M]# dets = [pil1M,pil300KW]
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    det_exposure_time(t,t)
+    yield from bps.mv(piezo.y, y_cen)
+    yield from bps.mv(piezo.th, 0)
+    for x, sample in zip(x_list, samples):
+        yield from bps.mv(piezo.x, x)
+        sample_id(user_name=name, sample_name=sample) 
+        # yield from bp.scan(dets, piezo.x, *x_range)  # 1 line scane 
+        yield from bp.rel_grid_scan(dets, piezo.x, *x_range, piezo.y, *y_range,1) #1 = snake, 0 = not-snake
+        
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
+        
+def run_saxsBoc(x_list,samples,energies,t=1): 
     '''Simple SAXS/WAXS transmission measurements
 
     Runs a scan along a transmission bar where, for each sample center in the
@@ -321,31 +672,12 @@ def run_saxsBoc(t=1):
     
     '''
     name = 'PB'
-    # x_list  = [43200,32700,22200,11500,1000,-9400,-19400,-27900,-37400] #tray 1
-    #x_list  = [32700,22200,11500] #tray 1
-    # x_list  = [44000,34000,24000,14500,5000,-5500,-15000,-25500,-33000,-43000] #tray 2
-    # x_list  = [42000,33000,25000,17000,10000,1000,-8500,-18000,-24000,-32000,-42000] #tray T3
-    # x_list  = [45000,32200,26000,18500,11000,2500,-6500,-15000,-22500,-31500,-42000] #tray T5
-    # x_list  = [45000,35500,28000,18000,10500,2000,-8000,-16500,-24000,-31000,-41000] #tray T4
-    # x_list  = [44000,35000,27500,18000,9500,1500,-7000,-14500,-23000,-31000,-40500] #tray T6
-    x_list  = [31000,20500 ,7500,-4000,-13500,-22000,-32000,-42500] #tray T7 - do these positions make sense?
-
-    # samples = ['AS1_020E','AS1-001','AS1-008','AS1-003','AS1-004Y','AS1-002','AS1-004W','AS1-009','AS1-006','AS1-010','AS1-006c'] #tray T3
-    #samples = ['AS1-010C','AS1-011C','AS1-012Ac','AS1-012Bc','AS1-0012Cc','AS1-012Dc','AS1-012Ec','PT5E-007A','PT5E-007B','PT5E-007C','PT5E-007D'] #tray T5
-    # samples = ['PT5E-007E','PT5E-007F','PT5E-007G','PT5E-007H','PT5E-007I','PT5E-007J','PT5E-007K','PT5E-007L','PT5E-007M','PT5E-007N','PT7E-001A'] #tray T4
-    # samples = ['PT7E-001B','PT7E-001C','PT7E-003A','PT7E-003B','PT7E-003C','PT7E-003D','PT7E-003E','PT7E-003F','PT7E-003G','PT2E-015A','PT2E-015B'] #tray T6
-    samples = ['PT2E-015C','PT2E-015D','PT2E-015E','PT2E-017A','PT2E-017B','PT2E-017C','PT2E-017D','PT2E-017E'] #tray T7
     
     # Detectors, motors:
     dets = [pil1M,pil300KW] # dets = [pil1M,pil300KW]
     x_range = [-500,500,11]
     y_range = [-250,250,11]
 
-    #samples = ['PTB1-015','WTI-025I','WTI-025II','PTTE-006','PT2E-011A','PT2E-011B','PT2E-011C','PT2E-011D','PT2E-011E'] #samples 1
-    #samples = ['WTI-025I-7500','WTI-025II-7500','PTTE-006-7500'] #samples 1 / lo-q
-    # samples = ['AS1-020Ac','AS1-020Bc','AS1-020Cc','AS1-020Dc','AS1-020Ec','SAH','AS1-020A','AS1-020B','AS1-020C','AS1-020D'] #samples 2
-    #samples = ['cap-H2Oblank','SWC4sol-RbBr20mM','SWC4sol-RbCl20mM','SWC4sol-NaBr20mM','SWC4sol-NaCl20mM','SWC4sol-RbBr100mM','SWC4sol-RbCl100mM','SWC4sol-NaBr100mM','SWC4sol-NaCl100mM','SWC4-THF','SWC4-H2OEXCH','blank-RbBr100mM','blank-RbCl100mM','blank-NaBr100mM','blank-NaCl100mM']
-    #    param   = '16.1keV'
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
     det_exposure_time(t)
     yield from bps.mv(piezo.y, 0)
