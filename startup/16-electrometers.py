@@ -66,17 +66,9 @@ susp_xbpm2_sum = SuspendFloor( xbpm2.sumY, 0.3, resume_thresh= 0.8 )
 RE.install_suspender( susp_xbpm2_sum )
 #RE.install_suspender( susp_xbpm3_sum )
 
-
-'''
-XBPM2ch1 = EpicsSignal('XF:12IDA-BI:2{EM:BPM2}Current1:MeanValue_RBV', name='XBPM2ch1')
-XBPM2ch2 = EpicsSignal('XF:12IDA-BI:2{EM:BPM2}Current2:MeanValue_RBV', name='XBPM2ch2')
-XBPM2ch3 = EpicsSignal('XF:12IDA-BI:2{EM:BPM2}Current3:MeanValue_RBV', name='XBPM2ch3')
-XBPM2ch4 = EpicsSignal('XF:12IDA-BI:2{EM:BPM2}Current4:MeanValue_RBV', name='XBPM2ch4')
-XBPM2sumY = EpicsSignal('XF:12IDA-BI:2{EM:BPM2}SumY:MeanValue_RBV', name='XBPM2sumY')
-XBPM2sumX = EpicsSignal('XF:12IDA-BI:2{EM:BPM2}SumX:MeanValue_RBV', name='XBPM2sumX')
-XBPM2posX = EpicsSignal('XF:12IDA-BI:2{EM:BPM2}PosX:MeanValue_RBV', name='XBPM2posX')
-XBPM2posY = EpicsSignal('XF:12IDA-BI:2{EM:BPM2}PosY:MeanValue_RBV', name='XBPM2posY')
-'''
+ssacurrent = EpicsSignal('XF:12IDB-BI{EM:SSASlit}SumAll:MeanValue_RBV', name='ssacurrent')
+pdcurrent = EpicsSignal('XF:12ID:2{EM:Tetr1}Current2:MeanValue_RBV', name='pdcurrent', auto_monitor=True)
+pdcurrent1 = EpicsSignal('XF:12ID:2{EM:Tetr1}Current2Ave', name='pdcurrent1', auto_monitor=True)
 
 # this doesn't work, because the PV names do not end in .VAL ??
 # full PV names are given in the above.
@@ -114,6 +106,14 @@ class Keithly2450(Device):
 
 
 keithly2450 = Keithly2450('XF:12IDA{dmm:2}:K2450:1:', name='keithly2450')
-
 hfmcurrent = EpicsSignal('XF:12IDA{dmm:2}:K2450:1:reading', name='hfmcurrent')
+
+from nslsii.ad33 import QuadEMV33
+pin_diode = QuadEMV33('XF:12ID:2{EM:Tetr1}', name='pin_diode')
+pin_diode.conf.port_name.put('TetrAMM')
+pin_diode.stage_sigs['acquire_mode'] = 2
+
+for i in (1, 2, 3, 4):
+    getattr(pin_diode, f'current{i}').mean_value.kind = 'normal'
+pin_diode.current2.mean_value.kind = 'hinted'
 

@@ -1,6 +1,7 @@
 print(f'Loading {__file__}')
 
-from ophyd import Device, EpicsSignal, EpicsSignalRO, Component as Cpt, DeviceStatus
+from ophyd import (Device, EpicsSignal, EpicsSignalRO, Signal,
+                   Component as Cpt, DeviceStatus)
 
 
 class TwoButtonShutter(Device):
@@ -88,6 +89,33 @@ def shclose():
     yield from bps.mv(manual_PID_disable_roll, '1')
     time.sleep(1)
     yield from bps.mv (ph_shutter, 'Retract')
-    
 
+
+class SMIFastShutter(Device): 
+    open_cpt = Cpt(EpicsSignal, 'XF:12IDC-ES:2{PSh:ES}pz:sh:open') 
+    close_cpt = Cpt(EpicsSignal, 'XF:12IDC-ES:2{PSh:ES}pz:sh:close')
+    status_pv = Cpt(EpicsSignalRO, 'XF:12IDA-BI:2{EM:BPM1}DAC3') 
+    status = Cpt(Signal, value='') 
+
+    def check_status(self):
+        if int(self.status_pv.get()) == 7: 
+            self.status.put('Closed') 
+        elif int(self.status_pv.get()) == 0:
+            self.status.put('Open') 
+        else:
+            raise RuntimeError(f'Shutter "{self.name}" is in a weird state.')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.check_status()
+
+    def open(self): 
+        self.open_cpt.put(1) 
+        self.check_status()
+             
+    def close(self): 
+        self.close_cpt.put(1) 
+        self.check_status()
+
+fs = SMIFastShutter('', name='fs')
 
