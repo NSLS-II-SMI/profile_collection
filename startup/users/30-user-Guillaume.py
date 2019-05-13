@@ -112,13 +112,17 @@ def optics_config_load():
     '''
     #TODO: Do a list of a what motor we need to be stored
         
-    
+        
 
 def config_update():
     '''
     Save the current configuration
     '''
     #TODO: Do a list of a what motor we need to be stored
+    #TODO: Add the pindiode beamstop to be read
+
+    SMI_CONFIG_FILENAME = '/home/xf12id/smi/config/smi_config.csv'
+
 
     #Beamstop position in x and y
     read_bs_x = yield from bps.read(pil1m_bs.x)
@@ -139,7 +143,7 @@ def config_update():
     'bs_pos_y'  : bs_pos_y,
     'waxs_arc_0': waxs_arc_0,
     'time'      : time.ctime()}
-
+    
     current_config_DF = pds.DataFrame(data=current_config, index=[1])
 
     #load the previous config file
@@ -154,14 +158,18 @@ def config_load():
     '''
     Save the configuration file
     '''
-    
+    SMI_CONFIG_FILENAME = '/home/xf12id/smi/config/smi_config.csv'
     #collect the current positions of motors
     smi_config = pds.read_csv(SMI_CONFIG_FILENAME, index_col=0)
-    bsx_pos = cms_config.bsx_pos.values[-1]
-
+    
+    bs_pos_x = smi_config.bs_pos_x.values[-1]
+    bs_pos_y = smi_config.bs_pos_y.values[-1]
+    waxs_arc_0 = smi_config.waxs_arc_0.values[-1]
     #positions
+    return bs_pos_x, bs_pos_y, waxs_arc_0
 
-	
+
+bsx_pos, bsy_pos, waxs_arc_0 = config_load()
 	
 
 
