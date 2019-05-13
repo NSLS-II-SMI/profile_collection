@@ -70,7 +70,7 @@ def move_dcm(target_energy, delta_bragg=0):
     print('Bragg angle from PV     : {:.5f}'.format(dcm.bragg.get().user_readback))
 
 
-    
+
 class DCMInternals(Device):
     pitch = Cpt(EpicsMotor, 'XF12ID:m67')
     roll = Cpt(EpicsMotor, 'XF12ID:m68')
@@ -89,10 +89,9 @@ class Energy(PseudoPositioner):
     bragg = Cpt(EpicsMotor, 'XF12ID:m65', read_attrs=['user_readback'], labels=['mono'])
 #    dcmpitch = Cpt(EpicsMotor, 'XF12ID:m67', read_attrs=['readback'])
 
-    ivugap = Cpt(UndulatorGap,
-                 'SR:C12-ID:G1{IVU:1',
+    ivugap = Cpt(InsertionDevice,
+                 'SR:C12-ID:G1{IVU:1-Ax:Gap}-Mtr',
                  read_attrs=['readback'],
-                 #configuration_attrs=['corrfunc_sta', 'corrfunc_dis', 'corrfunc_en'],
                  configuration_attrs=[],
                  labels=['mono'])
 
@@ -113,14 +112,14 @@ class Energy(PseudoPositioner):
         harmonic = self.target_harmonic.get()
         if not harmonic % 2:
             raise RuntimeError('harmonic must be odd')
-        
+
         if energy <= 2050:
             raise ValueError("The energy you entered is too low ({} eV). "
                              "Minimum energy = 2050 eV".format(energy))
         if energy >= 24001:
             raise ValueError('The energy you entered is too high ({} eV). '
                              'Maximum energy = 24000 eV'.format(energy))
-        
+
         # compute where we would move everything to in a perfect world
 
         target_ivu_gap = energy_to_gap(energy, harmonic)
@@ -129,12 +128,12 @@ class Energy(PseudoPositioner):
              if harmonic < 1:
                  raise RuntimeError('can not find a valid gap')
              target_ivu_gap = energy_to_gap(energy, harmonic)
-            
+
         target_bragg_angle = energy_to_bragg(energy)
-        
+
         dcm_offset = 25
         target_dcm_gap = (dcm_offset/2)/np.cos(target_bragg_angle * np.pi / 180)
-        
+
         # sometimes move the crystal gap
         if not self.enabledcmgap.get():
             target_dcm_gap = self.dcmgap.position
