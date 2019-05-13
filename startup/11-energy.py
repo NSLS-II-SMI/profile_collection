@@ -39,6 +39,7 @@ def energy_to_bragg(target_energy, delta_bragg=0):
     bragg_angle = np.arcsin((ANG_OVER_EV / target_energy) / (2 * D_Si111)) / np.pi * 180 - delta_bragg
     return bragg_angle
 
+
 def wait_all(motors_list, sleep=0.0, debug=False):
     """Wait until the last motor finished movement.
     :param motors_list: the list of all motors to wait.
@@ -55,6 +56,7 @@ def wait_all(motors_list, sleep=0.0, debug=False):
         else:
             break
 
+
 def move_dcm(target_energy, delta_bragg=0):
     bragg_angle = energy_to_bragg(target_energy, delta_bragg)
     dcm_gap_value = (12.5)/np.cos(bragg_angle * np.pi / 180)
@@ -70,7 +72,7 @@ def move_dcm(target_energy, delta_bragg=0):
     print('Bragg angle from PV     : {:.5f}'.format(dcm.bragg.get().user_readback))
 
 
-    
+
 class DCMInternals(Device):
     pitch = Cpt(EpicsMotor, 'XF12ID:m67')
     roll = Cpt(EpicsMotor, 'XF12ID:m68')
@@ -89,10 +91,9 @@ class Energy(PseudoPositioner):
     bragg = Cpt(EpicsMotor, 'XF12ID:m65', read_attrs=['user_readback'], labels=['mono'])
 #    dcmpitch = Cpt(EpicsMotor, 'XF12ID:m67', read_attrs=['readback'])
 
-    ivugap = Cpt(UndulatorGap,
-                 'SR:C12-ID:G1{IVU:1',
-                 read_attrs=['readback'],
-                 #configuration_attrs=['corrfunc_sta', 'corrfunc_dis', 'corrfunc_en'],
+    ivugap = Cpt(InsertionDevice,
+                 'SR:C12-ID:G1{IVU:1-Ax:Gap}-Mtr',
+                 read_attrs=['user_readback'],
                  configuration_attrs=[],
                  labels=['mono'])
 
@@ -113,14 +114,14 @@ class Energy(PseudoPositioner):
         harmonic = self.target_harmonic.get()
         if not harmonic % 2:
             raise RuntimeError('harmonic must be odd')
-        
+
         if energy <= 2050:
             raise ValueError("The energy you entered is too low ({} eV). "
                              "Minimum energy = 2050 eV".format(energy))
         if energy >= 24001:
             raise ValueError('The energy you entered is too high ({} eV). '
                              'Maximum energy = 24000 eV'.format(energy))
-        
+
         # compute where we would move everything to in a perfect world
 
         target_ivu_gap = energy_to_gap(energy, harmonic)
@@ -129,12 +130,12 @@ class Energy(PseudoPositioner):
              if harmonic < 1:
                  raise RuntimeError('can not find a valid gap')
              target_ivu_gap = energy_to_gap(energy, harmonic)
-            
+
         target_bragg_angle = energy_to_bragg(energy)
-        
+
         dcm_offset = 25
         target_dcm_gap = (dcm_offset/2)/np.cos(target_bragg_angle * np.pi / 180)
-        
+
         # sometimes move the crystal gap
         if not self.enabledcmgap.get():
             target_dcm_gap = self.dcmgap.position
@@ -156,7 +157,7 @@ class Energy(PseudoPositioner):
     @pseudo_position_argument
     def set(self, position):
         energy, = position
-        print(position, self.position)
+        # print(position, self.position)
         if np.abs(energy - self.position[0]) < .01:
             return MoveStatus(self, energy, success=True, done=True)
         return super().set([float(_) for _ in position])
