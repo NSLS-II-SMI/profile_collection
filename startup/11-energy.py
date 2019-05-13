@@ -39,6 +39,7 @@ def energy_to_bragg(target_energy, delta_bragg=0):
     bragg_angle = np.arcsin((ANG_OVER_EV / target_energy) / (2 * D_Si111)) / np.pi * 180 - delta_bragg
     return bragg_angle
 
+
 def wait_all(motors_list, sleep=0.0, debug=False):
     """Wait until the last motor finished movement.
     :param motors_list: the list of all motors to wait.
@@ -54,6 +55,7 @@ def wait_all(motors_list, sleep=0.0, debug=False):
             ttime.sleep(sleep)
         else:
             break
+
 
 def move_dcm(target_energy, delta_bragg=0):
     bragg_angle = energy_to_bragg(target_energy, delta_bragg)
@@ -91,7 +93,7 @@ class Energy(PseudoPositioner):
 
     ivugap = Cpt(InsertionDevice,
                  'SR:C12-ID:G1{IVU:1-Ax:Gap}-Mtr',
-                 read_attrs=['readback'],
+                 read_attrs=['user_readback'],
                  configuration_attrs=[],
                  labels=['mono'])
 
@@ -155,7 +157,7 @@ class Energy(PseudoPositioner):
     @pseudo_position_argument
     def set(self, position):
         energy, = position
-        print(position, self.position)
+        # print(position, self.position)
         if np.abs(energy - self.position[0]) < .01:
             return MoveStatus(self, energy, success=True, done=True)
         return super().set([float(_) for _ in position])

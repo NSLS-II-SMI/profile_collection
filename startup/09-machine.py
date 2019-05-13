@@ -1,3 +1,4 @@
+print(f'Loading {__file__}')
 import time as ttime
 import os
 from ophyd import (PVPositioner, EpicsSignal, EpicsSignalRO, EpicsMotor,
@@ -9,7 +10,6 @@ from ophyd import Component as Cpt
 from ophyd import Component
 from scipy.interpolate import InterpolatedUnivariateSpline
 from epics import (caput, caget)
-print(f'Loading {__file__}')
 
 
 
@@ -50,7 +50,8 @@ class EpicsSignalOverridePrec(EpicsSignal):
         return self._precision
 
 
-
+# TODO: clean up the obsolete classes after the new IVU device class
+# is tested enough
 class UndulatorGap(PVPositioner):
     # positioner signals
     setpoint = Cpt(EpicsSignalOverridePrec, '-Ax:Gap}-Mtr-SP')
@@ -95,19 +96,23 @@ class IVUBrakeCpt(Component):
         if kw not in self.add_prefix:
             return suffix
 
-        prefix = instance.prefix
-        ''.join(instance.prefix.partition('IVU:1')[:2]) + '}'
+        prefix = ''.join(instance.prefix.partition('IVU:1')[:2]) + '}'
         return prefix + suffix
 
 
 class InsertionDevice(EpicsMotor):
+    # SR:C12-ID:G1{IVU:1}BrakesDisengaged-SP
+    # SR:C12-ID:G1{IVU:1}BrakesDisengaged-Sts
     brake = IVUBrakeCpt(EpicsSignal,
                         write_pv='BrakesDisengaged-SP',
-                        read_pv='BrakesDisengaged-Sts')
+                        read_pv='BrakesDisengaged-Sts',
+                        add_prefix=('read_pv', 'write_pv', 'suffix'))
 
     def move(self, *args, **kwargs):
         set_and_wait(self.brake, 1)
         return super().move(*args, **kwargs)
+
+# ivu_gap = InsertionDevice('SR:C12-ID:G1{IVU:1-Ax:Gap}-Mtr', name='ivu_gap')
 
 
 '''
