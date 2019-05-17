@@ -64,7 +64,20 @@ prs = EpicsMotor('XF:12IDC-OP:2{HEX:PRS-Ax:Rot}Mtr', name='prs', labels=['prs'])
 for pr in [prs]:
     pr.configuration_attrs = pr.read_attrs
 
-class WAXS(Device):
-    arc = Cpt(EpicsMotor, 'Arc}Mtr')
 
-waxs = WAXS('XF:12IDC-ES:2{WAXS:1-Ax:', name='waxs')
+class WAXS(Device):
+    arc = Cpt(EpicsMotor, 'WAXS:1-Ax:Arc}Mtr')
+    x = Cpt(EpicsMotor, 'BS:WAXS-Ax:x}Mtr')
+
+    def set(self, arc_value):
+        st_arc = self.arc.set(arc_value)
+
+        if self.arc.limits[0] <= arc_value <= 7.0:
+            calc_value = -9
+        else:
+            calc_value = -8
+        st_x = self.x.set(calc_value)
+        return st_arc & st_x
+
+
+waxs = WAXS('XF:12IDC-ES:2{', name='waxs')
