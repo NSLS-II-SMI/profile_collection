@@ -500,6 +500,7 @@ class SMI_SAXS_Det(object):
         self.direct_beam_0_0 = [402, 1043 - 358]
                 
         self.pixel_size = 0.172
+        self.energy = dcm.energy.position
     
     
     def getPositions(self, **md):

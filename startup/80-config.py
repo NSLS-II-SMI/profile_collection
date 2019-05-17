@@ -27,13 +27,14 @@ def sample_id(*, user_name, sample_name, tray_number=None):
     rayonix.cam.file_number.put(1)    
     
 
-def proposal_id(proposal_id):
+def proposal_id(cycle_id,proposal_id):
     RE.md['proposal_id'] = proposal_id
+    RE.md['cycle_id'] = cycle_id
     # 2018-04-10: Maksim asked Tom about why this 'put' does not create the folder,
     # Tom suggested to ask PoC to update AD installation.
     import stat
     
-    newDir = "/GPFS/xf12id1/data/images/users/" + str(proposal_id) + "/MAXS"
+    newDir = "/GPFS/xf12id1/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
     #newDir = "/GPFS/xf12id1/data/images/users/{proposal_id}/MAXS"
     try:
         os.stat(newDir)
@@ -41,22 +42,22 @@ def proposal_id(proposal_id):
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     
-    newDir = "/GPFS/xf12id1/data/images/users/" + str(proposal_id) + "/1M"
+    newDir = "/GPFS/xf12id1/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/1M"
     try:
         os.stat(newDir)
     except FileNotFoundError:
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
-    newDir = "/GPFS/xf12id1/data/images/users/" + str(proposal_id) + "/300KW"
+    newDir = "/GPFS/xf12id1/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
     try:
         os.stat(newDir)
     except FileNotFoundError:
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     
-    pil1M.cam.file_path.put(f"/GPFS/xf12id1/data/images/users/{proposal_id}/1M")
-    pil300KW.cam.file_path.put(f"/GPFS/xf12id1/data/images/users/{proposal_id}/300KW")
-    rayonix.cam.file_path.put(f"/GPFS/xf12id1/data/images/users/{proposal_id}/MAXS")
+    pil1M.cam.file_path.put(f"/ramdisk/images/users/{cycle_id}/{proposal_id}/1M")
+    pil300KW.cam.file_path.put(f"/GPFS/xf12id1/data/images/users/{cycle_id}/{proposal_id}/300KW")
+    rayonix.cam.file_path.put(f"/GPFS/xf12id1/data/images/users/{cycle_id}/{proposal_id}/MAXS")
 
 def beamline_mode(mode=None):
     allowed_modes = ['sulfur', 'hard']
