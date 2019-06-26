@@ -54,6 +54,13 @@ def proposal_id(cycle_id,proposal_id):
     except FileNotFoundError:
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
+        
+    newDir = "/GPFS/xf12id1/analysis/" + str(cycle_id) + "/" + str(proposal_id)
+    try:
+        os.stat(newDir)
+    except FileNotFoundError:
+        os.makedirs(newDir)
+        os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     
     pil1M.cam.file_path.put(f"/ramdisk/images/users/{cycle_id}/{proposal_id}/1M")
     pil300KW.cam.file_path.put(f"/GPFS/xf12id1/data/images/users/{cycle_id}/{proposal_id}/300KW")

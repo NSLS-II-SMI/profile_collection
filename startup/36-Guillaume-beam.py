@@ -162,13 +162,18 @@ class SMIBeam(object):
             
     def _determineFoils(self):
         print(self.dcm.bragg.position)
-    
+        
+        state = 'vac' if float(waxs_pressure.ch1_read.value) < 0.1 else 'air'
+        divergence = crl_state()
+        
         if self.dcm.energy.position < 2000:
             target_state = [att1_12]
-        elif 2000 < self.dcm.energy.position < 3000:
+        elif 2000 < self.dcm.energy.position < 2300:
+            target_state = [att2_10]
+        elif 2300 < self.dcm.energy.position < 3000:
             target_state = [att2_11]
         elif 3000 < self.dcm.energy.position < 4500:
-            target_state = [att1_12]
+            target_state = [att2_9, att2_10, att2_11,att2_12]
         elif 4500 < self.dcm.energy.position < 5500:
             target_state = [att2_5, att2_6, att2_12]
         elif 5500 < self.dcm.energy.position < 7000:
@@ -190,13 +195,15 @@ class SMIBeam(object):
         elif 11500 < self.dcm.energy.position < 13000:
             target_state = [att1_9, att1_10, att1_11]
         elif 13000 < self.dcm.energy.position < 14000:
-            #target_state = [att1_10, att1_12]
-            target_state = [att1_12]                   #Low div in vacuum
+            target_state = [att1_10, att1_12]
+            if divergence == 'low_div' and state == 'vac': target_state = [att1_12]
         elif 14000 < self.dcm.energy.position < 14700:
             target_state = [att1_6, att1_7]
         elif 14700 < self.dcm.energy.position < 16100:
-            target_state = [att1_5, att1_6, att1_7]    #Low div in vacuum
-            #target_state = [att1_6, att1_7]             #micro focus, low div in air
+            target_state = [att1_5, att1_6, att1_7]
+            if divergence == 'low_div' and state == 'vac': target_state = [att1_5, att1_6, att1_7] 
+            if divergence == 'mic_foc' and state == 'air': target_state = [att1_7]
+            #target_state = [att1_5, att1_6]
         elif 16100 < self.dcm.energy.position < 17500:
             target_state = [att1_8]
         elif 17500 < self.dcm.energy.position < 18500:
@@ -396,14 +403,14 @@ class SMI_Beamline(Beamline):
         yield from SMIBeam().insertFoils('Alignement')
         
         # Move beamstop
-        yield from bps.mv(pil1m_bs.x, self.SAXS.beamstop[0] + 5)
+        yield from bps.mv(pil1m_bs.x, bsx_pos + 5)
         
         self.setReflectedBeamROI()
         self.setDirectBeamROI()
         
         #Move the waxs detector out of the way
-        if waxs.arc.position < 10:
-            yield from bps.mv(waxs.arc, 10)
+        if waxs.arc.position < 6:
+            yield from bps.mv(waxs.arc, 6)
         
         #self.detselect(self.SAXS.detector, roi=4)
         #self.SAXS.detector.cam.acquire_time.set(0.5)
@@ -431,7 +438,8 @@ class SMI_Beamline(Beamline):
         #self.beam.off()
         
         # Move beamstop
-        yield from bps.mv(pil1m_bs.x, self.SAXS.beamstop[0])
+        #yield from bps.mv(pil1m_bs.x, self.SAXS.beamstop[0])
+        yield from bps.mv(pil1m_bs.x, bsx_pos) #2 for 4000 mm, 1.2 for 6500
         
         # Remove attenuators
         yield from SMIBeam().insertFoils('Measurement')

@@ -1,3 +1,34 @@
+def gradient_sample(exp_time):
+    dets = [pil300KW, pil1M]
+    sam = ['ZnTi_gradient']
+    
+    xst = 25500         #step 2000
+    xsto = -24200
+    
+    waxs_arc = [2.95, 38.95, 7]
+    alph_na = ['0.1', '0.2']
+    alphai = [0.617, 0.717]
+    
+    det_exposure_time(exp_time, exp_time)
+    
+    x = xst
+    while x > xsto:
+        yield from bps.mv(piezo.x, x)
+        for i, ai in enumerate(alphai):
+            yield from bps.mv(piezo.th, ai)
+
+            name_fmt = '{sam}_xpos{x_pos}_ai{ai}deg'
+            sample_name = name_fmt.format(sam=sam[0], x_pos='%5.5d'%x, ai = alph_na[i])
+                
+            sample_id(user_name= 'ES', sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+
+            yield from bp.scan(dets, waxs.arc, *waxs_arc)
+            
+        x -= 200
+
+
+
 def MOF_measure(exp_time):
     dets = [pil300KW, pil1M]
     names = ['E07_130nm', 'F07_70nm']#, 'Ref_ZnO']
@@ -128,69 +159,12 @@ def calc_metadata():
 
 
 
-
-
-
-
-
-
-
-def config_update():
-    '''
-    Save the current configuration
-    '''
-    #TODO: Do a list of a what motor we need to be stored
-    #TODO: Add the pindiode beamstop to be read
-
-    SMI_CONFIG_FILENAME = '/home/xf12id/smi/config/smi_config.csv'
-
-
-    #Beamstop position in x and y
-    read_bs_x = yield from bps.read(pil1m_bs.x)
-    bs_pos_x = read_bs_x['pil1m_bs_x']['value']
+#Read the pressure from the waxs chamber
+class Waxs_chamber_pressure(Device):
+    ch1_read = Cpt(EpicsSignal, '{Det:300KW-TCG:7}P:Raw-I') #Change PVs
     
-    read_bs_y = yield from bps.read(pil1m_bs.y)
-    bs_pos_y = read_bs_y['pil1m_bs_y']['value']
-    
-    #WAXS arc initial angle
-    read_wa_0 = yield from bps.read(waxs.arc)
-    waxs_arc_0 = read_wa_0['waxs_arc']['value']
-    
-    
-    
-    #collect the current positions of motors
-    current_config = {
-    'bs_pos_x'  : bs_pos_x,
-    'bs_pos_y'  : bs_pos_y,
-    'waxs_arc_0': waxs_arc_0,
-    'time'      : time.ctime()}
-    
-    current_config_DF = pds.DataFrame(data=current_config, index=[1])
-
-    #load the previous config file
-    smi_config = pds.read_csv(SMI_CONFIG_FILENAME, index_col=0)
-    smi_config_update = smi_config.append(current_config_DF, ignore_index=True)
-
-    #save to file
-    smi_config_update.to_csv(SMI_CONFIG_FILENAME)
-
-
-def config_load():
-    '''
-    Save the configuration file
-    '''
-    SMI_CONFIG_FILENAME = '/home/xf12id/smi/config/smi_config.csv'
-    #collect the current positions of motors
-    smi_config = pds.read_csv(SMI_CONFIG_FILENAME, index_col=0)
-    
-    bs_pos_x = smi_config.bs_pos_x.values[-1]
-    bs_pos_y = smi_config.bs_pos_y.values[-1]
-    waxs_arc_0 = smi_config.waxs_arc_0.values[-1]
-    #positions
-    return bs_pos_x, bs_pos_y, waxs_arc_0
-
-
-bsx_pos, bsy_pos, waxs_arc_0 = config_load()
+waxs_pressure = Waxs_chamber_pressure('XF:12IDC-VA:2', name='waxs_chamber_pressure')#Change PVs 
+waxs_pressure.ch1_read.kind = 'hinted'
 	
 
 

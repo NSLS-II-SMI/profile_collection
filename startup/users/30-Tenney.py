@@ -1,26 +1,62 @@
 ####line scan
 
+# RE(bps.mv(waxs, 0))
+# sample_id(user_name='ST',sample_name='Nitra-glass_RT_y-4300')
+# RE(bp.scan([pil300KW], waxs, 0, 30, 6))
+
+
+
+def run_tsaxs_ST(t=0.1): 
+
+
+    # define names of samples on sample bar
+    #sample_list = ['sb-b_1_1'] #
+    sample_list = ['sam1']
+    #x_list = [42000] 
+    x_list = [-5800]
     
+    assert len(x_list) == len(sample_list), f'Sample name/position list is borked'
+
+    #angle_arc = np.array([0.08, 0.1, 0.15, 0.2]) # incident angles
+    waxs_angle_array = np.linspace(0, 18, 4)   # q=4*3.14/0.77*np.sin((max angle+3.5)/2*3.14159/180)
+                                               # if 12, 3: up to q=2.199
+                                               # if 18, 4: up to q=3.04
+    dets = [pil300KW, ls.ch1_read, rayonix, pil1M] # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]
     
-def waxs_zher(t=1): 
-    x_list  = [-42000, -20400, 200, 20400, 44300]#
-    y_list =  [  5600,   5800, 5920, 5822,  5972]
-    # Detectors, motors:
-    dets = [pil1M]
-    y_range = [0, 200, 11]
-    samples = [ 'S1_30C', 'S2_30C','S3_30C','S4_30C','S5_30C']
-    #    param   = '16.1keV'
-    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    det_exposure_time(t)
-    for x, y, sample in zip(x_list,y_list, samples):
-        yield from bps.mv(piezo.x, x)
-        yield from bps.mv(piezo.y, y)
-        sample_id(user_name='BM', sample_name=sample) 
-        #yield from bp.scan(dets, piezo.y, *y_range)
-        yield from bp.count(dets, num=1)
-          
+    for x, sample in zip(x_list,sample_list): #loop over samples on bar
+
+        yield from bps.mv(piezo.x, x) #move to next sample                
+        #yield from alignement_gisaxs(0.1) #run alignment routine
+
+        #th_meas = angle_arc + piezo.th.position #np.array([0.10 + piezo.th.position, 0.20 + piezo.th.position])
+        #th_real = angle_arc	
+        y_array = np.array([-4500, -4000]) 
+
+        det_exposure_time(t,t) 
+        x_meas = x;
+            
+        for waxs_angle in waxs_angle_array: # loop through waxs angles
+            yield from bps.mv(waxs, waxs_angle)
+                
+            for i, th in enumerate(th_meas): #loop over incident angles
+                #yield from bps.mv(piezo.th, th)
+                    
+                #x_meas = x_meas - 200   # shift a bit in x
+                #yield from bps.mv(piezo.x, x_meas) 
+                temp = ls.ch1_read.value
+                sample_name = '{sample}_{temp}deg_waxs{waxs_angle:05.2f}_x{x}_{t}s'.format(sample = sample, temp=temp, waxs_angle=waxs_angle, x=x_meas, t=t)
+                sample_id(user_name='ST', sample_name=sample_name) 
+                print(f'\n\t=== Sample: {sample_name} ===\n')                        
+                            
+                #yield from bp.scan(dets, energy, e, e, 1)
+                #yield from bp.scan(dets, waxs.arc, *waxs_arc)
+                yield from bp.count(dets, num=1)
+                    
+
     sample_id(user_name='test', sample_name='test')
-    det_exposure_time(1)
+    det_exposure_time(0.5)
+
+
 
 def run_harv_temp(tim=1,name = 'HarvTempRe'): 
     # Slowest cycle:

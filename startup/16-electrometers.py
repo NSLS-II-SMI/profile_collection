@@ -17,8 +17,6 @@ from ophyd import Component as Cpt, Signal
 from ophyd.utils import set_and_wait
 import bluesky.plans as bp
 
-from bluesky.suspenders import SuspendFloor, SuspendBoolLow, SuspendBoolHigh, SuspendCeil
-
 # quick edit just to get the crrent PVs into BS, ED11mar17
 # file should eventually have currents and other PVs for all electrometers,
 # with indication of their permanent name assignments
@@ -39,9 +37,6 @@ ls.ch1_sp.kind = 'hinted'
 ls.ch2_read.kind = 'hinted'
 ls.ch2_sp.kind = 'hinted'
 
-susp_waxs_motor = SuspendCeil( ls.ch1_read, 150, resume_thresh= 120 )
-RE.install_suspender( susp_waxs_motor )
-
 
 class XBPM(Device):
     ch1 = Cpt(EpicsSignal,'Current1:MeanValue_RBV')
@@ -61,10 +56,6 @@ xbpm3.sumX.kind = 'hinted'
 xbpm2.sumY.kind = 'hinted'
 xbpm2.sumX.kind = 'hinted'
 
-susp_xbpm2_sum = SuspendFloor( xbpm2.sumY, 0.3, resume_thresh= 0.8 )
-#susp_xbpm3_sum = SuspendFloor( xbpm3.sumY, 0.3, resume_thresh= 1.0 )
-RE.install_suspender( susp_xbpm2_sum )
-#RE.install_suspender( susp_xbpm3_sum )
 
 ssacurrent = EpicsSignal('XF:12IDB-BI{EM:SSASlit}SumAll:MeanValue_RBV', name='ssacurrent')
 pdcurrent = EpicsSignal('XF:12ID:2{EM:Tetr1}Current2:MeanValue_RBV', name='pdcurrent', auto_monitor=True)

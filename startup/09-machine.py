@@ -19,15 +19,6 @@ mstr_shutter_enable = EpicsSignalRO('SR-EPS{PLC:1}Sts:MstrSh-Sts', name='mstr_sh
 ivu_permit = EpicsSignalRO('XF:12ID-CT{}Prmt:Remote-Sel', name='ivu_permit')
 smi_shutter_enable = EpicsSignalRO('SR:C12-EPS{PLC:1}Sts:ID_BE_Enbl-Sts', name='smi_shutter_enable')
 
-from bluesky.suspenders import SuspendFloor, SuspendBoolLow, SuspendBoolHigh
-susp_beam = SuspendFloor( ring_current, 100, resume_thresh= 397 )
-RE.install_suspender( susp_beam )
-
-susp_smi_shutter = SuspendFloor( smi_shutter_enable, 0.1, resume_thresh= 0.9 )
-RE.install_suspender( susp_smi_shutter )
-
-#RE.install_suspender( susp_fe_shutter
-
 
 
 class EpicsSignalOverridePrecRO(EpicsSignalRO):

@@ -18,6 +18,7 @@ import bluesky.plans as bp
 import time
 from nslsii.ad33 import StatsPluginV33
 from nslsii.ad33 import SingleTriggerV33
+import pandas as pds
 
 
 class PilatusDetectorCamV33(PilatusDetectorCam):
@@ -55,8 +56,9 @@ class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
 class Pilatus(SingleTriggerV33, PilatusDetector):
     tiff = Cpt(TIFFPluginWithFileStore,
                suffix="TIFF1:",
-               write_path_template="/GPFS/xf12id1/data/PLACEHOLDER",  # override this on instances using instance.tiff.write_file_path
-               root='/GPFS')
+               #write_path_template="/GPFS/xf12id1/data/PLACEHOLDER",  # override this on instances using instance.tiff.write_file_path
+               write_path_template="/ramdisk/PLACEHOLDER",
+               root='/')
 
     roi1 = Cpt(ROIPlugin, 'ROI1:')
     roi2 = Cpt(ROIPlugin, 'ROI2:')
@@ -82,8 +84,11 @@ pil1M.set_primary_roi(1)
 pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW") #, detector_id="WAXS")
 pil300KW.set_primary_roi(1)
 
-pil1M.tiff.write_path_template = '/GPFS/xf12id1/data/1M/images/%Y/%m/%d/'
+#pil1M.tiff.write_path_template = '/GPFS/xf12id1/data/1M/images/%Y/%m/%d/'
+pil1M.tiff.write_path_template = '/ramdisk/1M/images/%Y/%m/%d/'
+pil1M.tiff.read_path_template = '/GPFS/xf12id1/data/1M/images/%Y/%m/%d/'
 pil300KW.tiff.write_path_template = '/GPFS/xf12id1/data/300KW/images/%Y/%m/%d/'
+pil300KW.tiff.read_path_template = '/GPFS/xf12id1/data/300KW/images/%Y/%m/%d/'
 
 
 pil1mroi1 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats1:Total_RBV', name='pil1mroi1')
@@ -136,4 +141,58 @@ pil1M.cam.ensure_nonblocking()
 pil300KW.stats1.kind = 'hinted'
 pil300KW.stats1.total.kind = 'hinted'
 pil300KW.cam.ensure_nonblocking()
+
+
+def beamstop_save():
+    '''
+    Save the current configuration
+    '''
+    #TODO: Do a list of a what motor we need to be stored
+    #TODO: Add the pindiode beamstop to be read
+
+    SMI_CONFIG_FILENAME = '/home/xf12id/smi/config/smi_config.csv'
+
+
+    #Beamstop position in x and y
+    read_bs_x = yield from bps.read(pil1m_bs.x)
+    bs_pos_x = read_bs_x['pil1m_bs_x']['value']
+    
+    read_bs_y = yield from bps.read(pil1m_bs.y)
+    bs_pos_y = read_bs_y['pil1m_bs_y']['value']
+    
+    
+    
+    #collect the current positions of motors
+    current_config = {
+    'bs_pos_x'  : bs_pos_x,
+    'bs_pos_y'  : bs_pos_y,
+    'time'      : time.ctime()}
+    
+    current_config_DF = pds.DataFrame(data=current_config, index=[1])
+
+    #load the previous config file
+    smi_config = pds.read_csv(SMI_CONFIG_FILENAME, index_col=0)
+    smi_config_update = smi_config.append(current_config_DF, ignore_index=True)
+
+    #save to file
+    smi_config_update.to_csv(SMI_CONFIG_FILENAME)
+    global bsx_pos, bsy_pos
+    bsx_pos, bsy_pos = beamstop_load()
+    print(bsx_pos)
+
+
+def beamstop_load():
+    '''
+    Save the configuration file
+    '''
+    SMI_CONFIG_FILENAME = '/home/xf12id/smi/config/smi_config.csv'
+    #collect the current positions of motors
+    smi_config = pds.read_csv(SMI_CONFIG_FILENAME, index_col=0)
+    
+    bs_pos_x = smi_config.bs_pos_x.values[-1]
+    bs_pos_y = smi_config.bs_pos_y.values[-1]
+    #positions
+    return bs_pos_x, bs_pos_y
+
+bsx_pos, bsy_pos = beamstop_load()
 

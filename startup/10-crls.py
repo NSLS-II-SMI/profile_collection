@@ -28,3 +28,21 @@ crl = CRL('XF:12IDC-OP:2{Lens:CRL-Ax:', name='crl')
 
 # Note: focus related code is in CSS only at this time
 
+
+#Check if CRL's are in to determine if low divergence or micro-focusing
+
+def crl_state():
+    for crl_le in [crl.lens1, crl.lens2, crl.lens3, crl.lens4, crl.lens5,
+                   crl.lens6, crl.lens7, crl.lens8, crl.lens9, crl.lens10,
+                   crl.lens11, crl.lens12]:
+            
+        if abs(crl_le.position) < 4:
+            crl_state = 'mic_foc'
+            break
+        else:
+            crl_state = 'low_div'
+    return crl_state
+            
+        
+        
+
