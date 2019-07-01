@@ -59,15 +59,6 @@ def alignement_gisaxs(angle = 0.15):
         yield from bps.mv(piezo.th, ps.cen - angle)
         yield from smi.modeMeasurement_gisaxs()
         
-def alignement_gisaxs_test(angle = 0.15):      
-        
-        sample_id(user_name='test', sample_name='test')
-        det_exposure_time(0.5, 0.5)
-        
-        smi = SMI_Beamline()
-        yield from smi.modeAlignment_gisaxs()
-        time.sleep(20)
-        yield from smi.modeMeasurement_gisaxs()
 
 def alignement_gisaxs_hex(angle = 0.15):      
         
