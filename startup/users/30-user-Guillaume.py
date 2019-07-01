@@ -143,29 +143,13 @@ def optics_config_load():
     '''
     #TODO: Do a list of a what motor we need to be stored
         
-        
-
-
-
-
+            
 def calc_metadata():
     #TODO: List of metadata needed for the analysis
     #SDD, Energy, Direct beam, BS_position, waxs_arc_pos, detector, geometry, alphai
     
     read_bs_x = yield from bps.read(pil1m_bs.x)
-
-
-
-
-
-
-#Read the pressure from the waxs chamber
-class Waxs_chamber_pressure(Device):
-    ch1_read = Cpt(EpicsSignal, '{Det:300KW-TCG:7}P:Raw-I') #Change PVs
     
-waxs_pressure = Waxs_chamber_pressure('XF:12IDC-VA:2', name='waxs_chamber_pressure')#Change PVs 
-waxs_pressure.ch1_read.kind = 'hinted'
-	
 
 
 
