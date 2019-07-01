@@ -74,9 +74,10 @@ def move_dcm(target_energy, delta_bragg=0):
 
 
 class DCMInternals(Device):
+    height = Cpt(EpicsMotor, 'XF12ID:m66')
     pitch = Cpt(EpicsMotor, 'XF12ID:m67')
     roll = Cpt(EpicsMotor, 'XF12ID:m68')
-    x = Cpt(EpicsMotor, 'XF12ID:m69')
+    theta = Cpt(EpicsMotor, 'XF12ID:m65')
 
 
 class Energy(PseudoPositioner):
@@ -175,6 +176,8 @@ dcm_pitch = EpicsMotor('XF12ID:m67', name='dcm_pitch')
 # dcm_roll = dcm.roll  # Roll in CSS # EpicsMotor('XF12ID:m68', name='p2r')
 bragg = dcm.bragg  # Theta in CSS  # EpicsMotor('XF12ID:m65', name='bragg')
 # dcm_x = dcm.x  # E Mono X in CSS
+
+dcm_config = DCMInternals('', name='dcm_config')
 
 bragg.read_attrs = ['user_readback']
 

@@ -6,6 +6,14 @@ print(f'Loading {__file__}')
 
 fshutter = EpicsMotor('XF:12IDC:2{Sh:E-Ax:Y}Mtr', name='fshutter')
 
+#Read the pressure from the waxs chamber
+class Waxs_chamber_pressure(Device):
+    ch1_read = Cpt(EpicsSignal, '{Det:300KW-TCG:7}P:Raw-I') #Change PVs
+    
+waxs_pressure = Waxs_chamber_pressure('XF:12IDC-VA:2', name='waxs_chamber_pressure')#Change PVs 
+waxs_pressure.ch1_read.kind = 'hinted'
+
+
 class PIL1MPositions(Device):
     x = Cpt(EpicsMotor, 'X}Mtr')
     y = Cpt(EpicsMotor, 'Y}Mtr')
