@@ -70,15 +70,15 @@ def beamline_mode(mode=None):
     allowed_modes = ['sulfur', 'hard']
     assert mode in allowed_modes, f'Wrong mode: {mode}, must choose: {" or ".join(allowed_modes)}'
     if mode == 'hard':
-        hfm.y.move(3.6) #3.6 for Rh stripe 11.6 for Pt
+        hfm.y.move(3.4) #3.6 for Rh stripe 11.6 for Pt
         hfm.x.move(-0.0)
         hfm.th.move(-0.1746) #-0.1746 for Rh stripe
-        vfm.x.move(4.3)
-        vfm.y.move(-2.5)
-        vfm.th.move(-0.18)
-        vdm.x.move(4.3)
-        vdm.th.move(-0.1804)
-        vdm.y.move(-2.56)
+        vfm.x.move(3.9)
+        vfm.y.move(-3)
+        vfm.th.move(-0.216)
+        vdm.x.move(4.5)
+        vdm.th.move(-0.2174)
+        vdm.y.move(-2.44)
     elif mode == 'sulfur':
         hfm.y.move(-12.4)
         hfm.x.move(-0.055)
