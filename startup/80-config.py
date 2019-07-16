@@ -206,8 +206,11 @@ def compare_config(mode_name):
         new_config = smi_config[smi_config.config_names==mode_name]
     
     for current_con, new_con, ind in zip(current_config.iloc[0], new_config.iloc[0], new_config):
-        if current_con != new_con:
-            print('difference in %s: the current value is %s, the new one is %s'%(ind, current_con, new_con))
+        if ind == 'config_names':
+            print('The new configuration is %s'%(new_con))
+        elif ind!='ztime':
+            if  abs(current_con - new_con) > 0.00001:
+                print('difference in %s: the current value is %s, the new one is %s'%(ind, current_con, new_con))
     
 
 def update_config_mode(mode_name, motor_name, motor_value):
@@ -236,65 +239,69 @@ def update_config_mode(mode_name, motor_name, motor_value):
 
 def move_new_config(mode_name):
     SMI_CONFIG_FILENAME = '/home/xf12id/smi/config/smi_setup.csv'
-
-    # load the previous config file
-    smi_config = pds.read_csv(SMI_CONFIG_FILENAME, index_col=0)
+    smi_config = pds.read_csv(SMI_CONFIG_FILENAME)
+    smi_config = pds.DataFrame(data=smi_config)
     current_config = read_current_config_position()
-    '''
-    if mode_name in smi_config['mode']:
-        smi_new_config = smi_config[mode_name]
-    else: raise Exception('Unknown configuration')
-    '''
-    print('Are you sure you really want to move to %s configuration?'%mode_name)
-    response = input('    Are you sure? (y/[n]) ')
-        
-    if response is 'y' or response is 'Y':
-        print('it will move in the future')
+
+    if mode_name not in smi_config.config_names.values:
+        raise Exception('configuration not existing')
+    
     else:
-        print('No move was made.')
+        compare_config(mode_name)
+        print('Are you sure you really want to move to %s configuration?'%mode_name)
+        response = input('    Are you sure? (y/[n]) ')
+        
+        if response is 'y' or response is 'Y':
+           print('it will move in the future')
+           
+           #load smi new config
+           #energy.target_harmonic(smi_new_config['dcm_harmonic'])
+           energy.move(smi_new_config['energy'])
+           
+           if  abs(hfm.y.position - smi_new_config['hfm_y']) < 0.00001:
+                   yield from bps.move(hfm.y,  smi_new_config['hfm_y'])
+                   print('move hfm_y')
+           
+           '''
+           yield from bps.move(hfm.x,  smi_new_config['hfm_x'])
+           yield from bps.move(hfm.th, smi_new_config['hfm_th'])
+           yield from bps.move(vfm.y,  smi_new_config['vfm_y'])
+           yield from bps.move(vfm.x,  smi_new_config['vfm_x'])
+           yield from bps.move(vfm.th,  smi_new_config['vfm_th'])
+           yield from bps.move(vdm.y,  smi_new_config['vdm_y'])
+           yield from bps.move(vdm.x,  smi_new_config['vdm_x'])
+           yield from bps.move(vdm.th,  smi_new_config['vdm_th'])
+           
+           yield from bps.move(dcm_config.pitch,  smi_new_config['dcm_pitch'])
+           yield from bps.move(dcm_config.roll,  smi_new_config['dcm_roll'])
+           yield from bps.move(dcm_config.height,  smi_new_config['dcm_height'])
+           yield from bps.move(dcm_config.theta,  smi_new_config['dcm_theta'])
+           
+           yield from bps.move(ssa.h,  smi_new_config['ssa_h'])
+           yield from bps.move(ssa.hg,  smi_new_config['ssa_hg'])
+           yield from bps.move(ssa.v,  smi_new_config['ssa_v'])
+           yield from bps.move(ssa.vg,  smi_new_config['ssa_vg'])
+           yield from bps.move(crl.lens1,  smi_new_config['crl_lens1'])
+           yield from bps.move(crl.lens2,  smi_new_config['crl_lens2'])
+           yield from bps.move(crl.lens3,  smi_new_config['crl_lens3'])
+           yield from bps.move(crl.lens4,  smi_new_config['crl_lens4'])
+           yield from bps.move(crl.lens5,  smi_new_config['crl_lens5'])
+           yield from bps.move(crl.lens6,  smi_new_config['crl_lens6'])
+           yield from bps.move(crl.lens7,  smi_new_config['crl_lens7'])
+           yield from bps.move(crl.lens8,  smi_new_config['crl_lens8'])
+           
+           yield from bps.move(cslit.h,  smi_new_config['cslit_h'])
+           yield from bps.move(cslit.hg,  smi_new_config['cslit_hg'])
+           yield from bps.move(cslit.v,  smi_new_config['cslit_v'])
+           yield from bps.move(cslit.vg,  smi_new_config['cslit_vg'])
+           yield from bps.move(eslit.h,  smi_new_config['eslit_h'])
+           yield from bps.move(eslit.hg,  smi_new_config['eslit_hg'])
+           yield from bps.move(eslit.v,  smi_new_config['eslit_v'])
+           yield from bps.move(eslit.vg,  smi_new_config['eslit_vg'])
+           yield from bps.move(dsa.x,  smi_new_config['dsa_x'])
+           yield from bps.move(dsa.y,  smi_new_config['dsa_y'])
+           '''
+        else:
+           print('No move was made.')
 
-    '''
-    energy.target_harmonic(smi_new_config['dcm_harmonic'])
-    energy.move(smi_new_config['energy'])
-    
-    yield from bps.move(hfm.y,  smi_new_config['hfm_y'])
-    yield from bps.move(hfm.x,  smi_new_config['hfm_x'])
-    yield from bps.move(hfm.th, smi_new_config['hfm_th'])
-    yield from bps.move(vfm.y,  smi_new_config['vfm_y'])
-    yield from bps.move(vfm.x,  smi_new_config['vfm_x'])
-    yield from bps.move(vfm.th,  smi_new_config['vfm_th'])
-    yield from bps.move(vdm.y,  smi_new_config['vdm_y'])
-    yield from bps.move(vdm.x,  smi_new_config['vdm_x'])
-    yield from bps.move(vdm.th,  smi_new_config['vdm_th'])
-    
-    yield from bps.move(dcm_config.pitch,  smi_new_config['dcm_pitch'])
-    yield from bps.move(dcm_config.roll,  smi_new_config['dcm_roll'])
-    yield from bps.move(dcm_config.height,  smi_new_config['dcm_height'])
-    yield from bps.move(dcm_config.theta,  smi_new_config['dcm_theta'])
-    
-    yield from bps.move(ssa.h,  smi_new_config['ssa_h'])
-    yield from bps.move(ssa.hg,  smi_new_config['ssa_hg'])
-    yield from bps.move(ssa.v,  smi_new_config['ssa_v'])
-    yield from bps.move(ssa.vg,  smi_new_config['ssa_vg'])
-
-    yield from bps.move(crl.lens1,  smi_new_config['crl_lens1'])
-    yield from bps.move(crl.lens2,  smi_new_config['crl_lens2'])
-    yield from bps.move(crl.lens3,  smi_new_config['crl_lens3'])
-    yield from bps.move(crl.lens4,  smi_new_config['crl_lens4'])
-    yield from bps.move(crl.lens5,  smi_new_config['crl_lens5'])
-    yield from bps.move(crl.lens6,  smi_new_config['crl_lens6'])
-    yield from bps.move(crl.lens7,  smi_new_config['crl_lens7'])
-    yield from bps.move(crl.lens8,  smi_new_config['crl_lens8'])
-    
-    yield from bps.move(cslit.h,  smi_new_config['cslit_h'])
-    yield from bps.move(cslit.hg,  smi_new_config['cslit_hg'])
-    yield from bps.move(cslit.v,  smi_new_config['cslit_v'])
-    yield from bps.move(cslit.vg,  smi_new_config['cslit_vg'])
-    yield from bps.move(eslit.h,  smi_new_config['eslit_h'])
-    yield from bps.move(eslit.hg,  smi_new_config['eslit_hg'])
-    yield from bps.move(eslit.v,  smi_new_config['eslit_v'])
-    yield from bps.move(eslit.vg,  smi_new_config['eslit_vg'])
-    yield from bps.move(dsa.x,  smi_new_config['dsa_x'])
-    yield from bps.move(dsa.y,  smi_new_config['dsa_y'])
-    '''
 

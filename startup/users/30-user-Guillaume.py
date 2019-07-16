@@ -149,7 +149,8 @@ def calc_metadata():
     #SDD, Energy, Direct beam, BS_position, waxs_arc_pos, detector, geometry, alphai
     
     read_bs_x = yield from bps.read(pil1m_bs.x)
-    
 
 
+def test_test():
+    yield from move_new_config('16p1keV_microfocused')
 
