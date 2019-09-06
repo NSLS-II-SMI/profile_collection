@@ -1,0 +1,44 @@
+dist: xenial
+language: python
+sudo: false
+
+env:
+  - MPLBACKEND: Qt5Agg
+
+cache:
+  directories:
+    - $HOME/.cache/matplotlib
+
+addons:
+  apt:
+    packages:
+      - qtbase5-dev
+
+matrix:
+  fast_finish: true
+  include:
+    - os: linux
+      python: 3.7
+      env: BS_PROFILE=collection BS_ENV_VERSION=2019C3.0.1
+
+before_install:
+  - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - ./miniconda.sh -b -p ~/mc
+  - source ~/mc/etc/profile.d/conda.sh
+  - conda update conda --yes
+  - pwd
+  - ls -laF
+  - mkdir ~/.ipython/
+  - cd ~/.ipython/
+  - git clone https://github.com/NSLS-II-SMI/profile_collection
+
+install:
+  - env | sort -u
+  - conda create -n ${BS_PROFILE}-${BS_ENV_VERSION} -c nsls2forge ${BS_PROFILE}=${BS_ENV_VERSION} python=${PYTHON}
+  - conda activate ${BS_PROFILE}-${BS_ENV_VERSION}
+  - conda list
+  - conda info
+  - conda env list
+
+script:
+  - time ipython --profile=${BS_PROFILE} -c "exit()"
