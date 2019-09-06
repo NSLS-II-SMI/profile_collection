@@ -3,7 +3,7 @@ language: python
 services:
   - mongodb
   - xvfb
-sudo: false
+sudo: true
 
 env:
   global:
@@ -41,8 +41,8 @@ before_install:
   - mkdir ~/.config/databroker/
   - cp smi-test.yml ~/.config/databroker/smi.yml
   # Copy files hardcoded in the startup files:
-  - mkdir -p /home/xf12id/smi/config/
-  - cp -v smi_config-test.csv /home/xf12id/smi/config/smi_config.csv
+  - sudo mkdir -p /home/xf12id/smi/config/
+  - sudo cp -v smi_config-test.csv /home/xf12id/smi/config/smi_config.csv
 
 install:
   - env | sort -u
