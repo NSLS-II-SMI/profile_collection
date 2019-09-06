@@ -31,7 +31,7 @@ before_install:
   - pwd
   - ls -laF
   - mkdir -p ~/.ipython/profile_${BS_PROFILE}
-  - cp -rv $PWD ~/.ipython/profile_${BS_PROFILE}
+  - cp -rv $PWD ~/.ipython/
   - ls -laF ~/.ipython/profile_${BS_PROFILE}
   - echo -e "[DEFAULT]\nurl = http://example.com\nlogbooks = test\nusername = travis\npassword = travis" > ~/pyOlog.conf
   - cat ~/pyOlog.conf
