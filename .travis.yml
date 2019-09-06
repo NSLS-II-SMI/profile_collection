@@ -40,9 +40,12 @@ before_install:
   # Databroker config:
   - mkdir ~/.config/databroker/
   - cp smi-test.yml ~/.config/databroker/smi.yml
-  # Copy files hardcoded in the startup files:
-  - sudo mkdir -p /home/xf12id/smi/config/
-  - sudo cp -v smi_config-test.csv /home/xf12id/smi/config/smi_config.csv
+  # This is not needed anymore as the file is located in the profile dir,
+  # and the path is identified automatically by IPython. Keeping it for now
+  # in case there are objections from BL staff.
+  # # Copy files hardcoded in the startup files:
+  # - sudo mkdir -p /home/xf12id/smi/config/
+  # - sudo cp -v smi_config-test.csv /home/xf12id/smi/config/smi_config.csv
 
 install:
   - env | sort -u
