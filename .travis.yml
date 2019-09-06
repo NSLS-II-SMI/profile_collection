@@ -1,5 +1,6 @@
 dist: xenial
 language: python
+services: mongodb
 sudo: false
 
 env:
@@ -8,6 +9,7 @@ env:
 cache:
   directories:
     - $HOME/.cache/matplotlib
+
 
 addons:
   apt:
