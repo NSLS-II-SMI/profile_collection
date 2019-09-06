@@ -19,10 +19,10 @@ matrix:
   include:
     - os: linux
       python: 3.7
-      env: CONDA_CHANNEL=lightsource2-tag BS_PROFILE=collection BS_ENV_VERSION=2019C3.0.1
+      env: _CONDA_CHANNEL=lightsource2-tag BS_PROFILE=collection BS_ENV_VERSION=2019C3.0.1
     - os: linux
       python: 3.7
-      env: CONDA_CHANNEL=nsls2forge BS_PROFILE=collection BS_ENV_VERSION=2019C3.0.1
+      env: _CONDA_CHANNEL=nsls2forge BS_PROFILE=collection BS_ENV_VERSION=2019C3.0.1
 
 before_install:
   # Get and install miniconda first:
@@ -52,7 +52,7 @@ before_install:
 
 install:
   - env | sort -u
-  - conda create -y -n ${BS_PROFILE}-${BS_ENV_VERSION} -c ${CONDA_CHANNEL} ${BS_PROFILE}=${BS_ENV_VERSION} python=${PYTHON}
+  - conda create -y -n ${BS_PROFILE}-${BS_ENV_VERSION} -c ${_CONDA_CHANNEL} ${BS_PROFILE}=${BS_ENV_VERSION} python=${PYTHON}
   - conda activate ${BS_PROFILE}-${BS_ENV_VERSION}
   - conda list
   - conda info
