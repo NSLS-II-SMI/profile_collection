@@ -31,14 +31,8 @@ before_install:
   - mkdir ~/.ipython/
   - cd ~/.ipython/
   - git clone https://github.com/NSLS-II-SMI/profile_collection
-  - |
-      cat < EOF > ~/pyOlog.conf
-[DEFAULT]
-url = http://example.com
-logbooks = test
-username = travis
-password = travis
-EOF
+  - echo -e "[DEFAULT]\nurl = http://example.com\nlogbooks = test\nusername = travis\npassword = travis" > ~/pyOlog.conf
+  - cat ~/pyOlog.conf
 
 install:
   - env | sort -u
