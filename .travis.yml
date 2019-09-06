@@ -1,6 +1,8 @@
 dist: xenial
 language: python
-services: mongodb
+services:
+  - mongodb
+  - xvfb
 sudo: false
 
 addons:
