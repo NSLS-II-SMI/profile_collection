@@ -33,6 +33,8 @@ before_install:
   - ls -laF ~/.ipython/profile_${BS_PROFILE}
   - echo -e "[DEFAULT]\nurl = http://example.com\nlogbooks = test\nusername = travis\npassword = travis" > ~/pyOlog.conf
   - cat ~/pyOlog.conf
+  - mkdir ~/.config/databroker/
+  - cp smi-test.yml ~/.config/databroker/smi.yml
 
 install:
   - env | sort -u
