@@ -1,0 +1,16 @@
+description: 'SMI production mongo'
+metadatastore:
+    module: 'databroker.headersource.mongo'
+    class: 'MDS'
+    config:
+        host: 'xf12id-ca1'
+        port: 27017
+        database: 'datastore'
+        timezone: 'US/Eastern'
+assets:
+    module: 'databroker.assets.mongo'
+    class: 'Registry'
+    config:
+        host: 'xf12id-ca1'
+        port: 27017
+        database: 'filestore'

@@ -28,9 +28,9 @@ before_install:
   - conda update conda --yes
   - pwd
   - ls -laF
-  - mkdir ~/.ipython/
-  - cd ~/.ipython/
-  - git clone https://github.com/NSLS-II-SMI/profile_collection
+  - mkdir -p ~/.ipython/profile_${BS_PROFILE}
+  - cp -rv $PWD ~/.ipython/profile_${BS_PROFILE}
+  - ls -laF ~/.ipython/profile_${BS_PROFILE}
   - echo -e "[DEFAULT]\nurl = http://example.com\nlogbooks = test\nusername = travis\npassword = travis" > ~/pyOlog.conf
   - cat ~/pyOlog.conf
 
