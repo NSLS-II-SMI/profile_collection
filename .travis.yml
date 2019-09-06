@@ -3,9 +3,7 @@ language: python
 services:
   - mongodb
   - xvfb
-sudo:
-  - false
-  - true
+sudo: false
 
 env:
   global:
