@@ -60,5 +60,5 @@ install:
   - echo -e "\n" | caproto-spoof-beamline &
 
 script:
-  - OPHYD_CONTROL_LAYER=pyepics EPICS_CA_AUTO_ADDR_LIST=no EPICS_CA_ADDR_LIST=127.0.0.1 timeout 60 ipython --profile=${BS_PROFILE}
-  - OPHYD_CONTROL_LAYER=caproto timeout 60 ipython --profile=${BS_PROFILE}
+  - OPHYD_CONTROL_LAYER=pyepics EPICS_CA_AUTO_ADDR_LIST=no EPICS_CA_ADDR_LIST=127.0.0.1 ipython --profile=${BS_PROFILE} -c "print('pyepics control layer')"
+  - OPHYD_CONTROL_LAYER=caproto --profile=${BS_PROFILE} -c "print('caproto control layer')"
