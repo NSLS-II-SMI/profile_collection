@@ -46,4 +46,5 @@ install:
   - echo -e "\n" | caproto-spoof-beamline &
 
 script:
-  - ipython --profile=${BS_PROFILE} -c "print('test')"
+  - ipython --profile=${BS_PROFILE} -c "print('test with pyepics')"
+  - OPHYD_CONTROL_LAYER=caproto ipython --profile=${BS_PROFILE} -c "print('test with caproto')"
