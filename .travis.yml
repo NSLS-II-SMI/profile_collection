@@ -39,6 +39,7 @@ install:
   - conda list
   - conda info
   - conda env list
+  - echo -e "\n" | caproto-spoof-beamline &
 
 script:
   - ipython --profile=${BS_PROFILE} -c "print('test')"
