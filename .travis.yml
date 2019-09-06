@@ -39,4 +39,5 @@ install:
   - conda env list
 
 script:
-  - ipython --profile=${BS_PROFILE} -c "print('test')"
+  - ipython --matplotlib=agg --profile=${BS_PROFILE} -c "print('test')"
+  - ipython --pylab=agg --profile=${BS_PROFILE} -c "print('test')"
