@@ -39,5 +39,4 @@ install:
   - conda env list
 
 script:
-  - ipython --matplotlib=agg --profile=${BS_PROFILE} -c "print('test')"
-  - ipython --pylab=agg --profile=${BS_PROFILE} -c "print('test')"
+  - MPLBACKEND=Qt5Agg ipython --profile=${BS_PROFILE} -c "print('test')"
