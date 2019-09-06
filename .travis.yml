@@ -39,4 +39,4 @@ install:
   - conda env list
 
 script:
-  - MPLBACKEND=Qt5Agg ipython --profile=${BS_PROFILE} -c "print('test')"
+  - MPLBACKEND= ipython --profile=${BS_PROFILE} -c "print('test')"
