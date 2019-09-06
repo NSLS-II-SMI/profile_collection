@@ -39,4 +39,4 @@ install:
   - conda env list
 
 script:
-  - MPLBACKEND= ipython --profile=${BS_PROFILE} -c "print('test')"
+  - ipython --profile=${BS_PROFILE}
