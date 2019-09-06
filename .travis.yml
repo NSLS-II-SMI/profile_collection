@@ -5,6 +5,10 @@ services:
   - xvfb
 sudo: false
 
+env:
+  global:
+    - MPLBACKEND: Qt5Agg
+
 addons:
   apt:
     packages:
@@ -15,7 +19,7 @@ matrix:
   include:
     - os: linux
       python: 3.7
-      env: BS_PROFILE=collection BS_ENV_VERSION=2019C3.0.1 MPLBACKEND=Qt5Agg
+      env: BS_PROFILE=collection BS_ENV_VERSION=2019C3.0.1
 
 before_install:
   - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
