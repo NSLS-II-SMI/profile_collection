@@ -70,8 +70,8 @@ install:
   - conda info
   - conda env list
   - echo -e "\n" | caproto-spoof-beamline &
-  # Same reason as in https://github.com/bluesky/tutorial/blob/master/binder/postBuild#L14-L15
-  - ln -s caproto-repeater ${CONDA_PREFIX}/bin/caRepeater
+  # Same reason as in https://github.com/bluesky/tutorial/blob/master/binder/postBuild#L14-L15:
+  - ln -sv caproto-repeater ${CONDA_PREFIX}/bin/caRepeater
 
 script:
   - |
@@ -80,4 +80,4 @@ script:
     ip = get_ipython()
     for f in sorted(glob.glob("startup/*.py")):
         ip.parent._exec_file(f)'
-  - ipython -c "$command"
+  - EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1 ipython -c "$command"
