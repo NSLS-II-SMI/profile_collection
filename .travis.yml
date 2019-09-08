@@ -33,10 +33,10 @@ before_install:
   - pwd
   - ls -laF
   # Create an IPython profile dir:
-  - mkdir -p ~/.ipython/profile_${BS_PROFILE}
-  - cp -rv $PWD ~/.ipython/
-  - ls -laF ~/.ipython/
-  - ls -laF ~/.ipython/profile_${BS_PROFILE}
+  # - mkdir -p ~/.ipython/profile_${BS_PROFILE}
+  # - cp -rv $PWD ~/.ipython/
+  # - ls -laF ~/.ipython/
+  # - ls -laF ~/.ipython/profile_${BS_PROFILE}
   # pyOlog config:
   - cp -v pyOlog-test.conf ~/pyOlog.conf
   - cat ~/pyOlog.conf
@@ -60,5 +60,11 @@ install:
   - echo -e "\n" | caproto-spoof-beamline &
 
 script:
-  - OPHYD_CONTROL_LAYER=pyepics EPICS_CA_AUTO_ADDR_LIST=no EPICS_CA_ADDR_LIST=127.0.0.1 ipython --profile=${BS_PROFILE} -c "print('pyepics control layer')"
-  - OPHYD_CONTROL_LAYER=caproto ipython --profile=${BS_PROFILE} -c "print('caproto control layer')"
+  - |
+    command='
+    import glob
+    ip = get_ipython()
+    for f in sorted(glob.glob("startup/*.py")):
+        ip.parent._exec_file(f)'
+  - OPHYD_CONTROL_LAYER=pyepics EPICS_CA_AUTO_ADDR_LIST=no EPICS_CA_ADDR_LIST=127.0.0.1 ipython -c "$command"
+  - OPHYD_CONTROL_LAYER=caproto ipython -c "$command"
