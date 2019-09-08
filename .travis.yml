@@ -16,10 +16,11 @@ env:
     - BS_PROFILE: collection
     - BS_ENV_VERSION: 2019C3.0.1
   matrix:
-    - _CONDA_CHANNEL: lightsource2-tag
-    - _CONDA_CHANNEL: nsls2forge
-    - OPHYD_CONTROL_LAYER: pyepics
-    - OPHYD_CONTROL_LAYER: caproto
+    - _CONDA_CHANNEL=lightsource2-tag OPHYD_CONTROL_LAYER=pyepics
+    - _CONDA_CHANNEL=nsls2forge OPHYD_CONTROL_LAYER=pyepics
+    - _CONDA_CHANNEL=lightsource2-tag OPHYD_CONTROL_LAYER=caproto
+    - _CONDA_CHANNEL=nsls2forge OPHYD_CONTROL_LAYER=caproto
+
 os:
   - linux
 python:
