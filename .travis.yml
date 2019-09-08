@@ -5,24 +5,28 @@ services:
   - xvfb
 sudo: true
 
-env:
-  global:
-    - MPLBACKEND: Qt5Agg
-
 addons:
   apt:
     packages:
       - qtbase5-dev
 
+env:
+  global:
+    - MPLBACKEND: Qt5Agg
+    - BS_PROFILE: collection
+    - BS_ENV_VERSION: 2019C3.0.1
+  matrix:
+    - _CONDA_CHANNEL: lightsource2-tag
+    - _CONDA_CHANNEL: nsls2forge
+    - OPHYD_CONTROL_LAYER: pyepics
+    - OPHYD_CONTROL_LAYER: caproto
+os:
+  - linux
+python:
+  - 3.7
+
 matrix:
   fast_finish: true
-  include:
-    - os: linux
-      python: 3.7
-      env: _CONDA_CHANNEL=lightsource2-tag BS_PROFILE=collection BS_ENV_VERSION=2019C3.0.1
-    - os: linux
-      python: 3.7
-      env: _CONDA_CHANNEL=nsls2forge BS_PROFILE=collection BS_ENV_VERSION=2019C3.0.1
 
 before_install:
   # Get and install miniconda first:
@@ -58,6 +62,12 @@ install:
   - conda info
   - conda env list
   - echo -e "\n" | caproto-spoof-beamline &
+  # We will be running a default profile without copying the startup/*.py files
+  # into it; the startup files will be executed by explicit commands. But to
+  # satisfy the automatic resolution of the "smi_config.csv" file, we will have
+  # to copy it into the "default" profile dir.
+  - ipython profile create default
+  - cp -v smi_config-test.csv ~/.ipython/profile_default/smi_config.csv
 
 script:
   - |
@@ -66,5 +76,4 @@ script:
     ip = get_ipython()
     for f in sorted(glob.glob("startup/*.py")):
         ip.parent._exec_file(f)'
-  - OPHYD_CONTROL_LAYER=pyepics EPICS_CA_AUTO_ADDR_LIST=no EPICS_CA_ADDR_LIST=127.0.0.1 ipython -c "$command"
-  - OPHYD_CONTROL_LAYER=caproto ipython -c "$command"
+  - ipython -c "$command"
