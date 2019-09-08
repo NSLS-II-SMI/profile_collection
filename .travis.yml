@@ -53,14 +53,14 @@ before_install:
   # in case there are objections from BL staff.
   # # Copy files hardcoded in the startup files:
   # - sudo mkdir -p /home/xf12id/smi/config/
-  # - sudo cp -v smi_config-test.csv /home/xf12id/smi/config/smi_config.csv
+  # - sudo cp -v smi_config.csv /home/xf12id/smi/config/smi_config.csv
 
   # We will be running a default profile without copying the startup/*.py files
   # into it; the startup files will be executed by explicit commands. But to
   # satisfy the automatic resolution of the "smi_config.csv" file, we will have
   # to copy it into the "default" profile dir.
   - mkdir -p ~/.ipython/profile_default
-  - cp -v smi_config-test.csv ~/.ipython/profile_default/smi_config.csv
+  - cp -v smi_config.csv ~/.ipython/profile_default/smi_config.csv
 
 install:
   - env | sort -u
