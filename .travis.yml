@@ -65,7 +65,7 @@ before_install:
 
 install:
   - env | sort -u
-  - conda create -y -n ${BS_PROFILE}-${BS_ENV_VERSION} -c ${_CONDA_CHANNEL} ${BS_PROFILE}=${BS_ENV_VERSION} python=${PYTHON}
+  - conda create -y -n ${BS_PROFILE}-${BS_ENV_VERSION} -c ${_CONDA_CHANNEL} ${BS_PROFILE}=${BS_ENV_VERSION} python=${TRAVIS_PYTHON_VERSION}
   - conda activate ${BS_PROFILE}-${BS_ENV_VERSION}
   - conda list
   - conda info
