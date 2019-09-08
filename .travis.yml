@@ -55,6 +55,13 @@ before_install:
   # - sudo mkdir -p /home/xf12id/smi/config/
   # - sudo cp -v smi_config-test.csv /home/xf12id/smi/config/smi_config.csv
 
+  # We will be running a default profile without copying the startup/*.py files
+  # into it; the startup files will be executed by explicit commands. But to
+  # satisfy the automatic resolution of the "smi_config.csv" file, we will have
+  # to copy it into the "default" profile dir.
+  - mkdir -p ~/.ipython/profile_default
+  - cp -v smi_config-test.csv ~/.ipython/profile_default/smi_config.csv
+
 install:
   - env | sort -u
   - conda create -y -n ${BS_PROFILE}-${BS_ENV_VERSION} -c ${_CONDA_CHANNEL} ${BS_PROFILE}=${BS_ENV_VERSION} python=${PYTHON}
@@ -63,12 +70,6 @@ install:
   - conda info
   - conda env list
   - echo -e "\n" | caproto-spoof-beamline &
-  # We will be running a default profile without copying the startup/*.py files
-  # into it; the startup files will be executed by explicit commands. But to
-  # satisfy the automatic resolution of the "smi_config.csv" file, we will have
-  # to copy it into the "default" profile dir.
-  - ipython profile create default
-  - cp -v smi_config-test.csv ~/.ipython/profile_default/smi_config.csv
 
 script:
   - |
