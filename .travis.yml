@@ -3,7 +3,7 @@ language: python
 services:
   - mongodb
   - xvfb
-sudo: true
+sudo: false
 
 addons:
   apt:
