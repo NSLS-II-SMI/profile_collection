@@ -46,6 +46,8 @@ before_install:
   # pyOlog config:
   - cp -v pyOlog-test.conf ~/pyOlog.conf
   - cat ~/pyOlog.conf
+
+  # Beamline-specific configs:
   # Databroker config:
   - mkdir ~/.config/databroker/
   - cp smi-test.yml ~/.config/databroker/smi.yml
