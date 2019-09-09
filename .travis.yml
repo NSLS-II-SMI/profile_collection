@@ -31,26 +31,20 @@ matrix:
   fast_finish: true
 
 before_install:
-  # Get and install miniconda first:
+  # Get and install miniconda first (common step for all beamlines):
   - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - sh ./miniconda.sh -b -p ~/mc
   - source ~/mc/etc/profile.d/conda.sh  # this makes all conda vars available
   - conda update conda --yes
   - pwd
   - ls -laF
-  # Create an IPython profile dir:
-  # - mkdir -p ~/.ipython/profile_${BS_PROFILE}
-  # - cp -rv $PWD ~/.ipython/
-  # - ls -laF ~/.ipython/
-  # - ls -laF ~/.ipython/profile_${BS_PROFILE}
-  # pyOlog config:
+  # pyOlog config (common step for all beamlines):
   - cp -v pyOlog-test.conf ~/pyOlog.conf
   - cat ~/pyOlog.conf
 
-  # Beamline-specific configs:
-  # Databroker config:
-  - mkdir ~/.config/databroker/
-  - cp smi-test.yml ~/.config/databroker/smi.yml
+  # Databroker config (common step for all beamlines):
+  - mkdir -p -v ~/.config/databroker/
+  - cp -v databroker.yml ~/.config/databroker/$(git config --get remote.origin.url | awk -F'[/-]' '{print tolower($6)}').yml
   # This is not needed anymore as the file is located in the profile dir,
   # and the path is identified automatically by IPython. Keeping it for now
   # in case there are objections from BL staff.
@@ -63,6 +57,8 @@ before_install:
   # satisfy the automatic resolution of the "smi_config.csv" file, we will have
   # to copy it into the "default" profile dir.
   - mkdir -p ~/.ipython/profile_default
+
+  # Beamline-specific configs:
   - cp -v smi_config.csv ~/.ipython/profile_default/smi_config.csv
 
 install:
