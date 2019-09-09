@@ -76,16 +76,16 @@ script:
   - |
     if [ "$OPHYD_CONTROL_LAYER" == "pyepics" ]; then
         connection_timeout='
-import ophyd
-from functools import partial
-ophyd.signal.EpicsSignalBase.wait_for_connection = partial(ophyd.signal.EpicsSignalBase.wait_for_connection, timeout=20)
-print(ophyd.signal.EpicsSignalBase.wait_for_connection)'
+    import ophyd
+    from functools import partial
+    ophyd.signal.EpicsSignalBase.wait_for_connection = partial(ophyd.signal.EpicsSignalBase.wait_for_connection, timeout=20)
+    print(ophyd.signal.EpicsSignalBase.wait_for_connection)'
     fi
     command="${connection_timeout}
-import glob
-ip = get_ipython()
-for f in sorted(glob.glob('startup/*.py')):
-    print(f'Executing {f} in TravisCI')
-    ip.parent._exec_file(f)"
+    import glob
+    ip = get_ipython()
+    for f in sorted(glob.glob('startup/*.py')):
+        print(f'Executing {f} in TravisCI')
+        ip.parent._exec_file(f)"
   - echo "$command"
   - EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1 ipython --profile=default -c "$command"
