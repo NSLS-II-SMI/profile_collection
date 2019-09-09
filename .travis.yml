@@ -68,15 +68,19 @@ install:
   - conda list
   - conda info
   - conda env list
-  - echo -e "\n" | caproto-spoof-beamline -vvvv &
+  - echo -e "\n" | caproto-spoof-beamline &
   # Same reason as in https://github.com/bluesky/tutorial/blob/master/binder/postBuild#L14-L15:
   - ln -sv caproto-repeater ${CONDA_PREFIX}/bin/caRepeater
 
 script:
   - |
-    command='
+    if [ "$OPHYD_CONTROL_LAYER" == "pyepics" ]; then
+        configure_epics_timeout = 'import epics; epics.ca.DEFAULT_CONNECTION_TIMEOUT = 10'
+    fi
+    command="$configure_epics_timeout
     import glob
     ip = get_ipython()
-    for f in sorted(glob.glob("startup/*.py")):
-        ip.parent._exec_file(f)'
+    for f in sorted(glob.glob('startup/*.py')):
+        print(f'Executing {f} in TravisCI')
+        ip.parent._exec_file(f)"
   - EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1 ipython -c "$command"
