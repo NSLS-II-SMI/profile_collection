@@ -44,7 +44,7 @@ before_install:
 
   # Databroker config (common step for all beamlines):
   - mkdir -p -v ~/.config/databroker/
-  - cp -v databroker.yml ~/.config/databroker/$(git config --get remote.origin.url | awk -F'[/-]' '{print tolower($6)}').yml
+  - cp -v databroker.yml ~/.config/databroker/$(echo $TRAVIS_REPO_SLUG | awk -F'[-/]' '{print tolower($3)}')}').yml
   # This is not needed anymore as the file is located in the profile dir,
   # and the path is identified automatically by IPython. Keeping it for now
   # in case there are objections from BL staff.
@@ -75,11 +75,13 @@ install:
 script:
   - |
     if [ "$OPHYD_CONTROL_LAYER" == "pyepics" ]; then
-        configure_epics_timeout = '
+        connection_timeout = '
+        import ophyd
         from functools import partial
-        ophyd.signal.EpicsSignalBase.wait_for_connection = partial(ophyd.signal.EpicsSignalBase.wait_for_connection, timeout=10)'
+        ophyd.signal.EpicsSignalBase.wait_for_connection = partial(ophyd.signal.EpicsSignalBase.wait_for_connection, timeout=20)
+        print(ophyd.signal.EpicsSignalBase.wait_for_connection)'
     fi
-    command="$configure_epics_timeout
+    command="${connection_timeout}
     import glob
     ip = get_ipython()
     for f in sorted(glob.glob('startup/*.py')):
