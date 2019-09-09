@@ -88,4 +88,4 @@ script:
         print(f'Executing {f} in TravisCI')
         ip.parent._exec_file(f)"
     echo "$command"
-  - EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1 ipython -n default -c "$command"
+  - EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1 ipython --profile=default -c "$command"
