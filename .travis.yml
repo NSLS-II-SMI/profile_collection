@@ -43,7 +43,7 @@ before_install:
   - cat ~/pyOlog.conf
 
   # Databroker config (common step for all beamlines):
-  - mkdir -p -v ~/.config/databroker/
+  - mkdir -v -p ~/.config/databroker/
   - cp -v databroker.yml ~/.config/databroker/$(echo $TRAVIS_REPO_SLUG | awk -F'[-/]' '{print tolower($3)}').yml
   # This is not needed anymore as the file is located in the profile dir,
   # and the path is identified automatically by IPython. Keeping it for now
@@ -56,7 +56,7 @@ before_install:
   # into it; the startup files will be executed by explicit commands. But to
   # satisfy the automatic resolution of the "smi_config.csv" file, we will have
   # to copy it into the "default" profile dir.
-  - mkdir -p ~/.ipython/profile_default
+  - mkdir -v -p ~/.ipython/profile_default
 
   # Beamline-specific configs:
   - cp -v smi_config.csv ~/.ipython/profile_default/smi_config.csv
@@ -75,7 +75,7 @@ install:
 script:
   - |
     if [ "$OPHYD_CONTROL_LAYER" == "pyepics" ]; then
-        connection_timeout = '
+        connection_timeout='
         import ophyd
         from functools import partial
         ophyd.signal.EpicsSignalBase.wait_for_connection = partial(ophyd.signal.EpicsSignalBase.wait_for_connection, timeout=20)
@@ -88,4 +88,4 @@ script:
         print(f'Executing {f} in TravisCI')
         ip.parent._exec_file(f)"
     echo "$command"
-  - EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1 ipython -c "$command"
+  - EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1 ipython -n default -c "$command"
