@@ -75,7 +75,9 @@ install:
 script:
   - |
     if [ "$OPHYD_CONTROL_LAYER" == "pyepics" ]; then
-        configure_epics_timeout = 'import epics; epics.ca.DEFAULT_CONNECTION_TIMEOUT = 10'
+        configure_epics_timeout = '
+        from functools import partial
+        ophyd.signal.EpicsSignalBase.wait_for_connection = partial(ophyd.signal.EpicsSignalBase.wait_for_connection, timeout=10)'
     fi
     command="$configure_epics_timeout
     import glob
@@ -83,4 +85,5 @@ script:
     for f in sorted(glob.glob('startup/*.py')):
         print(f'Executing {f} in TravisCI')
         ip.parent._exec_file(f)"
+    echo "$command"
   - EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1 ipython -c "$command"
