@@ -72,7 +72,7 @@ install:
   - conda list
   - conda info
   - conda env list
-  - echo -e "\n" | caproto-spoof-beamline &
+  - echo -e "\n" | caproto-spoof-beamline -vvvv &
   # Same reason as in https://github.com/bluesky/tutorial/blob/master/binder/postBuild#L14-L15:
   - ln -sv caproto-repeater ${CONDA_PREFIX}/bin/caRepeater
 
