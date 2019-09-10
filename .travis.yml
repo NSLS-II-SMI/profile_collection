@@ -79,7 +79,7 @@ script:
     import ophyd
     import functools
     ophyd.signal.EpicsSignalBase.wait_for_connection = functools.partialmethod(ophyd.signal.EpicsSignalBase.wait_for_connection, timeout=20)
-    print(ophyd.signal.EpicsSignalBase.wait_for_connection)'
+    print(ophyd.signal.EpicsSignalBase.wait_for_connection.__dict__)'
     fi
     command="${connection_timeout}
     import glob
