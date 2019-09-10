@@ -77,8 +77,8 @@ script:
     if [ "$OPHYD_CONTROL_LAYER" == "pyepics" ]; then
         connection_timeout='
     import ophyd
-    from functools import partial
-    ophyd.signal.EpicsSignalBase.wait_for_connection = partial(ophyd.signal.EpicsSignalBase.wait_for_connection, timeout=20)
+    import functools
+    ophyd.signal.EpicsSignalBase.wait_for_connection = functools.partialmethod(ophyd.signal.EpicsSignalBase.wait_for_connection, timeout=20)
     print(ophyd.signal.EpicsSignalBase.wait_for_connection)'
     fi
     command="${connection_timeout}
