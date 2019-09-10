@@ -14,6 +14,7 @@ env:
   global:
     - MPLBACKEND: Qt5Agg
     - BS_PROFILE: collection
+    - TEST_PROFILE: default
     - BS_ENV_VERSION: 2019C3.0.1
   matrix:
     - _CONDA_CHANNEL=lightsource2-tag OPHYD_CONTROL_LAYER=pyepics
@@ -31,35 +32,30 @@ matrix:
   fast_finish: true
 
 before_install:
-  # Get and install miniconda first (common step for all beamlines):
+  ##### Common steps #####
+  # Get and install miniconda first:
   - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - sh ./miniconda.sh -b -p ~/mc
   - source ~/mc/etc/profile.d/conda.sh  # this makes all conda vars available
   - conda update conda --yes
   - pwd
   - ls -laF
-  # pyOlog config (common step for all beamlines):
+  # pyOlog config:
   - cp -v pyOlog-test.conf ~/pyOlog.conf
   - cat ~/pyOlog.conf
 
-  # Databroker config (common step for all beamlines):
+  # Databroker config:
   - mkdir -v -p ~/.config/databroker/
   - cp -v databroker.yml ~/.config/databroker/$(echo $TRAVIS_REPO_SLUG | awk -F'[-/]' '{print tolower($3)}').yml
-  # This is not needed anymore as the file is located in the profile dir,
-  # and the path is identified automatically by IPython. Keeping it for now
-  # in case there are objections from BL staff.
-  # # Copy files hardcoded in the startup files:
-  # - sudo mkdir -p /home/xf12id/smi/config/
-  # - sudo cp -v smi_config.csv /home/xf12id/smi/config/smi_config.csv
 
   # We will be running a default profile without copying the startup/*.py files
   # into it; the startup files will be executed by explicit commands. But to
-  # satisfy the automatic resolution of the "smi_config.csv" file, we will have
+  # satisfy the automatic resolution of the data/config files, we will have
   # to copy it into the "default" profile dir.
-  - mkdir -v -p ~/.ipython/profile_default
+  - mkdir -v -p ~/.ipython/profile_${TEST_PROFILE}
 
-  # Beamline-specific configs:
-  - cp -v smi_config.csv ~/.ipython/profile_default/smi_config.csv
+  ##### Beamline-specific steps #####
+  - bash .travis-local.sh
 
 install:
   - env | sort -u
@@ -88,4 +84,4 @@ script:
         print(f'Executing {f} in TravisCI')
         ip.parent._exec_file(f)"
   - echo "$command"
-  - EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1 ipython --profile=default -c "$command"
+  - EPICS_CA_AUTO_ADDR_LIST=NO EPICS_CA_ADDR_LIST=127.0.0.1 ipython --profile=${TEST_PROFILE} -c "$command"
