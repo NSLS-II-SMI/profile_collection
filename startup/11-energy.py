@@ -152,7 +152,10 @@ class Energy(PseudoPositioner):
     @real_position_argument
     def inverse(self, r_pos):
         bragg = r_pos.bragg
-        e = ANG_OVER_EV / (2 * D_Si111 * math.sin(math.radians(bragg)))
+        try:
+            e = ANG_OVER_EV / (2 * D_Si111 * math.sin(math.radians(bragg)))
+        except ZeroDivisionError:
+            e = -1.e23
         return self.PseudoPosition(energy=float(e))
 
     @pseudo_position_argument

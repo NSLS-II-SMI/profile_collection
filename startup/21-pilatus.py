@@ -150,7 +150,8 @@ def beamstop_save():
     #TODO: Do a list of a what motor we need to be stored
     #TODO: Add the pindiode beamstop to be read
 
-    SMI_CONFIG_FILENAME = '/home/xf12id/smi/config/smi_config.csv'
+    SMI_CONFIG_FILENAME = os.path.join(get_ipython().profile_dir.location,
+                                       'smi_config.csv')
 
 
     #Beamstop position in x and y
@@ -185,7 +186,8 @@ def beamstop_load():
     '''
     Save the configuration file
     '''
-    SMI_CONFIG_FILENAME = '/home/xf12id/smi/config/smi_config.csv'
+    SMI_CONFIG_FILENAME = os.path.join(get_ipython().profile_dir.location,
+                                       'smi_config.csv')
     #collect the current positions of motors
     smi_config = pds.read_csv(SMI_CONFIG_FILENAME, index_col=0)
     
