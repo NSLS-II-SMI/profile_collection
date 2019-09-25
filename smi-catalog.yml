@@ -1,0 +1,25 @@
+sources:
+  smi:
+    description: SMI catalog
+    driver: intake_bluesky.mongo_normalized.BlueskyMongoCatalog
+    container: catalog
+    args:
+      metadatastore_db: mongodb://xf12id-ca1:27017/datastore
+      asset_registry_db: mongodb://xf12id-ca1:27017/filestore
+      handler_registry:
+        AD_SPE: databroker.assets.handlers.AreaDetectorSPEHandler
+        AD_TIFF: databroker.assets.handlers.AreaDetectorTiffHandler
+        AD_HDF5: databroker.assets.handlers.AreaDetectorHDF5Handler
+        AD_HDF5_SWMR: databroker.assets.handlers.AreaDetectorHDF5SWMRHandler
+        AD_HDF5_TS: databroker.assets.handlers.AreaDetectorHDF5TimestampHandler
+        AD_HDF5_SWMR_TS: databroker.assets.handlers.AreaDetectorHDF5SWMRTimestampHandler
+        MAPS_SPECTRUM: databroker.assets.handlers.HDFMapsSpectrumHandler
+        MAPS_PLANE: databroker.assets.handlers.HDFMapsEnergyHandler
+        npy: databroker.assets.handlers.NpyHandler
+        npy_FRAMEWISE: databroker.assets.handlers.NpyFrameWise
+        SINGLE_TIFF: databroker.assets.handlers.SingleTiffHandler
+        DAT: databroker.assets.handlers.DATHandler
+        AD_CBF: databroker.assets.handlers.PilatusCBFHandler
+        XSP3: databroker.assets.handlers.Xspress3HDF5Handler
+    metadata:
+      beamline: SMI
