@@ -5,7 +5,7 @@ import bluesky.plans as bp
 from bluesky.suspenders import SuspendFloor, SuspendBoolLow, SuspendBoolHigh, SuspendCeil
 
 #Temperature of the WAXS motor suspender
-susp_waxs_motor = SuspendCeil( ls.ch1_read, 150, resume_thresh= 120 )
+susp_waxs_motor = SuspendCeil( ls.ch2_read, 150, resume_thresh= 120 )
 RE.install_suspender( susp_waxs_motor )
 
 #Count on XBPM2 suspender

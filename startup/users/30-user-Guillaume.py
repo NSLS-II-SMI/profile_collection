@@ -153,4 +153,126 @@ def calc_metadata():
 
 def test_test():
     yield from move_new_config('16p1keV_microfocused')
+    
+    
+def waxs_S_edge(t=1):
+    dets = [pil300KW]
+    
+
+    names = ['sample11', 'sample12', 'sample13']
+    x = [8800, 16600, 22900]
+
+    
+    energies = np.linspace(2430, 2500, 36)
+    ys = np.linspace(-700, 950, 36)
+    waxs_arc = [0, 19.5, 4]
+    
+    for name, x in zip(names, x):
+        bps.mv(piezo.x, x)
+        det_exposure_time(t,t) 
+        name_fmt = '{sample}_{energy}eV'
+        for e, y in zip(energies, ys):                              
+            yield from bps.mv(energy, e)
+            yield from bps.mv(piezo.y, y)
+            sample_name = name_fmt.format(sample=name, energy=e)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.scan(dets, waxs, *waxs_arc)
+
+       
+        yield from bps.mv(energy, 2430)
+        yield from bps.mv(piezo.y, 1000)
+        name_fmt = '{sample}_2430eV_postmeas'
+        sample_name = name_fmt.format(sample=name)
+        sample_id(user_name='GF', sample_name=sample_name)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.scan(dets, waxs, *waxs_arc)
+
+
+    
+def gratings_S_edge(t=1):
+    dets = [pil300KW]
+    
+    names = ['1908_J3030_40p20cd']
+    
+    energies = [2400, 2432, 2433, 2434, 2435, 2436, 2437, 2438, 2439, 2440, 2441, 2442, 2443, 2444, 2445, 2446, 2447, 2448, 2449, 2450]
+    
+    for name in names:
+        det_exposure_time(t,t) 
+        name_fmt = '{sample}_{energy}eV'
+        for e in energies:                              
+            yield from bps.mv(energy, e)
+            sample_name = name_fmt.format(sample=name, energy=e)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+
+def gratings_Sn_edge(t=1):
+    dets = [pil300KW]
+    
+    names = ['1908_YAHY_40p11cd']
+    
+    energies = [3900, 3920, 3921, 3922, 3923, 3924, 3925, 3926, 3927, 3928, 3929, 3930, 3931, 3932, 3933, 3934, 3935, 3936, 3937, 3940]
+    
+    for name in names:
+        det_exposure_time(t,t) 
+        name_fmt = '{sample}_{energy}eV_ai0.7deg'
+        for e in energies:                              
+            yield from bps.mv(energy, e)
+            sample_name = name_fmt.format(sample=name, energy=e)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+
+def nikhil_Zn_edge(t=1):
+    dets = [pil300KW, pil300kwroi2]
+    
+    names = ['Zn0_unexposed', 'Zn0_exposed']
+    xs = [14000, -8000]
+    
+    energies = np.linspace(9620, 9700, 81)
+    
+    for x, name in zip(xs, names):
+        bps.mv(piezo.x, x)
+        det_exposure_time(t,t) 
+        name_fmt = '{sample}_{energy}eV_ct{xbpm}_ai0.1deg'
+        for e in energies:                              
+            yield from bps.mv(energy, e)
+            xbpm = xbpm3.sumX.value
+            sample_name = name_fmt.format(sample=name, energy=e, xbpm ='%3.2f'%xbpm)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+        
+        yield from bps.mv(energy, 9680)
+        yield from bps.mv(energy, 9660)
+        yield from bps.mv(energy, 9640)
+        yield from bps.mv(energy, 9620)
+        
+        
+
+
+
+
+def meas_gels(t=1):
+    dets = [pil300KW, pil1M]
+    
+    names = ['DIwater', 'bkg_wat']
+    #names = ['sam48', 'sam49', 'sam50', 'sam51', 'sam52', 'sam53', 'sam54']
+    xs = [27000, -15000]
+    
+    waxs_arc = [0, 13, 3]
+    
+    for x, name in zip(xs, names):
+        yield from bps.mv(piezo.x, x)
+        det_exposure_time(t,t) 
+        name_fmt = '{sample}_16p1keV_8p3m_'
+        sample_name = name_fmt.format(sample=name)
+        sample_id(user_name='GF', sample_name=sample_name)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.scan(dets, waxs, *waxs_arc)
+        
+
 

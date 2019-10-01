@@ -163,7 +163,7 @@ class SMIBeam(object):
     def _determineFoils(self):
         print(self.dcm.bragg.position)
         
-        state = 'vac' if float(waxs_pressure.ch1_read.value) < 0.1 else 'air'
+        #state = 'vac' if float(waxs_pressure.ch1_read.value) < 0.1 else 'air'
         divergence = crl_state()
         
         if self.dcm.energy.position < 2000:
@@ -171,7 +171,7 @@ class SMIBeam(object):
         elif 2000 < self.dcm.energy.position < 2300:
             target_state = [att2_10]
         elif 2300 < self.dcm.energy.position < 3000:
-            target_state = [att2_11]
+            target_state = [att2_12, att2_11, att2_10]
         elif 3000 < self.dcm.energy.position < 4500:
             target_state = [att2_9, att2_10, att2_11,att2_12]
         elif 4500 < self.dcm.energy.position < 5500:
@@ -201,8 +201,9 @@ class SMIBeam(object):
             target_state = [att1_6, att1_7]
         elif 14700 < self.dcm.energy.position < 16100:
             target_state = [att1_5, att1_6, att1_7]
-            if divergence == 'low_div' and state == 'vac': target_state = [att1_5, att1_6, att1_7] 
-            if divergence == 'mic_foc' and state == 'air': target_state = [att1_7]
+            #if divergence == 'low_div' and state == 'vac': target_state = [att1_5, att1_6, att1_7] 
+            #if divergence == 'mic_foc' and state == 'air': target_state = [att1_7]
+            #if divergence == 'mic_foc' and state == 'vac': target_state = [att1_7]
             #target_state = [att1_5, att1_6]
         elif 16100 < self.dcm.energy.position < 17500:
             target_state = [att1_8]
@@ -449,7 +450,7 @@ class SMI_Beamline(Beamline):
         #self.current_mode = 'measurement'
 
 
-    def setDirectBeamROI(self, size=[24,12], verbosity=3):
+    def setDirectBeamROI(self, size=[48,12], verbosity=3):
         '''
         Update the ROI (pil1m.roi1) for the direct beam on the SAXS detector.
         size: tuple argument: size in pixels) of the ROI [width, height]).
@@ -466,7 +467,7 @@ class SMI_Beamline(Beamline):
         yield from bps.mv(pil1M.roi1.size.y, int(size[1]))
         
 
-    def setReflectedBeamROI(self, total_angle=0.16, size=[24,8], verbosity=3):
+    def setReflectedBeamROI(self, total_angle=0.16, size=[48,8], verbosity=3):
         '''
         Update the ROI (pil1m.roi3) for the reflected beam on the SAXS detector.
         total_ange: float: incident angle of the alignement in degrees

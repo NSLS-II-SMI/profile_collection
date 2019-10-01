@@ -1,0 +1,40 @@
+def ex_situ(meas_t = 1):
+    x_list = [-32500, -21500, -14500, -3500, 6500, 13500, 21500, 30500, 37500]
+    sample_list = ['2_17_asprinted_12mms60C', '2_17_reconfigured_12mms60C', '2_33b_asprinted_28mms50C', 'PEUU_10mmsUN', 'PEUU_10mmsSOAK', 'PEUU_15mmsUN', 'PEUU_15mmsSOAK', 'PEUU_20mmsUN', 'PEUU_20mmsSOAK']
+    
+    assert len(x_list) == len(sample_list), f'Sample name/position list is borked'
+    
+    waxs_arc = [0, 26, 5] 
+    dets = [pil300KW, pil1M] 
+    
+    for x, sample in zip(x_list,sample_list): #loop over samples on bar
+        yield from bps.mv(piezo.x, x)
+        det_exposure_time(meas_t, meas_t) 
+              
+        name_fmt = '{sample}'
+        sample_name = name_fmt.format(sample=sample)
+        sample_id(user_name='ED', sample_name=sample_name) 
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+
+        yield from bp.scan(dets, waxs, *waxs_arc)
+        
+def ex_situ_printer(meas_t = 1):
+    #x_list = [-32500, -21500, -14500, -3500, 6500, 13500, 21500, 30500, 37500]
+    sample_list = ['AK_92_ink_5s_meas_t']
+    
+    #assert len(x_list) == len(sample_list), f'Sample name/position list is borked'
+    
+    waxs_arc = [0, 26, 5] 
+    dets = [pil300KW, pil1M] 
+    
+    #for x, sample in zip(x_list,sample_list): #loop over samples on bar
+        #yield from bps.mv(piezo.x, x)
+    det_exposure_time(meas_t, meas_t) 
+              
+    name_fmt = '{sample}'
+    sample_name = name_fmt.format(sample=sample_list[0])
+    sample_id(user_name='ED', sample_name=sample_name) 
+    print(f'\n\t=== Sample: {sample_name} ===\n')
+
+    yield from bp.scan(dets, waxs, *waxs_arc)
+    

@@ -92,8 +92,8 @@ def beamline_mode(mode=None):
 
 
 def fly_scan(det, motor, cycle=1, cycle_t=10, phi = -0.6):
-    start = phi +10
-    stop = phi-10
+    start = phi + 40
+    stop = phi - 40
     acq_time = cycle * cycle_t
     yield from bps.mv(motor, start)
     #yield from bps.mv(attn_shutter, 'Retract')
@@ -102,7 +102,7 @@ def fly_scan(det, motor, cycle=1, cycle_t=10, phi = -0.6):
     print(f'Acquire time before staging: {det.cam.acquire_time.get()}')
     st = det.trigger()
     for i in range(cycle):
-        yield from list_scan([], motor, [start, stop, start])
+        yield from list_scan([], motor, [start, stop])
     while not st.done:
         pass
     det.unstage()
@@ -205,12 +205,18 @@ def compare_config(mode_name):
     else:
         new_config = smi_config[smi_config.config_names==mode_name]
     
+    i = 0
     for current_con, new_con, ind in zip(current_config.iloc[0], new_config.iloc[0], new_config):
         if ind == 'config_names':
             print('The new configuration is %s'%(new_con))
         elif ind!='ztime':
-            if  abs(current_con - new_con) > 0.00001:
-                print('difference in %s: the current value is %s, the new one is %s'%(ind, current_con, new_con))
+            if  abs(current_con - new_con) > 0.001:
+                print('difference in %s: the current value is %4.3f, the new one is %4.3f'%(ind, current_con, new_con))
+                i +=1
+    
+    if i ==0 :
+        raise Exception('The configuration is simillar. No motor positions changed')
+
     
 
 def update_config_mode(mode_name, motor_name, motor_value):
@@ -241,67 +247,175 @@ def move_new_config(mode_name):
     SMI_CONFIG_FILENAME = '/home/xf12id/smi/config/smi_setup.csv'
     smi_config = pds.read_csv(SMI_CONFIG_FILENAME)
     smi_config = pds.DataFrame(data=smi_config)
-    current_config = read_current_config_position()
+    current_config = pds.DataFrame(data=read_current_config_position(), index=[1]).sort_index(axis=1)
 
     if mode_name not in smi_config.config_names.values:
         raise Exception('configuration not existing')
     
     else:
+        smi_new_config = smi_config[smi_config.config_names==mode_name]
         compare_config(mode_name)
+        
         print('Are you sure you really want to move to %s configuration?'%mode_name)
         response = input('    Are you sure? (y/[n]) ')
         
         if response is 'y' or response is 'Y':
-           print('it will move in the future')
+           
+           feedback('off')
            
            #load smi new config
-           #energy.target_harmonic(smi_new_config['dcm_harmonic'])
-           energy.move(smi_new_config['energy'])
+           for current_con, new_con, ind in zip(current_config.iloc[0], smi_new_config.iloc[0], smi_new_config):
+               if ind == 'dcm_harmonic' and abs(current_con - new_con) > 0.5:
+                   print('dcm_harmonic moved to %s'%new_con)
+                   energy.target_harmonic(new_con)
+               
+               elif ind =='energy' and abs(current_con - new_con) > 0.5:
+                   print('energy moved to %s'%new_con)
+                   energy.move(new_con)
+               
+               #HFM
+               elif ind =='hfm_x' and abs(current_con - new_con) > 0.1:
+                   print('hfm_x moved to %s'%new_con)
+                   yield from bps.mv(hfm.x, new_con)
            
-           if  abs(hfm.y.position - smi_new_config['hfm_y']) < 0.00001:
-                   yield from bps.move(hfm.y,  smi_new_config['hfm_y'])
-                   print('move hfm_y')
+               elif ind =='hfm_th' and abs(current_con - new_con) > 0.001:
+                   print('hfm_th moved to %s'%new_con)
+                   yield from bps.mv(hfm.th, new_con)
+                   
+               #VFM    
+               elif ind =='vfm_y' and abs(current_con - new_con) > 0.1:
+                   print('vfm_y moved to %s'%new_con)          
+                   yield from bps.mv(vfm.y, new_con)
+                         
+               elif ind =='vfm_x' and abs(current_con - new_con) > 0.1:
+                   print('vfm_x moved to %s'%new_con) 
+                   yield from bps.mv(vfm.x, new_con)
+                                        
+               elif ind =='vfm_th' and abs(current_con - new_con) > 0.001:                              
+                   print('vfm_th moved to %s'%new_con)
+                   yield from bps.mv(vfm.th, new_con)
+          
+               #VDM
+               elif ind =='vdm_y' and abs(current_con - new_con) > 0.1:                              
+                   print('vdm_y moved to %s'%new_con)
+                   yield from bps.mv(vdm.y, new_con)
+                   
+               elif ind =='vdm_x' and abs(current_con - new_con) > 0.1:                              
+                   print('vdm_x moved to %s'%new_con)                   
+                   yield from bps.mv(vdm.x, new_con)                
+                   
+               elif ind =='vdm_th' and abs(current_con - new_con) > 0.001:                              
+                   print('vdm_th moved to %s'%new_con)                   
+                   yield from bps.mv(vdm.th, new_con)          
+
+               #DCM
+               elif ind =='dcm_pitch' and abs(current_con - new_con) > 0.1:                              
+                   print('dcm_pitch moved to %s'%new_con) 
+                   yield from bps.mv(dcm_config.pitch, new_con)
+                   
+               elif ind =='dcm_roll' and abs(current_con - new_con) > 0.1:                              
+                   print('dcm_roll moved to %s'%new_con) 
+                   yield from bps.mv(dcm_config.roll, new_con)
            
-           '''
-           yield from bps.move(hfm.x,  smi_new_config['hfm_x'])
-           yield from bps.move(hfm.th, smi_new_config['hfm_th'])
-           yield from bps.move(vfm.y,  smi_new_config['vfm_y'])
-           yield from bps.move(vfm.x,  smi_new_config['vfm_x'])
-           yield from bps.move(vfm.th,  smi_new_config['vfm_th'])
-           yield from bps.move(vdm.y,  smi_new_config['vdm_y'])
-           yield from bps.move(vdm.x,  smi_new_config['vdm_x'])
-           yield from bps.move(vdm.th,  smi_new_config['vdm_th'])
+               elif ind =='dcm_height' and abs(current_con - new_con) > 0.1:                              
+                   print('dcm_height moved to %s'%new_con)
+                   yield from bps.mv(dcm_config.height, new_con)
+
+               elif ind =='dcm_theta' and abs(current_con - new_con) > 0.1:                              
+                   print('dcm_theta moved to %s'%new_con) 
+                   yield from bps.mv(dcm_config.theta, new_con)
+                   
+               #SSA
+               elif ind =='ssa_h' and abs(current_con - new_con) > 0.1:                              
+                   print('ssa_h moved to %s'%new_con)       
+                   yield from bps.mv(ssa.h, new_con)
+                        
+               elif ind =='ssa_hg' and abs(current_con - new_con) > 0.1:                              
+                   print('ssa_hg moved to %s'%new_con)
+                   yield from bps.mv(ssa.hg, new_con)
+                    
+               elif ind =='ssa_v' and abs(current_con - new_con) > 0.1:                              
+                   print('ssa_v moved to %s'%new_con)
+                   yield from bps.mv(ssa.v, new_con)
+                                                 
+               elif ind =='ssa_vg' and abs(current_con - new_con) > 0.1:                              
+                   print('ssa_vg moved to %s'%new_con) 
+                   yield from bps.mv(ssa.vg, new_con)
+                   
+               #CRLs
+               elif ind =='crl_lens1' and abs(current_con - new_con) > 1:                  
+                   print('crl_lens1 moved to %s'%new_con)
+                   yield from bps.mv(crl.lens1, new_con)            
+
+               elif ind =='crl_lens2' and abs(current_con - new_con) > 1:                  
+                   print('crl_lens2 moved to %s'%new_con)
+                   yield from bps.mv(crl.lens2, new_con)                  
+                   
+               elif ind =='crl_lens3' and abs(current_con - new_con) > 1:                  
+                   print('crl_lens3 moved to %s'%new_con)
+                   yield from bps.mv(crl.lens3, new_con)                   
+                   
+               elif ind =='crl_lens4' and abs(current_con - new_con) > 1:                  
+                   print('crl_lens4 moved to %s'%new_con)
+                   yield from bps.mv(crl.lens4, new_con)
+                   
+               elif ind =='crl_lens5' and abs(current_con - new_con) > 1:                  
+                   print('crl_lens5 moved to %s'%new_con)
+                   yield from bps.mv(crl.lens5, new_con)                   
+                   
+               elif ind =='crl_lens6' and abs(current_con - new_con) > 1:                  
+                   print('crl_lens6 moved to %s'%new_con)
+                   yield from bps.mv(crl.lens6, new_con)                   
+                   
+               elif ind =='crl_lens7' and abs(current_con - new_con) > 1:                  
+                   print('crl_lens7 moved to %s'%new_con)
+                   yield from bps.mv(crl.lens7, new_con)                   
+                   
+               elif ind =='crl_lens8' and abs(current_con - new_con) > 1:                  
+                   print('crl_lens8 moved to %s'%new_con)
+                   yield from bps.mv(crl.lens8, new_con)                                                                    
            
-           yield from bps.move(dcm_config.pitch,  smi_new_config['dcm_pitch'])
-           yield from bps.move(dcm_config.roll,  smi_new_config['dcm_roll'])
-           yield from bps.move(dcm_config.height,  smi_new_config['dcm_height'])
-           yield from bps.move(dcm_config.theta,  smi_new_config['dcm_theta'])
+               #cslits
+               elif ind =='cslit_h' and abs(current_con - new_con) > 0.01:                  
+                   print('cslit_h moved to %s'%new_con)
+                   yield from bps.mv(cslit.h, new_con)
+                   
+               elif ind =='cslit_hg' and abs(current_con - new_con) > 0.01:                  
+                   print('cslit_hg moved to %s'%new_con) 
+                   yield from bps.mv(cslit.hg, new_con)                  
+                   
+               elif ind =='cslit_v' and abs(current_con - new_con) > 0.01:                  
+                   print('cslit_v moved to %s'%new_con)  
+                   yield from bps.mv(cslit.v, new_con)
+                                    
+               elif ind =='cslit_vg' and abs(current_con - new_con) > 0.01:                  
+                   print('cslit_vg moved to %s'%new_con)      
+                   yield from bps.mv(cslit.vg, new_con)
+                                
+               #eslits
+               elif ind =='eslit_h' and abs(current_con - new_con) > 0.01:                  
+                   print('eslit_h moved to %s'%new_con) 
+                   yield from bps.mv(eslit.h, new_con)
+                             
+               elif ind =='eslit_hg' and abs(current_con - new_con) > 0.01:                  
+                   print('eslit_hg moved to %s'%new_con)
+                   yield from bps.mv(eslit.hg, new_con)
+                   
+               elif ind =='eslit_v' and abs(current_con - new_con) > 0.01:                  
+                   print('eslit_v moved to %s'%new_con)     
+                   yield from bps.mv(eslit.v, new_con)
+                         
+               elif ind =='eslit_vg' and abs(current_con - new_con) > 0.01:                  
+                   print('eslit_vg moved to %s'%new_con)   
+                   yield from bps.mv(eslit.vg, new_con)        
            
-           yield from bps.move(ssa.h,  smi_new_config['ssa_h'])
-           yield from bps.move(ssa.hg,  smi_new_config['ssa_hg'])
-           yield from bps.move(ssa.v,  smi_new_config['ssa_v'])
-           yield from bps.move(ssa.vg,  smi_new_config['ssa_vg'])
-           yield from bps.move(crl.lens1,  smi_new_config['crl_lens1'])
-           yield from bps.move(crl.lens2,  smi_new_config['crl_lens2'])
-           yield from bps.move(crl.lens3,  smi_new_config['crl_lens3'])
-           yield from bps.move(crl.lens4,  smi_new_config['crl_lens4'])
-           yield from bps.move(crl.lens5,  smi_new_config['crl_lens5'])
-           yield from bps.move(crl.lens6,  smi_new_config['crl_lens6'])
-           yield from bps.move(crl.lens7,  smi_new_config['crl_lens7'])
-           yield from bps.move(crl.lens8,  smi_new_config['crl_lens8'])
-           
-           yield from bps.move(cslit.h,  smi_new_config['cslit_h'])
-           yield from bps.move(cslit.hg,  smi_new_config['cslit_hg'])
-           yield from bps.move(cslit.v,  smi_new_config['cslit_v'])
-           yield from bps.move(cslit.vg,  smi_new_config['cslit_vg'])
-           yield from bps.move(eslit.h,  smi_new_config['eslit_h'])
-           yield from bps.move(eslit.hg,  smi_new_config['eslit_hg'])
-           yield from bps.move(eslit.v,  smi_new_config['eslit_v'])
-           yield from bps.move(eslit.vg,  smi_new_config['eslit_vg'])
-           yield from bps.move(dsa.x,  smi_new_config['dsa_x'])
-           yield from bps.move(dsa.y,  smi_new_config['dsa_y'])
-           '''
-        else:
-           print('No move was made.')
+               #dsa
+               elif ind =='dsa_x' and abs(current_con - new_con) > 0.1:                  
+                   print('dsa_x moved to %s'%new_con) 
+                   #yield from bps.mv(dsa.x, new_con)
+                             
+               elif ind =='dsa_y' and abs(current_con - new_con) > 0.1:                  
+                   print('dsa_y moved to %s'%new_con)
+                   #yield from bps.mv(dsa.y, new_con)
 
 

@@ -60,6 +60,7 @@ xbpm2.sumX.kind = 'hinted'
 ssacurrent = EpicsSignal('XF:12IDB-BI{EM:SSASlit}SumAll:MeanValue_RBV', name='ssacurrent')
 pdcurrent = EpicsSignal('XF:12ID:2{EM:Tetr1}Current2:MeanValue_RBV', name='pdcurrent', auto_monitor=True)
 pdcurrent1 = EpicsSignal('XF:12ID:2{EM:Tetr1}Current2Ave', name='pdcurrent1', auto_monitor=True)
+pdcurrent2 = EpicsSignal('XF:12ID:2{EM:Tetr1}SumAllAve', name='pdcurrent2', auto_monitor=True)
 
 # this doesn't work, because the PV names do not end in .VAL ??
 # full PV names are given in the above.
