@@ -75,12 +75,12 @@ class WAXS(Device):
         if self.arc.limits[0] <= arc_value <= 3.5:
             calc_value = self.calc_waxs_bsx(arc_value)
         else:
-            calc_value = -2
+            calc_value = 2
         st_x = self.x.set(calc_value)
         return st_arc & st_x
         
     def calc_waxs_bsx(self, arc_value):
-        bsx_pos =-20.7 + 264 * np.tan(np.deg2rad(arc_value))
+        bsx_pos =-22.1 + 264 * np.tan(np.deg2rad(arc_value))
         return bsx_pos
 
 
