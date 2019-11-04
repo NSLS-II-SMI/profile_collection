@@ -143,58 +143,10 @@ pil300KW.stats1.total.kind = 'hinted'
 pil300KW.cam.ensure_nonblocking()
 
 
-def beamstop_save():
-    '''
-    Save the current configuration
-    '''
-    #TODO: Do a list of a what motor we need to be stored
-    #TODO: Add the pindiode beamstop to be read
+class PIL1MPositions(Device):
+    x = Cpt(EpicsMotor, 'X}Mtr')
+    y = Cpt(EpicsMotor, 'Y}Mtr')
+    z = Cpt(EpicsMotor, 'Z}Mtr')
 
-    SMI_CONFIG_FILENAME = os.path.join(get_ipython().profile_dir.location,
-                                       'smi_config.csv')
-
-
-    #Beamstop position in x and y
-    read_bs_x = yield from bps.read(pil1m_bs.x)
-    bs_pos_x = read_bs_x['pil1m_bs_x']['value']
-    
-    read_bs_y = yield from bps.read(pil1m_bs.y)
-    bs_pos_y = read_bs_y['pil1m_bs_y']['value']
-    
-    
-    
-    #collect the current positions of motors
-    current_config = {
-    'bs_pos_x'  : bs_pos_x,
-    'bs_pos_y'  : bs_pos_y,
-    'time'      : time.ctime()}
-    
-    current_config_DF = pds.DataFrame(data=current_config, index=[1])
-
-    #load the previous config file
-    smi_config = pds.read_csv(SMI_CONFIG_FILENAME, index_col=0)
-    smi_config_update = smi_config.append(current_config_DF, ignore_index=True)
-
-    #save to file
-    smi_config_update.to_csv(SMI_CONFIG_FILENAME)
-    global bsx_pos, bsy_pos
-    bsx_pos, bsy_pos = beamstop_load()
-    print(bsx_pos)
-
-
-def beamstop_load():
-    '''
-    Save the configuration file
-    '''
-    SMI_CONFIG_FILENAME = os.path.join(get_ipython().profile_dir.location,
-                                       'smi_config.csv')
-    #collect the current positions of motors
-    smi_config = pds.read_csv(SMI_CONFIG_FILENAME, index_col=0)
-    
-    bs_pos_x = smi_config.bs_pos_x.values[-1]
-    bs_pos_y = smi_config.bs_pos_y.values[-1]
-    #positions
-    return bs_pos_x, bs_pos_y
-
-bsx_pos, bsy_pos = beamstop_load()
+pil1m_pos = PIL1MPositions('XF:12IDC-ES:2{Det:1M-Ax:', name='pil1m_pos')
 
