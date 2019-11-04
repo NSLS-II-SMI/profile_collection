@@ -196,7 +196,6 @@ class SMIBeam(object):
             target_state = [att1_9, att1_10, att1_11]
         elif 13000 < self.dcm.energy.position < 14000:
             target_state = [att1_10, att1_12]
-            if divergence == 'low_div' and state == 'vac': target_state = [att1_12]
         elif 14000 < self.dcm.energy.position < 14700:
             target_state = [att1_6, att1_7]
         elif 14700 < self.dcm.energy.position < 16100:
@@ -410,8 +409,8 @@ class SMI_Beamline(Beamline):
         self.setDirectBeamROI()
         
         #Move the waxs detector out of the way
-        if waxs.arc.position < 6:
-            yield from bps.mv(waxs.arc, 6)
+        if waxs.arc.position < 8:
+            yield from bps.mv(waxs.arc, 8)
         
         #self.detselect(self.SAXS.detector, roi=4)
         #self.SAXS.detector.cam.acquire_time.set(0.5)
