@@ -21,6 +21,7 @@ from nslsii.ad33 import SingleTriggerV33
 import pandas as pds
 
 
+
 class PilatusDetectorCamV33(PilatusDetectorCam):
     '''This is used to update the Pilatus to AD33.'''
 
@@ -44,6 +45,7 @@ class PilatusDetectorCamV33(PilatusDetectorCam):
     file_name = Cpt(SignalWithRBV, 'FileName', string=True)
     file_template = Cpt(SignalWithRBV, 'FileName', string=True)        
     file_number = Cpt(SignalWithRBV, 'FileNumber')
+
 
 class PilatusDetector(PilatusDetector):
     cam = Cpt(PilatusDetectorCamV33, 'cam1:')
@@ -78,29 +80,6 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
         getattr(self, st).kind = 'hinted'
 
 
-pil1M = Pilatus("XF:12IDC-ES:2{Det:1M}", name="pil1M") #, detector_id="SAXS")
-pil1M.set_primary_roi(1)
-
-pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW") #, detector_id="WAXS")
-pil300KW.set_primary_roi(1)
-
-#pil1M.tiff.write_path_template = '/GPFS/xf12id1/data/1M/images/%Y/%m/%d/'
-pil1M.tiff.write_path_template = '/ramdisk/1M/images/%Y/%m/%d/'
-pil1M.tiff.read_path_template = '/GPFS/xf12id1/data/1M/images/%Y/%m/%d/'
-pil300KW.tiff.write_path_template = '/GPFS/xf12id1/data/300KW/images/%Y/%m/%d/'
-pil300KW.tiff.read_path_template = '/GPFS/xf12id1/data/300KW/images/%Y/%m/%d/'
-
-
-pil1mroi1 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats1:Total_RBV', name='pil1mroi1')
-pil1mroi2 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats2:Total_RBV', name='pil1mroi2')
-pil1mroi3 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats3:Total_RBV', name='pil1mroi3')
-pil1mroi4 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats4:Total_RBV', name='pil1mroi4')
-
-pil300kwroi1 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats1:Total_RBV', name='pil300kwroi1')
-pil300kwroi2 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats2:Total_RBV', name='pil300kwroi2')
-pil300kwroi3 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats3:Total_RBV', name='pil300kwroi3')
-pil300kwroi4 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats4:Total_RBV', name='pil300kwroi4')
-
 def det_exposure_time(exp_t, meas_t=1):
     pil1M.cam.acquire_time.put(exp_t)
     pil1M.cam.acquire_period.put(exp_t+0.002)
@@ -111,11 +90,13 @@ def det_exposure_time(exp_t, meas_t=1):
     rayonix.cam.acquire_time.put(exp_t)
     rayonix.cam.acquire_period.put(exp_t+0.01)
     rayonix.cam.num_images.put(int(meas_t/exp_t))
+   
     
 def det_next_file (n):
     pil1M.cam.file_number.put(n)
     pil300KW.cam.file_number.put(n)    
     rayonix.cam.file_number.put(n) 
+
 
 class FakeDetector(Device):
     acq_time = Cpt(Signal, value=10)
@@ -134,14 +115,26 @@ class FakeDetector(Device):
 
 fd = FakeDetector(name='fd')
 
+
+
+#####################################################
+#Pilatus 1M definition
+
+pil1M = Pilatus("XF:12IDC-ES:2{Det:1M}", name="pil1M") #, detector_id="SAXS")
+pil1M.set_primary_roi(1)
+
+#pil1M.tiff.write_path_template = '/GPFS/xf12id1/data/1M/images/%Y/%m/%d/'
+pil1M.tiff.write_path_template = '/ramdisk/1M/images/%Y/%m/%d/'
+pil1M.tiff.read_path_template = '/GPFS/xf12id1/data/1M/images/%Y/%m/%d/'
+
+pil1mroi1 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats1:Total_RBV', name='pil1mroi1')
+pil1mroi2 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats2:Total_RBV', name='pil1mroi2')
+pil1mroi3 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats3:Total_RBV', name='pil1mroi3')
+pil1mroi4 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats4:Total_RBV', name='pil1mroi4')
+
 pil1M.stats1.kind = 'hinted'
 pil1M.stats1.total.kind = 'hinted'
 pil1M.cam.ensure_nonblocking()
-
-pil300KW.stats1.kind = 'hinted'
-pil300KW.stats1.total.kind = 'hinted'
-pil300KW.cam.ensure_nonblocking()
-
 
 class PIL1MPositions(Device):
     x = Cpt(EpicsMotor, 'X}Mtr')
@@ -149,4 +142,33 @@ class PIL1MPositions(Device):
     z = Cpt(EpicsMotor, 'Z}Mtr')
 
 pil1m_pos = PIL1MPositions('XF:12IDC-ES:2{Det:1M-Ax:', name='pil1m_pos')
+
+
+
+#####################################################
+#Pilatus 300kw definition
+
+pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW") #, detector_id="WAXS")
+pil300KW.set_primary_roi(1)
+
+
+#pil300KW.tiff.write_path_template = '/ramdisk/300KW/images/%Y/%m/%d/'
+pil300KW.tiff.write_path_template = '/GPFS/xf12id1/data/300KW/images/%Y/%m/%d/'
+pil300KW.tiff.read_path_template = '/GPFS/xf12id1/data/300KW/images/%Y/%m/%d/'
+
+pil300kwroi1 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats1:Total_RBV', name='pil300kwroi1')
+pil300kwroi2 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats2:Total_RBV', name='pil300kwroi2')
+pil300kwroi3 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats3:Total_RBV', name='pil300kwroi3')
+pil300kwroi4 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats4:Total_RBV', name='pil300kwroi4')
+
+pil300KW.stats1.kind = 'hinted'
+pil300KW.stats1.total.kind = 'hinted'
+pil300KW.cam.ensure_nonblocking()
+
+
+
+
+
+
+
 
