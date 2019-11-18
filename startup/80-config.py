@@ -219,7 +219,7 @@ def compare_config(mode_name):
 
     
 
-def update_config_mode(mode_name, motor_name, motor_value):
+def update_config_mode(mode_name, motor_name=None, motor_value=None):
     SMI_CONFIG_FILENAME = '/home/xf12id/smi/config/smi_setup.csv'
     smi_config = pds.read_csv(SMI_CONFIG_FILENAME)
     smi_config = pds.DataFrame(data=smi_config)
@@ -227,12 +227,17 @@ def update_config_mode(mode_name, motor_name, motor_value):
     if mode_name not in smi_config.config_names.values:
         raise Exception('configuration not existing')
     else:
-        print('OK')
         #Select the row
         upd_config = smi_config[smi_config.config_names==mode_name]
         print(upd_config)
-        print('OK1')
-        upd_config[motor_name]= motor_value
+        
+        #Upload all the motor position by default
+        if motor_name is None:
+            #upd_config[motor_name]= motor_value
+            print('This is not ready yet')
+            pass
+        else:
+            upd_config[motor_name]= motor_value
           
         #Erase the configuration and save the new one
         smi_config_update = smi_config[smi_config['config_names']!=mode_name]
