@@ -155,38 +155,48 @@ def test_test():
     yield from move_new_config('16p1keV_microfocused')
     
     
-def waxs_S_edge(t=1):
+def waxs_S_edge_guil(t=1):
     dets = [pil300KW]
     
 
-    names = ['sample11', 'sample12', 'sample13']
-    x = [8800, 16600, 22900]
+    names = ['sample02', 'sample03', 'sample04', 'sample05', 'sample06', 'sample07', 'sample08', 'sample09', 'sample10', 'sample11', 'sample12']
+    x = [26500, 21500, 16000, 10500, 5000, 0, -5500, -10500, 16000, -21000, -26500]#, -34000, -41000]
+    y = [600, 600, 800, 700, 700, 600, 600, 600, 600, 900, 900]#, 700, 800]
 
     
-    energies = np.linspace(2430, 2500, 36)
-    ys = np.linspace(-700, 950, 36)
-    waxs_arc = [0, 19.5, 4]
+    energies = np.linspace(2450, 2500, 26)
+    waxs_arc = [0, 6.5, 13]
     
-    for name, x in zip(names, x):
-        bps.mv(piezo.x, x)
-        det_exposure_time(t,t) 
-        name_fmt = '{sample}_{energy}eV'
-        for e, y in zip(energies, ys):                              
-            yield from bps.mv(energy, e)
-            yield from bps.mv(piezo.y, y)
-            sample_name = name_fmt.format(sample=name, energy=e)
-            sample_id(user_name='GF', sample_name=sample_name)
-            print(f'\n\t=== Sample: {sample_name} ===\n')
-            yield from bp.scan(dets, waxs, *waxs_arc)
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        
+        yss = np.linspace(ys, ys + 1300, 26)
+        
+        if int(waxs.arc.position) == 0:
+                waxs_arc = [0, 6.5, 13]
+        elif int(waxs.arc.position) == 13:
+                waxs_arc = [13, 6.5, 0]
+        
+        if name == 'sample02':
+            waxs_arc = [6.5, 0]
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_{energy}eV_wa{wax}'
+            for e, ysss in zip(energies, yss): 
+                time.sleep(1)                             
+                yield from bps.mv(energy, e)
+                yield from bps.mv(piezo.y, ysss)
+                sample_name = name_fmt.format(sample=name, energy=e, wax = wa)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
 
        
-        yield from bps.mv(energy, 2430)
-        yield from bps.mv(piezo.y, 1000)
-        name_fmt = '{sample}_2430eV_postmeas'
-        sample_name = name_fmt.format(sample=name)
-        sample_id(user_name='GF', sample_name=sample_name)
-        print(f'\n\t=== Sample: {sample_name} ===\n')
-        yield from bp.scan(dets, waxs, *waxs_arc)
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
 
 
     

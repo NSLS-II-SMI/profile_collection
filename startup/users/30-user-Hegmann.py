@@ -1,22 +1,26 @@
-names = ['PB144_bar16_p35_v2p0']
+names = ['PB219_60psi_v0p5']
 
-height = 0.10  #mm shift from the nozzle this is half the filament width, which we call h in the name
+height = 0.1  #mm shift from the nozzle this is half the filament width, which we call h in the name
 
 
 #waxs arc angle: 0 for the detector centered and 6 for the detctor at 6 degrees
 #Do not enter a value
-waxs_arc = 0
+waxs_arc = 8
 
-#No need to be modify
-det = [pil300KW]
+#pil300KW for waxs, pil1M for saxs
+det = [pil1M]
 
 import sys
 import time
 
 def track_printer_hegmann(acq_t=1, full_meas_t=10, trigger_num = 1):
+    yield from bps.mv(GV7.open_cmd, 1 )
     
     if waxs.arc.position < 6 and waxs.x.position > -15:
         sys.exit("You moved waxs arc and not waxs ")
+        
+    if waxs.arc.position < 7.5 :
+        sys.exit("waxs is on the way ")
     
     monitor_pv = 'XF:11ID-CT{M1}bi2'
     ready_for_trigger_pv = 'XF:11ID-CT{M1}bi3' 
@@ -59,11 +63,12 @@ def track_printer_hegmann(acq_t=1, full_meas_t=10, trigger_num = 1):
     
     #Come back to the beam on the nozzle
     yield from bps.mvr(stage.y, height)
-
+    
+    yield from bps.mv(GV7.close_cmd, 1 )
     print('Done')
 
 def height_scan(ran=3*height, nb_step=50, acq_time = 1):
-    
+    yield from bps.mv(GV7.open_cmd, 1 )
     hei_ini = stage.y.position
     
     if ran > 4*height:
@@ -81,12 +86,13 @@ def height_scan(ran=3*height, nb_step=50, acq_time = 1):
         yield from bps.mv(stage.y, he)
         name_fmt = '{sample}_height{h:4.3f}'
         sample_name = name_fmt.format(sample=names[0], h=he )
-        sample_id(user_name='ED', sample_name=sample_name)
+        sample_id(user_name='MP', sample_name=sample_name)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bp.count(det, num = 1)
 
     yield from bps.mv(stage.y, hei_ini)
     
+    yield from bps.mv(GV7.close_cmd, 1 )
     print('Done')
 
 def experimental_adjustement():
@@ -94,13 +100,13 @@ def experimental_adjustement():
     name_fmt = '{sample}'
     
     sample_name = name_fmt.format(sample=names[0])
-    sample_id(user_name='ED', sample_name=sample_name)
+    sample_id(user_name='MP', sample_name=sample_name)
 
 def sample_alignment():   
     '''
     Alignement of the height to the substrate film interface
     '''    
-    
+    yield from bps.mv(GV7.open_cmd, 1 )
     #Prepare SMI for alignement (BS and waxs det movement)
     sample_id(user_name='test', sample_name='test')
     smi = SMI_Beamline()
@@ -120,7 +126,7 @@ def sample_alignment():
     #Return to measurment configuration (BS and waxs det movement)
     yield from bps.mv(waxs, waxs_arc)
     yield from smi.modeMeasurement_gisaxs()
-    
+    yield from bps.mv(GV7.close_cmd, 1 )
 
 def align_height_hexa(rang = 0.3, point = 31, der=False):   
         det_exposure_time(0.5, 0.5)
@@ -140,8 +146,11 @@ def data_acquisition(acq_t, meas_t):
     acq_t: Acquisition time, i.e. the time of acquisition for 1 image
     meas_t: Measurment time, i.e. the total acquisition time of the whole scan
     '''
-    det_exposure_time(acq_t, meas_t)
-    yield from bp.count(det, num = 1)        
+    
+    det_exposure_time(acq_t, acq_t)
+    nb_scan = np.int((meas_t/acq_t))
+    
+    yield from bp.scan(det, piezo.x, 0, 0, nb_scan)        
 
 
 
@@ -228,5 +237,23 @@ def ex_situ_xscan_hegmann(meas_t = 1):
 
                 yield from bp.count(dets, num = 1)
 
+def ex_situ_xscan_hegmann1(meas_t = 1):
+    sample = 'PL076_exsitu_xscan'
+    x = [36200, 36800]
+    
+    waxs_arc = np.linspace(0, 13, 3) 
+    dets = [pil300KW, pil1M]
+    
+    for waxs_a in waxs_arc:
+        yield from bps.mv(waxs, waxs_a)
+        for k, xs in enumerate(np.linspace(x[0], x[1], 13)):
+                yield from bps.mv(piezo.x, xs)
+                name_fmt = '{sample}_spot{sp}_waxs{waxs}'
+                sample_name = name_fmt.format(sample=sample, sp='%2.2d'%(k+1), waxs='%3.1f'%waxs_a)
+                sample_id(user_name='MP', sample_name=sample_name) 
+                
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num = 1)
+    
 
         

@@ -246,13 +246,14 @@ def scan_fil_height(exp_time, rang, nb_point):
 
 
 def ex_situ(meas_t = 1):
-    x0, y0 = (-54449, 4599) #Bottom left coordinate
-    x20, y20 = (59448.8, 4599) #Bottom right coordinate
-    x1, y1 = (-54449.42, 799.93) #top left coordinate
-    sample = 'J'
+    x0, y0 = (-61101, 4509.62) #Bottom left coordinate
+    x20, y20 = (52898, 4509.649) #Bottom right coordinate
     
+    x1, y1 = (x0, 509.610) #top left coordinate
+    
+    sample = 'B'
     y_range = [-700, 700, 36]
-    waxs_arc = [0.0, 6.5, 13.0, 19.5, 26.0, 32.5, 39.0]
+    waxs_arc = np.linspace(39, 0, 7)
     dets = [pil300KW, pil1M] 
     det_exposure_time(meas_t, meas_t) 
     name_fmt = '{sample}_{po}_wa{waxs}' #Sample name _ positions
@@ -265,7 +266,6 @@ def ex_situ(meas_t = 1):
             sample_id(user_name='ED', sample_name=sample_name) 
             print(f'\n\t=== Sample: {sample_name} ===\n')
             yield from bp.rel_scan(dets, piezo.y, *y_range)
-            plt.close('all')
         
                 
         for j, (x, y) in enumerate(zip(np.linspace(x0, x20, 20), np.linspace(y0, y20, 20))):
@@ -275,57 +275,11 @@ def ex_situ(meas_t = 1):
             sample_id(user_name='ED', sample_name=sample_name) 
             print(f'\n\t=== Sample: {sample_name} ===\n')
             yield from bp.rel_scan(dets, piezo.y, *y_range)
-            plt.close('all')
+        
+    
 
-def ex_situ_temp(meas_t = 1):
-    dets = [pil300KW, pil1M]
-    sample = ['3E','1E','3I','1I']
-    pos = [(-12250,-3300),(550,-3300),(13150,-3100),(25850,-3000)]
-    temp = np.linspace(30,170,21)
-    waxs_arc = np.linspace(13, 0, 3)
-    det_exposure_time(meas_t, meas_t)
-    name_fmt = '{sample}_wa{waxs}_{temp}C_{actualTemp}C'
-    
-    
-    for target_t in temp:
-        for i in np.linspace(1,7,7):
-                yield from bps.mv(ls.ch1_sp, target_t-7+i)
-                time.sleep(10) 
-        time.sleep(240)
-        for wa in waxs_arc:
-            yield from bps.mv(waxs,wa)
-            for k, (x,y) in enumerate(pos):
-                theTemperature = ls.ch1_read.value
-                sample_name = name_fmt.format(sample=sample[k], waxs='%2.1f'%wa, temp=target_t, actualTemp = theTemperature)
-                sample_id(user_name='ED', sample_name=sample_name)
-                   
-                yield from bps.mv(piezo.x,x)
-                yield from bps.mv(piezo.y,y)
-                   
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                   
-                yield from bp.count(dets, num=1)
 
-def ex_situ_single_sample(meas_t = 1):
-    dets = [pil300KW, pil1M]
-    sample = 'AgBe'
-    waxs_arc = [13.0]
-    det_exposure_time(meas_t, meas_t)
-    name_fmt = '{sample}_wa{waxs}'
-    
-    #target_t = '25' # change this?
-    
-    for wa in waxs_arc:
-        yield from bps.mv(waxs,wa)
-        #theTemperature = ls.ch1_read.value
-        sample_name = name_fmt.format(sample=sample, waxs='%2.1f'%wa)
-        #, temp=target_t, actualTemp = theTemperature)
-        sample_id(user_name='ED', sample_name=sample_name)
-           
-        print(f'\n\t=== Sample: {sample_name} ===\n')
-           
-        yield from bp.count(dets, num=1)
-    
+
 def ex_situ_printer(meas_t = 1):
     #x_list = [-32500, -21500, -14500, -3500, 6500, 13500, 21500, 30500, 37500]
     sample_list = ['AK_92_ink_5s_meas_t']
@@ -382,6 +336,4 @@ def bkg_bar(meas_t = 1):
 
     yield from bp.scan(dets, waxs, *waxs_ar)
     yield from bps.mv(waxs, waxs_arc)
-    
-    
     

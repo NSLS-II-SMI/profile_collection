@@ -3,34 +3,34 @@
 # RE(run_giwaxs_cai(2))
 
                         
-def run_giwaxs_cai(t=1): 
-    dets = [pil300KW, pil1M, rayonix]
-    xlocs1 = [-40000,-29000,-17000,-5000, 6000, 20000, 31000, 42000]
-    xlocs2 = [-42000,-29500,-16000,-5000, 6000, 19500, 30000, 42000]
-    xlocs3 = [-43000,-33000,-19000,-5000, 7500, 22500, 31500, 45000]
-    xlocs4 = [-42000,-29500,-16000,-5000, 7000, 19500, 31000, 44400]
-    xlocs5 = [-43000,-29500,-19200,-5000, 6200, 17400, 31500, 43800]
-    xlocs6 = [-42000,-26500,-16000,-6300, 6000, 21000, 29500, 44000]
-    xlocs7 = [-44500,-33500,-22000,-9000, 4000, 15500, 34000, 47400]
-    xlocs8 = [-43600,-27100,-17500,-7600, 7800, 19200, 29500, 41800]
+def run_giwaxs_cai(t=2): 
+    dets = [pil300KW, pil1M]
+    xlocs1 = [-48000,-38000,-28000,-18000, -7800, 4000, 14000, 25000, 35000, 45000]
+    xlocs2 = [-50000,-40000,-29000,-19000, -8000, 2000, 13000, 23000, 35000, 45000]
+    xlocs3 = [-46000,-40000,-28000,-18000, -7000, 3000, 14000, 24000, 35000, 45000]
+    xlocs4 = [-50000,-40000,-29000,-18000, -7000, 4000, 14000, 25500, 36000, 47000]
+    xlocs5 = [-50000,-38000,-25500,-17000, -5000, 8000, 16000, 27000, 37000, 48000]
+    xlocs6 = [-50000,-39000,-29000,-15000, -6000, 5000, 15000, 26000, 37000, 48000]
+    xlocs7 = [-49000,-37000,-24000,-11000, 6500, 16500, 29000, 4100]
+    xlocs8 = [29500, 41000]
     xlocs9 = [-44300,-34300,-25800,-15800, -800, 7000, 17000, 28200, 38200, 48200]
     
     
-    names1 = ['BBdot8k_500k_PBMA_2x21k_40mgmL', 'BBdot8k_500k_PBMA_2x21k_20mgmL', 'BBdot8k_500k_PBMA_2x21k_10mgmL', 'BBdot8k_500k_PBMA_2x21k_5mgmL', 'BB1k_500k_PBMA_2x31k_40mgmL', 'BB1k_500k_PBMA_2x31k_20mgmL', 'BB1k_500k_PBMA_2x31k_10mgmL', 'BB1k_500k_PBMA_2x31k_5mgmL']
-    names2 = ['BB1k_500k_PBMA_2x47k_40mgmL', 'BB1k_500k_PBMA_2x47k_20mgmL', 'BB1k_500k_PBMA_2x47k_10mgmL', 'BB1k_500k_PBMA_2x47k_5mgmL', 'BB5k_500k_PBMA_2x21k_40mgmL', 'BB5k_500k_PBMA_2x21k_20mgmL', 'BB5k_500k_PBMA_2x21k_10mgmL', 'BB5k_500k_PBMA_2x21k_5mgmL']
-    names3 = ['BB5k_500k_PBMA_2x50k_40mgmL', 'BB5k_500k_PBMA_2x50k_20mgmL', 'BB5k_500k_PBMA_2x50k_10mgmL', 'BB5k_500k_PBMA_2x50k_5mgmL', 'BB5k_1M_PBMA_2x10k_40mgmL', 'BB5k_1M_PBMA_2x10k_20mgmL', 'BB5k_1M_PBMA_2x10k_10mgmL', 'BB5k_1M_PBMA_2x10k_5mgmL']
-    names4 = ['BB10k_500k_PS_2x2k_40mgmL', 'BB10k_500k_PS_2x2k_20mgmL', 'BB10k_500k_PS_2x2k_10mgmL', 'BB10k_500k_PS_2x2k_5mgmL', 'BB1k_500k_r_PBMA_64k_PBMA_2x16k_40mgmL', 'BB1k_500k_r_PBMA_64k_PBMA_2x16k_20mgmL', 'BB1k_500k_r_PBMA_64k_PBMA_2x16k_10mgmL', 'BB1k_500k_r_PBMA_64k_PBMA_2x16k_5mgmL']
-    names5 = ['BB5k_1M_r_PBMA_46k_PBMA_2x10k_40mgmL', 'BB5k_1M_r_PBMA_46k_PBMA_2x10k_20mgmL', 'BB5k_1M_r_PBMA_46k_PBMA_2x10k_10mgmL', 'BB5k_1M_r_PBMA_46k_PBMA_2x10k_5mgmL', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_40mgmL', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_20mgmL', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_10mgmL', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_5mgmL']
-    names6 = ['PHMA_51k_PS_2x5100_40mgmL', 'PHMA_51k_PS_2x5100_20mgmL', 'PHMA_51k_PS_2x5100_10mgmL', 'PHMA_51k_PS_2x5100_5mgmL', 'PHMA_51k_PS_2x3300_40mgmL', 'PHMA_51k_PS_2x3300_20mgmL', 'PHMA_51k_PS_2x3300_10mgmL', 'PHMA_51k_PS_2x3300_5mgmL']
-    names7 = ['PHMA_51k_PS_2x1100_40mgmL', 'PHMA_51k_PS_2x1100_20mgmL', 'PHMA_51k_PS_2x1100_10mgmL', 'PHMA_51k_PS_2x1100_5mgmL', 'PAAPAHA_40k_PS_2x1800_40mgmL', 'PAAPAHA_40k_PS_2x1800_20mgmL', 'PAAPAHA_40k_PS_2x1800_10mgmL', 'PAAPAHA_40k_PS_2x1800_5mgmL']
-    names8 = ['BB5k_1M_r_PBMA_46k_PBMA_2x10k_40mgmL_2', 'BB5k_1M_r_PBMA_46k_PBMA_2x10k_20mgmL_2', 'BB5k_1M_r_PBMA_46k_PBMA_2x10k_10mgmL_2', 'BB5k_1M_r_PBMA_46k_PBMA_2x10k_5mgmL_2', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_40mgmL_2', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_20mgmL_2', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_10mgmL_2', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_5mgmL_2']
-    names9 = ['BB5k_500k_PBMA_2x21k_40mgmL_2', 'BB5k_500k_PBMA_2x21k_20mgmL_2', 'BB5k_500k_PBMA_2x21k_10mgmL_2', 'BB5k_1M_PBMA_2x10k_40mgmL_2', 'BB5k_1M_PBMA_2x10k_20mgmL_2', 'BB5k_1M_PBMA_2x10k_10mgmL_2', 'BB10k_500k_PS_2x5k_40mgmL_2', 'BB10k_500k_PS_2x5k_20mgmL_2', 'BB10k_500k_PS_2x5k_10mgmL_2', 'PAAPAHA_40k_PS_2x1800_5mgmL_2']
+    names1 = ['BB5k_100k_PBMA_2x3k_80mgmL', 'BB5k_100k_PBMA_2x3k_40mgmL', 'BB5k_100k_PBMA_2x3k_20mgmL', 'BB5k_100k_PBMA_2x3k_10mgmL', 'BB5k_200k_PBMA_2x5k_80mgmL', 'BB5k_200k_PBMA_2x5k_40mgmL', 'BB5k_200k_PBMA_2x5k_20mgmL', 'BB5k_200k_PBMA_2x5k_10mgmL', 'BB5k_560k_PBMA_2x20k_80mgmL', 'BB5k_560k_PBMA_2x20k_40mgmL']
+    names2 = ['BB5k_560k_PBMA_2x20k_20mgmL', 'BB5k_560k_PBMA_2x20k_10mgmL', 'BB5k_1000k_PBMA_2x15k_80mgmL', 'BB5k_1000k_PBMA_2x15k_40mgmL', 'BB5k_1000k_PBMA_2x15k_20mgmL', 'BB5k_1000k_PBMA_2x15k_10mgmL', 'BB5k_1500k_PBMA_2x31k_80mgmL', 'BB5k_1500k_PBMA_2x31k_40mgmL', 'BB5k_1500k_PBMA_2x31k_20mgmL', 'BB5k_1500k_PBMA_2x15k_10mgmL']
+    names3 = ['BB5k_900k_PS_2x14k_80mgmL', 'BB5k_900k_PS_2x14k_40mgmL', 'BB5k_900k_PS_2x14k_20mgmL', 'BB5k_900k_PS_2x14k_10mgmL', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_80mgmL', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_40mgmL', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_20mgmL', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_10mgmL', 'NBPS300k_NBPDMS_8M_NBPS_300k_80mgmL', 'NBPS300k_NBPDMS_8M_NBPS_300k_40mgmL']
+    names4 = ['PHA0NH_34k_PS_2x3536_80mgmL', 'PHA0NH_34k_PS_2x3536_40mgmL', 'PHA0NH_34k_PS_2x3536_20mgmL', 'PHA0NH_34k_PS_2x3536_10mgmL', 'PHA0NH_40k_PS_2x5720_80mgmL', 'PHA0NH_40k_PS_2x5720_40mgmL', 'PHA0NH_40k_PS_2x5720_20mgmL', 'PHA0NH_40k_PS_2x5720_10mgmL', 'PHA0NH_42k_PS_2x9880_80mgmL', 'PHA0NH_42k_PS_2x9880_40mgmL']
+    names5 = ['PHA0NH_42k_PS_2x9880_20mgmL', 'PHA0NH_42k_PS_2x9880_10mgmL', 'PHA5NH_47dot5k_PS_2x3432_80mgmL', 'PHA5NH_47dot5k_PS_2x3432_40mgmL', 'PHA5NH_47dot5k_PS_2x3432_20mgmL', 'PHA5NH_47dot5k_PS_2x3432_10mgmL', 'PHA5NH_43k_PS_2x6968_80mgmL', 'PHA5NH_43k_PS_2x6968_40mgmL', 'PHA5NH_43k_PS_2x6968_20mgmL', 'PHA5NH_43k_PS_2x6968_10mgmL']
+    names6 = ['PHA10NH_37k_PS_2x3536_80mgmL', 'PHA10NH_37k_PS_2x3536_40mgmL', 'PHA10NH_37k_PS_2x3536_20mgmL', 'PHA10NH_37k_PS_2x3536_10mgmL', 'PHA10NH_43k_PS_2x6552_80mgmL', 'PHA10NH_43k_PS_2x6552_40mgmL', 'PHA10NH_43k_PS_2x6552_20mgmL', 'PHA10NH_43k_PS_2x6552_10mgmL', 'PHA25NH_38dot5k_PS_2x5928_80mgmL', 'PHA25NH_38dot5k_PS_2x5928_40mgmL']
+    names7 = ['PHA25NH_38dot5k_PS_2x5928_20mgmL', 'PHA25NH_38dot5k_PS_2x5928_10mgmL', 'PHA100NH_65k_80mgmL', 'PHA100NH_65k_40mgmL', 'PHA100NH_65k_20mgmL', 'PHA100NH_65k_10mgmL', 'Shifeng_1', 'Shifeng_2']
+    names8 = ['NBPS300k_NBPDMS_8M_NBPS_300k_20mgmL', 'NBPS300k_NBPDMS_8M_NBPS_300k_10mgmL']
+
     
     
         
     #what we run now
-    curr_tray = xlocs9
-    curr_names = names9
+    curr_tray = xlocs8
+    curr_names = names8
     assert len(curr_tray) == len(curr_names), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
     waxs_arc = [0, 19.5, 4]
     for x, name in zip(curr_tray, curr_names):
@@ -59,11 +59,13 @@ def run_giwaxs_cai(t=1):
         det_exposure_time(0.3,0.3)
 
 
+
+
 def run_giwaxs_cai_temp(t=2): 
-    dets = [pil300KW, pil1M, rayonix]
-    xlocs1 = [-7500,6300]
+    dets = [pil300KW, pil1M]
+    xlocs1 = [-6000,5500]
    
-    names1 = ['PHMA_51k_PS_2x3300_20mgmL_T_cool', 'PAAPAHA_40k_PS_2x1800_20mgmL_T_cool']
+    names1 = ['PHA5NH_47dot5k_PS_2x3432_40mgmL', 'NBPS300k_NBPDMS_8M_NBPS_300k_20mgmL']
    
         
     #what we run now
