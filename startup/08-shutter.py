@@ -83,12 +83,21 @@ def shopen():
     time.sleep(1)
     yield from bps.mv(manual_PID_disable_pitch, '0')
     yield from bps.mv(manual_PID_disable_roll, '0')
+    
+    #yield from bps.mv(GV7.open_cmd, 1 )
+    #time.sleep(5)
+    #yield from bps.mv(GV7.open_cmd, 1 )
+    
         
 def shclose():
     yield from bps.mv(manual_PID_disable_pitch,'1')
     yield from bps.mv(manual_PID_disable_roll, '1')
     time.sleep(1)
     yield from bps.mv (ph_shutter, 'Retract')
+    
+    #yield from bps.mv(GV7.close_cmd, 1 )
+    #time.sleep(5)
+    #yield from bps.mv(GV7.close_cmd, 1 )
 
 
 class SMIFastShutter(Device): 
