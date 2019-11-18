@@ -30,6 +30,9 @@ class SAXSBeamStop(Device):
     pad = Cpt(EpicsMotor, 'OBT}Mtr')
     y = Cpt(EpicsMotor, 'IBM}Mtr')    
     
+class SAXSPindiode(Device):
+    x = Cpt(EpicsMotor, 'OBB}Mtr')
+    y = Cpt(EpicsMotor, 'OBM}Mtr') 
  
 ## SAXS det position 
 SAXS =   DetMortor(   'XF:12IDC-ES:2{Det:1M-Ax:', name='SAXS'   )
