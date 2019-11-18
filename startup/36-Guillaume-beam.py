@@ -438,7 +438,6 @@ class SMI_Beamline(Beamline):
         #self.beam.off()
         
         # Move beamstop
-        #yield from bps.mv(pil1m_bs.x, self.SAXS.beamstop[0])
         yield from bps.mv(pil1m_bs.x, bsx_pos) #2 for 4000 mm, 1.2 for 6500
         
         # Remove attenuators
