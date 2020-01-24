@@ -2,7 +2,7 @@ print(f'Loading {__file__}')
 
 from ophyd import ( Component as Cpt, ADComponent, Device, PseudoPositioner,
                     EpicsSignal, EpicsSignalRO, EpicsMotor,
-                    ROIPlugin, ImagePlugin,
+                    ROIPlugin, ImagePlugin, TransformPlugin,
                     SingleTrigger, PilatusDetector,
                     OverlayPlugin, FilePlugin)
 
@@ -73,6 +73,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
     stats4 = Cpt(StatsPluginV33, 'Stats4:', read_attrs=['total'])
 
     over1 = Cpt(OverlayPlugin, 'Over1:')
+    trans1 = Cpt(TransformPlugin, 'Trans1:')
 
     def set_primary_roi(self, num):
         st = f'stats{num}'
@@ -82,15 +83,15 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
 
 def det_exposure_time(exp_t, meas_t=1):
     pil1M.cam.acquire_time.put(exp_t)
-    pil1M.cam.acquire_period.put(exp_t+0.002)
+    pil1M.cam.acquire_period.put(exp_t+0.001)
     pil1M.cam.num_images.put(int(meas_t/exp_t))
     pil300KW.cam.acquire_time.put(exp_t)
-    pil300KW.cam.acquire_period.put(exp_t+0.002)
+    pil300KW.cam.acquire_period.put(exp_t+0.001)
     pil300KW.cam.num_images.put(int(meas_t/exp_t))
     rayonix.cam.acquire_time.put(exp_t)
     rayonix.cam.acquire_period.put(exp_t+0.01)
     rayonix.cam.num_images.put(int(meas_t/exp_t))
-   
+    amptek.mca.preset_real_time.put(exp_t)
     
 def det_next_file (n):
     pil1M.cam.file_number.put(n)
@@ -166,6 +167,10 @@ pil300KW.stats1.total.kind = 'hinted'
 pil300KW.cam.ensure_nonblocking()
 
 
+#"multi_count" plan is dedicated to the time resolved Pilatus runs when the number of images in area detector is more than 1
+def multi_count(detectors, *args, **kwargs): 
+    delay = detectors[0].cam.num_images.get() * detectors[0].cam.acquire_time.get() + 1 
+    yield from bp.count(detectors, *args, delay=delay, **kwargs)
 
 
 

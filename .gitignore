@@ -72,3 +72,7 @@ history.sqlite
 db
 startup/00-startup.corrupt
 
+# coming from KDE file manager
+.directory
+
+.vscode/

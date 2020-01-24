@@ -410,6 +410,7 @@ class SMI_Beamline(Beamline):
         
         #Move the waxs detector out of the way
         if waxs.arc.position < 8:
+            yield from bps.mv(waxs.arc, 4)
             yield from bps.mv(waxs.arc, 8)
         
         #self.detselect(self.SAXS.detector, roi=4)

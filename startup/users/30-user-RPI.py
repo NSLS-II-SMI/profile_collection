@@ -22,24 +22,34 @@ def run_saxs_capsRPI(t=1):
 
 
 
+# xlocs = [42000,33000,24000,15000,5000,-4000,-13000,-22000,-32000,-41000,42000,33000,24000,15000,5000,-4000,-13000,-22000,-32000,-41000]
+    #ylocs = [8800,8800,8800,8800,8800,8800,8800,8800,8800,8800,-7200,-7200,-7200,-7200,-7200,-7200,-7200,-7200,-7200,-7200]
 
+# xlocs = [42000,33000,24000,15000,5000,-4000,-13000,-22000,-30000,42000,32000,24000,15000,4000,-4000,-12000]
+   # ylocs = [8500,8500,8500,8500,8500,8500,8500,8500,8500,-6800,-6800,-6800,-6800,-6800,-6800,-6800]
+  #  names = ['EPTD-y0.9-2s','EPTD-y1.0-2s','EPG-X0.8-2s','EPG-X0.9-2s','ETP-x0-2s','ETP-x0.1-2s','ETP-x0.2-2s','ETP-x0.3-2s','ETP-x0.4-2s','ETP-x0.6-2s','ETP-x0.7-2s','ETP-x0.8-2s','ETP-x0.9-2s','ETP-x1.0-2s','ETP-x0.5-2s','vacuum-2s']
+
+#  xlocs = [-37550,-37550,-37550,-38950,-38950,-38950,-41850,-41850,-41850,-42850,-42850,-42850,-16100,-16100,-16100,-18600,-18600,-18600,-20400,-20400,-20400,-22500,-22500,-22500,-24100,-24100,-24100, -26100,-26100,-26100,-28300,-28300,-28300,-29300,-29300,-29300,-32900,-32900,-32900,-34900,-34900,-34900]
+ #   ylocs = [8000, 8500,9000, 8000, 8500,9000, 8000, 8500,9000, 8000, 8500,9000,-7000, -7500, -8000,-7000, -7500, -8000,-7000, -7500, -8000,-7000, -7500, -8000,-7000, -7500, -8000,-7000, -7500, -8000,-7000, -7500, -8000,-7000, -7500, -8000,-7000, -7500, -8000,-7000, -7500, -8000]
+ #   names = ['PACM-1','PACM-2','PACM-3','EPON828-1','EPON828-2','EPON828-3','DDS-1','DDS-2','DDS-3','B8O1-3-1','B8O1-3-2','B8O1-3-3','D2000-1','D2000-2','D2000-3','T3000-1','T3000-2','T3000-3','PPG-1','PPG-2','PPG-3','D230-1','D230-2','D230-3','blank-1mm-1','blank-1mm-2','blank-1mm-3','B8O1-1-1','B8O1-1-2','B8O1-1-3','B8O1-2-1','B8O1-2-2','B8O1-2-3','B9O1-1-1','B9O1-1-2','B9O1-1-3','B10O1-1-1','B10O1-1-2','B10O1-1-3','vacuum-1s-1','vacuum-1s-2','vacuum-1s-3']
 
 
 def run_waxs_fastRPI(t=1):
 
-    xlocs = [43800,33100,24100,14800,4400,-6900]
-    ylocs = [7600,7600,7600,7600,7600,7600]
-    names = ['m-TPN1-11-1','m-TPN1-11-2','m-TPN1-CNC-13','m-TPN1-CNC-14','m-TPN1-CNC-15-5','m-TPN1-CNC-15-m']
+    xlocs = [44000,37000,30000,23000,16000,9500,1750,-6250,-13250,-22250,-29250,-35250,-42250,37000,24000,16000,8000,-500,-6200,-12200,-19000,-25000,-35250,-42250]
+    ylocs = [8500,8500,8500,8500,8500,8500,8500,8500,8000,8800,7500,7500,7500,-8000,-8000,-8000,-8500,-8000,-8000,-8000,-8000,-8500,-8500,-8500]
+    names = ['B8O1-4','B8O1-5','B9O1-5','B10O1-4','B10O1-5','B9O1-2','B9O1-3','B9O1-4','B10O1-2','B10O1-3','AB-1','AB-2','O134A-1','O134A-2','O134A-3','O134A-4','O133A-1','O133A-2','O133A-3','O133A-4','WATER-1s','blank-capilllry-1.5mm']
+
     
- 
-    user = 'New'    
+    x_off = [-1000, 0, 1000] 
+    user = 'LC'    
     det_exposure_time(t,t)     
     
     assert len(xlocs) == len(names), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
     
     # Detectors, motors:
     dets = [pil1M, pil300KW]
-    waxs_range = np.linspace(0, 32.5, 6)
+    waxs_range = np.linspace(0, 45.5, 8)
     
     #yield from bps.mv(GV7.open_cmd, 1 )
     #time.sleep(10)
@@ -50,19 +60,61 @@ def run_waxs_fastRPI(t=1):
     
     for wa in waxs_range:
         yield from bps.mv(waxs, wa)
-        for sam,x, y in zip(names, xlocs, ylocs):
+        for sam, x, y in zip(names, xlocs, ylocs):
+            yield from bps.mv(piezo.x, x)            
             yield from bps.mv(piezo.y, y)
-            yield from bps.mv(piezo.x, x)
-            name_fmt = '{sam}_wa{waxs}deg'
-            sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
-            sample_id(user_name=user, sample_name=sample_name) 
-            print(f'\n\t=== Sample: {sample_name} ===\n')
-            yield from bp.count(dets, num=1)
+            for xx, x_of in enumerate(x_off):        
+                yield from bps.mv(piezo.x, x+x_of)
+            
+                name_fmt = '{sam}_wa{waxs}_xloc{xx}'
+                sample_name = name_fmt.format(sam=sam, xx='%2.2d'%xx, waxs='%2.1f'%wa)
+                sample_id(user_name=user, sample_name=sample_name) 
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3, 0.3) 
     
+def run_waxs_fastRPIy(t=1):
+
+    xlocs = [13000,6700,400,-5950,-12400,-18700,-25200,-31600]
+    ylocs = [0,0,0,0,0,0,0,0]
+    names = ['O134A-1-N','O134A-2-N','O134A-3-N','O134A-4-N','O133A-1-N','O133A-2-N','O133A-3-N','O133A-4-N']
+
     
+    y_off = [8000,7000,6000,5000,4000,3000,2000] 
+    user = 'LC'    
+    det_exposure_time(t,t)     
+    
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(x_locs)}) is different from number of samples ({len(samples)})'
+    
+    # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    waxs_range = np.linspace(13, 13, 1)
+    
+    #yield from bps.mv(GV7.open_cmd, 1 )
+    #time.sleep(10)
+    #yield from bps.mv(GV7.open_cmd, 1 )
+    #time.sleep(10)
+    #yield from bps.mv(GV7.open_cmd, 1 )
+    #time.sleep(10)
+    
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y in zip(names, xlocs, ylocs):
+            yield from bps.mv(piezo.x, x)            
+            yield from bps.mv(piezo.y, y)
+            for yy, y_of in enumerate(y_off):        
+                yield from bps.mv(piezo.y, y+y_of)
+            
+                name_fmt = '{sam}_wa{waxs}_yloc{yy}'
+                sample_name = name_fmt.format(sam=sam, yy='%2.2d'%yy, waxs='%2.1f'%wa)
+                sample_id(user_name=user, sample_name=sample_name) 
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3)     
     
     #yield from bps.mv(GV7.close_cmd, 1 )
     #time.sleep(10)
@@ -72,6 +124,35 @@ def run_waxs_fastRPI(t=1):
     #time.sleep(10)
 
 
+
+def run_waxs_cap_temp(t=1):
+    ylocs = [3.9]	# Between 3.1 and 4.1
+    name = 'nPEO_isothermal40'
+    user = 'DW'    
+
+
+    det_exposure_time(t,t)         
+    dets = [pil1M, pil300KW]
+    waxs_range = np.linspace(0, 13, 3)
+    
+    for wa in waxs_range:
+        if wa == 0:
+            temp = ls.ch1_read.value
+        yield from bps.mv(waxs, wa)
+        for y in ylocs:
+            yield from bps.mv(stage.y, y)
+            #temp = ls.ch1_read.value
+            name_fmt = '{sam}_wa{waxs}_temp{tem}'
+            sample_name = name_fmt.format(sam=name, tem=temp, waxs='%2.1f'%wa)
+            sample_id(user_name=user, sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+    yield from bps.mv(waxs, 0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3) 
+    
 
 
 
@@ -104,6 +185,7 @@ def run_saxs_fastRPI(t=1):
 
 
 def run_contRPI(t=1, numb = 100, sleep = 5):
+
     det_exposure_time(t,t)
     dets = [pil1M,pil300KW]
     #dets = [pil300Kw]

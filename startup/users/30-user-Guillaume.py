@@ -254,7 +254,8 @@ def nikhil_Zn_edge(t=1):
             sample_name = name_fmt.format(sample=name, energy=e, xbpm ='%3.2f'%xbpm)
             sample_id(user_name='GF', sample_name=sample_name)
             print(f'\n\t=== Sample: {sample_name} ===\n')
-            yield from bp.count(dets, num=1)
+            #yield from bp.count(dets, num=1)
+            caput('XF:12IDC-ES:2{Det:1M}cam1:Acquire', 1) 
         
         yield from bps.mv(energy, 9680)
         yield from bps.mv(energy, 9660)
@@ -284,5 +285,22 @@ def meas_gels(t=1):
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bp.scan(dets, waxs, *waxs_arc)
         
+
+
+
+
+def sin_generation():
+    x = np.linspace(0, 30000, 30000)
+    gx = 50000 * np.sin(x/5) #20000, 15000, 6000
+	
+    #plt.figure()
+    #plt.plot(x, gx)
+    #plt.show()
+
+	
+    for gs in gx:
+        time.sleep(0.01)
+        caput('XF:12IDB-BI:2{EM:BPM3}fast_pidY.VAL', gs) 
+
 
 
