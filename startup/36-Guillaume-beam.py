@@ -29,90 +29,72 @@ print(f'Loading {__file__}')
 # verbosity=5 : Output everything (e.g. for testing)
 
 
-
-# These imports are not necessary if part of the startup sequence.
-# If this file is called separately, some of these may be needed.
-#import numpy as np
-#from epics import caget, caput
-#from time import sleep
-
-#from ophyd import EpicsMotor, Device, Component as Cpt
-#from ophyd.commands import * # For mov, movr
-
-#define pilatus_name and _Epicsname, instead of pilatus300 or pilatus2M
-#moved to 20-area-detectors.py
-#pilatus_name = pilatus2M
-#pilatus_Epicsname = '{Det:PIL2M}'
-
-
-class BeamlineDetector(object):
+# class BeamlineDetector(object):
     
-    def __init__(self, detector, **md):
-        self.detector = detector
-        self.md = md
+#     def __init__(self, detector, **md):
+#         self.detector = detector
+#         self.md = md
         
     
-    def get_md(self, prefix='detector_', **md):
-        '''Returns a dictionary of the current metadata.
-        The 'prefix' argument is prepended to all the md keys, which allows the
-        metadata to be grouped with other metadata in a clear way. (Especially,
-        to make it explicit that this metadata came from the beamline.)'''
+#     def get_md(self, prefix='detector_', **md):
+#         '''Returns a dictionary of the current metadata.
+#         The 'prefix' argument is prepended to all the md keys, which allows the
+#         metadata to be grouped with other metadata in a clear way. (Especially,
+#         to make it explicit that this metadata came from the beamline.)'''
         
-        md_return = self.md.copy()
+#         md_return = self.md.copy()
     
-        # Include the user-specified metadata
-        md_return.update(md)
+#         # Include the user-specified metadata
+#         md_return.update(md)
 
-        # Add an optional prefix
-        if prefix is not None:
-            md_return = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_return.items() }
+#         # Add an optional prefix
+#         if prefix is not None:
+#             md_return = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_return.items() }
     
-        return md_return
+#         return md_return
+                            
+# class SMI_SAXS_Detector(BeamlineDetector):
+#     def setCalibration(self):
+#         self.pixel_size = 0.172
+#         self.direct_beam_0_0 = [0, 0]
+#         self.distance =  pil1m_pos.z.position
+#         self.beamstop = [pil1m_bs.x.position, pil1m_bs.y.position]
+#         self.detector_position = [pil1m_pos.x.position, pil1m_pos.y.position]
+#         self.direct_beam = [np.round((self.direct_beam_0_0[0] - self.detector_position[0]) / self.pixel_size), np.round((self.direct_beam_0_0[1] - self.detector_position[1]) / self.pixel_size)]
+#         print(self.pixel_size)
     
-            
-                        
-class SMI_SAXS_Detector(BeamlineDetector):
-    def setCalibration(self):
-        self.pixel_size = 0.172
-        self.direct_beam_0_0 = [0, 0]
-        self.distance =  pil1m_pos.z.position
-        self.beamstop = [pil1m_bs.x.position, pil1m_bs.y.position]
-        self.detector_position = [pil1m_pos.x.position, pil1m_pos.y.position]
-        self.direct_beam = [np.round((self.direct_beam_0_0[0] - self.detector_position[0]) / self.pixel_size), np.round((self.direct_beam_0_0[1] - self.detector_position[1]) / self.pixel_size)]
-        print(self.pixel_size)
-    
-    def get_md(self, prefix='detector_SAXS_', **md):
+#     def get_md(self, prefix='detector_SAXS_', **md):
         
-        md_return = self.md.copy()    
-        x0, y0 = self.direct_beam
+#         md_return = self.md.copy()    
+#         x0, y0 = self.direct_beam
         
-        #Read the detector position
-        position_defined_x, position_defined_y = self.detector_position
-        position_current_x, position_current_y = SAXS.x.user_readback.value, SAXS.y.user_readback.value
+#         #Read the detector position
+#         position_defined_x, position_defined_y = self.detector_position
+#         position_current_x, position_current_y = SAXS.x.user_readback.value, SAXS.y.user_readback.value
         
             
-        md_return['name'] = self.detector.name
+#         md_return['name'] = self.detector.name
 
-        md_return['x0_pix'] = round( x0 + (position_current_x-position_defined_x)/self.pixel_size , 2 )
-        md_return['y0_pix'] = round( y0 + (position_current_y-position_defined_y)/self.pixel_size , 2 )
-        md_return['distance_m'] = self.distance
+#         md_return['x0_pix'] = round( x0 + (position_current_x-position_defined_x)/self.pixel_size , 2 )
+#         md_return['y0_pix'] = round( y0 + (position_current_y-position_defined_y)/self.pixel_size , 2 )
+#         md_return['distance_m'] = self.distance
                
-        for roi in [roi1, roi2, roi3, roi4]:
-            ROI = yield from bps.mv(pil1M)
-            md_return['ROI{}_X_min'.format(i)]  = ROI['pil1M_{}_min_xyz_min_x'.format(roi)]['value']
-            md_return['ROI{}_X_size'.format(i)] = ROI['pil1M_{}_size_x'.format(roi)]['value']
-            md_return['ROI{}_Y_min'.format(i)]  = ROI['pil1M_{}_min_xyz_min_y'.format(roi)]['value']
-            md_return['ROI{}_Y_size'.format(i)] = ROI['pil1M_{}_size_y'.format(roi)]['value']
+#         for roi in [roi1, roi2, roi3, roi4]:
+#             ROI = yield from bps.mv(pil1M)
+#             md_return['ROI{}_X_min'.format(i)]  = ROI['pil1M_{}_min_xyz_min_x'.format(roi)]['value']
+#             md_return['ROI{}_X_size'.format(i)] = ROI['pil1M_{}_size_x'.format(roi)]['value']
+#             md_return['ROI{}_Y_min'.format(i)]  = ROI['pil1M_{}_min_xyz_min_y'.format(roi)]['value']
+#             md_return['ROI{}_Y_size'.format(i)] = ROI['pil1M_{}_size_y'.format(roi)]['value']
         
-        # Include the user-specified metadata
-        md_return.update(md)
+#         # Include the user-specified metadata
+#         md_return.update(md)
 
-        # Add an optional prefix
-        if prefix is not None:
-            md_return = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_return.items() }
+#         # Add an optional prefix
+#         if prefix is not None:
+#             md_return = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_return.items() }
     
-        return md_return
-      
+#         return md_return
+
 
 class SMIBeam(object):
     """
@@ -482,6 +464,8 @@ class SMI_SAXS_Det(object):
         #reference position for the 1M detector
         self.detector_name = 'Pilatus 1M'
         self.detector_position_0_0 = [-15, -40]
+
+        #ToDo: add here the position of teh gap
 
         #ToDo: need to be implemented for various sdd
         self.direct_beam_0_0 = [402, 1043 - 358]
