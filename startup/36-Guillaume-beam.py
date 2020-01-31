@@ -406,27 +406,11 @@ class SMI_Beamline(Beamline):
         Set the beamline for measurments: bring the beamstop in and
         remove the attenuator
         '''
-        
-        # TODO: Check if the beam is on
-        '''
-        #Check if the beam is on
-        if RE.state!='idle':
-            RE.abort()
-        '''
-        
-        #self.current_mode = 'undefined'
-        #self.beam.off()
-        
         # Move beamstop
         yield from bps.mv(pil1m_bs.x, bsx_pos) #2 for 4000 mm, 1.2 for 6500
         
         # Remove attenuators
-        yield from SMIBeam().insertFoils('Measurement')
-        
-        #self.detselect(self.detectors_measure)
-        
-        #self.current_mode = 'measurement'
-
+        yield from SMIBeam().insertFoils('Measurement')       
 
     def setDirectBeamROI(self, size=[48,12], verbosity=3):
         '''
@@ -498,6 +482,8 @@ class SMI_SAXS_Det(object):
         #reference position for the 1M detector
         self.detector_name = 'Pilatus 1M'
         self.detector_position_0_0 = [-15, -40]
+
+        #ToDo: need to be implemented for various sdd
         self.direct_beam_0_0 = [402, 1043 - 358]
                 
         self.pixel_size = 0.172
