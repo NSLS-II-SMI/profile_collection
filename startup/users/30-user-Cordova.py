@@ -187,3 +187,415 @@ def fly_scan_ai(det, motor, cycle=1, cycle_t=10, phi = -0.6):
     print(f'We are done after {acq_time}s of waiting')
     #yield from bps.mv(attn_shutter, 'Insert')                
 
+
+
+
+def ai_scan_multilayer(t=1):
+    dets = [pil300KW]
+    
+    name = '10nmMLYAHY_noPEB_Exp1'
+    energies = [3900, 3930, 4000]
+    waxs_arc = [6.5]
+    incident_angle = np.linspace(0.5, 2.5, 101)
+    
+    det_exposure_time(t,t) 
+    name_fmt = '{sample}_{energy}eV_ai{alpha_i}_wa{waxs}_{num}'
+
+    ai0 = piezo.th.position
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        for e in energies:                              
+            yield from mv_energy(e)
+            yield from bps.mvr(piezo.x, 200)
+            for i in [0, 1]:
+                if i == 0:
+                    incident_an = incident_angle
+                    met = 'fwd'
+                else:
+                    incident_an = incident_angle[::-1]
+                    met = 'rev'
+
+                for inc_ang in incident_an:
+                    print(inc_ang)
+                    yield from bps.mv(piezo.th, ai0 + inc_ang)
+
+                    sample_name = name_fmt.format(sample=name, energy=e, alpha_i='%3.2f'%inc_ang, waxs = wa, num = met)
+                    sample_id(user_name='IC', sample_name=sample_name)
+                    
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    yield from bp.count(dets, num=1)
+
+
+
+
+def ai_scan_multilayer_nightscan(t=1):
+    dets = [pil300KW]
+    
+    #names = ['10nmSiYAVE_Unexp', '10nmMLYAVE_Unexp', '10nmSiYAHY_Unexp', 'bare_ML']
+    names = ['bare_ML']
+    #xs = [-36500, -23000, -1000, 23400]
+    xs = [23400]
+    energies = np.linspace(3900, 4000, 21)
+    waxs_arc = [6.5]
+    incident_angle = np.linspace(0.5, 2.5, 101)
+    
+    det_exposure_time(t,t) 
+    name_fmt = '{sample}_{energy}eV_ai{alpha_i}_wa{waxs}'
+
+    ai0 = 0
+    
+    for z, (x, name) in enumerate(zip(xs, names)):
+        
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(GV7.open_cmd, 1 )
+        time.sleep(10)
+        yield from bps.mv(GV7.open_cmd, 1 )
+        yield from bps.mv(piezo.th, ai0)
+
+        yield from alignement_gisaxs(0.4)
+
+        yield from bps.mv(GV7.close_cmd, 1 )
+        time.sleep(10)
+        yield from bps.mv(GV7.close_cmd, 1 )
+        yield from bps.mv(att2_9, 'Insert')
+        yield from bps.mv(att2_10, 'Insert')
+        ai0 = piezo.th.position
+        for i, wa in enumerate(waxs_arc):
+            if i == 0:
+                incid_angle = incident_angle
+            else:
+                incid_angle = incident_angle[::-1]
+            yield from bps.mv(waxs, wa)
+            energiess = energies
+            for j, e in enumerate(energiess):                      
+                yield from bps.mv(energy, e)
+                if z == 3:
+                    yield from bps.mvr(piezo.x, 0)
+                else:
+                    yield from bps.mvr(piezo.x, 250)
+
+                for inc_ang in incid_angle:
+                    yield from bps.mv(piezo.th, ai0 + inc_ang)
+
+                    sample_name = name_fmt.format(sample=name, energy=e, alpha_i='%3.2f'%inc_ang, waxs = wa)
+                    sample_id(user_name='IC', sample_name=sample_name)
+                    
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    yield from bp.count(dets, num=1)
+            
+            yield from bps.mv(energy, 3960)
+            time.sleep(5)
+            yield from bps.mv(energy, 3920)
+
+'''
+def ai_scan_reflectivity_scan(t=1):
+    dets = [pil300KW]
+    
+    #names = ['10nmSiYAVE_Unexp', '10nmMLYAVE_Unexp', '10nmSiYAHY_Unexp', 'bare_ML']
+    names = ['bare_ML']
+    #xs = [-36500, -23000, -1000, 23400]
+    xs = [23400]
+    #energies = np.linspace(3900, 4000, 21)
+    energies = [3900,3930,4100]
+    incident_angle = np.linspace(0.1, 5, 101)
+    
+    det_exposure_time(t,t) 
+    name_fmt = '{sample}_reflectivity_{energy}eV_{direction}_ai{alpha_i}_'
+
+    ai0 = 0
+    
+    # Loop over samples, doing alignment first
+    for z, (x, name) in enumerate(zip(xs, names)):
+        
+        # Move to sample position
+        yield from bps.mv(piezo.x, x)
+
+        # Move waxs out of the way
+        yield from bps.mv(wax, 13.5)
+
+        # Open gate valve for alignment
+        yield from bps.mv(GV7.open_cmd, 1 )
+        time.sleep(10)
+        # Make sure valve is open?
+        yield from bps.mv(GV7.open_cmd, 1 )
+        # Move incident angle to guessed zero
+        yield from bps.mv(piezo.th, ai0)
+        # Align theta and z
+        yield from alignement_gisaxs(0.4)
+        # Close the gate valve
+        yield from bps.mv(GV7.close_cmd, 1 )
+        time.sleep(10)
+        yield from bps.mv(GV7.close_cmd, 1 )
+        
+        # Redefine zerp theta based on alignment
+        ai0 = piezo.th.position
+
+        # Move the waxs back
+        yield from bps.mv(waxs, 0)
+
+        # Insert all Al filters (subject to change based on flux)
+        yield from bps.mv(att2_9, 'Insert')
+        yield from bps.mv(att2_10, 'Insert')
+        yield from bps.mv(att2_11, 'Insert')
+        yield from bps.mv(att2_12, 'Insert')
+
+        # Once aligned, loop over energies
+        for j, e in enumerate(energies):
+            # step carefully through energy
+
+            # Move in x
+            yield from bps.mvr(piezo.x,300)
+
+            for d in ['fwd','rev']
+                # Define incident angle direction
+                if d == 'fwd'    
+                    incid_angle = incident_angle
+                elif d == 'rev'
+                    incid_angle = incident_angle[::-1]
+
+                for inc_ang in incid_angle:
+                    yield from bps.mv(piezo.th, ai0 + inc_ang)
+
+                    sample_name = name_fmt.format(sample=name, energy=e, direction=d, alpha_i='%3.2f'%inc_an)
+                    sample_id(user_name='IC', sample_name=sample_name)
+                    
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    yield from bp.count(dets, num=1)
+            
+            yield from bps.mv(energy, 3960)
+            time.sleep(5)
+            yield from bps.mv(energy, 3920)
+'''
+
+def reflectivity_night(t=1):
+    yield from test_reflectivity_scan(t=0.5, nu=1)
+    yield from test_reflectivity_scan(t=0.5, nu=2)
+    yield from test_reflectivity_scan(t=0.5, nu=3)
+
+
+def test_reflectivity_scan(t=1, nu=0):
+    dets = [pil300KW]
+    energy = [3900,3930,4100]#'3900'
+    dire = 'fwd'
+    names = ['10nmSiYAHY_Unexp_Ref', '10nmMLYAVE_Unexp_Ref', '10nmSiYAVE_Unexp_Ref','bare_ML_part2','10nmMLYAHY_noPEB_Exp_Ref']
+    #name = 'bare_ML'
+    xs = [-2850, -17850, -36350, 22050,39050]
+    zs = [-2400, -2400, -2400, -2400,-3000] #23400
+    #x = 22650
+
+    # PUT SAMPLE LOOP HERE
+    ai0 = 0
+    
+    for x, z, name in zip(xs, zs, names):
+
+        # Move to sample position
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.z, z)
+
+        # Open gate valve for alignment
+        yield from bps.mv(GV7.open_cmd, 1 )
+        time.sleep(10)
+        # Make sure valve is open?
+        yield from bps.mv(GV7.open_cmd, 1 )
+        # Move incident angle to guessed zero
+        time.sleep(5)
+
+        yield from bps.mv(piezo.th, ai0)
+        # Align theta and z
+        yield from alignement_gisaxs(0.4)
+        # Close the gate valve
+        yield from bps.mv(GV7.close_cmd, 1 )
+        time.sleep(10)
+        yield from bps.mv(GV7.close_cmd, 1 )
+        time.sleep(5)
+        
+        ai0 = piezo.th.position
+
+        # Move the waxs back
+        yield from bps.mv(waxs, 0)
+
+        det_exposure_time(t,t) 
+        name_fmt = '{sample}_reflectivity_{energy}eV_{direction}_ai{alpha_i}_foil{num}_{number}'
+
+        # Define angular ranges for the scan
+        ai_ranges = [[0.2, 0.7], [0.6, 1.2], [0.9, 1.6], [1.5, 2.6], [2.5, 3.0], [2.9, 3.2], [3.1, 3.6], [3.5, 4.0], [3.9, 4.4], [4.3, 4.8]]
+        ais = [[]]*len(ai_ranges)
+        for alphai in np.linspace(0.2, 4.8, 257):
+            for i, ai_range in enumerate(ai_ranges):
+                if alphai < ai_range[1] and ai_range[0] <= alphai:
+                    ais[i] = ais[i]+[alphai]
+
+        # Loop over the energies
+        for en in energy:
+            # Change energy using slow change defined below
+            yield from bps.mvr(piezo.x, 300)
+
+            yield from mv_energy(en)
+            for ran_num, aiss in enumerate(ais):
+                yield from clean_shit()
+                yield from clean_shit()
+                yield from function_att(ran_num)
+                yield from function_att(ran_num)
+
+                if ran_num < 3.5:
+                    yield from bps.mv(waxs.x, 0)
+                else: 
+                    yield from bps.mv(waxs.x, -22.)
+
+                for ai in aiss:
+                    yield from bps.mv(piezo.th, ai0 + ai)
+
+                    sample_name = name_fmt.format(sample=name, energy=en, direction=dire, alpha_i='%4.3f'%ai, num = ran_num, number=nu)
+                    sample_id(user_name='IC', sample_name=sample_name)
+                    
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    yield from bp.count(dets, num=1)
+
+
+
+def clean_shit(t=1):
+    yield from bps.mv(att2_1, 'Retract')
+    time.sleep(t)
+    yield from bps.mv(att2_2, 'Retract')
+    time.sleep(t)
+    yield from bps.mv(att2_3, 'Retract')
+    time.sleep(t)
+    yield from bps.mv(att2_4, 'Retract')
+    time.sleep(t)
+    yield from bps.mv(att2_5, 'Retract')
+    time.sleep(t)
+    yield from bps.mv(att2_6, 'Retract')
+    time.sleep(t)
+    yield from bps.mv(att2_7, 'Retract')
+    time.sleep(t)
+    yield from bps.mv(att2_8, 'Retract')
+    time.sleep(t)
+    yield from bps.mv(att2_9, 'Retract')
+    time.sleep(t)
+    yield from bps.mv(att2_10, 'Retract')
+    time.sleep(t)
+    yield from bps.mv(att2_11, 'Retract')
+    time.sleep(t)
+    yield from bps.mv(att2_12, 'Retract')
+    time.sleep(t)
+
+    
+def function_att(ran_num,t=1):
+    if ran_num == 0:
+        #5x +1x
+        yield from bps.mv(att2_5, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_9, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_11, 'Insert')
+        time.sleep(t)
+    
+    elif ran_num == 1:
+        #4x +1x
+        yield from bps.mv(att2_5, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_11, 'Insert')
+        time.sleep(t)
+
+    elif ran_num == 2:
+        #3x +1x
+        yield from bps.mv(att2_5, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_10, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_9, 'Insert')
+        time.sleep(t)
+
+    elif ran_num == 3:
+        #12x
+        yield from bps.mv(att2_12, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_11, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_10, 'Insert')
+        time.sleep(t)
+
+    elif ran_num == 4:
+        #11x
+        yield from bps.mv(att2_12, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_11, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_9, 'Insert')
+        time.sleep(t)
+
+    elif ran_num == 5:
+        #10x
+        yield from bps.mv(att2_12, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_11, 'Insert')
+        time.sleep(t)
+
+    elif ran_num == 6:
+        #8x
+        yield from bps.mv(att2_12, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_10, 'Insert')
+        time.sleep(t)
+
+    elif ran_num == 7:
+        #7x
+        yield from bps.mv(att2_12, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_9, 'Insert')
+        time.sleep(t)
+
+    elif ran_num == 8:
+        #6x
+        yield from bps.mv(att2_12, 'Insert')
+        time.sleep(t)
+
+    elif ran_num == 9:
+        #5x
+        yield from bps.mv(att2_11, 'Insert')
+        time.sleep(t)
+        yield from bps.mv(att2_9, 'Insert')
+        time.sleep(t)
+
+# © Luke Long. Venmo is an acceptable form of payment.
+def mv_energy(set_point,t=3,step = 30):
+    e_diff = set_point - energy.energy.position
+    while abs(e_diff) > step:
+        print(f'LARGE ENERGY DIFFERENCE. TAKING STEP SIZE OF {step}eV. @ GUI: DONT FORGET TO VENMO LUKE')
+        yield from bps.mvr(energy,sign(e_diff)*30)
+        time.sleep(t)
+        e_diff = set_point - energy.energy.position    
+    yield from bps.mv(energy,set_point)
+
+
+
+
+def fluo_scan(t=1):
+    dets = [pil300KW]
+    
+    name = '10nmMLYAHY_noPEB_Unexp_fluoscan1_'
+    energies = np.append(np.linspace(3900, 3990, 181), np.linspace(3990, 4100, 56))
+
+    waxs_arc = [20]
+    incident_angle = 0.6
+    
+    det_exposure_time(t,t) 
+    name_fmt = '{sample}_{energy}eV_bpm{bpm}'
+    yield from bps.mvr(piezo.th, incident_angle)
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        for e in energies:                              
+            yield from bps.mv(energy, e)
+            sample_name = name_fmt.format(sample=name, energy=e, bpm ='%5.2f'%xbpm2.sumX.value)
+            sample_id(user_name='IC', sample_name=sample_name)
+            
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+            #print(inc_ang)
+            #time.sleep(1)
+
+    yield from bps.mvr(piezo.th, -incident_angle)
+
+
