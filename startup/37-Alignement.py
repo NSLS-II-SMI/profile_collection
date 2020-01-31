@@ -1,5 +1,6 @@
 print(f'Loading {__file__}')
 
+
 def align_gisaxs_height(  rang = 0.3, point = 31 ,der=False  ):   
         yield from bp.rel_scan([pil1M], piezo.y, -rang, rang, point )
         ps(der=der)
@@ -9,13 +10,22 @@ def align_gisaxs_height(  rang = 0.3, point = 31 ,der=False  ):
 def align_gisaxs_th(  rang = 0.3, point = 31   ):             
         yield from bp.rel_scan([pil1M], piezo.th, -rang, rang, point )
         ps()
-        yield  from bps.mv(piezo.th, ps.peak)  
+        yield  from bps.mv(piezo.th, ps.peak)
+
+def align_xrr_prs(  rang = 0.3, point = 31   ):             
+        yield from bp.rel_scan([pil1M], prs, -rang, rang, point )
+        ps()
+        yield  from bps.mv(prs, ps.peak)  
+
+def align_xrr_height(  rang = 0.3, point = 31   ):             
+        yield from bp.rel_scan([pil1M], piezo.z, -rang, rang, point )
+        ps()
+        yield  from bps.mv(piezo.z, ps.peak)  
 
 def align_gisaxs_height_hex(  rang = 0.3, point = 31 ,der=False  ):   
         yield from bp.rel_scan([pil1M], stage.y, -rang, rang, point )
         ps(der=der)
         yield from bps.mv(stage.y, ps.cen)
-
 
 def align_gisaxs_th_hex(  rang = 0.3, point = 31   ):             
         yield from bp.rel_scan([pil1M], stage.th, -rang, rang, point )
@@ -23,13 +33,52 @@ def align_gisaxs_th_hex(  rang = 0.3, point = 31   ):
         yield  from bps.mv(stage.th, ps.peak)  
 
         
+
+def alignement_xrr(angle = 0.15):      
+        
+        sample_id(user_name='test', sample_name='test')
+        det_exposure_time(0.5, 0.5)
+        
+        smi = SMI_Beamline()
+        yield from smi.modeAlignment_xrr()
+        
+        #Set direct beam ROI
+        yield from smi.setDirectBeamROI()
+
+        #Scan theta and height
+        yield from align_xrr_height(700, 16, der=True)
+        yield from align_xrr_prs(0.7, 11)
+        yield from align_xrr_height(300, 11, der=True)
+        yield from align_xrr_prs(0.4, 16)
+        
+        #move to theta 0 + value
+        yield from bps.mv(prs, ps.peak + angle)
+
+        #Set reflected ROI
+        yield from smi.setReflectedBeamROI_xrr(total_angle=angle)
+        
+        #Scan theta and height
+        yield from align_xrr_prs(0.2, 31)
+        yield from align_xrr_height(200, 21)
+        yield from align_xrr_prs(0.05, 21)
+        
+        #Close all the matplotlib windows
+        plt.close('all')
+        
+        #Return angle
+        # TODO: Should we return to 0
+        yield from bps.mv(prs, ps.cen - angle)
+        yield from smi.modeMeasurement_gisaxs()
+        
+
+
 def alignement_gisaxs(angle = 0.15):      
         
         sample_id(user_name='test', sample_name='test')
         det_exposure_time(0.5, 0.5)
         
         smi = SMI_Beamline()
-        yield from smi.modeAlignment_gisaxs()
+        yield from smi.modeAlignment_gisaxs(technique = 'gisaxs')
         
         #Set direct beam ROI
         yield from smi.setDirectBeamROI()
@@ -44,11 +93,11 @@ def alignement_gisaxs(angle = 0.15):
         yield from bps.mv(piezo.th, ps.peak + angle)
 
         #Set reflected ROI
-        yield from smi.setReflectedBeamROI(total_angle=angle)
+        yield from smi.setReflectedBeamROI(total_angle=angle, technique = 'gisaxs')
         
         #Scan theta and height
         yield from align_gisaxs_th(0.2, 31)
-        yield from align_gisaxs_height(200, 21)
+        yield from align_gisaxs_height(300, 21)
         yield from align_gisaxs_th(0.05, 21)
         
         #Close all the matplotlib windows

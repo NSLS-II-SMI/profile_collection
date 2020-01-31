@@ -173,7 +173,7 @@ class SMIBeam(object):
         elif 2300 < self.dcm.energy.position < 3000:
             target_state = [att2_12, att2_11, att2_10]
         elif 3000 < self.dcm.energy.position < 4500:
-            target_state = [att2_9, att2_10, att2_11,att2_12]
+            target_state = [att2_5, att2_9, att2_11]
         elif 4500 < self.dcm.energy.position < 5500:
             target_state = [att2_5, att2_6, att2_12]
         elif 5500 < self.dcm.energy.position < 7000:
@@ -200,10 +200,6 @@ class SMIBeam(object):
             target_state = [att1_6, att1_7]
         elif 14700 < self.dcm.energy.position < 16100:
             target_state = [att1_5, att1_6, att1_7]
-            #if divergence == 'low_div' and state == 'vac': target_state = [att1_5, att1_6, att1_7] 
-            #if divergence == 'mic_foc' and state == 'air': target_state = [att1_7]
-            #if divergence == 'mic_foc' and state == 'vac': target_state = [att1_7]
-            #target_state = [att1_5, att1_6]
         elif 16100 < self.dcm.energy.position < 17500:
             target_state = [att1_8]
         elif 17500 < self.dcm.energy.position < 18500:
@@ -257,8 +253,6 @@ class SMIBeam(object):
             itry += 1
             time.sleep(wait_time)
         
-
-
     # End class SMIBeam(object)
     ########################################
     
@@ -386,41 +380,26 @@ class SMI_Beamline(Beamline):
         self.SAXS = SMI_SAXS_Det().getPositions()
 
 
-    def modeAlignment_gisaxs(self):
+    def modeAlignment_gisaxs(self, technique = 'gisaxs'):
         '''
-        Set the beamline for alignement: move the beamstop out and
-        insert the attenuators
+        Set the beamline for alignement: move the beamstop out and insert the attenuators
+        if technique is 'gisaxs', the reflected roi will be calculate for horizontal congif
+        if technique is 'xrr', the reflected roi will be calculate for vertical congif
         '''
-        
-        # TODO: Check if the beam is on
-        '''
-        #Check if the beam is on
-        if RE.state!='idle':
-            RE.abort()
-        '''
-        
         # Put in attenuators
         yield from SMIBeam().insertFoils('Alignement')
         
         # Move beamstop
         yield from bps.mv(pil1m_bs.x, bsx_pos + 5)
         
-        self.setReflectedBeamROI()
+
+        self.setReflectedBeamROI(technique=technique)
         self.setDirectBeamROI()
         
         #Move the waxs detector out of the way
         if waxs.arc.position < 8:
             yield from bps.mv(waxs.arc, 4)
             yield from bps.mv(waxs.arc, 8)
-        
-        #self.detselect(self.SAXS.detector, roi=4)
-        #self.SAXS.detector.cam.acquire_time.set(0.5)
-        #self.SAXS.detector.cam.acquire_period.set(0.6)
-        
-        #self.SAXS.detector.cam.file_name.set('align')
-        #self.SAXS.detector.cam.file_number.set(1)
-        
-        #self.current_mode = 'alignment'
 
     def modeMeasurement_gisaxs(self, verbosity=3):
         '''
@@ -466,7 +445,7 @@ class SMI_Beamline(Beamline):
         yield from bps.mv(pil1M.roi1.size.y, int(size[1]))
         
 
-    def setReflectedBeamROI(self, total_angle=0.16, size=[48,8], verbosity=3):
+    def setReflectedBeamROI(self, total_angle=0.16, technique = 'gisaxs', size=[48,8], verbosity=3):
         '''
         Update the ROI (pil1m.roi3) for the reflected beam on the SAXS detector.
         total_ange: float: incident angle of the alignement in degrees
@@ -479,17 +458,31 @@ class SMI_Beamline(Beamline):
         d = self.SAXS.distance   #mm
         pixel_size = self.SAXS.pixel_size # mm
 
-        # Calculate the y position of the reflected beam        
-        y_offset_mm = np.tan(np.radians(2*total_angle))*d
-        y_offset_pix = y_offset_mm/pixel_size
-        y_pos = int( y0 - size[1]/2 - y_offset_pix )
+        if technique == 'gisaxs':
+            # Calculate the y position of the reflected beam        
+            y_offset_mm = np.tan(np.radians(2*total_angle))*d
+            y_offset_pix = y_offset_mm/pixel_size
+            y_pos = int( y0 - size[1]/2 - y_offset_pix )
 
-        # Define the reflected beam ROI on the pilatus 1M detector  
-        yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x0-size[0]/2))
-        yield from bps.mv(pil1M.roi1.size.x, int(size[0]))
-        yield from bps.mv(pil1M.roi1.min_xyz.min_y, int(y_pos))
-        yield from bps.mv(pil1M.roi1.size.y, int(size[1]))
-        
+            # Define the reflected beam ROI on the pilatus 1M detector  
+            yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x0-size[0]/2))
+            yield from bps.mv(pil1M.roi1.size.x, int(size[0]))
+            yield from bps.mv(pil1M.roi1.min_xyz.min_y, int(y_pos))
+            yield from bps.mv(pil1M.roi1.size.y, int(size[1]))
+
+        elif technique == 'xrr':
+            # Calculate the x position of the reflected beam        
+            x_offset_mm = np.tan(np.radians(2*total_angle))*d
+            x_offset_pix = x_offset_mm/pixel_size
+            x_pos = int( x0 - size[1]/2 - x_offset_pix )
+
+            # Define the reflected beam ROI on the pilatus 1M detector  
+            yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x_pos))
+            yield from bps.mv(pil1M.roi1.size.x, int(size[0]))
+            yield from bps.mv(pil1M.roi1.min_xyz.min_y, int(y0-size[1]/2))
+            yield from bps.mv(pil1M.roi1.size.y, int(size[1]))
+        else:
+            raise ValueError('Unknown geometry fo alignement mode')
 
     # End class SMI_Beamline(Beamline)
     ########################################
