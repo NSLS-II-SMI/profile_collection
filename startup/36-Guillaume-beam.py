@@ -465,7 +465,9 @@ class SMI_SAXS_Det(object):
         self.detector_name = 'Pilatus 1M'
         self.detector_position_0_0 = [-15, -40]
 
-        #ToDo: add here the position of teh gap
+        #ToDo: add here the position of the gap
+        #self.detector_gap_x = [[830, 850], [617, 637], [405, 425], [193, 213]]
+        #self.detector_gap_y = [[485, 495]]
 
         #ToDo: need to be implemented for various sdd
         self.direct_beam_0_0 = [402, 1043 - 358]
