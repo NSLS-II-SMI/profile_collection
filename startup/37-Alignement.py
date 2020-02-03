@@ -145,7 +145,7 @@ def alignement_gisaxs_hex(angle = 0.1):
         yield from bps.mv(stage.th, ps.cen - angle)
         yield from smi.modeMeasurement_gisaxs()
 
-def alignement_gisaxs_hex_short(angle = 0.1):      
+def alignement_gisaxs_hex_short(angle = 0.12):      
         
         sample_id(user_name='test', sample_name='test')
         det_exposure_time(0.3, 0.3)
@@ -157,19 +157,19 @@ def alignement_gisaxs_hex_short(angle = 0.1):
         yield from smi.setDirectBeamROI()
 
         #Scan theta and height
-        yield from align_gisaxs_height_hex(0.700, 16, der=True)
+        yield from align_gisaxs_height_hex(0.300, 16, der=True)
         #yield from align_gisaxs_th_hex(1, 21)
         #yield from align_gisaxs_height_hex(0.300, 11, der=True)
         #yield from align_gisaxs_th_hex(0.4, 16)
         
         #move to theta 0 + value
-        yield from bps.mv(stage.th, 0.3 + angle)
+        #yield from bps.mv(stage.th, -0.63 + angle)
 
         #Set reflected ROI
         yield from smi.setReflectedBeamROI(total_angle=angle)
         
         #Scan theta and height
-        yield from align_gisaxs_th_hex(0.3, 31)
+        yield from align_gisaxs_th_hex(0.5, 31)
         yield from align_gisaxs_height_hex(0.15, 31)
         yield from align_gisaxs_th_hex(0.06, 25)
         
