@@ -6,7 +6,6 @@ import logging
 import datetime
 import os
 
-bls_email = 'gfreychet@bnl.gov'
 
 def send_notice(email,subject,msg):
     os.system('echo '+msg+' | mail -s "'+subject+'" '+email)
@@ -28,11 +27,13 @@ def beamup_notice():
 
 class OSEmailHandler(logging.Handler):
     def emit(self, record):
-        user_email = 'gfreychet@bnl.gov'
-        send_notice(bls_email+','+user_email, 'SST has thrown an exception', record.getMessage()) # record.stack_info
+        user_email = RE.md['user_email']
+        send_notice(user_email, 'SST has thrown an exception', record.getMessage()) # record.stack_info
 
 
+'''
 logger = logging.getLogger('bluesky.RE')
 handler = OSEmailHandler()
 handler.setLevel('ERROR')  # Only email for if the level is ERROR or higher (CRITICAL).
 logger.addHandler(handler)
+'''
