@@ -5,8 +5,11 @@ import bluesky.plan_stubs as bps
 import logging
 import datetime
 import os
+import pandas as pds
+import os
+import time
 
-
+'''
 def send_notice(email,subject,msg):
     os.system('echo '+msg+' | mail -s "'+subject+'" '+email)
 
@@ -31,7 +34,7 @@ class OSEmailHandler(logging.Handler):
         send_notice(user_email, 'SST has thrown an exception', record.getMessage()) # record.stack_info
 
 
-'''
+
 logger = logging.getLogger('bluesky.RE')
 handler = OSEmailHandler()
 handler.setLevel('ERROR')  # Only email for if the level is ERROR or higher (CRITICAL).
