@@ -3,10 +3,18 @@
 # RE(run_giwaxs_cai(2))
 
                         
-def run_giwaxs_cai(t=2): 
+def run_giwaxs_cai(t=1): 
+    #run with WAXS
     dets = [pil300KW, pil1M]
-    xlocs1 = [-48000,-38000,-28000,-18000, -7800, 4000, 14000, 25000, 35000, 45000]
-    xlocs2 = [-50000,-40000,-29000,-19000, -8000, 2000, 13000, 23000, 35000, 45000]
+    waxs_arc = [13, 0, 3]
+    
+    #run with SAXS only
+    #dets = [pil1M]
+    #redo this but subtract another 800 um from X
+    xlocs1 = [-51000,-40200,-24800,-14200, -3600, 6600, 16400, 24000, 35600, 50000]
+    names1 = ['3_100_80mgmL', '3_104_80mgmL', '3_106_80mgmL', '3_107_80mgmL', '3_108_80mgmL', '3_100_40mgmL', '3_104_40mgmL', '3_106_40mgmL', '3_107_40mgmL', '3_108_40mgmL']
+    
+    xlocs2 = [-15000, -3500, 7500, 19500]
     xlocs3 = [-46000,-40000,-28000,-18000, -7000, 3000, 14000, 24000, 35000, 45000]
     xlocs4 = [-50000,-40000,-29000,-18000, -7000, 4000, 14000, 25500, 36000, 47000]
     xlocs5 = [-50000,-38000,-25500,-17000, -5000, 8000, 16000, 27000, 37000, 48000]
@@ -16,26 +24,21 @@ def run_giwaxs_cai(t=2):
     xlocs9 = [-44300,-34300,-25800,-15800, -800, 7000, 17000, 28200, 38200, 48200]
     
     
-    names1 = ['BB5k_100k_PBMA_2x3k_80mgmL', 'BB5k_100k_PBMA_2x3k_40mgmL', 'BB5k_100k_PBMA_2x3k_20mgmL', 'BB5k_100k_PBMA_2x3k_10mgmL', 'BB5k_200k_PBMA_2x5k_80mgmL', 'BB5k_200k_PBMA_2x5k_40mgmL', 'BB5k_200k_PBMA_2x5k_20mgmL', 'BB5k_200k_PBMA_2x5k_10mgmL', 'BB5k_560k_PBMA_2x20k_80mgmL', 'BB5k_560k_PBMA_2x20k_40mgmL']
-    names2 = ['BB5k_560k_PBMA_2x20k_20mgmL', 'BB5k_560k_PBMA_2x20k_10mgmL', 'BB5k_1000k_PBMA_2x15k_80mgmL', 'BB5k_1000k_PBMA_2x15k_40mgmL', 'BB5k_1000k_PBMA_2x15k_20mgmL', 'BB5k_1000k_PBMA_2x15k_10mgmL', 'BB5k_1500k_PBMA_2x31k_80mgmL', 'BB5k_1500k_PBMA_2x31k_40mgmL', 'BB5k_1500k_PBMA_2x31k_20mgmL', 'BB5k_1500k_PBMA_2x15k_10mgmL']
+    names2 = ['BzMA_5.5_M11_80mgmL', 'BzMA_M11_BzMA_40mgmL', 'BzMA_BzMA_0.3_M11_BzMA_40mgmL', 'BzMA_BzMA_0.6_M11_BzMA_40mgmL', 'BzMA_BzMA_0.8_M11_BzMA_40mgmL', 'BzMA_BzMA_1.1_M11_BzMA_40mgmL', 'BzMA_BzMA_2.0_M11_BzMA_40mgmL', 'BzMA_BzMA_3.0_M11_BzMA_40mgmL', 'BzMA_BzMA_5.5_M11_BzMA_40mgmL', 'BzMA_BzMA_3.2_M11_BzMA_40mgmL']
     names3 = ['BB5k_900k_PS_2x14k_80mgmL', 'BB5k_900k_PS_2x14k_40mgmL', 'BB5k_900k_PS_2x14k_20mgmL', 'BB5k_900k_PS_2x14k_10mgmL', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_80mgmL', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_40mgmL', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_20mgmL', 'NBPS160k_NBPDMS_4dot5M_NBPS_160k_10mgmL', 'NBPS300k_NBPDMS_8M_NBPS_300k_80mgmL', 'NBPS300k_NBPDMS_8M_NBPS_300k_40mgmL']
-    names4 = ['PHA0NH_34k_PS_2x3536_80mgmL', 'PHA0NH_34k_PS_2x3536_40mgmL', 'PHA0NH_34k_PS_2x3536_20mgmL', 'PHA0NH_34k_PS_2x3536_10mgmL', 'PHA0NH_40k_PS_2x5720_80mgmL', 'PHA0NH_40k_PS_2x5720_40mgmL', 'PHA0NH_40k_PS_2x5720_20mgmL', 'PHA0NH_40k_PS_2x5720_10mgmL', 'PHA0NH_42k_PS_2x9880_80mgmL', 'PHA0NH_42k_PS_2x9880_40mgmL']
-    names5 = ['PHA0NH_42k_PS_2x9880_20mgmL', 'PHA0NH_42k_PS_2x9880_10mgmL', 'PHA5NH_47dot5k_PS_2x3432_80mgmL', 'PHA5NH_47dot5k_PS_2x3432_40mgmL', 'PHA5NH_47dot5k_PS_2x3432_20mgmL', 'PHA5NH_47dot5k_PS_2x3432_10mgmL', 'PHA5NH_43k_PS_2x6968_80mgmL', 'PHA5NH_43k_PS_2x6968_40mgmL', 'PHA5NH_43k_PS_2x6968_20mgmL', 'PHA5NH_43k_PS_2x6968_10mgmL']
+    names4 = ['BB5k_50k_BzMA_2x45_80mgmL', 'BB5k_50k_BzMA_2x115_80mgmL', 'BB5k_50k_BzMA_2x382_80mgmL', 'BB5k_50k_BzMA_2x580_80mgmL', 'BB5k_42k_BzMA_2x168_80mgmL', 'BB5k_50k_BzMA_2x45_40mgmL', 'BB5k_50k_BzMA_2x115_40mgmL', 'BB5k_50k_BzMA_2x382_40mgmL', 'BB5k_50k_BzMA_2x580_40mgmL', 'BB5k_42k_BzMA_2x168_20mgmL']
+    names5 = ['BzMA_BzMA_0.8_M11_BzMA_80mgmL_2nd', 'BzMA_3.0_M11_80mgmL_2nd', 'BzMA_5.5_M11_80mgmL_2nd', 'BzMA_BzMA_0.8_M11_BzMA_40mgmL_2nd']
     names6 = ['PHA10NH_37k_PS_2x3536_80mgmL', 'PHA10NH_37k_PS_2x3536_40mgmL', 'PHA10NH_37k_PS_2x3536_20mgmL', 'PHA10NH_37k_PS_2x3536_10mgmL', 'PHA10NH_43k_PS_2x6552_80mgmL', 'PHA10NH_43k_PS_2x6552_40mgmL', 'PHA10NH_43k_PS_2x6552_20mgmL', 'PHA10NH_43k_PS_2x6552_10mgmL', 'PHA25NH_38dot5k_PS_2x5928_80mgmL', 'PHA25NH_38dot5k_PS_2x5928_40mgmL']
     names7 = ['PHA25NH_38dot5k_PS_2x5928_20mgmL', 'PHA25NH_38dot5k_PS_2x5928_10mgmL', 'PHA100NH_65k_80mgmL', 'PHA100NH_65k_40mgmL', 'PHA100NH_65k_20mgmL', 'PHA100NH_65k_10mgmL', 'Shifeng_1', 'Shifeng_2']
     names8 = ['NBPS300k_NBPDMS_8M_NBPS_300k_20mgmL', 'NBPS300k_NBPDMS_8M_NBPS_300k_10mgmL']
 
-    
-    
-        
     #what we run now
-    curr_tray = xlocs8
-    curr_names = names8
+    curr_tray = xlocs2
+    curr_names = names5
     assert len(curr_tray) == len(curr_names), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    waxs_arc = [0, 19.5, 4]
     for x, name in zip(curr_tray, curr_names):
         yield from bps.mv(piezo.x, x)
-        yield from bps.mv(piezo.th, 0)
+        yield from bps.mv(piezo.th, 0.5)
         yield from bps.mv(pil1m_pos.x, -2.3)
         #time.sleep(2)
         yield from alignement_gisaxs(0.1)
@@ -53,26 +56,60 @@ def run_giwaxs_cai(t=2):
             sample_name = name_fmt.format(sample=name, angle=np.float('%.3f'%real_ang))
             sample_id(user_name='LC', sample_name=sample_name)
             print(f'\n\t=== Sample: {sample_name} ===\n')
+            #yield from bp.count(dets, num=1)
             yield from bp.scan(dets, waxs, *waxs_arc)
 
         sample_id(user_name='test', sample_name='test')
         det_exposure_time(0.3,0.3)
 
-
-
-
-def run_giwaxs_cai_temp(t=2): 
+def run_trans_cai(t=1): 
+    #run with WAXS
     dets = [pil300KW, pil1M]
-    xlocs1 = [-6000,5500]
+    waxs_arc = [0, 6.5, 13]
+    
+    #run with SAXS only
+    #dets = [pil1M]
+
+    x_list  = [34000, 24200, 13200, 1200, -9800, -20800, -42800, -31800, -20800, -9800, 1200, 13200, 24200, 34000]
+    y_list =  [-10000, -10000, -10000, -10000, -10000, -10000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000]
+    samples = [ 'BzMA_3.0_M11_Trans_2nd', 'BB5k_50k_BzMA_2x45_Trans_2nd', 'BB5k_50k_BzMA_2x115_Trans_2nd', 'BB5k_42k_BzMA_2x168_Trans_2nd', 'BB5k_50k_BzMA_2x382_Trans_2nd', 'BB5k_50k_BzMA_2x580_Trans_2nd', 'BzMA_BzMA_5.5_M11_BzMA_Trans_2nd','BzMA_BzMA_3.0_M11_BzMA_Trans_2nd','BzMA_BzMA_2_M11_BzMA_Trans_2nd','BzMA_BzMA_1.1_M11_BzMA_Trans_2nd','BzMA_BzMA_0.8_M11_BzMA_Trans_2nd','BzMA_BzMA_0.6_M11_BzMA_Trans_2nd','BzMA_BzMA_0.3_M11_BzMA_Trans_2nd', 'BzMA_M11_BzMA_Trans_2nd']
+    
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    #what we run now
+    
+    for wa in waxs_arc[::-1]:
+        yield from bps.mv(waxs, wa)
+
+        for x, y, s in zip(x_list, y_list, samples):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.sleep(2)
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_wa{wax}'
+            sample_name = name_fmt.format(sample=s, wax = '%2.2d'%wa) 
+            sample_id(user_name='LC', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+            sample_id(user_name='test', sample_name='test')
+            det_exposure_time(0.3,0.3)
+
+
+
+def run_giwaxs_cai_temp(t=1): 
+    dets = [pil300KW, pil1M]
+    xlocs1 = [2800,-8600]
    
-    names1 = ['PHA5NH_47dot5k_PS_2x3432_40mgmL', 'NBPS300k_NBPDMS_8M_NBPS_300k_20mgmL']
+    names1 = ['BzMA_3.0_M11_80mgmL', 'BzMA_5.5_M11_80mgmL']
    
         
     #what we run now
     curr_tray = xlocs1
     curr_names = names1
     assert len(curr_tray) == len(curr_names), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    waxs_arc = [0, 19.5, 4]
+    waxs_arc = [0, 6.5, 13.0, 19.5]
     for x, name in zip(curr_tray, curr_names):
         yield from bps.mv(piezo.x, x)
         yield from bps.mv(piezo.th, 0)
@@ -85,16 +122,21 @@ def run_giwaxs_cai_temp(t=2):
         angle_offset = [0.125, 0.2]
         a_off = piezo.th.position
         det_exposure_time(t,t)
-        temper = ls.ch1_read.value  
-        name_fmt = '{sample}_{temper}C_{angle}deg'
-        for j, ang in enumerate( a_off + np.array(angle_offset) ):
-            yield from bps.mv(piezo.x, (x+j*200))
-            real_ang = angle_offset[j]
-            yield from bps.mv(piezo.th, ang)
-            sample_name = name_fmt.format(sample=name, temper = temper, angle=np.float('%.3f'%real_ang))
-            sample_id(user_name='LC', sample_name=sample_name)
-            print(f'\n\t=== Sample: {sample_name} ===\n')
-            yield from bp.scan(dets, waxs, *waxs_arc)
+        temper = ls.ch1_read.value
+        for wa in waxs_arc:
+            name_fmt = '{sample}_{temp}_{angle}deg_wa{wax}'
+            #name_fmt = '{sample}_{angle}deg_wa{wax}'
+
+            for j, ang in enumerate( a_off + np.array(angle_offset) ):
+                yield from bps.mv(piezo.x, (x+j*200))
+                real_ang = angle_offset[j]
+                yield from bps.mv(piezo.th, ang)
+                sample_name = name_fmt.format(sample=name, temp = '%5.2f'%temper, angle=np.float('%.3f'%real_ang), wax = '%2.2d'%wa)
+                #sample_name = name_fmt.format(sample=name, angle=np.float('%.3f'%real_ang), wax = '%2.2d'%wa)
+
+                sample_id(user_name='LC', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
 
         sample_id(user_name='test', sample_name='test')
         det_exposure_time(0.3,0.3)

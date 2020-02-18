@@ -95,7 +95,7 @@ def giwaxs_S_edge_chris_redo(t=1):
     dets = [pil300KW]
     
 
-    names = ['a1_02_redo','a1_06_redo','a1_07_redo','a1_08_redo','a1_09']#, 'sample03', 'sample04', 'sample05', 'sample06', 'sample07', 'sample08', 'sample09', 'sample10', 'sample11', 'sample12']
+    names = ['a1_02_redo'z]#, 'sample03', 'sample04', 'sample05', 'sample06', 'sample07', 'sample08', 'sample09', 'sample10', 'sample11', 'sample12']
     x = [38000,-6000,-16000, -26000, -38000]#, 21500, 16000, 10500, 5000, 0, -5500, -10500, 16000, -21000, -26500]#, -34000, -41000]
     #y = [600]#, 600, 800, 700, 700, 600, 600, 600, 600, 900, 900]#, 700, 800]
     energiess = [[2495, 2500], [2495], [2455, 2470, 2495, 2500], [2488, 2490, 2495, 2500], [2495, 2500]]
