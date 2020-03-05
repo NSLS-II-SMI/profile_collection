@@ -2,6 +2,7 @@ print(f'Loading {__file__}')
 
 from ophyd import EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt
 # things to read at begining and end of every scan
+#sd.baseline = sd.baseline + [energy, pil1m_pos, stage, prs, piezo, ring_current]
 sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring_current]
 
 # this is the default list for %ct
@@ -28,8 +29,10 @@ def sample_id(*, user_name, sample_name, tray_number=None):
     
 
 def proposal_id(cycle_id,proposal_id):
-    RE.md['proposal_id'] = proposal_id
-    RE.md['cycle_id'] = cycle_id
+    #cycle.value = cycle_id
+    #proposal_number.value = proposal_id.split('_')[0]
+    #main_proposer.value = proposal_id.split('_')[1]
+
     # 2018-04-10: Maksim asked Tom about why this 'put' does not create the folder,
     # Tom suggested to ask PoC to update AD installation.
     import stat
