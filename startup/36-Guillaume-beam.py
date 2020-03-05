@@ -381,8 +381,8 @@ class SMI_Beamline(Beamline):
         self.setDirectBeamROI()
         
         #Move the waxs detector out of the way
-        if waxs.arc.position < 8:
-            yield from bps.mv(waxs.arc, 4)
+        if waxs.arc.position < 7.9:
+            #yield from bps.mv(waxs.arc, 4)
             yield from bps.mv(waxs.arc, 8)
 
     def modeMeasurement_gisaxs(self, verbosity=3):

@@ -19,7 +19,7 @@ RE.install_suspender( susp_xbpm3_sum )
 '''
 
 #Ring current suspender
-susp_beam = SuspendFloor( ring_current, 100, resume_thresh= 200 )
+susp_beam = SuspendFloor( ring_current, 100, resume_thresh= 350 )
 RE.install_suspender( susp_beam )
 
 #Front end shutter suspender

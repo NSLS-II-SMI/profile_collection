@@ -86,8 +86,8 @@ def alignement_gisaxs(angle = 0.15):
         #Scan theta and height
         yield from align_gisaxs_height(700, 16, der=True)
         yield from align_gisaxs_th(1, 15)
-        yield from align_gisaxs_height(300, 11, der=True)
-        yield from align_gisaxs_th(0.5, 16)
+        #yield from align_gisaxs_height(300, 11, der=True)
+        #yield from align_gisaxs_th(0.5, 16)
         
         #move to theta 0 + value
         yield from bps.mv(piezo.th, ps.peak + angle)
@@ -205,7 +205,7 @@ def alignement_gisaxs_hex_short(angle = 0.12):
         yield from smi.setDirectBeamROI()
 
         #Scan theta and height
-        yield from align_gisaxs_height_hex(0.300, 16, der=True)
+        yield from align_gisaxs_height_hex(0.500, 21, der=True)
         #yield from align_gisaxs_th_hex(1, 21)
         #yield from align_gisaxs_height_hex(0.300, 11, der=True)
         #yield from align_gisaxs_th_hex(0.4, 16)
@@ -217,7 +217,7 @@ def alignement_gisaxs_hex_short(angle = 0.12):
         yield from smi.setReflectedBeamROI(total_angle=angle)
         
         #Scan theta and height
-        yield from align_gisaxs_th_hex(0.5, 31)
+        yield from align_gisaxs_th_hex(0.7, 23)
         yield from align_gisaxs_height_hex(0.15, 31)
         yield from align_gisaxs_th_hex(0.06, 25)
         
@@ -226,7 +226,7 @@ def alignement_gisaxs_hex_short(angle = 0.12):
         
         #Return angle
         # TODO: Should we return to 0
-        yield from bps.mv(stage.th, ps.cen)
+        yield from bps.mv(stage.th, ps.cen-angle)
         yield from smi.modeMeasurement_gisaxs()
         
 def quickalign_gisaxs(angle = 0.15):

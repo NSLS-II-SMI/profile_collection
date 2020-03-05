@@ -12,15 +12,15 @@ def aaron_rot(t=8):
     
     
 def brian_caps(t=1): 
-    x_list  = [-37000, -31000, -24400, -18100, -11600, -5391, 7286, 13575,  20000]#
+    x_list  = [-36500, -30150, -23800, -17450, -11100, -4750, 1600, 7950,  14400, 20700, 27050, 33400, 39850]#
     y_list =  [      0,     0,      0,      0,      0,     0,    0,     0,      0]
+    samples = [ 'test', 'LC-O36-6','LC-O36-7','LC-O36-8','LC-O36-9','LC-O37-6','LC-O37-7','LC-O37-8','LC-O37-9']
     # Detectors, motors:
     dets = [pil1M]
     y_range = [0, 0, 1]
-    samples = [ 'test', 'LC-O36-6','LC-O36-7','LC-O36-8','LC-O36-9','LC-O37-6','LC-O37-7','LC-O37-8','LC-O37-9']
     #    param   = '16.1keV'
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    det_exposure_time(t)
+    det_exposure_time(t,t)
     for x, y, sample in zip(x_list,y_list, samples):
         yield from bps.mv(piezo.x, x)
         yield from bps.mv(piezo.y, y)
@@ -29,4 +29,4 @@ def brian_caps(t=1):
         yield from bp.count(dets, num=1)
           
     sample_id(user_name='test', sample_name='test')
-    det_exposure_time(1)
+    det_exposure_time(0.3,0.3)

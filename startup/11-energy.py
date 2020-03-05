@@ -1,5 +1,6 @@
 print(f'Loading {__file__}')
 
+import warnings
 import time as ttime
 import os
 import numpy as np
@@ -31,7 +32,7 @@ def energy_to_gap(target_energy, undulator_harmonic=1):
     b6 = 2.64385e-18 #-7.633003e-18
     b7 = -1.70455e-22 #5.14881e-22
     gap_mm = a + b1*f + b2*f**2 + b3 * f**3 + b4 * f**4 + b5 * f**5 + b6 * f**6 + b7 * f**7
-    gap = gap_mm*1000 
+    gap = gap_mm*1000 -5 #-40
     return gap
 
 
@@ -81,10 +82,6 @@ class DCMInternals(Device):
 
 
 class Energy(PseudoPositioner):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._hints = None
-
     # synthetic axis
     energy = Cpt(PseudoSingle, kind='hinted', labels=['mono'])
     # real motors
@@ -103,17 +100,31 @@ class Energy(PseudoPositioner):
 
     # this is also the maximum harmonic that will be tried
     target_harmonic =  Cpt(Signal, value=19)
+    harmonic =  Cpt(Signal, kind='hinted')
+
     # TODO make this a derived component
 
     # TODO: if the energy.move is commanded to go to the current energy, then it will wait forever because nothing moves.
 
     # wlambda = Cpt(Signal, value=0)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._hints = None
+        try:
+            previous_harmonic = db[-1].table(stream_name='baseline')['energy_harmonic'][1]
+        except Exception:
+            warnings.warn(f'Previous databroker record was not read. '
+                          f'Setting harmonic to the default value {self.target_harmonic.get()}')
+            previous_harmonic = self.target_harmonic.get()
+
+        self.harmonic.put(previous_harmonic)
+
     @pseudo_position_argument
     def forward(self, p_pos):
         energy = p_pos.energy
-        harmonic = self.target_harmonic.get()
-        if not harmonic % 2:
+        self.harmonic.put(self.target_harmonic.get())
+        if not self.harmonic.get() % 2:
             raise RuntimeError('harmonic must be odd')
 
         if energy <= 2050:
@@ -125,12 +136,12 @@ class Energy(PseudoPositioner):
 
         # compute where we would move everything to in a perfect world
 
-        target_ivu_gap = energy_to_gap(energy, harmonic)
+        target_ivu_gap = energy_to_gap(energy, self.harmonic.get())
         while not (6200 <= target_ivu_gap < 15100):
-             harmonic -= 2
-             if harmonic < 1:
+             self.harmonic.put(self.harmonic.get() - 2)
+             if self.harmonic.get() < 1:
                  raise RuntimeError('can not find a valid gap')
-             target_ivu_gap = energy_to_gap(energy, harmonic)
+             target_ivu_gap = energy_to_gap(energy, self.harmonic.get())
 
         target_bragg_angle = energy_to_bragg(energy)
 
@@ -168,7 +179,7 @@ class Energy(PseudoPositioner):
 
 
 energy = Energy(prefix='', name='energy',
-                read_attrs=['energy', 'ivugap', 'bragg'],
+                read_attrs=['energy', 'ivugap', 'bragg', 'harmonic'],
                 configuration_attrs=['enableivu', 'enabledcmgap', 'target_harmonic'])
 
 dcm = energy

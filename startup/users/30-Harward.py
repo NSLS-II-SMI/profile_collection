@@ -1,77 +1,113 @@
 ####line scan
 
-def run_harv_temp(tim=1,name = 'HarvTempRe'): 
+def run_harv_temp(tim=0.5): 
     # Slowest cycle:
-    temperatures = [25, 100, 150]
-    
-    x_list  = [-49750, -38350, -20250, -12250, -3650, 9950, 19750, 28050, 42650, 50650]
-    y_list =  [-4600, -4575, -4600, -4650, -4700, -4550, -4550, -4625, -4525, -5225]
-    samples = [ '12.5', '15','17.5','20A','20B','22.5','25','40','Azo', '5poly']
+    temperatures = [35, 100, 150]
+    name = 'SL'
+    x_list  = [46850, 35150, 29150, 22750, 15750, 8950, -12550, -21150, -29550, -36350, -45950]
+    y_list =  [3900, 4000, 4000, 3950, 4000, 4000, 4200, 4050, 4100, 4050, 4100]
+    samples = [ '5HDDA', '2.5BDDA','5BDDA','7.5BDDA','10BDDA','15BDDA','2.5DDDA','5DDDA','7.5DDDA', '10DDDA', '15DDDA']
     
     assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
     
     #Detectors, motors:
-    dets = [pil1M, rayonix, pil300KW, ls.ch1_read, xbpm3.sumY] #ALL detectors
+    dets = [pil1M, pil300KW] #ALL detectors
     #dets = [pil300KW,ls.ch1_read, xbpm3.sumY] # WAXS detector ALONE
     
     x_offset = [0, 0, 400, 400]
     y_offset = [0, 50, 0, 50]
-    
-    waxs_arc = [0, 26, 5]
-    name_fmt = '{sample}_pos{offset}_{temperature}C'
+    zoff = -11100
+    waxs_arc = np.linspace(0, 32.5, 6) 
+    name_fmt = '{sample}_pos{offset}_wa{waxs}_{temperature}C'
+    yield from bps.mv(piezo.z, zoff)
 
     det_exposure_time(tim, tim)
     for i_t, t in enumerate(temperatures):
         yield from bps.mv(ls.ch1_sp, t)
         if i_t !=0:
-           time.sleep(600)
-        for x, y, s in zip(x_list, y_list, samples):
-            temp = ls.ch1_read.value
-            yield from bps.mv(piezo.x, x)
-            yield from bps.mv(piezo.y, y)
-            yield from bps.mv(piezo.z, 0)
-            for i_0, (x_0, y_0) in enumerate(zip(x_offset, y_offset)):
-                sample_name = name_fmt.format(sample=s, offset = i_0+1, temperature=temp)
-                yield from bps.mv(piezo.x, x+x_0)
-                yield from bps.mv(piezo.y, y+y_0)
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                sample_id(user_name=name, sample_name=sample_name) 
-                yield from bp.scan(dets, waxs, *waxs_arc)
+            time.sleep(600)
+        for j, wa in enumerate(waxs_arc): #
+            yield from bps.mv(waxs, wa)
+            for x, y, s in zip(x_list, y_list, samples):
+                temp = ls.ch1_read.value
+                yield from bps.mv(piezo.x, x)
+                yield from bps.mv(piezo.y, y)
+                for i_0, (x_0, y_0) in enumerate(zip(x_offset, y_offset)):
+                    sample_name = name_fmt.format(sample=s, offset = i_0+1, waxs='%2.1f'%wa, temperature='%3.1f'%temp)
+                    yield from bps.mv(piezo.x, x+x_0)
+                    yield from bps.mv(piezo.y, y+y_0)
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    sample_id(user_name=name, sample_name=sample_name) 
+                    yield from bp.count(dets, num=1)
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5,0.5)
     yield from bps.mv(ls.ch1_sp, 28)
 
 
 
+def run_harv_temp_linkam(tim=0.5): 
+    name = 'SL'
+    sample = '5HDDA'
 
+    #Detectors, motors:
+    dets = [pil1M, pil300KW]
+    waxs_arc = np.linspace(0, 32.5, 6) 
+    name_fmt = '{sample}_wa{waxs}_{temperature}C'
 
+    #Openinig the gate valve
+    yield from bps.mv(GV7.open_cmd, 1 )
+    time.sleep(10)
+    yield from bps.mv(GV7.open_cmd, 1 )
+    time.sleep(10)
 
+    det_exposure_time(tim, tim)
+    for j, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        temp = ls.ch1_read.value
 
-
-
-
-    
-    
-def waxs_zher(t=1): 
-    x_list  = [-42000, -20400, 200, 20400, 44300]#
-    y_list =  [  5600,   5800, 5920, 5822,  5972]
-    # Detectors, motors:
-    dets = [pil1M]
-    y_range = [0, 200, 11]
-    samples = [ 'S1_30C', 'S2_30C','S3_30C','S4_30C','S5_30C']
-    #    param   = '16.1keV'
-    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    det_exposure_time(t)
-    for x, y, sample in zip(x_list,y_list, samples):
-        yield from bps.mv(piezo.x, x)
-        yield from bps.mv(piezo.y, y)
-        sample_id(user_name='BM', sample_name=sample) 
-        #yield from bp.scan(dets, piezo.y, *y_range)
+        sample_name = name_fmt.format(sample=sample, waxs='%2.1f'%wa, temperature='%3.1f'%temp)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        sample_id(user_name=name, sample_name=sample) 
         yield from bp.count(dets, num=1)
-          
+
     sample_id(user_name='test', sample_name='test')
-    det_exposure_time(1)
+    det_exposure_time(0.5,0.5)
+
+    #Closing the gate valve
+    yield from bps.mv(GV7.close_cmd, 1 )
+    time.sleep(10)
+    yield from bps.mv(GV7.close_cmd, 1 )
+    time.sleep(10)
+
+
+
+def harvphi(meas_t=0.5):
+    waxs_arc = np.linspace(0, 32.5, 6) #(2th_min 2th_max steps)
+    dets = [pil300KW, pil1M]
+    names = ['DDDA5_vert_100C']
+    #phis = np.linspace(-90, 90, 13)  
+    phis = np.linspace(-75, 75, 11) 
+    
+    for name in names:
+        det_exposure_time(meas_t, meas_t) 
+        
+        name_fmt = '{sample}_phi{phi}deg_wa{waxs}'
+        #waxs is the slowest cycle:
+        for j, wa in enumerate(waxs_arc): #
+            yield from bps.mv(waxs, wa)
+            #phi is scanned for a single waxs
+            for i, phi in enumerate(phis):
+                yield from bps.mv(prs, phi)
+                sample_name = name_fmt.format(sample=name, phi = '%2.1f'%phi, waxs='%2.1f'%wa)
+                sample_id(user_name='SL', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+                                    
+        yield from bps.mv(prs, 0)
+    sample_id(user_name='test', sample_name='test')
+        
+
     
 def run_harv_poly(tim=1,name = 'HarvPoly'): 
     # Slowest cycle:
