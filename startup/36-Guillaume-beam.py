@@ -480,6 +480,11 @@ class SMI_SAXS_Det(object):
     
     def getPositions(self, **md):
         self.distance =  pil1m_pos.z.position
+
+        #Add here also the position of the beam-diode
+        #Will also need here to implement to interpolate the direct beam position with the sdd
+        #Add also the interpolation of the distance when ready
+
         self.beamstop = [pil1m_bs.x.position, pil1m_bs.y.position]
         self.detector_position = [pil1m_pos.x.position, pil1m_pos.y.position]
         
