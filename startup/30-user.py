@@ -67,15 +67,14 @@ def collect_data( exposure_time=1, meta_string=['X','Y', 'Exp'], dets= [  pil1M 
         #inc = stage.th.position
         inc = sample.al.position
         arc =   waxs.arc.position
-        md = 'sample: %s, x=%.2f, y=%0.2f, inc=%0.2f, arc=%.2f, exp=%s s.'%(
-                 RE.md['sample_name'],posx, posy, inc, arc,  exposure_time )
+        #md = 'sample: %s, x=%.2f, y=%0.2f, inc=%0.2f, arc=%.2f, exp=%s s.'%(RE.md['sample_name'],posx, posy, inc, arc,  exposure_time )
                  
         posx_ =  create_string(posx)
         posy_ =  create_string(posy) 
         exposure_time_ =  create_string(exposure_time)         
         inc_ = create_string(inc)
         arc_ =   create_string(arc)
-        filename= '%s_%s'%( RE.md['user_name'], RE.md['sample_name'] )
+        #filename= '%s_%s'%( RE.md['user_name'], RE.md['sample_name'] )
         
         if 'X' in meta_string:
             filename +='_X%s'%posx_
