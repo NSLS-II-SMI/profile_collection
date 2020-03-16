@@ -12,9 +12,16 @@ from scipy.interpolate import InterpolatedUnivariateSpline
 from epics import (caput, caget)
 
 
+class Ring(Device):
+    current = EpicsSignalRO('SR:C03-BI{DCCT:1}I:Real-I', name='ring_current')
+    lifetime = EpicsSignalRO('SR:OPS-BI{DCCT:1}Lifetime-I', name='ring_lifetime')
+    energy = EpicsSignalRO('SR{}Energy_SRBend', name='ring_energy')
+    mode = EpicsSignal('SR-OPS{}Mode-Sts', name='ring_ops', string=True)
+    filltarget = EpicsSignalRO('SR-HLA{}FillPattern:DesireImA', name='ring_filltarget')
 
-ring_current = EpicsSignalRO('SR:C03-BI{DCCT:1}I:Real-I', name='ring_current')
-ring_ops = EpicsSignal('SR-OPS{}Mode-Sts', name='ring_ops', string=True)
+ring = Ring(name = 'ring')
+
+#ring_ops = EpicsSignal('SR-OPS{}Mode-Sts', name='ring_ops', string=True)
 mstr_shutter_enable = EpicsSignalRO('SR-EPS{PLC:1}Sts:MstrSh-Sts', name='mstr_shutter_enable')
 ivu_permit = EpicsSignalRO('XF:12ID-CT{}Prmt:Remote-Sel', name='ivu_permit')
 smi_shutter_enable = EpicsSignalRO('SR:C12-EPS{PLC:1}Sts:ID_BE_Enbl-Sts', name='smi_shutter_enable')

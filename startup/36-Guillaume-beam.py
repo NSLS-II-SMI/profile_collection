@@ -481,7 +481,7 @@ class SMI_SAXS_Det(object):
         self.pixel_size = 0.172
         self.energy = dcm.energy.position
     
-    
+    '''
     def getPositions(self, **md):
         self.distance =  pil1m_pos.z.position
 
@@ -497,6 +497,30 @@ class SMI_SAXS_Det(object):
         
         self.direct_beam = [np.round(self.direct_beam_0_0[0] - (delta_pos_x / self.pixel_size)), np.round(self.direct_beam_0_0[1] - (delta_pos_y / self.pixel_size))]
         return self
+    '''
+
+    def getPositions(self, **md):
+        '''
+        Read the encoded positions of the pilatus 1M detector as well as the pindiode and gisaxs beamstop
+        Get the interpolated sample detector distance and beam position from  interpolate_db_sdds function defined in 01_load.py
+        '''
+
+        #Encoded data pil1M
+        self.encoded_detector_posx =  pil1m_pos.x.position
+        self.encoded_detector_posy =  pil1m_pos.y.position
+        self.encoded_detector_posz =  pil1m_pos.z.position
+
+        #Encoded data rod beamstop and pindiode
+        self.encoded_bsx = pil1m_bs.x.position
+        self.encoded_bsy = pil1m_bs.y.position
+        self.encoded_bsx = pd_bs.x.position
+        self.encoded_bsy = pd_bs.y.position
+
+        #Interpolate the distance and direct beam position from 01_load
+        self.distance, self.direct_beam =  interpolate_db_sdds()
+
+        return self
+
 
 
 pilatus1M = SMI_SAXS_Det()

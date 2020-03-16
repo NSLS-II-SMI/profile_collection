@@ -1767,7 +1767,7 @@ class Beamline(object):
     def comment(self, text, logbooks=None, tags=None, append_md=True, **md):
         
         text += '\n\n[comment for beamline: {}]'.format(self.__class__.__name__)
-        
+        '''
         if append_md:
         
             # Global md
@@ -1782,7 +1782,7 @@ class Beamline(object):
             text += '\n\n\nMetadata\n----------------------------------------'
             for key, value in sorted(md_current.items()):
                 text += '\n{}: {}'.format(key, value)
-        
+        '''
         logbook.log(text, logbooks=logbooks, tags=tags)
         
         
@@ -1795,7 +1795,7 @@ class Beamline(object):
             direction = int(caget(motor.prefix+'.DIR'))
             log_text += '{} | {} | {} | {} |\n'.format(motor.name, motor.user_readback.value, offset, direction)
       
-      
+        '''
         md_current = { k : v for k, v in RE.md.items() }
         md_current.update(md)
         log_text += '\nMetadata\n----------------------------------------\n'
@@ -1806,7 +1806,7 @@ class Beamline(object):
             print(log_text)
             
         self.comment(log_text)
-            
+        ''' 
 
                 
 
@@ -2335,10 +2335,10 @@ class CMS_Beamline(Beamline):
             cycle = 2
         else:
             cycle = 3    
-        RE.md['experiment_cycle'] = '{:s}_{:d}'.format( time.strftime('%Y'), cycle )
+        #RE.md['experiment_cycle'] = '{:s}_{:d}'.format( time.strftime('%Y'), cycle )
         
-        RE.md['calibration_energy_keV'] = round(self.beam.energy(verbosity=0), 3)
-        RE.md['calibration_wavelength_A'] = round(self.beam.wavelength(verbosity=0), 5)
+        #RE.md['calibration_energy_keV'] = round(self.beam.energy(verbosity=0), 3)
+        #RE.md['calibration_wavelength_A'] = round(self.beam.wavelength(verbosity=0), 5)
         
         # TODO:
         # RE.md['calibration_detector_distance_m'] =
@@ -2376,7 +2376,7 @@ class CMS_Beamline(Beamline):
             print('You can also add/edit metadata directly using the RE.md object.')
         
         
-
+    '''
     def _ask_question(self, key, text, default=None):
 
         if default is None and key in RE.md:
@@ -2395,7 +2395,7 @@ class CMS_Beamline(Beamline):
             RE.md[key] = ret
             
         self._dialog_question_number += 1
-            
+    '''        
         
     # Logging methods
     ########################################
@@ -2479,10 +2479,10 @@ class CMS_Beamline_GISAXS(CMS_Beamline):
     
     
     def modeAlignment(self, verbosity=3):
-        
+        '''
         if RE.state!='idle':
             RE.abort()
-        
+        '''
         self.current_mode = 'undefined'
         
         # TODO: Check what mode (TSAXS, GISAXS) and respond accordingly
@@ -2525,10 +2525,10 @@ class CMS_Beamline_GISAXS(CMS_Beamline):
 
 
     def modeMeasurement(self, verbosity=3):   
-
+        '''
         if RE.state!='idle':
             RE.abort()
-        
+        '''
         self.current_mode = 'undefined'
         
         self.beam.off()
