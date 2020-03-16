@@ -155,8 +155,12 @@ class SMIBeam(object):
         elif 2300 < self.dcm.energy.position < 3000:
             target_state = [att2_12, att2_11, att2_10]
         elif 3200 < self.dcm.energy.position < 3600:
-            target_state = [att2_6, att2_10,  att2_11,  att2_9, att2_12]
-        elif 3600 < self.dcm.energy.position < 4500:
+            #Values updated March 10 2020
+            target_state = [att2_5, att2_9]
+        elif 3600 < self.dcm.energy.position < 3900:
+            #Values updated March 10 2020
+            target_state = [att2_5, att2_11]
+        elif 3900 < self.dcm.energy.position < 4500:
             target_state = [att2_8]
         elif 4500 < self.dcm.energy.position < 5500:
             target_state = [att2_5, att2_6, att2_12]
@@ -291,24 +295,24 @@ class Beamline(object):
     def comment(self, text, logbooks=None, tags=None, append_md=True, **md):
         
         text += '\n\n[comment for beamline: {}]'.format(self.__class__.__name__)
-        
+        '''
         if append_md:
         
             # Global md
-            md_current = { k : v for k, v in RE.md.items() }
+            #md_current = { k : v for k, v in RE.md.items() }
             
             # Beamline md
-            md_current.update(self.get_md())
+            #md_current.update(self.get_md())
             
             # Specified md
-            md_current.update(md)
+            #md_current.update(md)
             
             text += '\n\n\nMetadata\n----------------------------------------'
             for key, value in sorted(md_current.items()):
                 text += '\n{}: {}'.format(key, value)
         
         logbook.log(text, logbooks=logbooks, tags=tags)
-        
+        '''
         
     def log_motors(self, motors, verbosity=3, **md):
       
@@ -320,8 +324,8 @@ class Beamline(object):
             log_text += '{} | {} | {} | {} |\n'.format(motor.name, motor.user_readback.value, offset, direction)
       
       
-        md_current = { k : v for k, v in RE.md.items() }
-        md_current.update(md)
+        #md_current = { k : v for k, v in RE.md.items() }
+        #md_current.update(md)
         log_text += '\nMetadata\n----------------------------------------\n'
         for k, v in sorted(md_current.items()):
             log_text += '{}: {}\n'.format(k, v)
