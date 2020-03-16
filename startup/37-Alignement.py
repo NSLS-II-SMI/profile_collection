@@ -86,8 +86,8 @@ def alignement_gisaxs(angle = 0.15):
         #Scan theta and height
         yield from align_gisaxs_height(700, 16, der=True)
         yield from align_gisaxs_th(1, 15)
-        #yield from align_gisaxs_height(300, 11, der=True)
-        #yield from align_gisaxs_th(0.5, 16)
+        yield from align_gisaxs_height(300, 11, der=True)
+        yield from align_gisaxs_th(0.5, 16)
         
         #move to theta 0 + value
         yield from bps.mv(piezo.th, ps.peak + angle)
