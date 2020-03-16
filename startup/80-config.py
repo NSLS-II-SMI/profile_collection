@@ -2,13 +2,15 @@ print(f'Loading {__file__}')
 
 from ophyd import EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt
 # things to read at begining and end of every scan
-#sd.baseline = sd.baseline + [energy, pil1m_pos, stage, prs, piezo, ring_current]
 sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring_current]
+#sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring_current]
 
 # this is the default list for %ct
 # BlueskyMagics.detectors = [FS]
 
 def sample_id(*, user_name, sample_name, tray_number=None):
+
+    
     RE.md['user_name'] = user_name
     RE.md['sample_name'] = sample_name
     if tray_number is None:
@@ -19,6 +21,7 @@ def sample_id(*, user_name, sample_name, tray_number=None):
         fname = f"{user_name}_{sample_name}"
     else:
         fname = f"{user_name}_{sample_name}_{tray_number}"
+    
     # DIRTY HACK, do not copy
     pil1M.cam.file_name.put(fname)
     pil1M.cam.file_number.put(1)
@@ -29,9 +32,9 @@ def sample_id(*, user_name, sample_name, tray_number=None):
     
 
 def proposal_id(cycle_id,proposal_id):
-    #cycle.value = cycle_id
-    #proposal_number.value = proposal_id.split('_')[0]
-    #main_proposer.value = proposal_id.split('_')[1]
+    cycle.value = cycle_id
+    proposal_number.value = proposal_id.split('_')[0]
+    main_proposer.value = proposal_id.split('_')[1]
 
     # 2018-04-10: Maksim asked Tom about why this 'put' does not create the folder,
     # Tom suggested to ask PoC to update AD installation.
