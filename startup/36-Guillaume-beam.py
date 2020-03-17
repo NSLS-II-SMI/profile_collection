@@ -1,11 +1,5 @@
 print(f'Loading {__file__}')
 
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-# vi: ts=4 sw=4
-
-
-
 
 ################################################################################
 #  Code for querying and controlling beamline components that 'affect' the
@@ -17,83 +11,6 @@ print(f'Loading {__file__}')
 # TODO:
 #  Search for "TODO" below.
 ################################################################################
-
-
-# Notes
-################################################################################
-# verbosity=0 : Output nothing
-# verbosity=1 : Output only final (minimal) result
-# verbosity=2 : Output 'regular' amounts of information/data
-# verbosity=3 : Output all useful information
-# verbosity=4 : Output marginally useful things (e.g. essentially redundant/obvious things)
-# verbosity=5 : Output everything (e.g. for testing)
-
-
-# class BeamlineDetector(object):
-    
-#     def __init__(self, detector, **md):
-#         self.detector = detector
-#         self.md = md
-        
-    
-#     def get_md(self, prefix='detector_', **md):
-#         '''Returns a dictionary of the current metadata.
-#         The 'prefix' argument is prepended to all the md keys, which allows the
-#         metadata to be grouped with other metadata in a clear way. (Especially,
-#         to make it explicit that this metadata came from the beamline.)'''
-        
-#         md_return = self.md.copy()
-    
-#         # Include the user-specified metadata
-#         md_return.update(md)
-
-#         # Add an optional prefix
-#         if prefix is not None:
-#             md_return = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_return.items() }
-    
-#         return md_return
-                            
-# class SMI_SAXS_Detector(BeamlineDetector):
-#     def setCalibration(self):
-#         self.pixel_size = 0.172
-#         self.direct_beam_0_0 = [0, 0]
-#         self.distance =  pil1m_pos.z.position
-#         self.beamstop = [pil1m_bs.x.position, pil1m_bs.y.position]
-#         self.detector_position = [pil1m_pos.x.position, pil1m_pos.y.position]
-#         self.direct_beam = [np.round((self.direct_beam_0_0[0] - self.detector_position[0]) / self.pixel_size), np.round((self.direct_beam_0_0[1] - self.detector_position[1]) / self.pixel_size)]
-#         print(self.pixel_size)
-    
-#     def get_md(self, prefix='detector_SAXS_', **md):
-        
-#         md_return = self.md.copy()    
-#         x0, y0 = self.direct_beam
-        
-#         #Read the detector position
-#         position_defined_x, position_defined_y = self.detector_position
-#         position_current_x, position_current_y = SAXS.x.user_readback.value, SAXS.y.user_readback.value
-        
-            
-#         md_return['name'] = self.detector.name
-
-#         md_return['x0_pix'] = round( x0 + (position_current_x-position_defined_x)/self.pixel_size , 2 )
-#         md_return['y0_pix'] = round( y0 + (position_current_y-position_defined_y)/self.pixel_size , 2 )
-#         md_return['distance_m'] = self.distance
-               
-#         for roi in [roi1, roi2, roi3, roi4]:
-#             ROI = yield from bps.mv(pil1M)
-#             md_return['ROI{}_X_min'.format(i)]  = ROI['pil1M_{}_min_xyz_min_x'.format(roi)]['value']
-#             md_return['ROI{}_X_size'.format(i)] = ROI['pil1M_{}_size_x'.format(roi)]['value']
-#             md_return['ROI{}_Y_min'.format(i)]  = ROI['pil1M_{}_min_xyz_min_y'.format(roi)]['value']
-#             md_return['ROI{}_Y_size'.format(i)] = ROI['pil1M_{}_size_y'.format(roi)]['value']
-        
-#         # Include the user-specified metadata
-#         md_return.update(md)
-
-#         # Add an optional prefix
-#         if prefix is not None:
-#             md_return = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_return.items() }
-    
-#         return md_return
 
 
 class SMIBeam(object):
@@ -110,7 +27,9 @@ class SMIBeam(object):
         self.D_Si111 = 3.1293           # Angstroms
    
         self.dcm = Energy(prefix='', name='energy', read_attrs=['energy', 'ivugap', 'bragg'], configuration_attrs=['enableivu', 'enabledcmgap','target_harmonic'])                  
-           
+        
+        
+
 
     def energyState(self):        
         self.dcm = Energy(prefix='', name='energy', read_attrs=['energy', 'ivugap', 'bragg'], configuration_attrs=['enableivu', 'enabledcmgap','target_harmonic'])
@@ -240,6 +159,9 @@ class SMIBeam(object):
             foil_st = yield from bps.read(foil)
             itry += 1
             time.sleep(wait_time)
+
+    def update_md(self, **md):
+
         
     # End class SMIBeam(object)
     ########################################
@@ -258,107 +180,13 @@ class Beamline(object):
         
         self.md = {}
         self.current_mode = 'undefined'
-        
-        
-    def mode(self, new_mode):
-        '''Tells the instrument to switch into the requested mode. This may involve
-        moving detectors, moving the sample, enabling/disabling detectors, and so
-        on.'''
-        
-        getattr(self, 'mode'+new_mode)()
-        
-        
-    def get_md(self, prefix=None, **md):
-        '''Returns a dictionary of the current metadata.
-        The 'prefix' argument is prepended to all the md keys, which allows the
-        metadata to be grouped with other metadata in a clear way. (Especially,
-        to make it explicit that this metadata came from the beamline.)'''
-        
-        # Update internal md
-        #self.md['key'] = value
 
-        md_return = self.md.copy()
-    
-        # Add md that may change
-        md_return['mode'] = self.current_mode
-    
-        # Include the user-specified metadata
-        md_return.update(md)
-
-        # Add an optional prefix
-        if prefix is not None:
-            md_return = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_return.items() }
-    
-        return md_return
-            
-        
-    def comment(self, text, logbooks=None, tags=None, append_md=True, **md):
-        
-        text += '\n\n[comment for beamline: {}]'.format(self.__class__.__name__)
+    def update_md(self, **md):
         '''
-        if append_md:
-        
-            # Global md
-            #md_current = { k : v for k, v in RE.md.items() }
-            
-            # Beamline md
-            #md_current.update(self.get_md())
-            
-            # Specified md
-            #md_current.update(md)
-            
-            text += '\n\n\nMetadata\n----------------------------------------'
-            for key, value in sorted(md_current.items()):
-                text += '\n{}: {}'.format(key, value)
-        
-        logbook.log(text, logbooks=logbooks, tags=tags)
+        Returns a dictionary of the updated metadata.
         '''
+        self.md.copy()
         
-    def log_motors(self, motors, verbosity=3, **md):
-      
-        log_text = 'Motors\n----------------------------------------\nname | position | offset | direction |\n'
-      
-        for motor in motors:
-            offset = float(caget(motor.prefix+'.OFF'))
-            direction = int(caget(motor.prefix+'.DIR'))
-            log_text += '{} | {} | {} | {} |\n'.format(motor.name, motor.user_readback.value, offset, direction)
-      
-      
-        #md_current = { k : v for k, v in RE.md.items() }
-        #md_current.update(md)
-        log_text += '\nMetadata\n----------------------------------------\n'
-        for k, v in sorted(md_current.items()):
-            log_text += '{}: {}\n'.format(k, v)
-            
-        if verbosity>=3:
-            print(log_text)
-            
-        self.comment(log_text)
-            
-
-    def detselect(self, detector_object, roi=None, suffix='_stats1_total'):
-        """Switch the active detector and set some internal state"""
-        
-        roi_lookups = [ [1, pil1mroi1], [2, pil1mroi2], [3, pil1mroi3], [4, pil1mroi4] ]
-
-        if isinstance(detector_object, (list, tuple)):
-            self.detector = detector_object
-        else:
-            self.detector = [detector_object]
-            
-        if roi is None:
-            self.PLOT_Y = self.detector[0].name + suffix
-        else:
-            self.PLOT_Y = 'pil1mroi{}'.format(roi)
-            
-            for check_name, det in roi_lookups:
-                if roi==check_name:
-                    self.detector.append(det)
-            
-        self.TABLE_COLS = [self.PLOT_Y]
-
-        return self.detector
-
 
 
 class SMI_Beamline(Beamline):
@@ -409,6 +237,7 @@ class SMI_Beamline(Beamline):
         # These positions are updated based on current detector position
         x0 = self.SAXS.direct_beam[0]
         y0 = self.SAXS.direct_beam[1]
+        
         
         # Define the direct beam ROI on the pilatus 1M detector  
         yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x0-size[0]/2))
@@ -461,6 +290,8 @@ class SMI_Beamline(Beamline):
 
 
 
+
+
 class SMI_SAXS_Det(object):
 
     def __init__(self, **md):
@@ -468,7 +299,7 @@ class SMI_SAXS_Det(object):
         self.md = md
         
         #reference position for the 1M detector
-        self.detector_name = 'Pilatus 1M'
+        self.detector_name = 'Pilatus1M'
         self.detector_position_0_0 = [-15, -40]
 
         #ToDo: add here the position of the gap
@@ -479,8 +310,118 @@ class SMI_SAXS_Det(object):
         self.direct_beam_0_0 = [402, 1043 - 358]
                 
         self.pixel_size = 0.172
-        self.energy = dcm.energy.position
-    
+
+        self.getPositions()
+        self.get_beamstop()
+
+
+    def getPositions(self, **md):
+        '''
+        Read the encoded positions of the pilatus 1M detector
+        Get the interpolated sample detector distance and beam position from interpolate_db_sdds function defined in 01_load.py
+        '''
+
+        #Encoded data pil1M
+        self.encoded_detector_posx =  pil1m_pos.x.position
+        self.encoded_detector_posy =  pil1m_pos.y.position
+        self.encoded_detector_posz =  pil1m_pos.z.position
+
+        #Interpolate the distance and direct beam position
+        self.distance, self.direct_beam =  interpolate_db_sdds()
+        self.distance *= 1000
+        self.get_beamstop()
+        self.md = self.get_md(prefix='detector_SAXS_', **md)
+
+        return self
+
+
+    def get_beamstop(self):
+        '''
+        Read the encoded positions of pindiode and gisaxs beamstop to determine which beamstop is in and which pixels to mask
+        '''
+
+        #Encoded data rod beamstop and pindiode
+        self.encoded_bsx = pil1m_bs.x.position
+        self.encoded_bsy = pil1m_bs.y.position
+        self.encoded_pdx = pd_bs.x.position
+        self.encoded_pdy = pd_bs.y.position
+
+        #ToDo: check beamstop position to know which beamstop is in
+        #ToDo: Calculate whatpixels to mask for different beamstop positions
+        if self.encoded_pdx < 10 and self.encoded_bsx < 10:
+            self.bs_kind = 'rod_beamstop'
+
+            #To be implemented with the good values, not hard-coded
+            self.bs_mask = [10, 10]
+
+        elif abs(self.encoded_pdx) > 50 and abs(self.encoded_bsx) < 50:
+            self.bs_kind = 'pindiode'
+
+            #To be implemented with the good values, not hard-coded
+            self.bs_mask = [10, 10]
+
+        else:
+            self.bs_kind = 'None'
+
+            #To be implemented with the good values, not hard-coded
+            self.bs_mask = [0, 0]
+
+
+    def set_beamstop(self):
+        '''
+        Modify the beamstop position in order to keep the beamstop aligned with the direct beam
+        (Can be used when the sample detector distance is modified)
+        '''
+        
+        self.getPositions()
+        self.get_beamstop()
+
+        #Compare beamstop position vs direct beam position
+
+
+    def get_md(self, prefix='detector_SAXS_', **md):
+
+        #Need to add here the real beamstop poition as well as the
+        
+        md_saxs = self.md.copy()    
+        x0, y0 = self.direct_beam
+
+        md_saxs['name'] = self.detector_name
+        md_saxs['pixel_size'] = self.pixel_size
+
+        #Read the detector position
+        md_saxs['posx'] = self.encoded_detector_posx
+        md_saxs['posy'] = self.encoded_detector_posy
+        md_saxs['posz'] = self.encoded_detector_posz
+
+        #Read the encoded beamstop position
+        md_saxs['bs_x'] = self.encoded_bsx
+        md_saxs['bs_y'] = self.encoded_bsy
+        md_saxs['pd_x'] = self.encoded_pdx
+        md_saxs['pd_y'] = self.encoded_pdy
+        
+        self.get_beamstop()
+        #Save which beamstop is in and pixels to mask. Important for the analysis masking 
+        md_saxs['bs_kind'] = self.bs_kind
+        md_saxs['bs_mask'] = self.bs_mask
+
+        #Acurate direct beam position and sample to detector distance
+        md_saxs['x0_pix'] = self.direct_beam[0]
+        md_saxs['y0_pix'] = self.direct_beam[1]
+        md_saxs['sdd'] = self.distance
+               
+        # Include the user-specified metadata
+        md_saxs.update(md)
+
+        # Add an optional prefix
+        if prefix is not None:
+            md_saxs = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_saxs.items() }
+        
+        self.md.update(md_saxs)
+        return md_saxs
+
+
+    #ToDo: check if gisaxs alignement still working with the new code
     '''
     def getPositions(self, **md):
         self.distance =  pil1m_pos.z.position
@@ -499,36 +440,59 @@ class SMI_SAXS_Det(object):
         return self
     '''
 
+class SMI_WAXS_Det(object):
+
+    def __init__(self, **md):
+        #Metadata
+        self.md = md
+        
+        #Fixed values for the 300kw detector
+        self.detector_name = 'Pilatus300kw'
+        self.direct_beam = [97, 1386]
+        self.pixel_size = 0.172
+        self.distance = 274.9
+
+        self.getPositions()
+
+
     def getPositions(self, **md):
         '''
-        Read the encoded positions of the pilatus 1M detector as well as the pindiode and gisaxs beamstop
-        Get the interpolated sample detector distance and beam position from  interpolate_db_sdds function defined in 01_load.py
+        Read the waxs arc and beamstop position the pilatus 300kw detector
         '''
-
-        #Encoded data pil1M
-        self.encoded_detector_posx =  pil1m_pos.x.position
-        self.encoded_detector_posy =  pil1m_pos.y.position
-        self.encoded_detector_posz =  pil1m_pos.z.position
-
-        #Encoded data rod beamstop and pindiode
-        self.encoded_bsx = pil1m_bs.x.position
-        self.encoded_bsy = pil1m_bs.y.position
-        self.encoded_bsx = pd_bs.x.position
-        self.encoded_bsy = pd_bs.y.position
-
-        #Interpolate the distance and direct beam position from 01_load
-        self.distance, self.direct_beam =  interpolate_db_sdds()
-
+        #Encoded data pil300kW
+        self.waxs_arc =  waxs.arc.position
+        self.waxs_bs =  waxs.x.position
         return self
 
 
+    def get_md(self, prefix='detector_WAXS_', **md):
+        '''
+        Define metadata for the waxs detector, mainly fixed values such as sample detector distance,
+        direct beam, ... 
+        '''
+        md_waxs = self.md.copy()    
+
+        #Fixed metadata
+        md_waxs['name'] = self.detector_name
+        md_waxs['pixel_size'] = self.pixel_size
+        md_waxs['x0_pix'] = self.direct_beam[0]
+        md_waxs['y0_pix'] = self.direct_beam[1]
+        md_waxs['sdd'] = self.distance
+
+        #Read the detector position
+        md_waxs['waxs_arc'] = self.waxs_arc
+        md_waxs['waxs_bs'] = self.waxs_bs
+
+        # Include the user-specified metadata
+        md_waxs.update(md)
+
+        # Add an optional prefix
+        if prefix is not None:
+            md_waxs = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_waxs.items() }
+        
+        self.md.update(md_waxs)
+        return md_waxs
+
 
 pilatus1M = SMI_SAXS_Det()
-
-#smi = SMI_Beamline()
-
-
-def get_beamline():
-    return smi
-
-
+pilatus300kw = SMI_WAXS_Det()

@@ -14,8 +14,6 @@ waxs_pressure = Waxs_chamber_pressure('XF:12IDC-VA:2', name='waxs_chamber_pressu
 waxs_pressure.ch1_read.kind = 'hinted'
 
 
-
-
 att1_1 = TwoButtonShutter('XF:12IDC-OP:2{Fltr:1-1}', name='att1_1')
 att1_2 = TwoButtonShutter('XF:12IDC-OP:2{Fltr:1-2}', name='att1_2')
 att1_3 = TwoButtonShutter('XF:12IDC-OP:2{Fltr:1-3}', name='att1_3')
@@ -42,7 +40,20 @@ att2_10 = TwoButtonShutter('XF:12IDC-OP:2{Fltr:2-10}', name='att2_10')
 att2_11 = TwoButtonShutter('XF:12IDC-OP:2{Fltr:2-11}', name='att2_11')
 att2_12 = TwoButtonShutter('XF:12IDC-OP:2{Fltr:2-12}', name='att2_12')
 
-
+#Need here to check the attenuators status of the beamline, like for crls
+'''
+def attenuators_state():
+    for crl_le in [crl.lens1, crl.lens2, crl.lens3, crl.lens4, crl.lens5,
+                   crl.lens6, crl.lens7, crl.lens8, crl.lens9, crl.lens10,
+                   crl.lens11, crl.lens12]:
+            
+        if abs(crl_le.position) < 4:
+            crl_state = 'micro_focusing'
+            break
+        else:
+            crl_state = 'low_divergence'
+    return crl_state
+'''         
 
 
 

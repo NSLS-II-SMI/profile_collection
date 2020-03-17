@@ -1,3 +1,41 @@
+
+def expert_gisaxs_scan(dets = [pil300KW, pil1M],
+                        sam_name=['test'], 
+                        motors = 'energy',
+                        motor_range=[16000, 16100, 16200],
+                        waxs_arc = [0, 13, 3],
+                        t = 1,
+                        user_name = 'IC',
+                        reali = False,
+                        alphai = 0.15,
+                        md = None):
+
+    #Write a function as general as using bluesky and recording metadata
+
+
+    #Need to find a nice way to record attenuators, piezo, hexa, prs, crls
+
+    metadata = {'plan_name': 'gi_scan',
+                'detectors': [det.name for det in dets],
+                'user_name': user_name,
+                'motor': [motor.name for motor in motors],
+                }
+
+    metadata.update(base_md or {})
+    metadata.update(md or {})
+
+    if 'pil300KW' in [det.name for det in dets]:
+        pilatus300kw.get_md()
+        metadata.update(pilatus300kw.md or {})
+    
+    if 'pil1M' in [det.name for det in dets]:
+        pilatus1M.get_md()
+        metadata.update(pilatus1M.md or {})
+
+
+
+
+
 def scan_gi_1motor_waxsscan(dets = [pil300KW, pil1M], sam_name=['test'], motor = 'energy', motor_range=[16000, 16100, 16200], waxs_arc = [0, 13, 3], t = 1, user_name = 'IC', reali = False, alphai = 0.15):
     det_exposure_time(t,t) 
     
