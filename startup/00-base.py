@@ -2,6 +2,8 @@ print(f'Loading {__file__}')
 
 import warnings
 import nslsii
+from ophyd import
+from databroker import Broker
 from ophyd import Signal
 
 nslsii.configure_base(get_ipython().user_ns, 'smi')
@@ -14,6 +16,7 @@ Cycle, proposal number, main proposer and comments
 '''
 
 try:
+    db = Broker.named('SMI')
     cycle = db[-1].table(stream_name='baseline')['cycle'][1]
     proposal_number = db[-1].table(stream_name='baseline')['proposal_number'][1]
     main_proposer = db[-1].table(stream_name='baseline')['main_proposer'][1]
@@ -26,16 +29,16 @@ except:
     main_proposer = ''
     optinal_comments = ''
 
-beamline_name = Signal(name='beamline_name', value = 'SMI') 
-cycle = Signal(name='cycle', value = cycle)
-proposal_number = Signal(name='proposal_number', value = proposal_number)
-main_proposer = Signal(name='main_proposer', value = main_proposer)
-optinal_comments = Signal(name='optinal_comments', value = optinal_comments)
+beamline_name = Signal(name='beamline_name', value='SMI')
+cycle = Signal(name='cycle', value=cycle)
+proposal_number = Signal(name='proposal_number', value=proposal_number)
+main_proposer = Signal(name='main_proposer', value=main_proposer)
+optinal_comments = Signal(name='optinal_comments', value=optinal_comments)
 
-base_md = { 'facility' : 'NSLS-II',
-            'beamline_name' : 'SMI',
-            'cycle': cycle.value,
-            'proposal_number': proposal_number.value,
-            'main_proposer': main_proposer.value,
-            'optinal_comments': optinal_comments.value
+base_md = {'facility': 'NSLS-II',
+           'beamline_name': 'SMI',
+           'cycle': cycle.value,
+           'proposal_number': proposal_number.value,
+           'main_proposer': main_proposer.value,
+           'optinal_comments': optinal_comments.value
             }
