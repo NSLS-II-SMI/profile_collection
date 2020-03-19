@@ -200,6 +200,8 @@ class SMI_Beamline(Beamline):
         self.crl_state()
         self.pressure_measurments()
 
+        self.update_md()
+
     def modeAlignment_gisaxs(self, technique = 'gisaxs'):
         '''
         Set the beamline for alignement: move the beamstop out and insert the attenuators
