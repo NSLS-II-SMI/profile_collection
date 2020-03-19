@@ -2,7 +2,7 @@ print(f'Loading {__file__}')
 
 from ophyd import EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt
 # things to read at begining and end of every scan
-sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring]
+sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring.current]
 #sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring_current]
 
 # this is the default list for %ct

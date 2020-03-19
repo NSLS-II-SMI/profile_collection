@@ -28,7 +28,7 @@ class SMIBeam(object):
    
         self.dcm = Energy(prefix='', name='energy', read_attrs=['energy', 'ivugap', 'bragg'], configuration_attrs=['enableivu', 'enabledcmgap','target_harmonic'])                  
         
-        
+
 
 
     def energyState(self):        
@@ -305,7 +305,7 @@ class SMI_Beamline(Beamline):
 
         for att, material, thickness in zip(att_ophyd, att_material, att_thickness):
             if att.status.value == 'Open':
-                self.att_state = {att.status.name: {'material': material, 'thickness': thickness}
+                self.att_state = {att.status.name: {'material': material, 'thickness': thickness}}
 
 
     def crl_state(self):
@@ -321,10 +321,17 @@ class SMI_Beamline(Beamline):
 
 
     def pressure_measurments(self):
-        if waxs_pressure.value < 1E-2:
+        if waxs_pressure.ch1_read.value == 'LO<E-03':
             self.pressure_state = 'in-vacuum'
         else:
-            self.pressure_state = 'in-air'
+            try: 
+                pres = np.float(waxs_pressure.ch1_read.value)
+                if pres < 1E-02:
+                    self.pressure_state = 'in-vacuum'
+                else:
+                    self.pressure_state = 'in-air'
+            except:
+                self.pressure_state = 'Not read'
 
 
     def update_md(self, prefix='beamline_', **md):

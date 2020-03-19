@@ -2,7 +2,6 @@ print(f'Loading {__file__}')
 
 import warnings
 import nslsii
-from ophyd import
 from databroker import Broker
 from ophyd import Signal
 

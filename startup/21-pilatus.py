@@ -144,6 +144,9 @@ class PIL1MPositions(Device):
 
 pil1m_pos = PIL1MPositions('XF:12IDC-ES:2{Det:1M-Ax:', name='pil1m_pos')
 
+for detpos in [pil1m_pos]:
+    detpos.configuration_attrs = detpos.read_attrs
+
 
 
 #####################################################

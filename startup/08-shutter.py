@@ -1,8 +1,7 @@
 print(f'Loading {__file__}')
 
-from ophyd import (Device, EpicsSignal, EpicsSignalRO, Signal,
+from ophyd import (Device, EpicsSignal, EpicsSignalRO, EpicsMotor, Signal,
                    Component as Cpt, DeviceStatus)
-
 
 class TwoButtonShutter(Device):
     # TODO this needs to be fixed in EPICS as these names make no sense

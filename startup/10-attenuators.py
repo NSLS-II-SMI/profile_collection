@@ -1,7 +1,6 @@
 from ophyd import ( Component as Cpt,  Device,
                     EpicsSignal, EpicsSignalRO, EpicsMotor)
 
-from ophyd import TwoButtonShutter
 print(f'Loading {__file__}')
 
 
@@ -44,17 +43,14 @@ def attenuators_state():
 
     att_thickness = ['1x', '2x', '4x', '8x', '1x', '2x', '4x', '8x', '1x', '2x', '4x', '8x',
                      '1x', '2x', '4x', '8x', '1x', '2x', '4x', '8x', '1x', '2x', '4x', '6x']
+    
     for att, material, thickness in zip(att_ophyd, att_material, att_thickness):
         if att.status.value == 'Open':
-            att_state = {att.status.name: {'material' : material,'thickness': thickness}
+            att_state = {att.status.name: {'material' : material,'thickness': thickness}}
 
     return att_state
 
 
-
-
-for detpos in [pil1m_pos]:
-    detpos.configuration_attrs = detpos.read_attrs
 
 
 
