@@ -190,9 +190,15 @@ class Beamline(object):
 class SMI_Beamline(Beamline):
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs) 
+        super().__init__(**kwargs)
+
+        # Metadata
+        self.md = kwargs
         self.SAXS = SMI_SAXS_Det().getPositions()
 
+        self.attenuators_state()
+        self.crl_state()
+        self.pressure_measurments()
 
     def modeAlignment_gisaxs(self, technique = 'gisaxs'):
         '''
@@ -282,6 +288,56 @@ class SMI_Beamline(Beamline):
             yield from bps.mv(pil1M.roi1.size.y, int(size[1]))
         else:
             raise ValueError('Unknown geometry fo alignement mode')
+
+
+    def attenuators_state(self):
+        self.att_state = {}
+        att_ophyd = [att1_1, att1_2, att1_3, att1_4, att1_5, att1_6, att1_7, att1_8, att1_9, att1_10, att1_11, att1_12,
+                     att2_1, att2_2, att2_3, att2_4, att2_5, att2_6, att2_7, att2_8, att2_9, att2_10, att2_11, att2_12]
+
+        att_material = ['Cu_68um', 'Cu_68um', 'Cu_68um', 'Cu_68um', 'Sn_60um', 'Sn_60um', 'Sn_60um', 'Sn_60um',
+                        'Sn_30um', 'Sn_30um', 'Sn_30um', 'Sn_30um',
+                        'Mo_20um', 'Mo_20um', 'Mo_20um', 'Mo_20um', 'Al_102um', 'Al_102um', 'Al_102um', 'Al_102um',
+                        'Al_9um', 'Al_9um', 'Al_9um', 'Al_9um']
+
+        att_thickness = ['1x', '2x', '4x', '8x', '1x', '2x', '4x', '8x', '1x', '2x', '4x', '8x',
+                         '1x', '2x', '4x', '8x', '1x', '2x', '4x', '8x', '1x', '2x', '4x', '6x']
+
+        for att, material, thickness in zip(att_ophyd, att_material, att_thickness):
+            if att.status.value == 'Open':
+                self.att_state = {att.status.name: {'material': material, 'thickness': thickness}
+
+
+    def crl_state(self):
+        for crl_le in [crl.lens1, crl.lens2, crl.lens3, crl.lens4, crl.lens5,
+                       crl.lens6, crl.lens7, crl.lens8, crl.lens9, crl.lens10,
+                       crl.lens11, crl.lens12]:
+
+            if abs(crl_le.position) < 4:
+                self.crl_state = 'micro_focusing'
+                break
+            else:
+                self.crl_state = 'low_divergence'
+
+
+    def pressure_measurments(self):
+        if waxs_pressure.value < 1E-2:
+            self.pressure_state = 'in-vacuum'
+        else:
+            self.pressure_state = 'in-air'
+
+
+    def update_md(self, prefix='beamline_', **md):
+        md_beamline = self.md.copy()
+
+        md_beamline['beamsize'] = self.crl_state
+        md_beamline['sample_environement'] = self.pressure_state
+        md_beamline['attenuators'] = self.att_state
+
+        if prefix is not None:
+            md_beamline = {'{:s}{:s}'.format(prefix, key): value for key, value in md_beamline.items()}
+
+        self.md.update(md_beamline)
 
     # End class SMI_Beamline(Beamline)
     ########################################
@@ -492,5 +548,6 @@ class SMI_WAXS_Det(object):
         return md_waxs
 
 
+SMI = SMI_Beamline()
 pilatus1M = SMI_SAXS_Det()
 pilatus300kw = SMI_WAXS_Det()
