@@ -158,9 +158,7 @@ class SMIBeam(object):
             yield from bps.mv(foil, state)
             foil_st = yield from bps.read(foil)
             itry += 1
-            time.sleep(wait_time)
-
-    def update_md(self, **md):
+            yield from bps.sleep(wait_time)
 
         
     # End class SMIBeam(object)
