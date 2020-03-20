@@ -445,7 +445,7 @@ class SMI_SAXS_Det(object):
 
 
 
-def SMI_WAXS_detector(Device):
+class SMI_WAXS_detector(Device):
     prefix = 'detector_waxs_'
     name1 = Component(Signal, value='Pilatus300kw', name=prefix+'waxs_name', kind='config')
     pixel_size = Component(Signal, value=0.172, name=prefix+'pixel_size', kind='config')
@@ -454,7 +454,8 @@ def SMI_WAXS_detector(Device):
     sdd = Component(Signal, value=274.9, name=prefix+'sdd', kind='config')
 
 
-def SMI_SAXS_detector(Device):
+
+class SMI_SAXS_detector(Device):
     prefix = 'detector_saxs_'
 
     name1 = Component(Signal, value='Pilatus300kw', name=prefix+'name', kind='config')
