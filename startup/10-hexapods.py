@@ -1,6 +1,6 @@
 print(f'Loading {__file__}')
 
-from ophyd import EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt, PseudoPositioner
+from ophyd import Signal, EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt, PseudoPositioner
 
 
 class STG(Device):
@@ -65,7 +65,13 @@ for pr in [prs]:
     pr.configuration_attrs = pr.read_attrs
 
 
+
 class WAXS(Device):
+    name = Cpt(Signal, value='Pilatus300kw', name='name', kind='config')
+    pixel_size = Cpt(Signal, value=0.172, name='pixel_size', kind='config')
+    x0_pix = Cpt(Signal, value=97, name='x0_pix', kind='config')
+    y0_pix = Cpt(Signal, value=1386, name='y0_pix', kind='config')
+    sdd = Cpt(Signal, value=274.9, name='sdd', kind='config')
     arc = Cpt(EpicsMotor, 'WAXS:1-Ax:Arc}Mtr')
     x = Cpt(EpicsMotor, 'BS:WAXS-Ax:x}Mtr')
 

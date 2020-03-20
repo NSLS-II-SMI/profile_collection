@@ -137,10 +137,13 @@ pil1M.stats1.kind = 'hinted'
 pil1M.stats1.total.kind = 'hinted'
 pil1M.cam.ensure_nonblocking()
 
+
+
 class PIL1MPositions(Device):
     x = Cpt(EpicsMotor, 'X}Mtr')
     y = Cpt(EpicsMotor, 'Y}Mtr')
     z = Cpt(EpicsMotor, 'Z}Mtr')
+
 
 pil1m_pos = PIL1MPositions('XF:12IDC-ES:2{Det:1M-Ax:', name='pil1m_pos')
 

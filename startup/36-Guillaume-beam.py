@@ -1,5 +1,5 @@
 print(f'Loading {__file__}')
-
+from ophyd import (Signal, Component, Device, EpicsSignal, EpicsSignalRO, EpicsMotor)
 
 ################################################################################
 #  Code for querying and controlling beamline components that 'affect' the
@@ -468,7 +468,8 @@ class SMI_SAXS_Det(object):
         self.get_beamstop()
         #Save which beamstop is in and pixels to mask. Important for the analysis masking 
         md_saxs['bs_kind'] = self.bs_kind
-        md_saxs['bs_mask'] = self.bs_mask
+        md_saxs['xbs_mask'] = self.bs_mask[0]
+        md_saxs['ybs_mask'] = self.bs_mask[1]
 
         #Acurate direct beam position and sample to detector distance
         md_saxs['x0_pix'] = self.direct_beam[0]
@@ -505,72 +506,5 @@ class SMI_SAXS_Det(object):
         return self
     '''
 
-class SMI_WAXS_Det(object):
-
-    def __init__(self, **md):
-        #Metadata
-        self.md = md
-        
-        #Fixed values for the 300kw detector
-        self.detector_name = 'Pilatus300kw'
-        self.direct_beam = [97, 1386]
-        self.pixel_size = 0.172
-        self.distance = 274.9
-
-        self.getPositions()
-        self.update_md()
-
-
-    def getPositions(self, **md):
-        '''
-        Read the waxs arc and beamstop position the pilatus 300kw detector
-        '''
-        #Encoded data pil300kW
-        self.waxs_arc =  waxs.arc.position
-        self.waxs_bs =  waxs.x.position
-        return self
-
-
-    def update_md(self, prefix='detector_WAXS_', **md):
-        '''
-        Define metadata for the waxs detector, mainly fixed values such as sample detector distance,
-        direct beam, ... 
-        '''
-        md_waxs = self.md.copy()    
-
-        #Fixed metadata
-        md_waxs['name'] = self.detector_name
-        md_waxs['pixel_size'] = self.pixel_size
-        md_waxs['x0_pix'] = self.direct_beam[0]
-        md_waxs['y0_pix'] = self.direct_beam[1]
-        md_waxs['sdd'] = self.distance
-
-        #Read the detector position
-        md_waxs['waxs_arc'] = self.waxs_arc
-        md_waxs['waxs_bs'] = self.waxs_bs
-
-        # Include the user-specified metadata
-        md_waxs.update(md)
-
-        # Add an optional prefix
-        if prefix is not None:
-            md_waxs = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_waxs.items() }
-        
-        self.md.update(md_waxs)
-        return md_waxs
-
-
 SMI = SMI_Beamline()
 pilatus1M = SMI_SAXS_Det()
-pilatus300kw = SMI_WAXS_Det()
-
-'''
-class pilatus300kw(Device):
-    pixel_size = Component(Signal, value=1, name='name', kind='config')
-    pixel_size = Component(Signal, value=1, name='pixel_size', kind='config')
-    pixel_size = Component(Signal, value=1, name='x0_pix', kind='config')
-    pixel_size = Component(Signal, value=1, name='y0_pix', kind='config')
-    pixel_size = Component(Signal, value=1, name='sdd', kind='config')
-    pixel_size = Component(Signal, value=1, name='waxs_arc', kind='config')
-    pixel_size = Component(Signal, value=1, name='waxs_bs', kind='config')
-'''
