@@ -121,14 +121,14 @@ def alignmentmodeCai():
             yield from bps.mv(waxs.arc, 8)
         time.sleep(1)
         yield from bps.mv(pil1m_pos.x, -4)
-        yield from bps.mv(pil1m_bs.x, alignbspos)
+        yield from bps.mv(pil1m_bs_rod.x, alignbspos)
         sample_id(user_name='test', sample_name='test')
         det_exposure_time(0.5)
         
 def measurementmodeCai():
         yield from bps.mv(GV7.close_cmd, 1 )
         yield from bps.mv(pil1m_pos.x, -4)
-        yield from bps.mv(pil1m_bs.x, measurebspos)
+        yield from bps.mv(pil1m_bs_rod.x, measurebspos)
         time.sleep(1)
         yield from SMIBeam().insertFoils('Measurment')
         time.sleep(1)

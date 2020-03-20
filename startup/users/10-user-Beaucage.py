@@ -25,7 +25,7 @@ def alignmentmodeBoc():
     # #for 13.5 keV
     #     yield from bps.mv(att1_12,"Insert")
     #     time.sleep(1)
-    yield from bps.mv(pil1m_bs.x, alignbspos) #move beamstop out of the way
+    yield from bps.mv(pil1m_bs_rod.x, alignbspos) #move beamstop out of the way
     sample_id(user_name='test', sample_name='test') #don't overwrite user data
     det_exposure_time(0.5)
         
@@ -33,7 +33,7 @@ def measurementmodeBoc():
     ''' Move gate valves, attenutators, and beamtop into GI measurement mode'''
     # yield from bps.mv(att2_8,"Retract") # (for 7.5keV) 
     yield from SMIBeam().insertFoils(0)   # (for >11keV)
-    yield from bps.mv(pil1m_bs.x, measurebspos)
+    yield from bps.mv(pil1m_bs_rod.x, measurebspos)
     time.sleep(1)
     #uncomment to close SAXS gate valve during measurements
     yield from bps.mv(GV7.close_cmd, 1 ) 

@@ -158,7 +158,7 @@ def grating_rana_oct(det, motor, name='SNS', cycle=1, cycle_t=10.0, n_cycles=1):
             yield from bps.mv(stage.th, align_angle01[i_s] - angle_offset[i_a])
             sample_id(user_name=name, sample_name=sample_name)
             yield from bps.mv(det.cam.acquire_time, 0.1)
-            #yield from bps.mv(pil1m_bs.x, pil1m_bs.x_center)
+            #yield from bps.mv(pil1m_bs_rod.x, pil1m_bs_rod.x_center)
             yield from bps.mv(attn_shutter, 'Retract')
             yield from count([det], num=1)
             yield from bps.mv(det.cam.acquire_time, cycle*cycle_t)
@@ -181,8 +181,8 @@ def alignmentmodeRana():
                #time.sleep(1)
                Att_Align3.set("Insert")
                time.sleep(1)
-               pos = pil1m_bs.x.position
-               pil1m_bs.x.move(pos+25)
+               pos = pil1m_bs_rod.x.position
+               pil1m_bs_rod.x.move(pos+25)
         Att_Shutter.set("Retract")
         if waxs.arc.position < 12 :
                 mov(waxs.arc,12)
@@ -194,8 +194,8 @@ def alignmentmodeRana():
 def measurementmodeRana():
         if Att_Shutter.status.value=='Not Open':
                 Att_Shutter.set("Insert")
-                pos = pil1m_bs.x.position
-                pil1m_bs.x.move(pos-25)
+                pos = pil1m_bs_rod.x.position
+                pil1m_bs_rod.x.move(pos-25)
         time.sleep(1)
         #Att_Align2.set("Retract")
         #time.sleep(1)

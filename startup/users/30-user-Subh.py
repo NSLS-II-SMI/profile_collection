@@ -32,13 +32,13 @@ def alignmentmodesubh():
         yield from bps.mv(att1_3, 'Insert')
         time.sleep(1)
         yield from bps.mv(GV7.open_cmd, 1 )
-        yield from bps.mv(pil1m_bs.x, alignbspossubh)
+        yield from bps.mv(pil1m_bs_rod.x, alignbspossubh)
         if waxs.arc.position < 12 :
                 yield from bps.mv(waxs.arc,12)
         sample_id(user_name='test', sample_name='test')
         
 def measurementmodesubh():
-        yield from bps.mv(pil1m_bs.x,measurebspossubh)
+        yield from bps.mv(pil1m_bs_rod.x,measurebspossubh)
         time.sleep(1)
         #Att_Align1.set("Retract")
         #time.sleep(1)
@@ -58,13 +58,13 @@ def alignquick():
         yield from bps.mv(att1_3, 'Insert')
         time.sleep(1)
         yield from bps.mv(GV7.open_cmd, 1 )
-        yield from bps.mv(pil1m_bs.x, alignbspossubh)
+        yield from bps.mv(pil1m_bs_rod.x, alignbspossubh)
         if waxs.arc.position < 8 :
                 yield from bps.mv(waxs.arc,8)
         sample_id(user_name='test', sample_name='test')
         
 def meas_after_alignquick():
-        yield from bps.mv(pil1m_bs.x,measurebspossubh)
+        yield from bps.mv(pil1m_bs_rod.x,measurebspossubh)
         time.sleep(1)
         yield from bps.mv(att1_2, 'Retract')
         time.sleep(1)

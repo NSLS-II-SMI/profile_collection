@@ -334,14 +334,14 @@ def alignmentmodeNIST():
         time.sleep(1)
         Att_Align2.set("Insert")
         time.sleep(1)
-        pil1m_bs.x.move(alignbspos)
+        pil1m_bs_rod.x.move(alignbspos)
         if waxs.arc.position < 12 :
                 mov(waxs.arc,12)
         pil1M.cam.file_name.put("NISTsnap")
         pil300KW.cam.file_name.put("NISTsnap")
         
 def measurementmodeNIST():
-        pil1m_bs.x.move(measureBSpos)
+        pil1m_bs_rod.x.move(measureBSpos)
         time.sleep(1)
         Att_Align1.set("Retract")
         time.sleep(1)

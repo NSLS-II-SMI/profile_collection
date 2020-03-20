@@ -458,8 +458,8 @@ def alignmentmodeNIST():
                 time.sleep(1)
                 Att_Align2.set("Insert")
                 time.sleep(1)
-                pos = pil1m_bs.x.position
-                pil1m_bs.x.move(pos+10)
+                pos = pil1m_bs_rod.x.position
+                pil1m_bs_rod.x.move(pos+10)
         Att_Shutter.set("Retract")
         if waxs.arc.position < 12 :
                 mov(waxs.arc,12)
@@ -469,8 +469,8 @@ def alignmentmodeNIST():
 def measurementmodeNIST():
         if Att_Shutter.status.value=='Not Open':
                 Att_Shutter.set("Insert")
-                pos = pil1m_bs.x.position
-                pil1m_bs.x.move(pos-10)
+                pos = pil1m_bs_rod.x.position
+                pil1m_bs_rod.x.move(pos-10)
         time.sleep(1)
         Att_Align1.set("Retract")
         time.sleep(1)

@@ -148,7 +148,7 @@ def calc_metadata():
     #TODO: List of metadata needed for the analysis
     #SDD, Energy, Direct beam, BS_position, waxs_arc_pos, detector, geometry, alphai
     
-    read_bs_x = yield from bps.read(pil1m_bs.x)
+    read_bs_x = yield from bps.read(pil1m_bs_rod.x)
 
 
 def test_test():
