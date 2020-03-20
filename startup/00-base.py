@@ -9,10 +9,10 @@ nslsii.configure_base(get_ipython().user_ns, 'smi')
 # nslsii.configure_olog(get_ipython().user_ns, subscribe=False)
 
 
-from bluesky.utils import PersistentDict
+#from bluesky.utils import PersistentDict
 
 #Try to set this new path
-RE.md = PersistentDict('~/profile_collection/startup/')
+#RE.md = PersistentDict('~/profile_collection/startup/')
 
 RE.md['beamline_name'] = 'SMI'
 RE.md['facility'] = 'NSLS-II'

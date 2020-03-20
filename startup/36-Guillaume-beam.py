@@ -395,7 +395,7 @@ class SMI_SAXS_Det(object):
         self.distance, self.direct_beam =  interpolate_db_sdds()
         self.distance *= 1000
         self.get_beamstop()
-        self.md = self.get_md(prefix='detector_SAXS_', **md)
+        self.md = self.update_md(prefix='detector_SAXS_', **md)
 
         return self
 
