@@ -443,8 +443,7 @@ class SMI_SAXS_Det(object):
         return self
     '''
 
-SMI = SMI_Beamline()
-pilatus1M = SMI_SAXS_Det()
+
 
 def SMI_WAXS_detector(Device):
     prefix = 'detector_waxs_'
@@ -481,3 +480,6 @@ def SMI_SAXS_detector(Device):
 
 smi_waxs_detector = SMI_WAXS_detector()
 smi_saxs_detector = SMI_SAXS_detector()
+
+SMI = SMI_Beamline()
+pilatus1M = SMI_SAXS_Det()
