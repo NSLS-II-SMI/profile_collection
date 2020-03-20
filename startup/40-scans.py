@@ -21,63 +21,50 @@ def expert_gisaxs_scan(dets = [pil300KW, pil1M],
     except:
         raise Exception('Motors or detectors not known')
 
+    #If this values change over a scan, possibility to transform in ophyd signal and record over a scan
+    base_md = {'plan_name': 'gi_scan',
+               'detectors': [det.name for det in dets],
+               'user_name': user_name,
+               'motor': [motor.name for motor in motors],
+               'exposure_time': measurement_time,
+               'number_image': number_images,
+               'realignement': realignement,
+               'x_trans': x_trans,
+               }
+    base_md.update(md or {})
 
-    #All this first part is to record metadata
-    #ToDo: we need to recor the piezo, hexa, prs psotions
-    metadata = {'plan_name': 'gi_scan',
-                'detectors': [det.name for det in dets],
-                'user_name': user_name,
-                'motor': [motor.name for motor in motors],
-                }
-
-    metadata.update(base_md or {})
-
-    beamline_md = SMI.get_md()
-    metadata.update(beamline_md or {})
-
-    metadata.update(md or {})
+    #update metadata from the beamline might not be needed here but somewhere else
+    SMI.get_md()
 
     #Update metadata for the detctors
     if 'pil300KW' in [det.name for det in dets]:
         pilatus300kw.get_md()
-        metadata.update(pilatus300kw.md or {})
+        base_md.update(pilatus300kw.md or {})
     
     if 'pil1M' in [det.name for det in dets]:
         pilatus1M.get_md()
-        metadata.update(pilatus1M.md or {})
+        base_md.update(pilatus1M.md or {})
 
     if 'rayonix' in [det.name for det in dets]:
         print('no metadata for the rayonix yet')
+        base_md.update({})
 
-    
+    #Define a list of detectors to trigger and what to store in the baseline
     detectors_required = dets
+    sd.baseline = []
 
     #Update metadata for motors not used and add the motor as detector if so
-    if 'piezo' in [motor.name for motor in motors]:
-        detectors_required = detectors_required + [piezo]
-    else:
-        #Write something to store the positions
-        pass
+    if 'piezo' in [motor.name for motor in motors]: detectors_required.append(piezo)
+    else: sd.baseline.append(piezo)
 
-    if 'stage' in [motor.name for motor in motors]:
-        detectors_required = detectors_required + [stage]
-    else:
-        #Write something to store the positions
-        pass    
+    if 'stage' in [motor.name for motor in motors]: detectors_required.append(stage)
+    else: sd.baseline.append(stage)
 
-    if 'prs' in [motor.name for motor in motors]:
-        detectors_required = detectors_required + [prs]
-    else:
-        #Write something to store the positions
-        pass 
+    if 'prs' in [motor.name for motor in motors]: detectors_required.append(prs)
+    else: sd.baseline.append(prs)
    
-    if 'energy' in [motor.name for motor in motors]:
-        detectors_required = detectors_required + [energy]
-    else:
-        #Write something to store the positions
-        pass
-
-
+    if 'energy' in [motor.name for motor in motors]: detectors_required.append(energy)
+    else: sd.baseline.append(energy)
 
 
     #Add comments name in assert

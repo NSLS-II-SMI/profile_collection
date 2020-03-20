@@ -560,3 +560,14 @@ class SMI_WAXS_Det(object):
 SMI = SMI_Beamline()
 pilatus1M = SMI_SAXS_Det()
 pilatus300kw = SMI_WAXS_Det()
+
+'''
+class pilatus300kw(Device):
+    pixel_size = Component(Signal, value=1, name='name', kind='config')
+    pixel_size = Component(Signal, value=1, name='pixel_size', kind='config')
+    pixel_size = Component(Signal, value=1, name='x0_pix', kind='config')
+    pixel_size = Component(Signal, value=1, name='y0_pix', kind='config')
+    pixel_size = Component(Signal, value=1, name='sdd', kind='config')
+    pixel_size = Component(Signal, value=1, name='waxs_arc', kind='config')
+    pixel_size = Component(Signal, value=1, name='waxs_bs', kind='config')
+'''
