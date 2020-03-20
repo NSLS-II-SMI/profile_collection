@@ -194,7 +194,7 @@ class SMI_Beamline(Beamline):
 
         # Metadata
         self.md = kwargs
-        self.SAXS = SMI_SAXS_Det().getPositions()
+        self.SAXS = SMI_SAXS_Det()
 
         self.attenuators_state()
         self.crl_state()
@@ -212,7 +212,7 @@ class SMI_Beamline(Beamline):
         yield from SMIBeam().insertFoils('Alignement')
         
         # Move beamstop
-        yield from bps.mv(pil1m_bs.x, bsx_pos + 5)
+        yield from bps.mv(pil1m_bs_rod.x, bsx_pos + 5)
         
 
         self.setReflectedBeamROI(technique=technique)
@@ -229,7 +229,7 @@ class SMI_Beamline(Beamline):
         remove the attenuator
         '''
         # Move beamstop
-        yield from bps.mv(pil1m_bs.x, bsx_pos) #2 for 4000 mm, 1.2 for 6500
+        yield from bps.mv(pil1m_bs_rod.x, bsx_pos) #2 for 4000 mm, 1.2 for 6500
         
         # Remove attenuators
         yield from SMIBeam().insertFoils('Measurement')       
@@ -357,79 +357,57 @@ class SMI_Beamline(Beamline):
 
 class SMI_SAXS_Det(object):
 
-    def __init__(self, **md):
-        #Metadata
-        self.md = md
-        
-        #reference position for the 1M detector
-        self.detector_name = 'Pilatus1M'
-        self.detector_position_0_0 = [-15, -40]
+    def __init__(self, **kwargs):
 
         #ToDo: add here the position of the gap
         self.detector_gap_x = [[830, 850], [617, 637], [405, 425], [193, 213]]
         self.detector_gap_y = [[485, 495]]
 
-        #ToDo: need to be implemented for various sdd
-        self.direct_beam_0_0 = [402, 1043 - 358]
-                
         self.pixel_size = 0.172
-
         self.getPositions()
         self.get_beamstop()
-
-        self.update_md()
 
 
     def getPositions(self, **md):
         '''
-        Read the encoded positions of the pilatus 1M detector
         Get the interpolated sample detector distance and beam position from interpolate_db_sdds function defined in 01_load.py
         '''
 
-        #Encoded data pil1M
-        self.encoded_detector_posx =  pil1m_pos.x.position
-        self.encoded_detector_posy =  pil1m_pos.y.position
-        self.encoded_detector_posz =  pil1m_pos.z.position
-
         #Interpolate the distance and direct beam position
-        self.distance, self.direct_beam =  interpolate_db_sdds()
+        self.distance, self.direct_beam = interpolate_db_sdds()
         self.distance *= 1000
-        self.get_beamstop()
-        self.md = self.update_md(prefix='detector_SAXS_', **md)
 
-        return self
+        smi_saxs_detector.x0_pix.value = self.direct_beam[0]
+        smi_saxs_detector.y0_pix.value = self.direct_beam[1]
+        smi_saxs_detector.sdd.value = self.distance
 
 
     def get_beamstop(self):
         '''
-        Read the encoded positions of pindiode and gisaxs beamstop to determine which beamstop is in and which pixels to mask
+        Read the positions of pindiode and gisaxs beamstop to determine which beamstop is in and which pixels to mask
         '''
 
-        #Encoded data rod beamstop and pindiode
-        self.encoded_bsx = pil1m_bs.x.position
-        self.encoded_bsy = pil1m_bs.y.position
-        self.encoded_pdx = pd_bs.x.position
-        self.encoded_pdy = pd_bs.y.position
-
-        #ToDo: check beamstop position to know which beamstop is in
-        #ToDo: Calculate whatpixels to mask for different beamstop positions
-        if self.encoded_pdx < 10 and self.encoded_bsx < 10:
-            self.bs_kind = 'rod_beamstop'
+        #ToDo: Calculate what pixels to mask for different beamstop positions
+        if pil1m_bs_pd.x.position < 10 and pil1m_bs_rod.x.position < 10:
+            smi_saxs_detector.bs_kind = 'rod_beamstop'
 
             #To be implemented with the good values, not hard-coded
-            self.bs_mask = [10, 10]
+            smi_saxs_detector.xbs_mask = 10
+            smi_saxs_detector.ybs_mask = 10
 
-        elif abs(self.encoded_pdx) > 50 and abs(self.encoded_bsx) < 50:
-            self.bs_kind = 'pindiode'
+        elif abs(pil1m_bs_pd.x.position) > 50 and abs(pil1m_bs_rod.x.position) < 50:
+            smi_saxs_detector.bs_kind = 'pindiode'
 
             #To be implemented with the good values, not hard-coded
-            self.bs_mask = [10, 10]
+            smi_saxs_detector.xbs_mask = 10
+            smi_saxs_detector.ybs_mask = 10
 
         else:
-            self.bs_kind = 'None'
+            smi_saxs_detector.bs_kind = 'None'
 
             #To be implemented with the good values, not hard-coded
-            self.bs_mask = [0, 0]
+            smi_saxs_detector.xbs_mask = 10
+            smi_saxs_detector.ybs_mask = 10
 
 
     def set_beamstop(self):
@@ -441,50 +419,9 @@ class SMI_SAXS_Det(object):
         self.getPositions()
         self.get_beamstop()
 
-        #Compare beamstop position vs direct beam position
+        # ToDo: Compare beamstop position vs direct beam position and change bs position
+        pass
 
-
-    def update_md(self, prefix='detector_SAXS_', **md):
-
-        #Need to add here the real beamstop poition as well as the
-        
-        md_saxs = self.md.copy()    
-        x0, y0 = self.direct_beam
-
-        md_saxs['name'] = self.detector_name
-        md_saxs['pixel_size'] = self.pixel_size
-
-        #Read the detector position
-        md_saxs['posx'] = self.encoded_detector_posx
-        md_saxs['posy'] = self.encoded_detector_posy
-        md_saxs['posz'] = self.encoded_detector_posz
-
-        #Read the encoded beamstop position
-        md_saxs['bs_x'] = self.encoded_bsx
-        md_saxs['bs_y'] = self.encoded_bsy
-        md_saxs['pd_x'] = self.encoded_pdx
-        md_saxs['pd_y'] = self.encoded_pdy
-        
-        self.get_beamstop()
-        #Save which beamstop is in and pixels to mask. Important for the analysis masking 
-        md_saxs['bs_kind'] = self.bs_kind
-        md_saxs['xbs_mask'] = self.bs_mask[0]
-        md_saxs['ybs_mask'] = self.bs_mask[1]
-
-        #Acurate direct beam position and sample to detector distance
-        md_saxs['x0_pix'] = self.direct_beam[0]
-        md_saxs['y0_pix'] = self.direct_beam[1]
-        md_saxs['sdd'] = self.distance
-               
-        # Include the user-specified metadata
-        md_saxs.update(md)
-
-        # Add an optional prefix
-        if prefix is not None:
-            md_saxs = { '{:s}{:s}'.format(prefix, key) : value for key, value in md_saxs.items() }
-        
-        self.md.update(md_saxs)
-        return md_saxs
 
 
     #ToDo: check if gisaxs alignement still working with the new code
@@ -496,7 +433,7 @@ class SMI_SAXS_Det(object):
         #Will also need here to implement to interpolate the direct beam position with the sdd
         #Add also the interpolation of the distance when ready
 
-        self.beamstop = [pil1m_bs.x.position, pil1m_bs.y.position]
+        self.beamstop = [pil1m_bs_rod.x.position, pil1m_bs_rod.y.position]
         self.detector_position = [pil1m_pos.x.position, pil1m_pos.y.position]
         
         delta_pos_x = -self.detector_position[0] + self.detector_position_0_0[0]
@@ -508,3 +445,39 @@ class SMI_SAXS_Det(object):
 
 SMI = SMI_Beamline()
 pilatus1M = SMI_SAXS_Det()
+
+def SMI_WAXS_detector(Device):
+    prefix = 'detector_waxs_'
+    name1 = Component(Signal, value='Pilatus300kw', name=prefix+'waxs_name', kind='config')
+    pixel_size = Component(Signal, value=0.172, name=prefix+'pixel_size', kind='config')
+    x0_pix = Component(Signal, value=97, name=prefix+'x0_pix', kind='config')
+    y0_pix = Component(Signal, value=1386, name=prefix+'y0_pix', kind='config')
+    sdd = Component(Signal, value=274.9, name=prefix+'sdd', kind='config')
+
+
+def SMI_SAXS_detector(Device):
+    prefix = 'detector_saxs_'
+
+    name1 = Component(Signal, value='Pilatus300kw', name=prefix+'name', kind='config')
+    pixel_size = Component(Signal, value=0.172, name=prefix+'pixel_size', kind='config')
+
+    #Defined in the pilatus file
+    pos = pil1m_pos
+
+    #Defined in the beamstop file
+    saxs_bs_pindiode = pil1m_bs_pd
+    saxs_bs_rod = pil1m_bs_rod
+
+    bs_kind = Component(Signal, value='rod', name=prefix+'bs_kind', kind='config')
+    xbs_mask = Component(Signal, value=0, name=prefix+'xbs_mask', kind='config')
+    ybs_mask = Component(Signal, value=0, name=prefix+'ybs_mask', kind='config')
+
+    x0_pix = Component(Signal, value=0, name=prefix+'y0_pix', kind='config')
+    y0_pix = Component(Signal, value=0, name=prefix+'y0_pix', kind='config')
+    sdd = Component(Signal, value=8300, name=prefix+'sdd', kind='config')
+
+
+#ToDO: add a class for teh rayonix with sdd, pixel size, binning, ...
+
+smi_waxs_detector = SMI_WAXS_detector()
+smi_saxs_detector = SMI_SAXS_detector()

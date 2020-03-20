@@ -32,38 +32,38 @@ def expert_gisaxs_scan(dets = [pil300KW, pil1M],
                'x_trans': x_trans,
                }
     base_md.update(md or {})
+    #Define a list of detectors to trigger and what to store in the baseline
+    all_detectors = dets
+    sd.baseline = []
 
     #update metadata from the beamline might not be needed here but somewhere else
     SMI.get_md()
 
     #Update metadata for the detctors
     if 'pil300KW' in [det.name for det in dets]:
-        pilatus300kw.get_md()
-        base_md.update(pilatus300kw.md or {})
-    
+        all_detectors.append(WAXS) #Position of the WAXS arc and beamstopm
+        sd.baseline.append(smi_waxs_detector)
+
     if 'pil1M' in [det.name for det in dets]:
-        pilatus1M.get_md()
-        base_md.update(pilatus1M.md or {})
+        SMI_SAXS_Det()
+        # Nothing added as detector so far since the saxs detector is not moved but anything could be implemented
+        sd.baseline.append(smi_saxs_detector)
 
     if 'rayonix' in [det.name for det in dets]:
         print('no metadata for the rayonix yet')
-        base_md.update({})
 
-    #Define a list of detectors to trigger and what to store in the baseline
-    detectors_required = dets
-    sd.baseline = []
 
     #Update metadata for motors not used and add the motor as detector if so
-    if 'piezo' in [motor.name for motor in motors]: detectors_required.append(piezo)
+    if 'piezo' in [motor.name for motor in motors]: all_detectors.append(piezo)
     else: sd.baseline.append(piezo)
 
-    if 'stage' in [motor.name for motor in motors]: detectors_required.append(stage)
+    if 'stage' in [motor.name for motor in motors]: all_detectors.append(stage)
     else: sd.baseline.append(stage)
 
-    if 'prs' in [motor.name for motor in motors]: detectors_required.append(prs)
+    if 'prs' in [motor.name for motor in motors]: all_detectors.append(prs)
     else: sd.baseline.append(prs)
    
-    if 'energy' in [motor.name for motor in motors]: detectors_required.append(energy)
+    if 'energy' in [motor.name for motor in motors]: all_detectors.append(energy)
     else: sd.baseline.append(energy)
 
 
