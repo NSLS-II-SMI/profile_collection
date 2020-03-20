@@ -389,25 +389,25 @@ class SMI_SAXS_Det(object):
 
         #ToDo: Calculate what pixels to mask for different beamstop positions
         if pil1m_bs_pd.x.position < 10 and pil1m_bs_rod.x.position < 10:
-            smi_saxs_detector.bs_kind = 'rod_beamstop'
+            smi_saxs_detector.bs_kind.value = 'rod_beamstop'
 
             #To be implemented with the good values, not hard-coded
-            smi_saxs_detector.xbs_mask = 10
-            smi_saxs_detector.ybs_mask = 10
+            smi_saxs_detector.xbs_mask.value = 10
+            smi_saxs_detector.ybs_mask.value = 10
 
         elif abs(pil1m_bs_pd.x.position) > 50 and abs(pil1m_bs_rod.x.position) < 50:
             smi_saxs_detector.bs_kind = 'pindiode'
 
             #To be implemented with the good values, not hard-coded
-            smi_saxs_detector.xbs_mask = 10
-            smi_saxs_detector.ybs_mask = 10
+            smi_saxs_detector.xbs_mask.value = 10
+            smi_saxs_detector.ybs_mask.value = 10
 
         else:
             smi_saxs_detector.bs_kind = 'None'
 
             #To be implemented with the good values, not hard-coded
-            smi_saxs_detector.xbs_mask = 10
-            smi_saxs_detector.ybs_mask = 10
+            smi_saxs_detector.xbs_mask.value = 10
+            smi_saxs_detector.ybs_mask.value = 10
 
 
     def set_beamstop(self):
@@ -447,7 +447,6 @@ class SMI_SAXS_Det(object):
 
 class SMI_WAXS_detector(Device):
     prefix = 'detector_waxs_'
-    name1 = Component(Signal, value='Pilatus300kw', name=prefix+'waxs_name', kind='config')
     pixel_size = Component(Signal, value=0.172, name=prefix+'pixel_size', kind='config')
     x0_pix = Component(Signal, value=97, name=prefix+'x0_pix', kind='config')
     y0_pix = Component(Signal, value=1386, name=prefix+'y0_pix', kind='config')
@@ -457,8 +456,6 @@ class SMI_WAXS_detector(Device):
 
 class SMI_SAXS_detector(Device):
     prefix = 'detector_saxs_'
-
-    name1 = Component(Signal, value='Pilatus300kw', name=prefix+'name', kind='config')
     pixel_size = Component(Signal, value=0.172, name=prefix+'pixel_size', kind='config')
 
     #Defined in the pilatus file
@@ -479,8 +476,8 @@ class SMI_SAXS_detector(Device):
 
 #ToDO: add a class for teh rayonix with sdd, pixel size, binning, ...
 
-smi_waxs_detector = SMI_WAXS_detector()
-smi_saxs_detector = SMI_SAXS_detector()
+smi_waxs_detector = SMI_WAXS_detector(name='Pilatus300kw')
+smi_saxs_detector = SMI_SAXS_detector(name='Pilatus1M')
 
 SMI = SMI_Beamline()
 pilatus1M = SMI_SAXS_Det()
