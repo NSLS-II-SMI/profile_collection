@@ -377,6 +377,8 @@ class SMI_SAXS_Det(object):
         self.getPositions()
         self.get_beamstop()
 
+        self.update_md()
+
 
     def getPositions(self, **md):
         '''
@@ -442,7 +444,7 @@ class SMI_SAXS_Det(object):
         #Compare beamstop position vs direct beam position
 
 
-    def get_md(self, prefix='detector_SAXS_', **md):
+    def update_md(self, prefix='detector_SAXS_', **md):
 
         #Need to add here the real beamstop poition as well as the
         
@@ -516,6 +518,7 @@ class SMI_WAXS_Det(object):
         self.distance = 274.9
 
         self.getPositions()
+        self.update_md()
 
 
     def getPositions(self, **md):
@@ -528,7 +531,7 @@ class SMI_WAXS_Det(object):
         return self
 
 
-    def get_md(self, prefix='detector_WAXS_', **md):
+    def update_md(self, prefix='detector_WAXS_', **md):
         '''
         Define metadata for the waxs detector, mainly fixed values such as sample detector distance,
         direct beam, ... 
