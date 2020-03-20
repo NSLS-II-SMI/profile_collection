@@ -25,35 +25,35 @@ def expert_gisaxs_scan(dets = [pil300KW, pil1M],
     base_md = {'plan_name': 'gi_scan',
                'detectors': [det.name for det in dets],
                'user_name': user_name,
-               'motor': [motor.name for motor in motors],
+               'motor_scanned': [motor.name for motor in motors],
                'exposure_time': measurement_time,
                'number_image': number_images,
                'realignement': realignement,
                'x_trans': x_trans,
                }
     base_md.update(md or {})
-    #Define a list of detectors to trigger and what to store in the baseline
-    all_detectors = dets
-    sd.baseline = []
 
-    #update metadata from the beamline might not be needed here but somewhere else
-    SMI.get_md()
+    all_detectors = dets    #Start a list off all the detector to trigger
+    all_detectors.append([xbpm2, xbpm3, ring.current])  #add all the values to track  for analysis
+    sd.baseline = []    #Initializatin of the baseline
+    SMI.get_md()    #update metadata from the beamline
 
-    #Update metadata for the detctors
+    #Update metadata for the detectors
     if 'pil300KW' in [det.name for det in dets]:
-        all_detectors.append(WAXS) #Position of the WAXS arc and beamstopm
-        sd.baseline.append(smi_waxs_detector)
+        all_detectors.append(WAXS) #Record the position of the WAXS arc and beamstop
+        sd.baseline.append(smi_waxs_detector)   #Load metadata of WAXS detector in the baseline
 
     if 'pil1M' in [det.name for det in dets]:
-        SMI_SAXS_Det()
+        SMI_SAXS_Det()  #Update metadata from the beamline
         # Nothing added as detector so far since the saxs detector is not moved but anything could be implemented
-        sd.baseline.append(smi_saxs_detector)
+        sd.baseline.append(smi_saxs_detector)   #Load metadata of SAXS detector in the baseline
 
     if 'rayonix' in [det.name for det in dets]:
         print('no metadata for the rayonix yet')
 
 
     #Update metadata for motors not used and add the motor as detector if so
+    # ToDo: what other values do we need to track, lakeshore and ...
     if 'piezo' in [motor.name for motor in motors]: all_detectors.append(piezo)
     else: sd.baseline.append(piezo)
 
@@ -67,7 +67,10 @@ def expert_gisaxs_scan(dets = [pil300KW, pil1M],
     else: sd.baseline.append(energy)
 
 
-    #Add comments name in assert
+    #Control if the input values are correct or if anything missing ...
+    # ToDO: list the options of possible scans and figure out all the assumptions
+    # ToDO: Can we write something general enough: or do we need
+
     assert(len(motors) == len(motor_range), f'Number of motor range ({len(motor_range)}) is different from number of motors ({len(motors)})')
     assert(len(sam_name) == len(motor_range), f'Number of sam_name ({len(sam_name)}) is different from number of motor range ({len(motor_range)})')   
     assert(scan_type in ['default_scan', 'list_scan', 'grid_scan', 'spiral_scan'], f'Scan ({scan_type}) not defined. Viable options: default_scan, list_scan, grid_scan, spiral_scan')
@@ -80,7 +83,6 @@ def expert_gisaxs_scan(dets = [pil300KW, pil1M],
     #Create signal for exposure_time, sample_name
     #Record motor position as detector if moved and as baseline if not
 
-    #detectors_required = [xbpm2, xbpm3, ring.current]
 
     for i, (mot_pos, sam_nam) in enumerate(zip(motor_range, sam_name)):
         yield from bps.mv(mot_name, mot_pos)
