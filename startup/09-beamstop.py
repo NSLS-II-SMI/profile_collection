@@ -14,14 +14,14 @@ class PIL1MBS(Device):
         self.x_center = None
         self.y_center = 13.1
         
-pil1m_bs = PIL1MBS('XF:12IDC-ES:2{BS:SAXS-Ax:', name='pil1m_bs')        
+pil1m_bs_rod = PIL1MBS('XF:12IDC-ES:2{BS:SAXS-Ax:', name='detector_saxs_bs_rod')
 
 
 class SAXSPindiode(Device):
     x = Cpt(EpicsMotor, 'OBB}Mtr')
     y = Cpt(EpicsMotor, 'OBM}Mtr') 
 
-pd_bs = SAXSPindiode( 'XF:12IDC-ES:2{BS:SAXS-Ax:', name = 'pd_bs' )
+pil1m_bs_pd = SAXSPindiode( 'XF:12IDC-ES:2{BS:SAXS-Ax:', name = 'detector_saxs_bs_pindiode' )
 
 
 def beamstop_save():
@@ -36,11 +36,11 @@ def beamstop_save():
 
 
     #Beamstop position in x and y
-    bs_pos_x = pil1m_bs.x.position
-    bs_pos_y = pil1m_bs.y.position
+    bs_pos_x = pil1m_bs_rod.x.position
+    bs_pos_y = pil1m_bs_rod.y.position
     
-    pdbs_pos_x = pd_bs.x.position
-    pdbs_pos_y = pd_bs.y.position
+    pdbs_pos_x = pil1m_bs_pd.x.position
+    pdbs_pos_y = pil1m_bs_pd.y.position
     
     #collect the current positions of motors
     current_config = {
