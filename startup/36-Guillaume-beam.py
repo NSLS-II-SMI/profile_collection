@@ -339,9 +339,9 @@ class SMI_Beamline(Beamline):
     def update_md(self, prefix='beamline_', **md):
         md_beamline = self.md.copy()
 
-        md_beamline['beamsize'] = self.crl_state
-        md_beamline['sample_environement'] = self.pressure_state
-        md_beamline['attenuators'] = self.att_state
+        RE.md[prefix + 'beamsize'] = self.crl_state
+        RE.md[prefix + 'sample_environement'] = self.pressure_state
+        RE.md[prefix + 'attenuators'] = self.att_state
 
         if prefix is not None:
             md_beamline = {'{:s}{:s}'.format(prefix, key): value for key, value in md_beamline.items()}

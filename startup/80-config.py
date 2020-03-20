@@ -1,6 +1,8 @@
 print(f'Loading {__file__}')
 
 from ophyd import EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt
+import os
+
 # things to read at begining and end of every scan
 sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring.current]
 #sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring_current]
@@ -9,32 +11,23 @@ sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring.current]
 # BlueskyMagics.detectors = [FS]
 
 def sample_id(*, user_name, sample_name, tray_number=None):
-
-    
     RE.md['user_name'] = user_name
     RE.md['sample_name'] = sample_name
-    if tray_number is None:
-        RE.md.pop('tray_number', None)
-    else:
-        RE.md['tray_number'] = tray_number
-    if tray_number is None:
-        fname = f"{user_name}_{sample_name}"
-    else:
-        fname = f"{user_name}_{sample_name}_{tray_number}"
-    
+    fname = f"{user_name}_{sample_name}"
+
     # DIRTY HACK, do not copy
     pil1M.cam.file_name.put(fname)
     pil1M.cam.file_number.put(1)
     pil300KW.cam.file_name.put(fname)
-    pil300KW.cam.file_number.put(1)    
+    pil300KW.cam.file_number.put(1)
     rayonix.cam.file_name.put(fname)
-    rayonix.cam.file_number.put(1)    
-    
+    rayonix.cam.file_number.put(1)
 
-def proposal_id(cycle_id,proposal_id):
-    cycle.value = cycle_id
-    proposal_number.value = proposal_id.split('_')[0]
-    main_proposer.value = proposal_id.split('_')[1]
+
+def proposal_id(cycle_id, proposal_id):
+    RE.md['cycle'] = cycle_id
+    RE.md['proposal_number'] = proposal_id.split('_')[0]
+    RE.md['main_proposer'] = proposal_id.split('_')[1]
 
     # 2018-04-10: Maksim asked Tom about why this 'put' does not create the folder,
     # Tom suggested to ask PoC to update AD installation.
