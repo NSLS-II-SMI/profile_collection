@@ -212,12 +212,7 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
     print('detectors', [det.name for det in dets])
     
     bec.disable_plots()
-    yield from bps.open_run(md=base_md)
-    print('open run')
-
-    yield from bp.scan(all_detectors, motor_names[0], *motor_range[0])#, name='primary')
-    
-    yield from bps.close_run()
+    yield from bp.scan(all_detectors, motor_names[0], *motor_range[0], md=base_md)
     bec.enable_plots()
 
     print('close run')
