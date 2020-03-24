@@ -2,7 +2,7 @@ from ophyd import Signal
 
 def expert_gisaxs_scan(dets = [pil300KW, pil1M],
                         sam_name=['test'], 
-                        motors = [[waxs_arc], [piezo.th]],
+                        motors = [[waxs.arc], [piezo.th]],
                         motor_range=[[0, 13, 3], [0.1, 0.2, 3]],
                         measurement_time = 1,
                         number_images = 1,
@@ -115,7 +115,7 @@ def expert_gisaxs_scan(dets = [pil300KW, pil1M],
 
 def gisaxs_scan(dets=[pil300KW, pil1M],
                 sam_name=['test'],
-                motors=[[waxs_arc], [piezo.th]],
+                motors=[[waxs.arc], [piezo.th]],
                 motor_range=[[0, 13, 3], [0.1, 0.2, 3]],
                 measurement_time=1,
                 number_images=1,
@@ -142,7 +142,7 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
     base_md = {'plan_name': 'gi_scan',
                'detectors': [det.name for det in dets],
                'user_name': user_name,
-               'motor_scanned': [motor.name for motor in motors],
+               'motor_scanned': [motor.name for motor in motor_names],
                'exposure_time': measurement_time,
                'number_image': number_images,
                'realignement': realignement,
@@ -153,15 +153,20 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
 
     print('base_md set')
 
+    print('dets1', len(dets))
 
     all_detectors = dets  # Start a list off all the detector to trigger
-    all_detectors.append([xbpm2, xbpm3, ring.current])  # add all the values to track  for analysis
-    sd.baseline = []  # Initializatin of the baseline
-    SMI.get_md()  # update metadata from the beamline
+    all_detectors.append(xbpm2)  # add all the values to track  for analysis
+    all_detectors.append(xbpm3)  # add all the values to track  for analysis
+    all_detectors.append(ring.current)  # add all the values to track  for analysis
 
+    sd.baseline = []  # Initializatin of the baseline
+    SMI.update_md()  # update metadata from the beamline
+
+    print('dets2', len(dets))
     # Update metadata for the detectors
     if 'pil300KW' in [det.name for det in dets]:
-        all_detectors.append(WAXS)  # Record the position of the WAXS arc and beamstop
+        all_detectors.append(waxs)  # Record the position of the WAXS arc and beamstop
         sd.baseline.append(smi_waxs_detector)  # Load metadata of WAXS detector in the baseline
 
     if 'pil1M' in [det.name for det in dets]:
@@ -203,11 +208,20 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
     all_detectors.append(sample_na)
 
     det_exposure_time(measurement_time, number_images * measurement_time)
-    print('opening the run')
 
+    print('detectors', [det.name for det in dets])
+    
+    bec.disable_plots()
+    yield from bps.close_run()
     yield from bps.open_run(md=base_md)
-    yield from bp.scan(all_detectors, motor_names, *motor_range)
-    yield from close_run()
+    print('open run')
+
+    yield from bp.scan(all_detectors, motor_names[0], *motor_range[0])#, name='primary')
+    
+    yield from bps.close_run()
+    bec.enable_plots()
+
+    print('close run')
 
     print('GISAXS scan with metadata done')
 
