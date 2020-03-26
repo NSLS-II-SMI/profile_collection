@@ -202,6 +202,11 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
     else:
         sd.baseline.append(energy)
 
+    if 'waxs' in [motor_names]:
+        all_detectors.append(waxs)
+        else:
+        sd.baseline.append(waxs)
+
     print('update motors in baseline and detctor list')
 
 
