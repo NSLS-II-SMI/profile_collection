@@ -140,6 +140,7 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
 
     # If this values change over a scan, possibility to transform in ophyd signal and record over a scan
     base_md = {'plan_name': 'gi_scan',
+               'geometry': 'reflection',
                'detectors': [det.name for det in dets],
                'user_name': user_name,
                'motor_scanned': [motor.name for motor in motor_names],
@@ -209,8 +210,11 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
 
     det_exposure_time(measurement_time, number_images * measurement_time)
 
+
+    #sd.baseline=[smi_saxs_detector]
     print('detectors', [det.name for det in dets])
-    
+    print('baseline', [det.name for det in sd.baseline])
+
     bec.disable_plots()
     yield from bp.scan(all_detectors, motor_names[0], *motor_range[0], md=base_md)
     bec.enable_plots()
