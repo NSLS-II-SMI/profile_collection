@@ -1,22 +1,22 @@
 from ophyd import Signal
 
-
 def gisaxs_scan(dets=[pil300KW, pil1M],
-                sam_name=['test'],
-                motors=[[waxs.arc], [piezo.th]],
-                motor_range=[[0, 13, 3], [0.1, 0.2, 3]],
+                trajectory='None',
                 measurement_time=1,
                 number_images=1,
                 user_name='GF',
-                realignement=[False],
-                x_trans = [0],
-                scan_type = 'linspace',
                 md = None
                 ):
 
+    #Pull out the motor names from a cycler
+    #ToDo: This can be improved
+    motor_names = []
+    for trajs in trajectory:
+        for traj in trajs.items():
+            if traj[0].name not in motor_names:
+                motor_names.append(traj[0].name)
 
     # Check if what is planned is doable
-    motor_names = [motor for moto in motors for motor in moto]
     try:
         motor_names
         [det for det in dets]
@@ -32,8 +32,6 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
                'motor_scanned': [motor.name for motor in motor_names],
                'exposure_time': measurement_time,
                'number_image': number_images,
-               'realignement': realignement,
-               'x_trans': x_trans,
                }
 
     base_md.update(md or {})
@@ -62,7 +60,15 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
 
 
     # Update metadata for motors not used in baseline and add the motor as detector if so
-    # ToDo: what other values do we need to track, lakeshore and ...
+    all_detectors.append(piezo) if 'piezo' in [motor_names] else sd.baseline.append(piezo)
+    all_detectors.append(stage) if 'stage' in [motor_names] else sd.baseline.append(stage)
+    all_detectors.append(prs) if 'prs' in [motor_names] else sd.baseline.append(prs)
+    all_detectors.append(energy) if 'energy' in [motor_names] else sd.baseline.append(energy)
+    all_detectors.append(waxs) if 'waxs' in [motor_names] else sd.baseline.append(waxs)
+    all_detectors.append(ls) if 'ls' in [motor_names] else sd.baseline.append(ls)
+
+
+    '''
     if 'piezo' in [motor_names]:
         all_detectors.append(piezo)
     else:
@@ -87,22 +93,19 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
         all_detectors.append(waxs)
         else:
         sd.baseline.append(waxs)
+    '''
 
-
-    sample_na = Signal(name='sample_name', value = sam_name)
+    sample_na = Signal(name='sample_name', value = 'test')
     all_detectors.append(sample_na)
 
     #Set exposure time
     det_exposure_time(measurement_time, number_images * measurement_time)
 
     bec.disable_plots()
-    yield from bp.scan(all_detectors, motor_names[0], *motor_range[0], md=base_md)
+    yield from bp.scan(all_detectors, trajectory, md=base_md)
     bec.enable_plots()
 
     print('GISAXS scan with metadata done')
-
-
-
 
 
 
