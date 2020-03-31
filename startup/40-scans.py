@@ -213,8 +213,7 @@ def expert_gisaxs_scan(dets=[pil300KW, pil1M],
     elif len(sam_name) != 1 and '.x' in motor_names:
         motor_name = [motor for motor in motor_names if '.x' in motor][0]
         assert (len(sam_name) == list(motor_dic[motor_name])[2],
-                f'Number of sample({len(sam_name)}) is different from the ({list(motor_dic[motor_name])[
-                    2]}) x position given')
+                f'Number of sample({len(sam_name)}) is different from the ({list(motor_dic[motor_name])[2]}) x position given')
 
     # Create signal for exposure_time, sample_name
     # Record motor position as detector if moved and as baseline if not
