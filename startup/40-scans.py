@@ -29,7 +29,7 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
                'geometry': 'reflection',
                'detectors': [det.name for det in dets],
                'user_name': user_name,
-               'motor_scanned': [motor.name for motor in motor_names],
+               'motor_scanned': motor_names,
                'exposure_time': measurement_time,
                'number_image': number_images,
                }
@@ -60,12 +60,12 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
 
 
     # Update metadata for motors not used in baseline and add the motor as detector if so
-    all_detectors.append(piezo) if 'piezo' in [motor_names] else sd.baseline.append(piezo)
-    all_detectors.append(stage) if 'stage' in [motor_names] else sd.baseline.append(stage)
-    all_detectors.append(prs) if 'prs' in [motor_names] else sd.baseline.append(prs)
-    all_detectors.append(energy) if 'energy' in [motor_names] else sd.baseline.append(energy)
-    all_detectors.append(waxs) if 'waxs' in [motor_names] else sd.baseline.append(waxs)
-    all_detectors.append(ls) if 'ls' in [motor_names] else sd.baseline.append(ls)
+    all_detectors.append(piezo) if 'piezo' in motor_names else sd.baseline.append(piezo)
+    all_detectors.append(stage) if 'stage' in motor_names else sd.baseline.append(stage)
+    all_detectors.append(prs) if 'prs' in motor_names else sd.baseline.append(prs)
+    all_detectors.append(energy) if 'energy' in motor_names else sd.baseline.append(energy)
+    all_detectors.append(waxs) if 'waxs' in motor_names else sd.baseline.append(waxs)
+    all_detectors.append(ls) if 'ls' in motor_names else sd.baseline.append(ls)
 
 
     '''
@@ -102,7 +102,7 @@ def gisaxs_scan(dets=[pil300KW, pil1M],
     det_exposure_time(measurement_time, number_images * measurement_time)
 
     bec.disable_plots()
-    yield from bp.scan(all_detectors, trajectory, md=base_md)
+    yield from bp.scan_nd(all_detectors, trajectory, md=base_md)
     bec.enable_plots()
 
     print('GISAXS scan with metadata done')
