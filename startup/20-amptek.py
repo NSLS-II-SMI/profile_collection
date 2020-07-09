@@ -1,9 +1,10 @@
 print(f'Loading {__file__}')
 
+import numpy as np
 from ophyd.status import SubscriptionStatus
 from ophyd.mca import EpicsMCA
 from ophyd import (Component as Cpt, Device, EpicsSignal, EpicsSignalRO,
-                   EpicsSignalWithRBV, DeviceStatus)
+                   EpicsSignalWithRBV, DeviceStatus, Signal)
 from ophyd.device import (BlueskyInterface, Staged)
 
 
@@ -37,9 +38,14 @@ class AmptekMCA(EpicsMCA):
     why4 = Cpt(EpicsSignal, 'Why4')
 
 
+channels = np.linspace(1, 7000, 7000)
+energy_channels = -165.83 + 3.134 * channels - 7.2124E-5 * channels**2 + 8.89825E-9 * channels**3
+amptek_energy = Signal(name='amptek_energy', value=energy_channels)
+
 class Amptek(Device):
     mca = Cpt(AmptekMCA, 'mca1')
     dwell = Cpt(EpicsSignal, 'Dwell')
+    energy_channels = amptek_energy
     
 
 class AmptekSoftTrigger(BlueskyInterface):
@@ -122,3 +128,7 @@ class SMIAmptek(AmptekSoftTrigger, Amptek):
                          configuration_attrs=configuration_attrs, **kwargs)
 
 amptek = SMIAmptek("XF:12IDC-ES:2{Det-Amptek:1}", name="amptek")
+
+
+
+
