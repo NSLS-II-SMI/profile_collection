@@ -4,8 +4,7 @@ import os
 from ophyd import (PVPositioner, EpicsSignal, EpicsSignalRO, EpicsMotor,
                    Device, Signal, PseudoPositioner, PseudoSingle)
 from ophyd.utils.epics_pvs import set_and_wait
-from ophyd.ophydobj import StatusBase, MoveStatus
-from ophyd.status import DeviceStatus
+from ophyd.status import StatusBase, MoveStatus, DeviceStatus
 from ophyd import Component as Cpt
 from ophyd import Component
 from scipy.interpolate import InterpolatedUnivariateSpline
