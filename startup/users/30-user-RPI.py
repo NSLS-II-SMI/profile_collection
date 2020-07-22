@@ -36,13 +36,34 @@ def run_saxs_capsRPI(t=1):
 
 def run_waxs_fastRPI(t=1):
 
-    xlocs = [44000,37000,30000,23000,16000,9500,1750,-6250,-13250,-22250,-29250,-35250,-42250,37000,24000,16000,8000,-500,-6200,-12200,-19000,-25000,-35250,-42250]
-    ylocs = [8500,8500,8500,8500,8500,8500,8500,8500,8000,8800,7500,7500,7500,-8000,-8000,-8000,-8500,-8000,-8000,-8000,-8000,-8500,-8500,-8500]
-    names = ['B8O1-4','B8O1-5','B9O1-5','B10O1-4','B10O1-5','B9O1-2','B9O1-3','B9O1-4','B10O1-2','B10O1-3','AB-1','AB-2','O134A-1','O134A-2','O134A-3','O134A-4','O133A-1','O133A-2','O133A-3','O133A-4','WATER-1s','blank-capilllry-1.5mm']
-
+    xlocs = [-20600,-14600,-6600, 1400,7600,14000,21500,28500,33900,39900, -34600,-25100,-15100,-6100,2900,12900,21900,31900,41900]
+    y_top = -9300
+    y_bot = 8100
+    ylocs = [y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,   y_top,y_top,y_top,y_top,y_top,y_top,y_top,y_top,y_top]
+    ## A rack
+    # names = ['A_EPTD_40_y0.6','A_EPTD_40_y0.5','A_EPTD_40_y0.4','A_EPTD_40_y0.3','A_EPTD_40_y0.2','A_EPTD_40_y0.1','A_EPTD_40_y0.0','A_EPTD_40_y1.0','A_EPTD_40_y0.9',
+    #         'A_EPTD_100_y0.8','A_EPTD_100_y0.7','A_EPTD_100_y0.6','A_EPTD_100_y0.5','A_EPTD_100_y0.4','A_EPTD_100_y0.3','A_EPTD_100_y0.2','A_EPTD_100_y0.1', 'A_EPTD_100_y0.0']
     
-    x_off = [-1000, 0, 1000] 
-    user = 'LC'    
+    ## C rack
+    # names = ['C_EITD_y0.6','C_EITD_y0.5','C_EITD_y0.4','C_EITD_y0.3','C_EITD_y0.2','C_EITD_y0.1','C_EITD_y0.0','C_EITD_y1.0','C_EITD_y0.9',
+    #        'C_EIT_y0.8','C_EIT_y0.7','C_EIT_y0.6','C_EPTD_20_y1.0','C_EPTD_20_y0.9','C_EPTD_20_y0.8','C_EPTD_20_y0.7','C_EPTD_20_0.6', 'C_EPTD_20_y0.5']
+    
+    ## D rack    
+    # names = ['D_ETTD_y0.8','D_ETTD_y0.7','D_ETTD_y0.6','D_ETTD_y0.5','D_ETTD_y0.4','D_ETTD_y0.3','D_ETTD_y0.2','D_ETTD_y0.1','D_ETTD_y0.0',
+    #       'D_ETT_x1.0','D_ETT_x0.9','D_ETT_x0.8','D_ETT_x0.7','D_ETT_x0.6','D_EITD_y1.0','D_EITD_y0.9','D_EITD_y0.8', 'D_EITD_y0.7']
+    
+    ## E rack    
+    # names = ['E_EXTD_y1.0','E_EXTD_y0.9','E_EXTD_y0.8','E_EXTD_y0.7','E_EXTD_y0.6','E_EXTD_y0.5','E_EXTD_y0.4','E_EXTD_y0.3','E_EXTD_y0.2',
+    #       'E_EXTD_y0.1','E_EXTD_y0.0','E_EXT_x1.0','E_EXT_x0.9','E_EXT_x0.8','E_EXT_x0.7','E_EXT_x0.6','E_ETTD_y1.0','E_ETTD_y0.9']
+    
+    ## B rack    
+    names = ['B_EPTD_e1.0','B_EPTD_e0.9','B_EPTD_e0.8','B_EPTD_e0.7','B_EPTD_e0.6','B_EPT_e1.0','B_EPT_e0.9','B_EPT_e0.8','B_EPT_e0.7','B_EPT_e0.6',
+          'B_EPTD_20_y0.4','B_EPTD_20_y0.3','B_EPTD_20_y0.2','B_EPTD_20_y0.1','B_EPTD_20_y0.0','B_EPTD_40_y1.0','B_EPTD_40_y0.9','B_EPTD_40_y0.8','B_EPTD_40_y0.7']
+    
+    
+    x_off = [-1000, 0, 1000]
+    y_off = [-500, 500] 
+    user = 'SL'    
     det_exposure_time(t,t)     
     
     assert len(xlocs) == len(names), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
@@ -63,14 +84,17 @@ def run_waxs_fastRPI(t=1):
         for sam, x, y in zip(names, xlocs, ylocs):
             yield from bps.mv(piezo.x, x)            
             yield from bps.mv(piezo.y, y)
-            for xx, x_of in enumerate(x_off):        
-                yield from bps.mv(piezo.x, x+x_of)
-            
-                name_fmt = '{sam}_wa{waxs}_xloc{xx}'
-                sample_name = name_fmt.format(sam=sam, xx='%2.2d'%xx, waxs='%2.1f'%wa)
-                sample_id(user_name=user, sample_name=sample_name) 
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                yield from bp.count(dets, num=1)
+            for yy, y_of in enumerate(y_off):        
+                yield from bps.mv(piezo.y, y+y_of)
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x+x_of)
+                    xxa = xx+1
+                    yya = yy+1 
+                    name_fmt = '{sam}_wa{waxs}_locYX_{yy}{xx}'
+                    sample_name = name_fmt.format(sam=sam, xx='%1.1d'%xxa, yy='%1.1d'%yya, waxs='%2.1f'%wa)
+                    sample_id(user_name=user, sample_name=sample_name) 
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    yield from bp.count(dets, num=1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3, 0.3) 

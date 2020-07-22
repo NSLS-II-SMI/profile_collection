@@ -1,40 +1,47 @@
 #phi scan
 def gisaxsnetzke(meas_t=1):
-    waxs_arc = np.linspace(0, 26, 5) #(2th_min 2th_max steps)
-    dets = [pil300KW, pil1M]
-    phi=-20
-    #xlocs = [-44500, -34800, -25700, -15500, -5000, 6900, 15200, 25500, 35500, 46800]
-    xlocs = [25500]
-    #names = ['RY13','RY15','RY16','RY17','RY18','RY19','RY21','RY26','TiN1','TiN2']
-    names = ['RY26_alphascan']
-    #angle = [0.2, 0.29, 0.4, 0.45]
-    angle = [0.08, 0.12, 0.2]
-    energ = [16100]   
+    waxs_arc = np.linspace(0, 45.5, 8) #for 9.54 keV
+    #waxs_arc = np.linspace(0, 26, 5) #(2th_min 2th_max steps) for 16.1 keV
+    dets = [pil300KW]
+    phi= [0, -20, -40, -60]
+    phi_aioff = [0, -0.03, -0.025, 0.015]
+    xlocs = [#-41000,
+            -33500, -26000, -19000, -11500,       1000, 8500, 16000, 23500, 31000, 38500]
+    #xlocs = [25500]
+    names = [#'SAM16-HZO_2',
+            'ALLS61','ALLS56', 'ALLS63', 'ALLS65',     'SAM16-HZO_1','SAM16HfO2_2','ALLS58','ALLS62','ALLS57B', 'ALLS64']
+    angle = [0.2, 0.29, 0.4, 0.45] #for 9.54 keV
+    #angle = [0.08, 0.12, 0.2] #for 16.1 keV
+    energ = [9540, 9580]   
+    #energ = [6100] 
     assert len(xlocs) == len(names), f'Sample name/position list is borked' 
     
     for x, name in zip(xlocs, names):
         yield from bps.mv(piezo.x, x)
-        
-        #yield from bps.mv(GV7.open_cmd, 1 )
-        yield from alignement_gisaxs(0.08)
-        #yield from bps.mv(GV7.close_cmd, 1 )
-        
+        yield from bps.mv(GV7.open_cmd, 1 )
+        yield from alignement_gisaxs(0.2) #for 9.54 keV
+        # yield from alignement_gisaxs(0.08) #for 16.1 keV
+        yield from bps.mv(GV7.close_cmd, 1 )
+        yield from bps.mv(att2_5.open_cmd, 1 )
         det_exposure_time(meas_t, meas_t) 
         name_fmt = '{sample}_E{ene}eV_ai{angle}deg_phi{phi}deg_wa{waxs}'
         for j, wa in enumerate(waxs_arc):
             yield from bps.mv(waxs, wa)
-            for en in energ:
-                yield from bps.mv(energy, en)
-                #and the fastest cycle is the angle change
-                for an in angle:
-                    yield from bps.mvr(piezo.th, an)
-                    sample_name = name_fmt.format(sample=name, ene='%2.0f'%en, angle='%3.2f'%an, phi = phi, waxs='%2.1f'%wa)
-                    sample_id(user_name='SN', sample_name=sample_name)
-                    print(f'\n\t=== Sample: {sample_name} ===\n')
-                    yield from bp.count(dets, num=4)
-                    yield from bps.mvr(piezo.th, -an)                   
-                
-    yield from bps.mv(prs, 0)
+            for an in angle:
+                #yield from bps.mv(stage.th, an)
+                for ph, aioff in zip(phi,phi_aioff):
+                    yield from bps.mv(prs, ph)    
+                    yield from bps.mv(stage.th, an+aioff)
+                    for en in energ:
+                        yield from bps.mv(energy, en)
+                        sample_name = name_fmt.format(sample=name, ene='%2.0f'%en, angle='%3.2f'%an, phi ='%2.1f'%ph, waxs='%2.1f'%wa)
+                        sample_id(user_name='SN', sample_name=sample_name)
+                        print(f'\n\t=== Sample: {sample_name} ===\n')
+                        yield from bp.count(dets, num=1)
+        yield from bps.mv(stage.th, 0)
+        yield from bps.mv(piezo.th, 0)                   
+                   
+        yield from bps.mv(prs, 0)
 
 def netzkeall(meas_t=0.6):
     yield from gisaxsnetzke(meas_t=0.6)

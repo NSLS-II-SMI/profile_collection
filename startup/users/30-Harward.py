@@ -2,11 +2,11 @@
 
 def run_harv_temp(tim=0.5): 
     # Slowest cycle:
-    temperatures = [35, 100, 150]
-    name = 'SL'
-    x_list  = [46850, 35150, 29150, 22750, 15750, 8950, -12550, -21150, -29550, -36350, -45950]
-    y_list =  [3900, 4000, 4000, 3950, 4000, 4000, 4200, 4050, 4100, 4050, 4100]
-    samples = [ '5HDDA', '2.5BDDA','5BDDA','7.5BDDA','10BDDA','15BDDA','2.5DDDA','5DDDA','7.5DDDA', '10DDDA', '15DDDA']
+    temperatures = [25, 100, 150]
+    name = 'ML'
+    x_list  = [52100, 44600, 36600, 30600, 20600, 9100, -3900, -11900, -24400, -34100, -44360]
+    y_list =  [4000,   4200,  4100,  4050,  3900, 4100,   4050,   4050,   4100,   4000,   4150]
+    samples = [ '5HDDA_red100', '5HDDA_red150','5HDDA_red100_2','5HDDA_red70','5HDDA_red40','20HDDA_yellow','17.5HDDA_yellow2','17.5HDDA_yellow','15HDDA_yellow', '10HDDA_yellow', '0HDDA_yellow']
     
     assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
@@ -17,7 +17,7 @@ def run_harv_temp(tim=0.5):
     
     x_offset = [0, 0, 400, 400]
     y_offset = [0, 50, 0, 50]
-    zoff = -11100
+    zoff = -9000
     waxs_arc = np.linspace(0, 32.5, 6) 
     name_fmt = '{sample}_pos{offset}_{temperature}C_wa{waxs}'
     yield from bps.mv(piezo.z, zoff)
@@ -44,6 +44,58 @@ def run_harv_temp(tim=0.5):
     det_exposure_time(0.5,0.5)
     yield from bps.mv(ls.ch1_sp, 28)
 
+
+
+
+
+def run_harv_temp_all(tim=0.5): 
+    # Slowest cycle:
+    temperatures = [35, 100, 150]
+    name = 'ML'
+    #x_list  = [-46300, -37300, -29800, -20300, -13800, -6200, 1300, 9000, 16700, 26300, 33300, 39300, 46300, 53000]
+    #y_list =  [-8800, -8800, -8800, -8750, -8750, -8750, -9200, -9200, -9300, -9100, -9200, -9300, -8970, -9000]
+    #samples = [ 'set1_sample1', 'set1_sample2','set1_sample3','set1_sample4','set1_sample5', 'set1_sample6', 'set3_sample1', 'set3_sample2','set3_sample3','set3_sample4','set3_sample5', 'set3_sample6','set2_sample3', 'set2_sample4']
+    
+    x_list  = [36500, 23000, 11500, 4000, -7000]
+    y_list =  [-5500, -5000, -6000, -6000, -5000]
+    samples = [ 'set2_headon_sample1', 'set2_headon_sample2','set2_headon_sample3','set2_headon_sample4','set2_headon_sample5']
+    
+
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    #Detectors, motors:
+    dets = [pil1M, pil300KW] #ALL detectors
+    #dets = [pil300KW,ls.ch1_read, xbpm3.sumY] # WAXS detector ALONE
+    
+    x_offset = [0, 0, 0, 400, 400, 400]
+    y_offset = [0, 50, 100, 0, 50, 100]
+    zoff = 3000
+    waxs_arc = np.linspace(0, 32.5, 6) 
+    name_fmt = '{sample}_pos{offset}_{temperature}C_wa{waxs}'
+    yield from bps.mv(piezo.z, zoff)
+
+    det_exposure_time(tim, tim)
+    for i_t, t in enumerate(temperatures):
+        yield from bps.mv(ls.ch1_sp, t)
+        if i_t !=0:
+            time.sleep(600)
+        temp = ls.ch1_read.value
+        for j, wa in enumerate(waxs_arc): #
+            yield from bps.mv(waxs, wa)
+            for x, y, s in zip(x_list, y_list, samples):
+                yield from bps.mv(piezo.x, x)
+                yield from bps.mv(piezo.y, y)
+                for i_0, (x_0, y_0) in enumerate(zip(x_offset, y_offset)):
+                    sample_name = name_fmt.format(sample=s, offset = i_0+1, temperature='%3.1f'%temp, waxs='%2.1f'%wa)
+                    yield from bps.mv(piezo.x, x+x_0)
+                    yield from bps.mv(piezo.y, y+y_0)
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    sample_id(user_name=name, sample_name=sample_name) 
+                    yield from bp.count(dets, num=1)
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
+    yield from bps.mv(ls.ch1_sp, 28)
 
 
 def run_harv_temp_linkam(tim=0.2): 

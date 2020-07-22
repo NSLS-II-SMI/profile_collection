@@ -2,6 +2,155 @@
 # %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Cai.py 
 # RE(run_giwaxs_cai(2))
 
+def mapping_saxs_Cai(t=1): 
+    samples = ['3Dprinted_filament_sr3','3Dprinted_filament_sr30','3Dprinted_filament_sr300','3Dprinted_filament_sr3000',
+    'Interface_3Dpr_sp0.5', 'Interface_3Dpr_sp0.7', 'Interface_3Dpr_sp0.9', 'Interface_3Dpr_sp1.1']
+    
+    x_list = [38000,26000,13200,2600,
+    -10600, -22600, -32600, -43600]
+    y_list = [100,-450,600,-100,
+    -300, -2300, -2000, -2100]
+    
+    name = 'PT'
+    
+    x_range=[[0, 5000, 11],[0, 5000, 11],[0, 5000, 11],[0, 5000, 11], 
+    [0, 5000, 11],[0, 5000, 11],[0, 5000, 11],[0, 5000, 11]]
+    y_range=[[0, 800, 41], [0, 1000, 51], [0, 1100, 56], [0, 1000, 51],
+    [0, 3400, 171], [0, 4500, 226], [0, 5200, 261], [0, 6300, 316]]
+    
+    
+    # Detectors, motors:
+    dets = [pil1M]# dets = [pil1M,pil300KW]
+    det_exposure_time(t,t)
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    for x, y, sample, x_r, y_r in zip(x_list, y_list, samples, x_range, y_range):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        sample_id(user_name=name, sample_name=sample) 
+        yield from bp.rel_grid_scan(dets, piezo.x, *x_r, piezo.y, *y_r, 0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+
+def saxs_cap_cai(t=1): 
+    #xlocs = [-38000, -25000,-12500, -6800, -200, 6600, 12900, 19200, 25900, 32300, 44800]
+    xlocs = [-44300]
+    #ylocs = [-6800, -1700,-9600, 9000, 300, -2200, 9000, 9000, 9000, 6600, 5000, 7000]
+    ylocs = [-9300]
+    #names = ['BnMA0.0','BnMA0.3','BnMA0.6','BnMA0.80','BnMA0.85','BnMA1.1','BnMA2.0','BnMA3.0','BnMA5.5','BnMA0.54','BnMA1.1_new'][::-1]
+    names = ['Cap_bkg',]
+        
+    user = 'LC'    
+    det_exposure_time(t,t)     
+    
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    waxs_range = np.linspace(13, 0, 3)
+    
+    #x_off = [-1000, 0, 1000]
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y in zip(names, xlocs, ylocs):
+            yield from bps.mv(piezo.x, x)            
+            yield from bps.mv(piezo.y, y)
+
+            # for xx, x_of in enumerate(x_off):
+            #     yield from bps.mv(piezo.x, x+x_of)
+            #     xxa = xx+1
+
+            name_fmt = '{sam}_cap_wa{waxs}'
+            sample_name = name_fmt.format(sam=sam,  waxs='%2.1f'%wa)
+            sample_id(user_name=user, sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3) 
+
+
+
+def saxs_cai(t=1): 
+    xlocs = [-26000,-13000,-2000, 10000,21000,33000,42000, -33000,-22000,-11000,0,12000,22000,34000,42000]
+    y_top = -6500
+    y_bot = 6000
+ 
+    ylocs = [y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,   y_top,y_top,y_top,y_top,y_top,y_top,y_top,y_top]
+ 
+    names = ['LhBBL_3.0_ann','LhBBL_0.8_ann','LhBBL_0.3_ann','LhBBL_0.0_ann','LhBBL_1.1_new','LhBBL_0.54','LhBBL_5.5',
+    'LhBBL_3.0','LhBBL_2.0','LhBBL_1.1','LhBBL_0.85','LhBBL_0.8','LhBBL_0.6','LhBBL_0.3','LhBBL_0.0']
+    
+        
+    user = 'LC'    
+    det_exposure_time(t,t)     
+    
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    waxs_range = np.linspace(13, 0, 3)
+    
+    x_off = [-1000, 0, 1000]
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y in zip(names, xlocs, ylocs):
+            yield from bps.mv(piezo.x, x)            
+            yield from bps.mv(piezo.y, y)
+
+            for xx, x_of in enumerate(x_off):
+                yield from bps.mv(piezo.x, x+x_of)
+                xxa = xx+1
+
+                name_fmt = '{sam}_swaxs_pos{pos}_wa{waxs}'
+                sample_name = name_fmt.format(sam=sam, pos='%1.1d'%xxa, waxs='%2.1f'%wa)
+                sample_id(user_name=user, sample_name=sample_name) 
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3) 
+    
+
+def gisaxs_cai(t=1): 
+    #samples = ['LhBBL_0_80','LhBBL_0.3_80','LhBBL_0.6_80','LhBBL_0.8_80','LhBBL_0.85_80', 'LhBBL_1.1_80','LhBBL_2_80','LhBBL_3_80','LhBBL_5.5_80','LhBBL_0.54_80', 'LhBBL_1.1new_80']
+    samples = ['LhBBL_0_40','LhBBL_0.3_40','LhBBL_0.6_40','LhBBL_0.8_40','LhBBL_0.85_40', 'LhBBL_1.1_40','LhBBL_2_40','LhBBL_3_40','LhBBL_5.5_40','LhBBL_0.54_40', 'LhBBL_1.1new_40']
+    x_list = [-49000, -39000,-30000,-18000, -7000, 3000, 12000, 22000, 32000, 42000, 52000]
+    waxs_arc = [13, 6.5, 0]
+    angle = [0.08, 0.125, 0.2]
+
+  # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    for x, sample in zip(x_list,samples):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(pil1m_pos.x, -2.3)
+        yield from alignement_gisaxs(0.08)
+        yield from bps.mv(pil1m_pos.x, 0.8)
+        
+        det_exposure_time(t, t) 
+        name_fmt = '{sample}_ai{angle}deg_wa{wax}'
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            for an in angle:
+                yield from bps.mvr(piezo.th, an)
+                sample_name = name_fmt.format(sample=sample, angle='%3.3f'%an, wax = '%2.2d'%wa)
+                sample_id(user_name='ZG', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+                yield from bps.mvr(piezo.th, -an)                   
+                
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+
                         
 def run_giwaxs_cai(t=1): 
     #run with WAXS
