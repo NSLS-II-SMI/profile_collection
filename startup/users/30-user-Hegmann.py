@@ -13,6 +13,43 @@ det = [pil1M]
 import sys
 import time
 
+
+
+def saxs_hegmann(t=1): 
+    # xlocs = [38200, 38400, 32800, 32800, 29400, 27300, 20400, 20400, 8400, 8400, -18500, 24800, -34200, -39550, 43000, 36300] 
+    # ylocs = [-5500, -4500, -5500, -4500, -4500, -4500, -4900, -4800, -4800, -4700, -4900, -4700, -4700, -5980, 7500, 7900]
+ 
+    # names = ['PB180_vert_1', 'PB180_vert_2', 'PB181_vert_1','PB181_vert_2','PB182_vert', 'PB187_vert', 'PB180_trans_1',
+    # 'PB180_trans_2','PB181_trans_1','PB181_trans_2', 'PB190_vert', 'PB190_trans','PB196_vert','PB196_trans','PB195_vert', 
+    # 'PB195_trans']
+    
+    xlocs = [-24800,] 
+    ylocs = [-4700]
+ 
+    names = [ 'PB190_trans',]
+    
+
+    user = 'MP'    
+    det_exposure_time(t,t)     
+    
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    # Detectors, motors:
+    dets = [pil1M]
+    
+
+    for sam, x, y in zip(names, xlocs, ylocs):
+        yield from bps.mv(piezo.x, x)            
+        yield from bps.mv(piezo.y, y)
+        name_fmt = '16p1keV_micro_sdd3p2_{sam}'
+        sample_name = name_fmt.format(sam=sam)
+        sample_id(user_name=user, sample_name=sample_name) 
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.count(dets, num=1)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3) 
+
 def track_printer_hegmann(acq_t=1, full_meas_t=10, trigger_num = 1):
     yield from bps.mv(GV7.open_cmd, 1 )
     

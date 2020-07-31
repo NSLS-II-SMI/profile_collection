@@ -3,7 +3,7 @@
 
 def cd_saxs(th_ini, th_fin, th_st, exp_t=1):
     sample = ['cdsaxs_ech03_defectivity_pitch128', 'cdsaxs_ech03_defectivity_pitch127', 'cdsaxs_ech03_defectivity_pitch124', 'cdsaxs_ech03_defectivity_pitch121', 'cdsaxs_ech03_defectivity_pitch118', 'cdsaxs_ech03_defectivity_pitch115', 'cdsaxs_ech03_defectivity_pitch112', 'cdsaxs_ech04_defectivity_pitch128', 'cdsaxs_ech04_defectivity_pitch127', 'cdsaxs_ech04_defectivity_pitch124', 'cdsaxs_ech04_defectivity_pitch121', 'cdsaxs_ech04_defectivity_pitch118', 'cdsaxs_ech04_defectivity_pitch115', 'cdsaxs_ech04_defectivity_pitch112', 'cdsaxs_ech11b_defectivity_pitch128', 'cdsaxs_ech11b_defectivity_pitch127', 'cdsaxs_ech11b_defectivity_pitch124', 'cdsaxs_ech11b_defectivity_pitch121', 'cdsaxs_ech11b_defectivity_pitch118', 'cdsaxs_ech11b_defectivity_pitch115', 'cdsaxs_ech11b_defectivity_pitch112']
-    x = [-40050, -38550 ,-34050 ,-29550 ,-25050 ,-20550 ,-16050 ,-11150 ,-9650 ,-5150 ,-650 ,3850 ,8350, 12850, 17000, 18500, 23000, 27500, 32000, 36500, 41000]
+    x = [-41100, -38550 ,-34050 ,-29550 ,-25050 ,-20550 ,-16050 ,-11150 ,-9650 ,-5150 ,-650 ,3850 ,8350, 12850, 17000, 18500, 23000, 27500, 32000, 36500, 41000]
     y = [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 3900, 3900, 3900, 3900, 3900, 3900, 3900]
     det = [pil1M]
     
@@ -13,15 +13,161 @@ def cd_saxs(th_ini, th_fin, th_st, exp_t=1):
         yield from bps.mv(piezo.y, ys)
 
         for theta in np.linspace(th_ini, th_fin, th_st):
-            yield from bps.mv(prs, theta + 1.6 )
+            yield from bps.mv(prs, theta)
             name_fmt = '{sample}_{th}deg'
 
             sample_name = name_fmt.format(sample=sample, th='%2.2d'%theta)
             sample_id(user_name='PG', sample_name=sample_name)
             print(f'\n\t=== Sample: {sample_name} ===\n')
             
-            yield from bp.count(det, num=1)
-            
+            yield from bp.count(det, num=10)
+
+
+
+def cd_saxs_new(sample, x, y, num=1, exp_t=1, step = 121):
+    det = [pil1M]
+    
+    det_exposure_time(exp_t, exp_t)
+    yield from bps.mv(piezo.x, x)
+    yield from bps.mv(piezo.y, y)
+
+    for i, theta in enumerate(np.linspace(-60, 60, step)):
+        yield from bps.mv(prs, theta)
+        name_fmt = '{sample}_{num}_{th}deg'
+
+        sample_name = name_fmt.format(sample=sample, num = '%2.2d'%i, th='%2.2d'%theta)
+        sample_id(user_name='PG', sample_name=sample_name)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        
+        yield from bp.count(det, num=1)
+        yield from bp.count(det, num=1)
+
+
+def cdsaxs_all_pitch(sample, x, y, num=1, exp_t=1, step=121):
+    pitches = ['p112nm', 'p113nm', 'p114nm', 'p115nm', 'p116nm', 'p117nm', 'p118nm', 'p119nm', 'p120nm','p121nm','p122nm',
+    'p123nm', 'p124nm', 'p125nm', 'p126nm', 'p127nm', 'p128nm']
+ 
+    x_off = [0, 1500, 3000, 4500, 6000, 7500, 9000, 10500, 12000, 13500, 15000, 16500, 18000, 19500, 21000, 22500, 24000]
+    det_exposure_time(exp_t, exp_t)
+    for x_of, pitch in zip(x_off, pitches):
+        yield from bps.mv(piezo.x, x+x_of)
+
+        name_fmt = '{sample}_{pit}'
+        sample_name = name_fmt.format(sample=sample, pit=pitch)
+        yield from cd_saxs_new(sample_name, x+x_of, y, num=1, exp_t=exp_t, step=step)  
+
+
+def cdsaxs_important_pitch(sample, x, y, num=1, exp_t=1):
+    pitches = ['p112nm', 'p120nm', 'p128nm']
+    x_off = [0, 12000, 24000]
+    det_exposure_time(exp_t, exp_t)
+    for x_of, pitch in zip(x_off, pitches):
+        yield from bps.mv(piezo.x, x+x_of)
+
+        name_fmt = '{sample}_{pit}'
+        sample_name = name_fmt.format(sample=sample, pit=pitch)
+        yield from cd_saxs_new(sample_name, x+x_of, y, num=num, exp_t=exp_t)            
+
+def mesure_rugo(sample, x, y, num=200, exp_t=1):
+    pitches = ['p112nm', 'p120nm', 'p128nm']
+    x_off = [0, 12000, 24000]
+    det_exposure_time(exp_t, exp_t)
+    for x_of, pitch in zip(x_off, pitches):
+        yield from bps.mv(piezo.x, x+x_of)
+        yield from bps.mv(piezo.y, y)
+
+        name_fmt = '{sample}_rugo_{pit}_up'
+        sample_name = name_fmt.format(sample=sample, pit=pitch)
+        yield from cd_saxs_new(sample_name, x+x_of, y, num=num, exp_t=exp_t)            
+
+    yield from bps.mvr(pil1m_pos.y, 4.3)
+    for x_of, pitch in zip(x_off, pitches):
+        name_fmt = '{sample}_rugo_{pit}_down'
+        sample_name = name_fmt.format(sample=sample, pit=pitch)
+        yield from cd_saxs_new(sample_name, x+x_of, y, num=num, exp_t=exp_t)            
+   
+    yield from bps.mvr(pil1m_pos.y, -4.3)
+
+
+def night_patrice(exp_t=1):
+    numero = 6
+    det = [pil1M]
+    
+    #names = ['champs00', 'bkg_champs00','champs05','bkg_champs05','champs0-4','bkg_champs0-4','champs0-3', 'bkg_champs0-3']
+    #xs = [-41100, -41100, 14100, 14100, -36450, -36550, -10250, -10250]
+    #ys = [-7500, -8500, -7000, -8000, 5450, 6450, 5500, 6400]
+    names = ['champs0-3', 'bkg_champs0-3']
+
+    xs = [ 2220, 2220]
+    ys = [ 6470, 7470]
+
+    for name, x, y in zip(names, xs, ys):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        numero+=1
+        name_fmt = '{sample}_num{numb}'
+        sample_name = name_fmt.format(sample=name, numb=numero)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        
+        yield from cdsaxs_important_pitch(sample_name, x, y, num=1)
+        #numero+=1
+        #yield from cdsaxs_important_pitch(sample_name, x, y, num=1)
+
+
+    names = ['champs00']
+    xs = [-14380]
+    ys = [-6200]
+
+    numero+=1
+    name_fmt = '{sample}_num{numb}'
+    sample_name = name_fmt.format(sample=names[0], numb=numero)
+    print(f'\n\t=== Sample: {sample_name} ===\n')
+    yield from cdsaxs_important_pitch(sample_name, xs[0], ys[0], num=1)
+
+    numero+=1
+    name_fmt = '{sample}_num{numb}'
+    sample_name = name_fmt.format(sample=names[0], numb=numero)
+    print(f'\n\t=== Sample: {sample_name} ===\n')
+    yield from cdsaxs_important_pitch(sample_name, xs[0], ys[0], num=1)
+
+
+    names = ['champs00', 'bkg_champs00']
+    xs = [-14380, -14380]
+    ys = [-6200, -7200]
+
+    for name, x, y in zip(names, xs, ys):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        numero+=1
+
+        name_fmt = '{sample}_num{numb}'
+        sample_name = name_fmt.format(sample=name, numb=numero)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        
+        yield from cdsaxs_all_pitch(sample_name, x, y, num=1, step=61)
+    
+
+    numero+=1
+    name_fmt = '{sample}_offset300_num{numb}'
+    sample_name = name_fmt.format(sample=name, numb=numero)
+    yield from cd_saxs_new(sample_name, xs[0], ys[0]+300, num=1, exp_t=exp_t)
+    
+    numero+=1
+    name_fmt = '{sample}_offset-300_num{numb}'
+    sample_name = name_fmt.format(sample=name, numb=numero)
+    yield from cd_saxs_new(sample_name, xs[0], ys[0]-300, num=1, exp_t=exp_t)
+
+    
+    numero+=1
+    name_fmt = '{sample}_num{numb}'
+    sample_name = name_fmt.format(sample=name, numb=numero)
+    yield from mesure_rugo(sample_name, xs[0], ys[0], num=200, exp_t=exp_t)
+    
+    numero+=1
+    name_fmt = '{sample}_num{numb}'
+    sample_name = name_fmt.format(sample=name, numb=numero)
+    yield from mesure_rugo(sample_name, xs[1], ys[1], num=200, exp_t=exp_t)
+
             
 def scan_boite_pitch(exp_t=1):
     sample = ['Echantillon03_defectivity', 'Echantillon04_defectivity', 'Echantillon11b_defectivity']

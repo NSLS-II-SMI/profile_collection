@@ -1,3 +1,58 @@
+def giwaxs_collins(t=1):
+    #samples = ['FCuPcCuI', 'FCuPc', 'Si', 'ITO_pos1', 'ITO_pos2', 'Z5S', 'Z5CS', 'Z5CI_pos1', 'Z5CI_pos2', 'Z5I', 'Z10S']
+    #samples = ['Z10CS', 'Z10CI', 'Z10I', 'Z2OS', 'Z20CS', 'Z20CI', 'Z20I', 'Z4Os']
+    samples = ['Z5CI_pos1_2', 'Z5CI_pos2_2', 'Z4Os_2', 'Z40CS', 'Z40CI', 'Z40I', 'CS', 'CI_pos1', 'CI_pos2']
+    x_list = [-45500, -42500, -29500, -17500, -9500, 7500, 25500, 43000, 46000]
+
+    waxs_arc = [3, 9.5, 16]
+    angle = [0.09, 0.15, 0.20]
+
+    alpha_0=[]
+    y_0 = []
+
+  # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    yield from bps.mv(pil1m_pos.x, -2.3)
+
+    for x, sample in zip(x_list,samples):
+        yield from bps.mv(piezo.x, x)
+        yield from alignement_gisaxs(0.1)
+
+        alpha_0 = alpha_0 + [piezo.th.position]
+        y_0 = y_0 + [piezo.y.position]
+        print('y0', y_0)
+        print('a0', alpha_0)
+
+    yield from bps.mv(pil1m_pos.x, 0.8)
+    
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+    
+        for x, sample, ai, y in zip(x_list,samples, alpha_0, y_0):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.th, ai)
+            yield from bps.mv(piezo.y, y)
+
+            det_exposure_time(t, t) 
+            name_fmt = '{sample}_ai{angle}deg_wa{wax}'
+        
+            for an in angle:
+                yield from bps.mvr(piezo.th, an)
+                sample_name = name_fmt.format(sample=sample, angle='%3.3f'%an, wax = '%2.2d'%wa)
+                sample_id(user_name='ZG', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+                yield from bps.mvr(piezo.th, -an)                   
+                    
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+
+
 def nexafs_S_edge_terry(t=1):
     dets = [pil300KW]
     

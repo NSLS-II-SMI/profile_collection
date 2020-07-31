@@ -2,15 +2,15 @@
 
 def run_harv_temp(tim=0.5): 
     # Slowest cycle:
-    temperatures = [25, 100, 150]
+    temperatures = [25]
     name = 'ML'
-    x_list  = [52100, 44600, 36600, 30600, 20600, 9100, -3900, -11900, -24400, -34100, -44360]
-    y_list =  [4000,   4200,  4100,  4050,  3900, 4100,   4050,   4050,   4100,   4000,   4150]
-    samples = [ '5HDDA_red100', '5HDDA_red150','5HDDA_red100_2','5HDDA_red70','5HDDA_red40','20HDDA_yellow','17.5HDDA_yellow2','17.5HDDA_yellow','15HDDA_yellow', '10HDDA_yellow', '0HDDA_yellow']
-    
+    x_list  = [-7000, 6000]
+    y_list =  [4900,   5100]
+    samples = ['set7_sample1_3rdcycle', 'set7_sample2_3rdcycle']
     assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    
+
+
     #Detectors, motors:
     dets = [pil1M, pil300KW] #ALL detectors
     #dets = [pil300KW,ls.ch1_read, xbpm3.sumY] # WAXS detector ALONE
@@ -50,15 +50,15 @@ def run_harv_temp(tim=0.5):
 
 def run_harv_temp_all(tim=0.5): 
     # Slowest cycle:
-    temperatures = [35, 100, 150]
+    temperatures = [100, 150]
     name = 'ML'
     #x_list  = [-46300, -37300, -29800, -20300, -13800, -6200, 1300, 9000, 16700, 26300, 33300, 39300, 46300, 53000]
     #y_list =  [-8800, -8800, -8800, -8750, -8750, -8750, -9200, -9200, -9300, -9100, -9200, -9300, -8970, -9000]
     #samples = [ 'set1_sample1', 'set1_sample2','set1_sample3','set1_sample4','set1_sample5', 'set1_sample6', 'set3_sample1', 'set3_sample2','set3_sample3','set3_sample4','set3_sample5', 'set3_sample6','set2_sample3', 'set2_sample4']
     
-    x_list  = [36500, 23000, 11500, 4000, -7000]
-    y_list =  [-5500, -5000, -6000, -6000, -5000]
-    samples = [ 'set2_headon_sample1', 'set2_headon_sample2','set2_headon_sample3','set2_headon_sample4','set2_headon_sample5']
+    x_list  = [42000, 28000, 13300, -7700, -14100]
+    y_list =  [-6800, -7800, -8800, -8800, -7800]
+    samples = [ 'set6_headon_sample1', 'set6_headon_sample2','set6_headon_sample3','set6_headon_sample4','set6_headon_sample5']
     
 
     assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
@@ -68,9 +68,9 @@ def run_harv_temp_all(tim=0.5):
     dets = [pil1M, pil300KW] #ALL detectors
     #dets = [pil300KW,ls.ch1_read, xbpm3.sumY] # WAXS detector ALONE
     
-    x_offset = [0, 0, 0, 400, 400, 400]
-    y_offset = [0, 50, 100, 0, 50, 100]
-    zoff = 3000
+    x_offset = [0, 0, 400, 400]
+    y_offset = [0, 50, 0, 50]
+    zoff = -2000
     waxs_arc = np.linspace(0, 32.5, 6) 
     name_fmt = '{sample}_pos{offset}_{temperature}C_wa{waxs}'
     yield from bps.mv(piezo.z, zoff)
