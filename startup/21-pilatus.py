@@ -126,7 +126,7 @@ pil1M.set_primary_roi(1)
 
 #pil1M.tiff.write_path_template = '/GPFS/xf12id1/data/1M/images/%Y/%m/%d/'
 pil1M.tiff.write_path_template = '/ramdisk/1M/images/%Y/%m/%d/'
-pil1M.tiff.read_path_template = '/GPFS/xf12id1/data/1M/images/%Y/%m/%d/'
+pil1M.tiff.read_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
 
 pil1mroi1 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats1:Total_RBV', name='pil1mroi1')
 pil1mroi2 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats2:Total_RBV', name='pil1mroi2')
@@ -160,8 +160,8 @@ pil300KW.set_primary_roi(1)
 
 
 #pil300KW.tiff.write_path_template = '/ramdisk/300KW/images/%Y/%m/%d/'
-pil300KW.tiff.write_path_template = '/GPFS/xf12id1/data/300KW/images/%Y/%m/%d/'
-pil300KW.tiff.read_path_template = '/GPFS/xf12id1/data/300KW/images/%Y/%m/%d/'
+pil300KW.tiff.write_path_template = '/nsls2/xf12id2/data/300KW/images/%Y/%m/%d/'
+pil300KW.tiff.read_path_template = '/nsls2/xf12id2/data/300KW/images/%Y/%m/%d/'
 
 pil300kwroi1 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats1:Total_RBV', name='pil300kwroi1')
 pil300kwroi2 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats2:Total_RBV', name='pil300kwroi2')
