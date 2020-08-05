@@ -63,10 +63,7 @@ class SMIBeam(object):
             
     def _determineFoils(self):
         print(self.dcm.bragg.position)
-        
-        #state = 'vac' if float(waxs_pressure.ch1_read.value) < 0.1 else 'air'
-        divergence = crl_state()
-        
+                
         if self.dcm.energy.position < 2000:
             target_state = [att1_12]
         elif 2000 < self.dcm.energy.position < 2300:
@@ -221,7 +218,7 @@ class SMI_Beamline(Beamline):
         #Move the waxs detector out of the way
         if waxs.arc.position < 7.9:
             #yield from bps.mv(waxs.arc, 4)
-            yield from bps.mv(waxs.arc, 8)
+            yield from bps.mv(waxs.arc, 13)
 
     def modeMeasurement_gisaxs(self, verbosity=3):
         '''

@@ -1,3 +1,58 @@
+def ex_situ_hardxray(t=1):
+    # samples = ['PLA2','PLA1','CON6','CON5', 'CON4','CON3','CON2','CON1',
+    # '05_Ca_1', '05_Ca_2', '05_UT_1', '05_UT_2', 'PLA6','PLA4','PLA3',
+    # ]
+
+    # samples = ['B5_1','B5_2','B5_3', 'B6_1','B6_2','B6_3','B7_1','B7_2','B7_3','B12_1','B12_2','B12_3']
+    # x_list  = [45550, 41200, 35600, 25600, 20900, 15400, -1900, -7900, -14000, -24100, -28200, -32700, ]
+    # y_list =  [-9300, -9300, -9300, -9300, -9300, -9300, -9300, -9300, -9300, -9300, -9300, -9300]
+
+    # samples = ['A1_1','A1_2','A1_3', 'A1_4','A2_5','A2_6','A2_7','A2_8','A3_9','A3_10','A3_11','A3_12','A3_13','A3_14','A4_15', 'A4_16', 'A4_17', 'A4_19']
+    # x_list  = [45950, 43250, 37250, 31650, 24400, 18850, 12500, 8000, -3400, -7300, -11300, -16800, -20900, -26400, -33000,  -37400, -41900, -45200]
+    # y_list =  [3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,   3500,   3500,    3500, 3500, 3500, 3500]
+
+    # samples = ['C8_32', 'C8_33', 'C8_34', 'C8_35', 'C9_36', 'C9_37', 'C9_38', 'C9_39', 'C10_40', 'C10_41', 'C10_42', 'C10_43',
+    # 'C10_44', 'C10_45', 'C11_46', 'C11_47', 'C11_48', 'C11_49', 'C11_50']
+    # x_list  = [43700, 38300, 34000, 27800, 20900, 16200, 12100, 7100, -2700, -6700, -10500, -15700, -20000,
+    # -24200, -29300, -32700, -36700, -41000, -45000]
+    # y_list =  [3700,  3700,  3700,  3700,  3700,  3700,  3700,  3700, 3700,  3700,  3700,   3700,   3700,
+    # 3700,   3700,    3700,   3700,  3700,  3700]
+    
+
+    samples = ['D13_51','D13_52','D13_53','D14_54','D14_55','D14_56','D15_57','D15_58','D15_59','D16_60','D16_61','D16_62','D16_63','D16_64',
+    'D17_65','D17_66','D17_67']
+    x_list  = [43700, 38400, 34000, 25200, 20000, 15400, 6700,  2500,  -2300, -6800, -14000, -19000, -23300, -28500,
+    -34700, -39300, -43600]
+    y_list =  [-9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880,  -9880,  -9880,  -9880,
+    -9880, -9880, -9880]
+
+
+
+    # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    waxs_range = np.linspace(13, 0, 3)
+    
+    ypos = [0, 400, 3]    
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+
+    det_exposure_time(t,t)
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y in zip(samples, x_list, y_list):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            
+            name_fmt = '{sam}_wa{waxs}'
+            sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
+            sample_id(user_name='OS', sample_name=sample_name) 
+            yield from bp.rel_scan(dets, piezo.y, *ypos)
+            
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+
 def NEXAFS_Fe_edge(t=0.5, name='sample1'):
         dets = [pil300KW]
         #name = 'Kapton_NEXAFS_1_gvopen_wa70_'
