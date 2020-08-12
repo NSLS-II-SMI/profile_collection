@@ -1,11 +1,18 @@
 from ophyd import Signal
+import stat, os
 
 # ToDO: make sure the file_path and file_name properly shipped
 def activate_amptek():
-    base_md = {'plan_name': 'amptek',
-                'path_save': pil1M.cam.file_path,
-                'filename': pil1M.cam.file_name,}
+    newDir = os.path.join("/nsls2/xf12id2/data/images/users/",RE.md['cycle'],RE.md['proposal_number']+'_'+RE.md['main_proposer'],"Amptek")
+    try:
+        os.stat(newDir)
+    except FileNotFoundError:
+        os.makedirs(newDir)
+        os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
+    RE.md['file_path_amptek'] = newDir, 
+    RE.md['filename_amptek'] = pil1M.cam.file_name.value
+    
     return
 
 # ToDo: Improve the way of reading motor name from a cycler
@@ -45,7 +52,7 @@ def scan(dets=[pil300KW, pil1M],
 
 
     # Fixed values. If this values change over a scan, possibility to transform in ophyd signal and record over a scan
-    geometry = 'reflection' if 'gisaxs' in plan_name or 'giwaxs' in plan_name else geometry = 'transmission'
+    geometry = 'reflection' if 'gisaxs' in plan_name or 'giwaxs' in plan_name else 'transmission'
     base_md = {'plan_name': plan_name,
                'geometry': geometry,
                'detectors': [det.name for det in dets],
