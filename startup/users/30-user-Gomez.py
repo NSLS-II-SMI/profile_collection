@@ -705,6 +705,162 @@ def waxs_S_edge(t=1):
     
 
 
+def gomez_S_edge_new(t=1):
+    dets = [pil300KW]
+
+    energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist()
+    waxs_arc = np.linspace(0, 19.5, 4)
+
+    yield from bps.mv(stage.th, 0)
+    yield from bps.mv(stage.y, 0)
+
+    names = ['P-1','P-2','Y-1','Y-2','Y-3','A5-1','A05-2','A0-1','A0-2','A2-1','A2-2','A05-1','A5-2','5','2-1','2-2','05']
+    x = [43400,38100,32300,26850,21700,16200,11000, 5600, 400, -4900,-10300,-15600,-21100,-26300,-31400,-36500,-42100]
+    y = [-3850,-3950,-3800,-400, -4100,-4150,-4150,-4150,-4100,-4100, -4050, -4200, -3750, -3800, -3700, -3650, -3800]
+    
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 700, 29)
+        xss = np.array([xs, xs + 300])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+    yield from bps.mv(stage.th, 1)
+    yield from bps.mv(stage.y, -8)
+    names = ['10','CN','CN-2','CB','CB-2','DIO','AA-1','AA-2','AA-3']
+    x = [44300,39200,33800,28500,23200,18100,11700, 6300, 900]
+    y = [-8700,-8700,-8550,-8400,-8400,-7800,-8600,-8500,-8400]
+
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 700, 29)
+        xss = np.array([xs, xs + 300])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+def nexafs_gomez_S_edge_new(t=1):
+    dets = [pil300KW]
+
+    energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist()
+    waxs_arc = [52.5]
+
+    yield from bps.mv(stage.th, 0)
+    yield from bps.mv(stage.y, 0)
+
+    names = ['A05-1','A5-2','5','2-1','2-2','05']
+    x = [-15600,-21100,-26300,-31400,-36500,-42100]
+    y = [ -4200, -3750, -3800, -3700, -3650, -3800]
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+            det_exposure_time(t,t) 
+            name_fmt = 'nexafs_{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e in energies: 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+    yield from bps.mv(stage.th, 1)
+    yield from bps.mv(stage.y, -8)
+    names = ['10','CN','CN-2','CB','CB-2','DIO','AA-1','AA-2','AA-3']
+    x = [44300,39200,33800,28500,23200,18100,11700, 6300, 900]
+    y = [-8700,-8700,-8550,-8400,-8400,-7800,-8600,-8500,-8400]
+
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = 'nexafs_{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e in energies: 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
         
 def trans_sulf(en1, en2, step):
         eners = np.linspace(en1, en2, step)
