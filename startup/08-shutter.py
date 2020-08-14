@@ -56,7 +56,7 @@ class TwoButtonShutter(Device):
                 st._finished(success=False)
             if value == 'None':
                 if not st.done:
-                    time.sleep(.5)
+                    yield from bps.sleep(.5)
                     cmd_sig.set(1)
                     ts = datetime.datetime.fromtimestamp(timestamp).strftime(_time_fmtstr)
                     print('** ({}) Had to reactuate shutter while {}ing'.format(ts, val))
@@ -66,8 +66,6 @@ class TwoButtonShutter(Device):
         cmd_sig.subscribe(cmd_retry_cb, run=False)
         cmd_sig.set(1)
         self.status.subscribe(shutter_cb)
-
-
         return st
 
     def __init__(self, *args, **kwargs):
@@ -75,28 +73,22 @@ class TwoButtonShutter(Device):
         self._set_st = None
         self.read_attrs = ['status']
 
+
 ph_shutter = TwoButtonShutter('XF:12IDA-PPS:2{PSh}', name='ph_shutter')
+
 
 def shopen():
     yield from bps.mv(ph_shutter, 'Insert')
-    time.sleep(1)
+    yield from bps.sleep(1)
     yield from bps.mv(manual_PID_disable_pitch, '0')
     yield from bps.mv(manual_PID_disable_roll, '0')
-    
-    #yield from bps.mv(GV7.open_cmd, 1 )
-    #time.sleep(5)
-    #yield from bps.mv(GV7.open_cmd, 1 )
-    
-        
+
+
 def shclose():
     yield from bps.mv(manual_PID_disable_pitch,'1')
     yield from bps.mv(manual_PID_disable_roll, '1')
-    time.sleep(1)
-    yield from bps.mv (ph_shutter, 'Retract')
-    
-    #yield from bps.mv(GV7.close_cmd, 1 )
-    #time.sleep(5)
-    #yield from bps.mv(GV7.close_cmd, 1 )
+    yield from bps.sleep(1)
+    yield from bps.mv(ph_shutter, 'Retract')
 
 
 class SMIFastShutter(Device): 
@@ -124,6 +116,7 @@ class SMIFastShutter(Device):
     def close(self): 
         self.close_cpt.put(1) 
         self.check_status()
+
 
 fs = SMIFastShutter('', name='fs')
 
