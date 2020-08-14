@@ -53,7 +53,7 @@ def wait_all(motors_list, sleep=0.0, debug=False):
         if debug:
             print('Motor statuses: {}'.format(motor_statuses))
         if True in motor_statuses:
-            ttime.sleep(sleep)
+            yield from bps.sleep(sleep)
         else:
             break
 

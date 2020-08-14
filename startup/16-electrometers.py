@@ -1,21 +1,12 @@
 print(f'Loading {__file__}')
 
-from ophyd import EpicsMotor, EpicsSignal, Device, Component as C
-
-import time as ttime  # tea time
-from datetime import datetime
+from ophyd import EpicsMotor, EpicsSignal, Device, Component as Cpt
 from ophyd import (ProsilicaDetector, SingleTrigger, TIFFPlugin,
                    ImagePlugin, DetectorBase, HDF5Plugin,
                    AreaDetector, EpicsSignal, EpicsSignalRO, ROIPlugin,
                    TransformPlugin, ProcessPlugin)
-from ophyd.areadetector.cam import AreaDetectorCam
-from ophyd.areadetector.base import ADComponent, EpicsSignalWithRBV
-from ophyd.areadetector.filestore_mixins import (FileStoreTIFFIterativeWrite,
-                                                 FileStoreHDF5IterativeWrite,
-                                                 FileStoreBase, new_short_uid)
 from ophyd import Component as Cpt, Signal
-from ophyd.utils import set_and_wait
-import bluesky.plans as bp
+from nslsii.ad33 import QuadEMV33
 
 # quick edit just to get the crrent PVs into BS, ED11mar17
 # file should eventually have currents and other PVs for all electrometers,
@@ -24,13 +15,19 @@ import bluesky.plans as bp
 #Prototype new electrometer, currently looking at XBPM2.
 #ch1,2,3,4 = pads 2,3,5,4 respectively; thick active area
 
-#Lakeshore SP for temerpature
+
 class LakeShore(Device):
+    """
+    Lakeshore is the device reading the temperature from the heating stage for SAXS and GISAXS.
+    This class define the PVs to read and write to control lakeshore
+    :param Device: ophyd device
+    """
     ch1_read = Cpt(EpicsSignal, 'TC1:IN1')
     ch1_sp = Cpt(EpicsSignal, 'TC1:OUT1:SP')
     ch2_read = Cpt(EpicsSignal, 'TC1:IN2')
     ch2_sp = Cpt(EpicsSignal, 'TC1:OUT2:SP')
-    
+
+
 ls = LakeShore('XF:12IDC:LS336:', name='ls')
 ls.ch1_read.kind = 'hinted'
 ls.ch1_sp.kind = 'hinted'
@@ -39,14 +36,21 @@ ls.ch2_sp.kind = 'hinted'
 
 
 class XBPM(Device):
-    ch1 = Cpt(EpicsSignal,'Current1:MeanValue_RBV')
+    """
+    XBPM are diamond windows that generate current when the beam come through. It is used to know the position
+    of the beam at the bpm postion as well as the amount of incoming photons. 3 bpms are available at SMI: bpm1
+    is position upstream, bpm2 after the focusing mirrons and bpm3 downstream
+    :param Device: ophyd device
+    """
+    ch1 = Cpt(EpicsSignal, 'Current1:MeanValue_RBV')
     ch2 = Cpt(EpicsSignal, 'Current2:MeanValue_RBV')
     ch3 = Cpt(EpicsSignal, 'Current3:MeanValue_RBV')
     ch4 = Cpt(EpicsSignal, 'Current4:MeanValue_RBV')
     sumX = Cpt(EpicsSignal, 'SumX:MeanValue_RBV')
     sumY = Cpt(EpicsSignal, 'SumY:MeanValue_RBV')
-    posX = Cpt(EpicsSignal,'PosX:MeanValue_RBV')
-    posY = Cpt(EpicsSignal,'PosY:MeanValue_RBV')
+    posX = Cpt(EpicsSignal, 'PosX:MeanValue_RBV')
+    posY = Cpt(EpicsSignal, 'PosY:MeanValue_RBV')
+
 
 xbpm1 = XBPM('XF:12IDA-BI:2{EM:BPM1}', name='xbpm1')
 xbpm2 = XBPM('XF:12IDA-BI:2{EM:BPM2}', name='xbpm2')
@@ -62,7 +66,6 @@ ssacurrent = EpicsSignal('XF:12IDB-BI{EM:SSASlit}SumAll:MeanValue_RBV', name='ss
 pdcurrent = EpicsSignal('XF:12ID:2{EM:Tetr1}Current2:MeanValue_RBV', name='pdcurrent', auto_monitor=True)
 pdcurrent1 = EpicsSignal('XF:12ID:2{EM:Tetr1}Current2Ave', name='pdcurrent1', auto_monitor=True)
 pdcurrent2 = EpicsSignal('XF:12ID:2{EM:Tetr1}SumAllAve', name='pdcurrent2', auto_monitor=True)
-
 
 
 # this doesn't work, because the PV names do not end in .VAL ??
@@ -103,7 +106,6 @@ class Keithly2450(Device):
 keithly2450 = Keithly2450('XF:12IDA{dmm:2}:K2450:1:', name='keithly2450')
 hfmcurrent = EpicsSignal('XF:12IDA{dmm:2}:K2450:1:reading', name='hfmcurrent')
 
-from nslsii.ad33 import QuadEMV33
 pin_diode = QuadEMV33('XF:12ID:2{EM:Tetr1}', name='pin_diode')
 pin_diode.conf.port_name.put('TetrAMM')
 pin_diode.stage_sigs['acquire_mode'] = 2
