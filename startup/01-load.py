@@ -11,8 +11,8 @@ def interpolate_db_sdds():
     at given encoded sample detctor distance. Then it interpolate the current beam position and sample detctor distance from the current detctor position
     '''
 
-    dir = '/home/xf12id/.ipython/profile_collection/startup/' 
-    data = pd.read_csv(os.path.join(dir, 'intepolation_db_sdd2.txt'), sep='\t')
+    startup_dir = get_ipython().profile_dir.startup_dir
+    data = pd.read_csv(os.path.join(startup_dir, 'intepolation_db_sdd2.txt'), sep='\t')
 
     sdds_encodeded = data['sdd(mm)'].values
     sdds_calculated = data['sdd_calculated'].values
