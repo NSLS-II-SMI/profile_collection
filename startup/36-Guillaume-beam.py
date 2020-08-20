@@ -303,7 +303,7 @@ class SMI_Beamline(Beamline):
                          '1x', '2x', '4x', '8x', '1x', '2x', '4x', '8x', '1x', '2x', '4x', '6x']
 
         for att, material, thickness in zip(att_ophyd, att_material, att_thickness):
-            if att.status.value == 'Open':
+            if att.status.get() == 'Open':
                 self.att_state = {att.status.name: {'material': material, 'thickness': thickness}}
 
 
@@ -320,11 +320,11 @@ class SMI_Beamline(Beamline):
 
 
     def pressure_measurments(self):
-        if waxs_pressure.ch1_read.value == 'LO<E-03':
+        if waxs_pressure.ch1_read.get() == 'LO<E-03':
             self.pressure_state = 'in-vacuum'
         else:
             try: 
-                pres = np.float(waxs_pressure.ch1_read.value)
+                pres = np.float(waxs_pressure.ch1_read.get())
                 if pres < 1E-02:
                     self.pressure_state = 'in-vacuum'
                 else:
@@ -374,9 +374,9 @@ class SMI_SAXS_Det(object):
         self.distance, self.direct_beam = interpolate_db_sdds()
         self.distance *= 1000
 
-        smi_saxs_detector.x0_pix.value = self.direct_beam[0]
-        smi_saxs_detector.y0_pix.value = self.direct_beam[1]
-        smi_saxs_detector.sdd.value = self.distance
+        smi_saxs_detector.x0_pix.put(self.direct_beam[0])
+        smi_saxs_detector.y0_pix.put(self.direct_beam[1])
+        smi_saxs_detector.sdd.put(self.distance)
 
 
     def get_beamstop(self):
@@ -386,25 +386,25 @@ class SMI_SAXS_Det(object):
 
         #ToDo: Calculate what pixels to mask for different beamstop positions
         if pil1m_bs_pd.x.position < 10 and pil1m_bs_rod.x.position < 10:
-            smi_saxs_detector.bs_kind.value = 'rod_beamstop'
+            smi_saxs_detector.bs_kind.put('rod_beamstop')
 
             #To be implemented with the good values, not hard-coded
-            smi_saxs_detector.xbs_mask.value = 10
-            smi_saxs_detector.ybs_mask.value = 10
+            smi_saxs_detector.xbs_mask.put(10)
+            smi_saxs_detector.ybs_mask.put(10)
 
         elif abs(pil1m_bs_pd.x.position) > 50 and abs(pil1m_bs_rod.x.position) < 50:
-            smi_saxs_detector.bs_kind = 'pindiode'
+            smi_saxs_detector.bs_kind.put('pindiode')
 
             #To be implemented with the good values, not hard-coded
-            smi_saxs_detector.xbs_mask.value = 10
-            smi_saxs_detector.ybs_mask.value = 10
+            smi_saxs_detector.xbs_mask.put(10)
+            smi_saxs_detector.ybs_mask.put(10)
 
         else:
-            smi_saxs_detector.bs_kind = 'None'
+            smi_saxs_detector.bs_kind.put('None')
 
             #To be implemented with the good values, not hard-coded
-            smi_saxs_detector.xbs_mask.value = 10
-            smi_saxs_detector.ybs_mask.value = 10
+            smi_saxs_detector.xbs_mask.put(10)
+            smi_saxs_detector.ybs_mask.put(10)
 
 
     def set_beamstop(self):

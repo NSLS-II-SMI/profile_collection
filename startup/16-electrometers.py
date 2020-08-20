@@ -107,7 +107,7 @@ keithly2450 = Keithly2450('XF:12IDA{dmm:2}:K2450:1:', name='keithly2450')
 hfmcurrent = EpicsSignal('XF:12IDA{dmm:2}:K2450:1:reading', name='hfmcurrent')
 
 pin_diode = QuadEMV33('XF:12ID:2{EM:Tetr1}', name='pin_diode')
-pin_diode.conf.port_name.put('TetrAMM')
+pin_diode.stage_sigs['conf.port_name'] = 'TetrAMM'
 pin_diode.stage_sigs['acquire_mode'] = 2
 
 for i in (1, 2, 3, 4):

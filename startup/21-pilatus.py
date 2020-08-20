@@ -135,6 +135,7 @@ pil1mroi4 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats4:Total_RBV', name='pil1mroi4
 
 pil1M.stats1.kind = 'hinted'
 pil1M.stats1.total.kind = 'hinted'
+pil1M.cam.num_images.kind = 'config'
 pil1M.cam.ensure_nonblocking()
 
 
@@ -170,8 +171,8 @@ pil300kwroi4 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats4:Total_RBV', name='pil
 
 pil300KW.stats1.kind = 'hinted'
 pil300KW.stats1.total.kind = 'hinted'
+pil300KW.cam.num_images.kind = 'config'
 pil300KW.cam.ensure_nonblocking()
-
 
 #"multi_count" plan is dedicated to the time resolved Pilatus runs when the number of images in area detector is more than 1
 def multi_count(detectors, *args, **kwargs): 

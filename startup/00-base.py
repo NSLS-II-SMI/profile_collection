@@ -8,6 +8,10 @@ from ophyd import Signal
 nslsii.configure_base(get_ipython().user_ns, 'smi')
 # nslsii.configure_olog(get_ipython().user_ns, subscribe=False)
 
+# Temporary fix before it's fixed in ophyd
+import logging
+logger = logging.getLogger('ophyd')
+logger.setLevel('WARNING')
 
 #from bluesky.utils import PersistentDict
 
