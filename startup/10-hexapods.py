@@ -1,7 +1,7 @@
 print(f'Loading {__file__}')
 
 from ophyd import Signal, EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt, PseudoPositioner
-
+import numpy as np
 
 class STG(Device):
     x = Cpt(EpicsMotor, 'X}Mtr', labels=['stage'])
