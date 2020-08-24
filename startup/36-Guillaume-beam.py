@@ -1,16 +1,7 @@
-print(f'Loading {__file__}')
 from ophyd import (Signal, Component, Device, EpicsSignal, EpicsSignalRO, EpicsMotor)
 
-################################################################################
-#  Code for querying and controlling beamline components that 'affect' the
-# beam. (Beam energy, beam flux, etc.)
-################################################################################
-# Known Bugs:
-#  N/A
-################################################################################
-# TODO:
-#  Search for "TODO" below.
-################################################################################
+
+print(f'Loading {__file__}')
 
 
 class SMIBeam(object):
@@ -23,20 +14,16 @@ class SMIBeam(object):
     def __init__(self):
         
         self._SHUTTER_CLOSED_VOLTAGE = 7
-        self.hc_over_e = 1.23984197e-6  #eV*m
+        self.hc_over_e = 1.23984197e-6  # eV*m
         self.D_Si111 = 3.1293           # Angstroms
    
-        self.dcm = Energy(prefix='', name='energy', read_attrs=['energy', 'ivugap', 'bragg'], configuration_attrs=['enableivu', 'enabledcmgap','target_harmonic'])                  
-        
+        self.dcm = Energy(prefix='', name='energy', read_attrs=['energy', 'ivugap', 'bragg'], configuration_attrs=['enableivu', 'enabledcmgap', 'target_harmonic'])
 
-
-
-    def energyState(self):        
-        self.dcm = Energy(prefix='', name='energy', read_attrs=['energy', 'ivugap', 'bragg'], configuration_attrs=['enableivu', 'enabledcmgap','target_harmonic'])
+    def energyState(self):
+        self.dcm = Energy(prefix='', name='energy', read_attrs=['energy', 'ivugap', 'bragg'], configuration_attrs=['enableivu', 'enabledcmgap', 'target_harmonic'])
         print('The current energy is {:.1f} keV deg'.format(self.dcm.energy.position))
 
-
-    def setEnergy(self, energy_eV, verbosity=3):
+    def setEnergy(self, energy_eV):
         """
         Set the x-ray beam to the specified energy (by changing the monochromator angle.
         """
@@ -49,9 +36,8 @@ class SMIBeam(object):
 
         else:
             print('No move was made.')  
-            
-            
-    def _foilState(self, box=1, verbosity=3): 
+
+    def _foilState(self):
         current_state = []
         for foil_num in [att1_1, att1_2, att1_3, att1_4, att1_5, att1_6, att1_7, att1_8, att1_9, att1_10, att1_11, att1_12,
                          att2_1, att2_2, att2_3, att2_4, att2_5, att2_6, att2_7, att2_8, att2_9, att2_10, att2_11, att2_12]:
@@ -59,8 +45,7 @@ class SMIBeam(object):
             if foil['{}_status'.format(foil_num.name)]['value'] == 'Open':
                 current_state.append(foil_num)     
         return current_state    
-            
-            
+
     def _determineFoils(self):
         print(self.dcm.bragg.position)
                 
@@ -71,10 +56,8 @@ class SMIBeam(object):
         elif 2300 < self.dcm.energy.position < 3000:
             target_state = [att2_12, att2_11, att2_10]
         elif 3200 < self.dcm.energy.position < 3600:
-            #Values updated March 10 2020
             target_state = [att2_5, att2_9]
         elif 3600 < self.dcm.energy.position < 3900:
-            #Values updated March 10 2020
             target_state = [att2_5, att2_11]
         elif 3900 < self.dcm.energy.position < 4500:
             target_state = [att2_8]
@@ -114,9 +97,8 @@ class SMIBeam(object):
             target_state = [att1_1, att1_2, att1_3]
         return target_state   
         
-    def insertFoils(self, num_foils, box=1, wait_time=0.2, verbosity=3):
-        # TODO: Generalize this function to handle all foils
-        
+    def insertFoils(self, num_foils):
+
         if num_foils == 'Measurement':
             target_state = []
         else:
@@ -125,51 +107,47 @@ class SMIBeam(object):
         current_state = yield from self._foilState()
             
         # First insert foils
-        #  swith False to True
         for foil in target_state:
             if foil not in current_state:
-                yield from self._actuateFoil(foil, 'Insert', verbosity=verbosity)
+                yield from self._actuateFoil(foil, 'Insert')
                 
         # Then remove foils not needed
-        #  switch True to False
         for foil in current_state:
             if foil not in target_state:
-                yield from self._actuateFoil(foil, 'Retract', verbosity=verbosity)
+                yield from self._actuateFoil(foil, 'Retract')
                 
         # Double check that it worked
-        current_state = yield from self._foilState(box=box, verbosity=verbosity)
+        current_state = yield from self._foilState()
         if current_state != target_state:
-            if verbosity>=1:
-                print('WARNING: Foils did not actuate correctly')
-                print('current state: {}'.format(current_state))
-                print('target state: {}'.format(target_state))
-                
-                
-    def _actuateFoil(self, foil, state, wait_time=1.0, max_retries=10, verbosity=3):
-        if verbosity>=4:
-            print('    {} box,foil = ({}), PV={}'.format(state, foil))
+            print('WARNING: Foils did not actuate correctly')
+            print('current state: {}'.format(current_state))
+            print('target state: {}'.format(target_state))
+
+    def _actuateFoil(self, foil, state, wait_time=1.0, max_retries=10):
         itry = 0
         foil_st = yield from bps.read(foil)
                 
-        while itry < max_retries and ((foil_st['{}_status'.format(foil.name)]['value'] == 'Not Open' and state == 'Insert') or (foil_st['{}_status'.format(foil.name)]['value'] == 'Open' and state == 'Retract')):
+        while itry < max_retries and\
+                ((foil_st['{}_status'.format(foil.name)]['value'] == 'Not Open' and state == 'Insert') or
+                 (foil_st['{}_status'.format(foil.name)]['value'] == 'Open' and state == 'Retract')):
             yield from bps.mv(foil, state)
             foil_st = yield from bps.read(foil)
             itry += 1
             yield from bps.sleep(wait_time)
 
-        
-    # End class SMIBeam(object)
-    ########################################
+# End class SMIBeam(object)
+########################################
     
-
 
 beam = SMIBeam()
 
 
 class Beamline(object):
-    '''Generic class that encapsulates different aspects of the beamline.
+    """
+    Generic class that encapsulates different aspects of the beamline.
     The intention for this object is to have methods that activate various 'standard'
-    protocols or sequences of actions.'''
+    protocols or sequences of actions.
+    """
 
     def __init__(self, **kwargs):
         
@@ -199,74 +177,70 @@ class SMI_Beamline(Beamline):
 
         self.update_md()
 
-    def modeAlignment_gisaxs(self, technique = 'gisaxs'):
-        '''
+    def modeAlignment_gisaxs(self, technique='gisaxs'):
+        """
         Set the beamline for alignement: move the beamstop out and insert the attenuators
         if technique is 'gisaxs', the reflected roi will be calculate for horizontal congif
         if technique is 'xrr', the reflected roi will be calculate for vertical congif
-        '''
+        """
         # Put in attenuators
         yield from SMIBeam().insertFoils('Alignement')
         
         # Move beamstop
         yield from bps.mv(pil1m_bs_rod.x, bsx_pos + 5)
-        
 
         self.setReflectedBeamROI(technique=technique)
         self.setDirectBeamROI()
         
-        #Move the waxs detector out of the way
+        # Move the waxs detector out of the way
         if waxs.arc.position < 7.9:
-            #yield from bps.mv(waxs.arc, 4)
             yield from bps.mv(waxs.arc, 15)
 
-    def modeMeasurement_gisaxs(self, verbosity=3):
-        '''
+    def modeMeasurement_gisaxs(self):
+        """
         Set the beamline for measurments: bring the beamstop in and
         remove the attenuator
-        '''
+        """
         # Move beamstop
         yield from bps.mv(pil1m_bs_rod.x, bsx_pos) #2 for 4000 mm, 1.2 for 6500
         
         # Remove attenuators
         yield from SMIBeam().insertFoils('Measurement')       
 
-    def setDirectBeamROI(self, size=[48,12], verbosity=3):
-        '''
+    def setDirectBeamROI(self, size=[48, 12]):
+        """
         Update the ROI (pil1m.roi1) for the direct beam on the SAXS detector.
         size: tuple argument: size in pixels) of the ROI [width, height]).
-        '''
+        """
         
         # These positions are updated based on current detector position
         x0 = self.SAXS.direct_beam[0]
         y0 = self.SAXS.direct_beam[1]
-        
-        
+
         # Define the direct beam ROI on the pilatus 1M detector  
         yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x0-size[0]/2))
         yield from bps.mv(pil1M.roi1.size.x, int(size[0]))
         yield from bps.mv(pil1M.roi1.min_xyz.min_y, int(y0-size[1]/2))
         yield from bps.mv(pil1M.roi1.size.y, int(size[1]))
-        
 
-    def setReflectedBeamROI(self, total_angle=0.16, technique = 'gisaxs', size=[48,8], verbosity=3):
-        '''
+    def setReflectedBeamROI(self, total_angle=0.16, technique='gisaxs', size=[48, 8]):
+        """
         Update the ROI (pil1m.roi3) for the reflected beam on the SAXS detector.
         total_ange: float: incident angle of the alignement in degrees
         size: tuple: size in pixels) of the ROI [width, height]
-        '''
+        """
         
         # These positions are updated based on current detector position
         x0 = self.SAXS.direct_beam[0]
         y0 = self.SAXS.direct_beam[1]
-        d = self.SAXS.distance   #mm
-        pixel_size = self.SAXS.pixel_size # mm
+        d = self.SAXS.distance   # mm
+        pixel_size = self.SAXS.pixel_size  # mm
 
         if technique == 'gisaxs':
             # Calculate the y position of the reflected beam        
             y_offset_mm = np.tan(np.radians(2*total_angle))*d
             y_offset_pix = y_offset_mm/pixel_size
-            y_pos = int( y0 - size[0]/2 - y_offset_pix )
+            y_pos = int(y0 - size[0]/2 - y_offset_pix)
 
             # Define the reflected beam ROI on the pilatus 1M detector  
             yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x0-size[0]/2))
@@ -288,7 +262,6 @@ class SMI_Beamline(Beamline):
         else:
             raise ValueError('Unknown geometry fo alignement mode')
 
-
     def attenuators_state(self):
         self.att_state = {}
         att_ophyd = [att1_1, att1_2, att1_3, att1_4, att1_5, att1_6, att1_7, att1_8, att1_9, att1_10, att1_11, att1_12,
@@ -306,7 +279,6 @@ class SMI_Beamline(Beamline):
             if att.status.get() == 'Open':
                 self.att_state = {att.status.name: {'material': material, 'thickness': thickness}}
 
-
     def crl_state(self):
         for crl_le in [crl.lens1, crl.lens2, crl.lens3, crl.lens4, crl.lens5,
                        crl.lens6, crl.lens7, crl.lens8, crl.lens9, crl.lens10,
@@ -317,7 +289,6 @@ class SMI_Beamline(Beamline):
                 break
             else:
                 self.crl_state = 'low_divergence'
-
 
     def pressure_measurments(self):
         if waxs_pressure.ch1_read.get() == 'LO<E-03':
@@ -332,7 +303,6 @@ class SMI_Beamline(Beamline):
             except:
                 self.pressure_state = 'Not read'
 
-
     def update_md(self, prefix='beamline_', **md):
         md_beamline = self.md.copy()
 
@@ -345,11 +315,8 @@ class SMI_Beamline(Beamline):
 
         self.md.update(md_beamline)
 
-    # End class SMI_Beamline(Beamline)
-    ########################################
-
-
-
+# End class SMI_Beamline(Beamline)
+########################################
 
 
 class SMI_SAXS_Det(object):
@@ -366,11 +333,12 @@ class SMI_SAXS_Det(object):
 
 
     def getPositions(self, **md):
-        '''
-        Get the interpolated sample detector distance and beam position from interpolate_db_sdds function defined in 01_load.py
-        '''
+        """
+        Get the interpolated sample detector distance and beam position from interpolate_db_sdds
+        function defined in 01_load.py
+        """
 
-        #Interpolate the distance and direct beam position
+        # Interpolate the distance and direct beam position
         self.distance, self.direct_beam = interpolate_db_sdds()
         self.distance *= 1000
 
@@ -378,40 +346,38 @@ class SMI_SAXS_Det(object):
         smi_saxs_detector.y0_pix.put(self.direct_beam[1])
         smi_saxs_detector.sdd.put(self.distance)
 
-
     def get_beamstop(self):
-        '''
+        """
         Read the positions of pindiode and gisaxs beamstop to determine which beamstop is in and which pixels to mask
-        '''
+        """
 
         #ToDo: Calculate what pixels to mask for different beamstop positions
         if pil1m_bs_pd.x.position < 10 and pil1m_bs_rod.x.position < 10:
             smi_saxs_detector.bs_kind.put('rod_beamstop')
 
-            #To be implemented with the good values, not hard-coded
+            # To be implemented with the good values, not hard-coded
             smi_saxs_detector.xbs_mask.put(10)
             smi_saxs_detector.ybs_mask.put(10)
 
         elif abs(pil1m_bs_pd.x.position) > 50 and abs(pil1m_bs_rod.x.position) < 50:
             smi_saxs_detector.bs_kind.put('pindiode')
 
-            #To be implemented with the good values, not hard-coded
+            # To be implemented with the good values, not hard-coded
             smi_saxs_detector.xbs_mask.put(10)
             smi_saxs_detector.ybs_mask.put(10)
 
         else:
             smi_saxs_detector.bs_kind.put('None')
 
-            #To be implemented with the good values, not hard-coded
+            # To be implemented with the good values, not hard-coded
             smi_saxs_detector.xbs_mask.put(10)
             smi_saxs_detector.ybs_mask.put(10)
 
-
     def set_beamstop(self):
-        '''
+        """
         Modify the beamstop position in order to keep the beamstop aligned with the direct beam
         (Can be used when the sample detector distance is modified)
-        '''
+        """
         
         self.getPositions()
         self.get_beamstop()
@@ -419,29 +385,7 @@ class SMI_SAXS_Det(object):
         # ToDo: Compare beamstop position vs direct beam position and change bs position
         pass
 
-
-
-    #ToDo: check if gisaxs alignement still working with the new code
-    '''
-    def getPositions(self, **md):
-        self.distance =  pil1m_pos.z.position
-
-        #Add here also the position of the beam-diode
-        #Will also need here to implement to interpolate the direct beam position with the sdd
-        #Add also the interpolation of the distance when ready
-
-        self.beamstop = [pil1m_bs_rod.x.position, pil1m_bs_rod.y.position]
-        self.detector_position = [pil1m_pos.x.position, pil1m_pos.y.position]
-        
-        delta_pos_x = -self.detector_position[0] + self.detector_position_0_0[0]
-        delta_pos_y = -self.detector_position[1] + self.detector_position_0_0[1]
-        
-        self.direct_beam = [np.round(self.direct_beam_0_0[0] - (delta_pos_x / self.pixel_size)), np.round(self.direct_beam_0_0[1] - (delta_pos_y / self.pixel_size))]
-        return self
-    '''
-
-
-
+# ToDo: Move this piece of code somewhere else
 class SMI_WAXS_detector(Device):
     prefix = 'detector_waxs_'
     pixel_size = Component(Signal, value=0.172, name=prefix+'pixel_size', kind='hinted')
@@ -450,17 +394,13 @@ class SMI_WAXS_detector(Device):
     sdd = Component(Signal, value=274.9, name=prefix+'sdd', kind='hinted')
 
 
-
 class SMI_SAXS_detector(Device):
     prefix = 'detector_saxs_'
     pixel_size = Component(Signal, value=0.172, name=prefix+'pixel_size', kind='hinted')
 
-    #Defined in the pilatus file
-    pos = pil1m_pos
-
-    #Defined in the beamstop file
-    saxs_bs_pindiode = pil1m_bs_pd
-    saxs_bs_rod = pil1m_bs_rod
+    # pos = pil1m_pos
+    # saxs_bs_pindiode = pil1m_bs_pd
+    # saxs_bs_rod = pil1m_bs_rod
 
     bs_kind = Component(Signal, value='rod', name=prefix+'bs_kind', kind='hinted')
     xbs_mask = Component(Signal, value=0, name=prefix+'xbs_mask', kind='hinted')
