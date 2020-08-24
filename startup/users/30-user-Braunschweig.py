@@ -51,7 +51,7 @@ def run_giwaxs(t=1): #2020C1
                 print(f'\n\t=== Sample: {sample_name} ===\n')                        
                             
                 #yield from bp.scan(dets, energy, e, e, 1)
-                #yield from bp.scan(dets, waxs.arc, *waxs_arc)
+                #yield from bp.scan(dets, waxs, *waxs_arc)
                 yield from bp.count(dets, num=1)
                     
 
@@ -120,7 +120,7 @@ def run_gisaxsAngle_AB2(t=1): #2020C1
                     print(f'\n\t=== Sample: {sample_name} ===\n')                        
                             
                     #yield from bp.scan(dets, energy, e, e, 1)
-                    #yield from bp.scan(dets, waxs.arc, *waxs_arc)
+                    #yield from bp.scan(dets, waxs, *waxs_arc)
                     yield from bp.count(dets, num=1)
                     
 

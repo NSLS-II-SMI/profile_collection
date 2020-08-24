@@ -194,7 +194,7 @@ class SMI_Beamline(Beamline):
         
         # Move the waxs detector out of the way
         if waxs.arc.position < 7.9:
-            yield from bps.mv(waxs.arc, 15)
+            yield from bps.mv(waxs, 15)
 
     def modeMeasurement_gisaxs(self):
         """

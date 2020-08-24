@@ -239,7 +239,7 @@ def run_waxsRPI(t=1):
     for x, sample in zip(x_list, samples):
         yield from bps.mv(piezo.x, x)
         sample_id(user_name=name, sample_name=sample) 
-        yield from bp.scan(dets, waxs.arc, *waxs_arc)
+        yield from bp.scan(dets, waxs, *waxs_arc)
         
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5) 

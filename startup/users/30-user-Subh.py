@@ -34,7 +34,7 @@ def alignmentmodesubh():
         yield from bps.mv(GV7.open_cmd, 1 )
         yield from bps.mv(pil1m_bs_rod.x, alignbspossubh)
         if waxs.arc.position < 12 :
-                yield from bps.mv(waxs.arc,12)
+                yield from bps.mv(waxs,12)
         sample_id(user_name='test', sample_name='test')
         
 def measurementmodesubh():
@@ -48,7 +48,7 @@ def measurementmodesubh():
         time.sleep(1)
         yield from bps.mv(GV7.close_cmd, 1 )
         time.sleep(1)
-        #mov(waxs.arc,3)
+        #mov(waxs,3)
 
 def alignquick():
         #Att_Align1.set("Insert")
@@ -60,7 +60,7 @@ def alignquick():
         yield from bps.mv(GV7.open_cmd, 1 )
         yield from bps.mv(pil1m_bs_rod.x, alignbspossubh)
         if waxs.arc.position < 8 :
-                yield from bps.mv(waxs.arc,8)
+                yield from bps.mv(waxs,8)
         sample_id(user_name='test', sample_name='test')
         
 def meas_after_alignquick():
@@ -70,7 +70,7 @@ def meas_after_alignquick():
         time.sleep(1)
         yield from bps.mv(att1_3, 'Retract')
         time.sleep(1)
-        #mov(waxs.arc,3)
+        #mov(waxs,3)
 
 def alignsubhgi():
         det_exposure_time(0.5)
@@ -131,7 +131,7 @@ def do_grazingsubh(meas_t=1):
                         sample_id(user_name='NIST', sample_name=sample_name)
                         print(f'\n\t=== Sample: {sample_name} ===\n')
                         #print(RE.md)
-                        yield from bp.scan(dets, waxs.arc, *waxs_arc)
+                        yield from bp.scan(dets, waxs, *waxs_arc)
 
                 sample_id(user_name='test', sample_name='test')
                 det_exposure_time(0.5)
@@ -161,35 +161,35 @@ def do_grazingtemp(meas_t=4):
         piezo_x8 = [-3500, -3900, 12]
         
         sample_id(user_name='AK', sample_name='P75B2_50C_0.088deg_20300eV1')
-        yield from bp.grid_scan(dets, piezo.x, *piezo_x1, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.x, *piezo_x1, waxs, *waxs_arc, 1)
         yield from align_shortcut()
         det_exposure_time(meas_t)
         sample_id(user_name='AK', sample_name='P75B2_50C_0.088deg_20300eV2')
-        yield from bp.grid_scan(dets, piezo.x, *piezo_x2, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.x, *piezo_x2, waxs, *waxs_arc, 1)
         yield from align_shortcut()
         det_exposure_time(meas_t)
         sample_id(user_name='AK', sample_name='P75B2_50C_0.088deg_20300eV3')
-        yield from bp.grid_scan(dets, piezo.x, *piezo_x3, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.x, *piezo_x3, waxs, *waxs_arc, 1)
         yield from align_shortcut()
         det_exposure_time(meas_t)
         sample_id(user_name='AK', sample_name='P75B2_50C_0.088deg_20300eV4')
-        yield from bp.grid_scan(dets, piezo.x, *piezo_x4, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.x, *piezo_x4, waxs, *waxs_arc, 1)
         yield from align_shortcut()
         det_exposure_time(meas_t)
         sample_id(user_name='AK', sample_name='P75B2_50C_0.088deg_20300eV5')
-        yield from bp.grid_scan(dets, piezo.x, *piezo_x5, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.x, *piezo_x5, waxs, *waxs_arc, 1)
         yield from align_shortcut()
         det_exposure_time(meas_t)
         sample_id(user_name='AK', sample_name='P75B2_50C_0.088deg_20300eV6')
-        yield from bp.grid_scan(dets, piezo.x, *piezo_x6, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.x, *piezo_x6, waxs, *waxs_arc, 1)
         yield from align_shortcut()
         det_exposure_time(meas_t)
         sample_id(user_name='AK', sample_name='P75B2_50C_0.088deg_20300eV7')
-        yield from bp.grid_scan(dets, piezo.x, *piezo_x7, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.x, *piezo_x7, waxs, *waxs_arc, 1)
         yield from align_shortcut()
         det_exposure_time(meas_t)
         sample_id(user_name='AK', sample_name='P75B2_50C_0.088deg_20300eV8')
-        yield from bp.grid_scan(dets, piezo.x, *piezo_x8, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.x, *piezo_x8, waxs, *waxs_arc, 1)
         
         sample_id(user_name='test', sample_name='test')
         det_exposure_time(0.5)
@@ -201,7 +201,7 @@ def do_singleimage(meas_t=4):
         det_exposure_time(meas_t)
         waxs_arc = [3, 9, 2]
         sample_id(user_name='AK', sample_name='PVDFWBcool_50C_0.088deg_20300eV1')
-        yield from bp.grid_scan(dets, waxs.arc, *waxs_arc)
+        yield from bp.grid_scan(dets, waxs, *waxs_arc)
         
 
 def do_grazing_cool(meas_t=4):
@@ -213,43 +213,43 @@ def do_grazing_cool(meas_t=4):
         
         xlocs = [0] 
         sample_id(user_name='AK', sample_name='PB_50C_0.088deg_20300eV_cool')
-        yield from bp.grid_scan(dets, waxs.arc, *waxs_arc)
+        yield from bp.grid_scan(dets, waxs, *waxs_arc)
         
         xlocs = [10000] 
         sample_id(user_name='AK', sample_name='P50B_50C_0.088deg_20300eV_cool')
-        yield from bp.grid_scan(dets, waxs.arc, *waxs_arc)
+        yield from bp.grid_scan(dets, waxs, *waxs_arc)
         
         xlocs = [20000] 
         sample_id(user_name='AK', sample_name='PWB_50C_0.088deg_20300eV_cool')
-        yield from bp.grid_scan(dets, waxs.arc, *waxs_arc)
+        yield from bp.grid_scan(dets, waxs, *waxs_arc)
         
         xlocs = [30000] 
         sample_id(user_name='AK', sample_name='P50WB_50C_0.088deg_20300eV_cool')
-        yield from bp.grid_scan(dets, waxs.arc, *waxs_arc)
+        yield from bp.grid_scan(dets, waxs, *waxs_arc)
         
         xlocs = [40000] 
         sample_id(user_name='AK', sample_name='PVDFWB_50C_0.088deg_20300eV_cool')
-        yield from bp.grid_scan(dets, waxs.arc, *waxs_arc)
+        yield from bp.grid_scan(dets, waxs, *waxs_arc)
         
         xlocs = [50000] 
         sample_id(user_name='AK', sample_name='P75WB_50C_0.088deg_20300eV_cool')
-        yield from bp.grid_scan(dets, waxs.arc, *waxs_arc)
+        yield from bp.grid_scan(dets, waxs, *waxs_arc)
         
         xlocs = [60000] 
         sample_id(user_name='AK', sample_name='P75WB_100C_0.088deg_20300eV_cool')
-        yield from bp.grid_scan(dets, waxs.arc, *waxs_arc)        
+        yield from bp.grid_scan(dets, waxs, *waxs_arc)
 
         xlocs = [70000] 
         sample_id(user_name='AK', sample_name='P25WB_50C_0.088deg_20300eV_cool')
-        yield from bp.grid_scan(dets, waxs.arc, *waxs_arc)
+        yield from bp.grid_scan(dets, waxs, *waxs_arc)
         
         xlocs = [80000] 
         sample_id(user_name='AK', sample_name='P25B_50C_0.088deg_20300eV_cool')
-        yield from bp.grid_scan(dets, waxs.arc, *waxs_arc)
+        yield from bp.grid_scan(dets, waxs, *waxs_arc)
         
         xlocs = [90000] 
         sample_id(user_name='AK', sample_name='P75B2_50C_0.088deg_20300eV_cool')
-        yield from bp.grid_scan(dets, waxs.arc, *waxs_arc)
+        yield from bp.grid_scan(dets, waxs, *waxs_arc)
                
       #  sample_id(user_name='test', sample_name='test')
       #  det_exposure_time(0.5)
@@ -286,7 +286,7 @@ def do_grazing1(meas_t=2):
                         sample_id(user_name='FA', sample_name=sample_name)
                         print(f'\n\t=== Sample: {sample_name} ===\n')
                         #print(RE.md)
-                        yield from bp.scan(dets, waxs.arc, *waxs_arc)
+                        yield from bp.scan(dets, waxs, *waxs_arc)
 
                 sample_id(user_name='test', sample_name='test')
                 det_exposure_time(0.5)

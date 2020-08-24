@@ -171,7 +171,7 @@ def alignmentmodeRana():
                pil1m_bs_rod.x.move(pos+25)
         Att_Shutter.set("Retract")
         if waxs.arc.position < 12 :
-                mov(waxs.arc,12)
+                mov(waxs,12)
         sample_id(user_name='test', sample_name='test')
         det_exposure_time(1)
         pil1m_x.move(-0.8)
@@ -186,5 +186,5 @@ def measurementmodeRana():
         Att_Align3.set("Retract")
         yield from bps.sleep(1)
         pil1m_x.move(-0.2)
-        #mov(waxs.arc,3)
+        #mov(waxs,3)
 

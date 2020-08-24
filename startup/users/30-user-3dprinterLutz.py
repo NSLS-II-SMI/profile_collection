@@ -58,7 +58,7 @@ def track_printer(exp_t=1, meas_t=1, trigger_num = 1):
         
     #yield from data_acquisition(1, 1)
 
-    #yield from bps.mv(waxs.arc, 8.8)
+    #yield from bps.mv(waxs, 8.8)
     #yield from data_acquisition(1, 1)
     
     #Come back to the beam on the nozzle
@@ -83,7 +83,7 @@ def sample_alignment():
     smi = SMI_Beamline()
     yield from smi.modeAlignment_gisaxs()        
     if waxs.arc.position < 12:
-        yield from bps.mv(waxs.arc, 12)
+        yield from bps.mv(waxs, 12)
 
     yield from smi.setDirectBeamROI()
 
@@ -95,7 +95,7 @@ def sample_alignment():
     yield from bps.mvr(stage.y, height)
     
     if waxs.arc.position > 8:
-        yield from bps.mv(waxs.arc, waxs_arc)
+        yield from bps.mv(waxs, waxs_arc)
     
     yield from smi.modeMeasurement_gisaxs()
     yield from bps.mv(GV7.close_cmd, 1 )
@@ -145,7 +145,7 @@ def nozzle_alignment():
     smi = SMI_Beamline()
     yield from smi.modeAlignment_gisaxs()        
     if waxs.arc.position < 12:
-        yield from bps.mv(waxs.arc, 12)
+        yield from bps.mv(waxs, 12)
 
     yield from smi.setDirectBeamROI()
 
@@ -154,7 +154,7 @@ def nozzle_alignment():
 
     
     if waxs.arc.position > 8:
-        yield from bps.mv(waxs.arc, waxs_arc)
+        yield from bps.mv(waxs, waxs_arc)
     
     yield from smi.modeMeasurement_gisaxs()
     yield from bps.mv(GV7.close_cmd, 1 )

@@ -12,7 +12,7 @@ def run_saxs_capsRPI(t=1):
     for x, sample in zip(x_list, samples):
         yield from bps.mv(stage.x, x)
         sample_id(user_name=sample, sample_name='') 
-        yield from escan(dets, waxs.arc, *waxs_arc)
+        yield from escan(dets, waxs, *waxs_arc)
           
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5) 
@@ -61,7 +61,7 @@ def run_saxs_caps_temp_Bolm(name = 'DB'):
                 sample_name = name_fmt.format(sample=s, temperature=temp, energ = e)
                 print(f'\n\t=== Sample: {sample_name} ===\n')
                 sample_id(user_name=name, sample_name=sample_name) 
-                yield from bp.grid_scan(dets, waxs.arc, *waxs_arc, piezo.y, *y_range, 0)
+                yield from bp.grid_scan(dets, waxs, *waxs_arc, piezo.y, *y_range, 0)
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)
     yield from bps.mv(ls.ch1_sp, 28)    

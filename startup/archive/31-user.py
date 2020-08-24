@@ -18,7 +18,7 @@ def run_articulatus_test1(t=5, name = 'TD'):
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bps.mv(stage.x, x)
         sample_id(user_name=name, sample_name=sample_name)                       
-        yield from e_grid_scan(dets, stage.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from e_grid_scan(dets, stage.y, *y_range, waxs, *waxs_arc, 1)
         
 def run_articulatus_test2(t=5, name = 'TD'):
     x_list = [0.65]       
@@ -37,7 +37,7 @@ def run_articulatus_test2(t=5, name = 'TD'):
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bps.mv(stage.x, x)
         sample_id(user_name=name, sample_name=sample_name)                       
-        yield from e_grid_scan(dets, stage.y, *y_range, waxs.arc, *waxs_arc, 1)     
+        yield from e_grid_scan(dets, stage.y, *y_range, waxs, *waxs_arc, 1)
 
 
 
@@ -58,7 +58,7 @@ def run_articulatus_test3(t=5, name = 'TD'):
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bps.mv(stage.x, x)
         sample_id(user_name=name, sample_name=sample_name)                       
-        yield from e_grid_scan(dets, stage.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from e_grid_scan(dets, stage.y, *y_range, waxs, *waxs_arc, 1)
         
 def run_articulatus_test4(t=5, name = 'TD'):
     x_list = [0.65]       
@@ -77,7 +77,7 @@ def run_articulatus_test4(t=5, name = 'TD'):
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bps.mv(stage.x, x)
         sample_id(user_name=name, sample_name=sample_name)                       
-        yield from e_grid_scan(dets, stage.y, *y_range, waxs.arc, *waxs_arc, 1)       
+        yield from e_grid_scan(dets, stage.y, *y_range, waxs, *waxs_arc, 1)
         
         
         
@@ -105,7 +105,7 @@ def run_chitont7(t=10, name = 'TD', s_name = 'Cryptochiton_stellerit7'):
         sample_name = name_fmt.format(s_name=s_name, x_position = x)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from e_grid_scan(dets, stage.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from e_grid_scan(dets, stage.y, *y_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)  
@@ -126,7 +126,7 @@ def run_chitont15(t=10, name = 'TD', s_name = 'Cryptochiton_stellerit15'):
         sample_name = name_fmt.format(s_name=s_name, x_position = x)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from e_grid_scan(dets, stage.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from e_grid_scan(dets, stage.y, *y_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)            
@@ -147,7 +147,7 @@ def run_chitont30(t=10, name = 'TD', s_name = 'Cryptochiton_stellerit30'):
         sample_name = name_fmt.format(s_name=s_name, x_position = x)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from e_grid_scan(dets, stage.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from e_grid_scan(dets, stage.y, *y_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)             
@@ -169,7 +169,7 @@ def run_chitont45(t=10, name = 'TD', s_name = 'Cryptochiton_stellerit45'):
         sample_name = name_fmt.format(s_name=s_name, x_position = x)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from e_grid_scan(dets, stage.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from e_grid_scan(dets, stage.y, *y_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)             
@@ -193,7 +193,7 @@ def run_rz1(t=5, name = 'TD'):
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bps.mv(stage.x, x)
         sample_id(user_name=name, sample_name=sample_name)                       
-        yield from e_grid_scan(dets, stage.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from e_grid_scan(dets, stage.y, *y_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)      
@@ -217,7 +217,7 @@ def run_rz2(t=5, name = 'RZ'):
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bps.mv(stage.x, x)
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from e_grid_scan(dets, stage.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from e_grid_scan(dets, stage.y, *y_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)      
@@ -241,7 +241,7 @@ def run_td1(t=5, name = 'TD'):
             print(f'\n\t=== Sample: {sample_name} ===\n')
             yield from bps.mv(stage.y, y)
             sample_id(user_name=name, sample_name=sample_name)          
-            yield from escan(dets, waxs.arc, *waxs_arc)
+            yield from escan(dets, waxs, *waxs_arc)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)
@@ -264,7 +264,7 @@ def run_td2(t=10, name = 'TD'):
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bps.mv(piezo.x, x)
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from bp.grid_scan(dets, piezo.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.y, *y_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)   
@@ -286,7 +286,7 @@ def run_td_single(t=10, name = 'TD'):
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bps.mv(piezo.x, x)
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from bp.grid_scan(dets, piezo.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.y, *y_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)     
@@ -307,7 +307,7 @@ def run_ramyaX1(t=5, name = 'BSpec_RT_Hairs', s_name = 'Exo_FineRes'):
         sample_name = name_fmt.format(s_name=s_name, x_position = x)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from bp.grid_scan(dets, piezo.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.y, *y_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)
@@ -328,7 +328,7 @@ def run_ramyaX2(t=5, name = 'BSpec_RT', s_name = 'MesoEndo3_FineRes'):
         sample_name = name_fmt.format(s_name=s_name, x_position = x)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from bp.grid_scan(dets, piezo.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.y, *y_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)
@@ -349,7 +349,7 @@ def run_ramyaX3(t=5, name = 'BSpec_Burnt', s_name = 'Overview_Coarse'):
         sample_name = name_fmt.format(s_name=s_name, x_position = x)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from bp.grid_scan(dets, piezo.y, *y_range, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.y, *y_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)
@@ -371,7 +371,7 @@ def run_ramyaY(t=5, name = 'RM', s_name = 'BSpec_SS_Closed'):
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bps.mv(piezo.y, y)
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from bp.grid_scan(dets, piezo.x, *x_range, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.x, *x_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)
@@ -393,7 +393,7 @@ def run_ramyaY1(t=5, name = 'RM', s_name = 'BSpec_SS_Tail'):
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bps.mv(piezo.y, y)
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from bp.grid_scan(dets, piezo.x, *x_range, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.x, *x_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)
@@ -415,7 +415,7 @@ def run_ramyaY2(t=5, name = 'RM', s_name = 'BSpec_SS_Inner'):
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bps.mv(piezo.y, y)
         sample_id(user_name=name, sample_name=sample_name)               
-        yield from bp.grid_scan(dets, piezo.x, *x_range, waxs.arc, *waxs_arc, 1)
+        yield from bp.grid_scan(dets, piezo.x, *x_range, waxs, *waxs_arc, 1)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)

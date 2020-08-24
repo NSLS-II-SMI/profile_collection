@@ -51,7 +51,7 @@ def do_grazing(meas_t=0.5):
 
                         sample_id(user_name='RL', sample_name=sample_name)
                         print(f'\n\t=== Sample: {sample_name} ===\n')
-                        yield from bp.inner_product_scan(dets, int(waxs_arc[2]), waxs.arc, float(waxs_arc[0]), float(waxs_arc[1]), piezo.x, x_offset-600, x_offset + 600)
+                        yield from bp.inner_product_scan(dets, int(waxs_arc[2]), waxs, float(waxs_arc[0]), float(waxs_arc[1]), piezo.x, x_offset-600, x_offset + 600)
 
         det_exposure_time(0.5)
 
@@ -87,7 +87,7 @@ def do_grazing_fine(meas_t=0.5):
                         real_ang = 0.3 + angle_offset[j]
                         yield from bps.mv(piezo.th, ang)
                         for waxs_pos in waxs_arc:
-                                yield from bps.mv(waxs.arc, waxs_pos)
+                                yield from bps.mv(waxs, waxs_pos)
                                 sample_name = name_fmt.format(sample=name, angle='%04.2f'%real_ang, energ = e , num = '%05.2f'%waxs_pos, xpos = '%07.1f'%piezo.x.position)
                                 sample_id(user_name='RL', sample_name=sample_name)
                                 if waxs_pos < 4:
@@ -116,7 +116,7 @@ def alignmentmodeCai():
         yield from bps.mv(att2_11, 'Insert')
                 
         if waxs.arc.position < 8:
-            yield from bps.mv(waxs.arc, 8)
+            yield from bps.mv(waxs, 8)
         time.sleep(1)
         yield from bps.mv(pil1m_pos.x, -4)
         yield from bps.mv(pil1m_bs_rod.x, alignbspos)

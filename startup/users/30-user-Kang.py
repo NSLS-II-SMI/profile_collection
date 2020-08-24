@@ -201,7 +201,7 @@ def rotation_saxs_att(t = 1): #attenuated WAXS, so SAXS recorded separately firs
     for sam, y in zip(sample, y_list):
         #yield from bps.mv(stage.y, y) #hexapod
         yield from bps.mv(piezo.y, y) #SmarAct
-        yield from bps.mv(waxs.arc, 70)
+        yield from bps.mv(waxs, 70)
         for angle in range(-90, 91, 1):
             yield from bps.mv(prs, angle)
                               
@@ -219,7 +219,7 @@ def rotation_saxs_att(t = 1): #attenuated WAXS, so SAXS recorded separately firs
         #yield from bps.mv(stage.y, y) #hexapod
         yield from bps.mv(piezo.y, y) #SmarAct
         for i, waxs_pos in enumerate(waxs_po):
-            yield from bps.mv(waxs.arc, waxs_pos)
+            yield from bps.mv(waxs, waxs_pos)
             yield from bps.mv(pil1m_pos.x, pil_pos_x[i])
             yield from bps.mv(pil1m_pos.y, pil_pos_y[i])
 

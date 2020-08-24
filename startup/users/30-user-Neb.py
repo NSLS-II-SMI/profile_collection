@@ -46,7 +46,7 @@ def do_grazing(meas_t=1):
                     real_ang = 0.1 + angle_offset[j]
                     yield from bps.mv(piezo.th, ang)                    
                     for waxs_pos in waxs_arc:   
-                        yield from bps.mv(waxs.arc, waxs_pos)             
+                        yield from bps.mv(waxs, waxs_pos)
                         sample_name = name_fmt.format(sample=name, angle='%04.2f'%real_ang, energ = '%07.1f'%energy.position.energy, num = '%05.2f'%waxs_pos, xpos = '%07.0f'%piezo.x.position, exposure=meas_t)
                         sample_id(user_name='ET', sample_name=sample_name)
                         det_exposure_time(meas_t)                      
@@ -69,7 +69,7 @@ def alignmentmodeCai():
         yield from SMIBeam().insertFoils('Alignement')
                 
         if waxs.arc.position < 8:
-            yield from bps.mv(waxs.arc, 8)
+            yield from bps.mv(waxs, 8)
         time.sleep(1)
         yield from bps.mv(pil1m_pos.x, -4)
         yield from bps.mv(pil1m_bs_rod.x, alignbspos)

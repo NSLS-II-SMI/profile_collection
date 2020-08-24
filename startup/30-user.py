@@ -58,7 +58,7 @@ def run_saxs_lipids(y=1, t=2):
         sample_id(user_name=sample,
                   sample_name=param)
         # print(RE.md)
-        yield from e_grid_scan(dets, waxs.arc, *waxs_arc, stage.y, *stage_y, 0)
+        yield from e_grid_scan(dets, waxs, *waxs_arc, stage.y, *stage_y, 0)
 
     sample_id(user_name='test', sample_name='test')
 
@@ -217,7 +217,7 @@ def run_waxs_multi(t=1):
     for x, sample in zip(x_list, samples):
         yield from bps.mv(stage.x, x)
         sample_id(user_name=sample,sample_name='')               
-        yield from escan(dets, waxs.arc, *waxs_arc)
+        yield from escan(dets, waxs, *waxs_arc)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)
@@ -256,7 +256,7 @@ def run_ben_giwaxs(t=10):
                 sample_id(user_name=sample,
                         sample_name=param)
                 #print(RE.md)
-                yield from escan(dets, waxs.arc, *waxs_arc)
+                yield from escan(dets, waxs, *waxs_arc)
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)

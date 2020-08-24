@@ -26,7 +26,7 @@ def gocko(meas_t=1):
                     sample_name = name_fmt.format(sample=name, angle=np.float('%.3f'%real_ang))
                     sample_id(user_name='BO_13.47keV', sample_name=sample_name)
                     print(f'\n\t=== Sample: {sample_name} ===\n')
-                    yield from bp.scan(dets, waxs.arc, *waxs_arc)
+                    yield from bp.scan(dets, waxs, *waxs_arc)
 
         sample_id(user_name='test', sample_name='test')
         det_exposure_time(0.5)
@@ -69,7 +69,7 @@ def gocko_res(meas_t = 1):
                     sample_name = name_fmt.format(sample=name, angle=np.float('%.3f'%(ang+0.25)), energy = energies, num =i)
                     sample_id(user_name='BO', sample_name=sample_name)
                     print(f'\n\t=== Sample: {sample_name} ===\n')
-                    yield from bp.scan(det2, waxs.arc, *waxs_arc)
+                    yield from bp.scan(det2, waxs, *waxs_arc)
                     i += 1
         '''
         curr_tray = xlocs1
@@ -118,7 +118,7 @@ def alignmentmodeCai():
         yield from bps.mv(GV7.open_cmd, 1 )
         yield from SMIBeam().insertFoils('Alignement')
         if waxs.arc.position < 8:
-            yield from bps.mv(waxs.arc, 8)
+            yield from bps.mv(waxs, 8)
         time.sleep(1)
         yield from bps.mv(pil1m_pos.x, -4)
         yield from bps.mv(pil1m_bs_rod.x, alignbspos)

@@ -95,7 +95,7 @@ def track_printer_hegmann(acq_t=1, full_meas_t=10, trigger_num = 1):
         
     #yield from data_acquisition(1, 1)
 
-    #yield from bps.mv(waxs.arc, 8.8)
+    #yield from bps.mv(waxs, 8.8)
     #yield from data_acquisition(1, 1)
     
     #Come back to the beam on the nozzle
@@ -202,7 +202,7 @@ def nozzle_alignment():
     smi = SMI_Beamline()
     yield from smi.modeAlignment_gisaxs()        
     if waxs.arc.position < 6:
-        yield from bps.mv(waxs.arc, 6)
+        yield from bps.mv(waxs, 6)
 
     yield from smi.setDirectBeamROI()
 
@@ -211,7 +211,7 @@ def nozzle_alignment():
 
     
     if waxs.arc.position > 5:
-        yield from bps.mv(waxs.arc, waxs_arc)
+        yield from bps.mv(waxs, waxs_arc)
     
     yield from smi.modeMeasurement_gisaxs()
     #yield from bps.mv(GV7.close_cmd, 1 )

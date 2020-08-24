@@ -23,7 +23,7 @@ def gradient_sample(exp_time):
             sample_id(user_name= 'ES', sample_name=sample_name) 
             print(f'\n\t=== Sample: {sample_name} ===\n')
 
-            yield from bp.scan(dets, waxs.arc, *waxs_arc)
+            yield from bp.scan(dets, waxs, *waxs_arc)
             
         x -= 200
 
@@ -48,7 +48,7 @@ def MOF_measure(exp_time):
             sample_name = name_fmt.format(sample=name, angle=incident_angle)
             sample_id(user_name='GF', sample_name=sample_name)
             det_exposure_time(exp_time, exp_time)
-            yield from bp.scan(dets, waxs.arc, *waxs_arc)
+            yield from bp.scan(dets, waxs, *waxs_arc)
             yield from bps.mvr(piezo.th, -incident_angle)
         
 def guigui(meas_t=0.3):
@@ -255,8 +255,7 @@ def nikhil_Zn_edge(t=1):
             sample_id(user_name='GF', sample_name=sample_name)
             print(f'\n\t=== Sample: {sample_name} ===\n')
             #yield from bp.count(dets, num=1)
-            caput('XF:12IDC-ES:2{Det:1M}cam1:Acquire', 1) 
-        
+
         yield from bps.mv(energy, 9680)
         yield from bps.mv(energy, 9660)
         yield from bps.mv(energy, 9640)
@@ -291,15 +290,14 @@ def meas_gels(t=1):
 
 def sin_generation():
     x = np.linspace(0, 30000, 30000)
-    gx = 50000 * np.sin(x/5) #20000, 15000, 6000
-	
-    #plt.figure()
-    #plt.plot(x, gx)
-    #plt.show()
+    gx = 50000 * np.sin(x/5)  #20000, 15000, 6000
 
-	
+    # plt.figure()
+    # plt.plot(x, gx)
+    # plt.show()
+
     for gs in gx:
-        time.sleep(0.01)
+        yield from bps.sleep(0.01)
         caput('XF:12IDB-BI:2{EM:BPM3}fast_pidY.VAL', gs) 
 
 

@@ -84,8 +84,6 @@ def fly_scan_prsx(det, motor, t=0.1, t1 = 30, name = 'test'):
     sample_id(user_name='CB', sample_name=name)
 
 
-    caput('XF:12IDC-ES:2{MCS:1-Ax:0}Mtr.VELO', 100)
-    
     start = piezo.x.position
     stop =  piezo.x.position + 3000
 
@@ -107,7 +105,6 @@ def fly_scan_prsx(det, motor, t=0.1, t1 = 30, name = 'test'):
     pil300KW.unstage()
     print(f'We are done after {t1}s of waiting')
     #yield from bps.mv(attn_shutter, 'Insert')    
-    caput('XF:12IDC-ES:2{MCS:1-Ax:0}Mtr.VELO', 2000)     
 
 
 

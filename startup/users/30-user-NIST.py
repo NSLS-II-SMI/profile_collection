@@ -47,7 +47,7 @@ def Rb_tswaxs(t=0.5, waxs_arc = [13],energies=[15150,15160,15170,15180,15190,151
             #temp = ls.ch1_read.value
             dets = [pil300KW,pil1M]
             det_exposure_time(t,t) 
-           # yield from bp.scan(dets, waxs.arc, *waxs_arc)# should just be a single point "scan"
+           # yield from bp.scan(dets, waxs, *waxs_arc)# should just be a single point "scan"
            
             if np.int(waxs.arc.position) < 6 and bsx_pos > 0:
                 yield from bps.mv(waxs, waxspos)
@@ -130,7 +130,7 @@ def tswaxs(t=15, waxs_arc = [26,19.5,13,6.5,0]):
             sample_name = '{sample}_nosaxs_waxs{waxspos:5.4f}'.format(sample = sample, waxspos=waxspos)
             sample_id(user_name=user, sample_name=sample_name)  
             print(f'\n\t=== Sample: {sample_name} ===\n')
-           # yield from bp.scan(dets, waxs.arc, *waxs_arc)# should just be a single point "scan"
+           # yield from bp.scan(dets, waxs, *waxs_arc)# should just be a single point "scan"
            
             if np.int(waxs.arc.position) < 6 and bsx_pos > 0:
                 yield from bps.mv(waxs, waxspos)
@@ -238,7 +238,7 @@ def giwaxsTempSingleWaxsSeries(x_list,y_list,th_list,chi_list,sample_list,waxs_a
             sample_name = '{sample}_inc{th:5.4f}deg_waxs{waxspos:5.4f}_{temp:5.4f}C_{num}'.format(sample = sample, th=th_real,waxspos=waxspos, temp = temp,num=num)
             sample_id(user_name=user, sample_name=sample_name)  
             print(f'\n\t=== Sample: {sample_name} ===\n')
-           # yield from bp.scan(dets, waxs.arc, *waxs_arc)# should just be a single point "scan"
+           # yield from bp.scan(dets, waxs, *waxs_arc)# should just be a single point "scan"
            
             if np.int(waxs.arc.position) < 6 and bsx_pos > 0:
                 yield from bps.mv(waxs, waxspos)

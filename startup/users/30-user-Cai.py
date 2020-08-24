@@ -342,7 +342,7 @@ def gisaxsCaiTempOLD(meas_t=1):
                     sample_name = name_fmt.format(sample=name, temperature=temp, angle=real_ang)
                     sample_id(user_name='LC', sample_name=sample_name)
                     print(f'\n\t=== Sample: {sample_name} ===\n')
-                    yield from bp.scan(dets, waxs.arc, *waxs_arc)
+                    yield from bp.scan(dets, waxs, *waxs_arc)
 
         yield from bps.mv(ls.ch1_sp, 20)
         sample_id(user_name='test', sample_name='test')

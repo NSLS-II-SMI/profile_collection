@@ -19,7 +19,7 @@ def run_waxs_Hanqiu(t=1):
             sample_name = name_fmt.format(sample=s, energ = e, ycoord = y)
             print(f'\n\t=== Sample: {sample_name} ===\n')
             sample_id(user_name='HJ', sample_name=sample_name) 
-            yield from bp.scan(dets, waxs.arc, *waxs_arc)
+            yield from bp.scan(dets, waxs, *waxs_arc)
           
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.2) 
