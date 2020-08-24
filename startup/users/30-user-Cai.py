@@ -188,10 +188,10 @@ def run_giwaxs_cai(t=1):
         yield from bps.mv(piezo.x, x)
         yield from bps.mv(piezo.th, 0.5)
         yield from bps.mv(pil1m_pos.x, -2.3)
-        #time.sleep(2)
+        #yield from bps.sleep(2)
         yield from alignement_gisaxs(0.1)
         yield from bps.mv(pil1m_pos.x, 0.7)
-        #time.sleep(2)
+        #yield from bps.sleep(2)
         plt.close('all')
         angle_offset = [0.125, 0.2]
         a_off = piezo.th.position
@@ -262,10 +262,10 @@ def run_giwaxs_cai_temp(t=1):
         yield from bps.mv(piezo.x, x)
         yield from bps.mv(piezo.th, 0)
         yield from bps.mv(pil1m_pos.x, -2.3)
-        #time.sleep(2)
+        #yield from bps.sleep(2)
         yield from alignement_gisaxs_shorter(0.1)
         yield from bps.mv(pil1m_pos.x, 0.7)
-        #time.sleep(2)
+        #yield from bps.sleep(2)
         plt.close('all')
         angle_offset = [0.125, 0.2]
         a_off = piezo.th.position

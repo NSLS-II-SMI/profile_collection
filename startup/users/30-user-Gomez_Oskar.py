@@ -257,7 +257,7 @@ def saxs_prep_multisample(t=1):
 def NEXAFS_Ca_edge_multi(t=0.5, name='test'):
     yield from bps.mv(att2_11, 'Retract')
     yield from bps.mv(GV7.close_cmd, 1 )
-    time.sleep(1)
+    yield from bps.sleep(1)
     yield from bps.mv(att2_11, 'Retract')
     yield from bps.mv(GV7.close_cmd, 1 )
 
@@ -288,6 +288,6 @@ def NEXAFS_Ca_edge_multi(t=0.5, name='test'):
 
     yield from bps.mv(att2_11, 'Insert')
     yield from bps.mv(GV7.open_cmd, 1 )
-    time.sleep(1)
+    yield from bps.sleep(1)
     yield from bps.mv(att2_11, 'Insert')
     yield from bps.mv(GV7.open_cmd, 1 )

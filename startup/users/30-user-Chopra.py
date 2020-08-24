@@ -12,11 +12,11 @@ def bu(user_name, start_y, end_y, acq_t=2, meas_t=2):
         
         yield from bps.mv(att1_10, 'Insert') 
         fs.open()
-        time.sleep(0.3)
+        yield from bps.sleep(0.3)
         pd_curr = pdcurrent2.value
         fs.close()
         yield from bps.mv(att1_10, 'Retract') 
-        time.sleep(0.5)
+        yield from bps.sleep(0.5)
         sample_name= name_fmt.format(i='%2.2d'%(1+i), pd='%5.5d'%pd_curr)
         sample_id(user_name=user_name, sample_name=sample_name)
         

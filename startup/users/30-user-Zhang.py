@@ -7,7 +7,7 @@ def song_waxs_S_edge_new(t=1):
     dets = [pil300KW]
 
     yield from bps.mv(GV7.close_cmd, 1 )
-    time.sleep(5)
+    yield from bps.sleep(5)
     yield from bps.mv(GV7.close_cmd, 1 )
 
     energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist()

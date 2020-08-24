@@ -281,11 +281,11 @@ class Monitor(BeamlineElement):
         """
         
         self.insert()
-        time.sleep(delay)
+        yield from bps.sleep(delay)
         value = self.reading(verbosity=verbosity)
         
         self.retract()
-        time.sleep(delay)
+        yield from bps.sleep(delay)
         
         return value
 
@@ -1088,7 +1088,7 @@ class CMSBeam(object):
     
     def on(self, verbosity=3, wait_time=0.1, poling_period=0.10, retry_time=2.0, max_retries=5):
         '''Turn on the beam (open experimental shutter).
-        update: 090517, RL: change the wait_time from 0.005 to 0.1, change sleep to time.sleep'''
+        update: 090517, RL: change the wait_time from 0.005 to 0.1, change sleep to yield from bps.sleep'''
         
         if self.is_on(verbosity=0):
             if verbosity>=4:
@@ -1101,20 +1101,20 @@ class CMSBeam(object):
             
                 # Trigger the shutter to toggle state
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M112=1')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M111=1')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M112=0')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M111=1')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 
                 # Give the system a chance to update
                 start_time = time.time()
                 while (not self.is_on(verbosity=0)) and (time.time()-start_time)<retry_time:
                     if verbosity>=5:
                         print('  try {:d}, t = {:02.2f} s, state = {:s}'.format(itry+1, (time.time()-start_time), 'OPEN_____' if self.is_on(verbosity=0) else 'CLOSE===='))
-                    time.sleep(poling_period)
+                    yield from bps.sleep(poling_period)
                 
                 itry += 1
                 
@@ -1128,7 +1128,7 @@ class CMSBeam(object):
     
     def off(self, verbosity=3, wait_time=0.1, poling_period=0.10, retry_time=2.0, max_retries=5):
         '''Turn off the beam (close experimental shutter).
-        update: 090517, RL: change the wait_time from 0.005 to 0.1, change sleep to time.sleep'''
+        update: 090517, RL: change the wait_time from 0.005 to 0.1, change sleep to yield from bps.sleep'''
         
         if self.is_on(verbosity=0):
             
@@ -1136,20 +1136,20 @@ class CMSBeam(object):
             while self.is_on(verbosity=0) and itry<max_retries:
                 # Trigger the shutter to toggle state
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M112=1')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M111=1')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M112=0')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M111=1')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
 
                 # Give the system a chance to update
                 start_time = time.time()
                 while self.is_on(verbosity=0) and (time.time()-start_time)<retry_time:
                     if verbosity>=5:
                         print('  try {:d}, t = {:02.2f} s, state = {:s}'.format(itry+1, (time.time()-start_time), 'OPEN_____' if self.is_on(verbosity=0) else 'CLOSE===='))
-                    time.sleep(poling_period)
+                    yield from bps.sleep(poling_period)
                 
                 itry += 1
 
@@ -1215,13 +1215,13 @@ class CMSBeam(object):
             
                 # Trigger the shutter to toggle state
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M112=1')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M111=1')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M112=0')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M111=1')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 
                 # Give the system a chance to update
                 start_time = time.time()
@@ -1261,13 +1261,13 @@ class CMSBeam(object):
             while self.is_on(verbosity=0) and itry<max_retries:
                 # Trigger the shutter to toggle state
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M112=1')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M111=1')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M112=0')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
                 caput('XF:11BMB-CT{MC:06}Asyn.AOUT','M111=1')
-                time.sleep(wait_time)
+                yield from bps.sleep(wait_time)
 
                 # Give the system a chance to update
                 start_time = time.time()
@@ -1278,7 +1278,7 @@ class CMSBeam(object):
                 while self.is_on(verbosity=0) and (time.time()-start_time)<retry_time:
                     if verbosity>=5:
                         print('  try {:d}, t = {:02.2f} s, state = {:s}'.format(itry+1, (time.time()-start_time), 'OPEN_____' if self.is_on(verbosity=0) else 'CLOSE===='))
-                    time.sleep(poling_period)
+                    yield from bps.sleep(poling_period)
                     
                     #print('3')
                     #print(sam.clock())
@@ -1431,7 +1431,7 @@ class CMSBeam(object):
                     
 
         
-            time.sleep(1.) # Wait for filter box to settle
+            yield from bps.sleep(1.) # Wait for filter box to settle
             
         if verbosity>=4:
             filters_final = [ caget('XF:11BMB-OP{{Fltr:{:d}}}Pos-Sts'.format(ifoil)) for ifoil in range(1, 8+1) ]
@@ -1508,7 +1508,7 @@ class CMSBeam(object):
         # Check that transmission was actually correctly changed
         if abs(self.transmission(verbosity=0)-transmission)/transmission > tolerance:
             if retries>0:
-                #time.sleep(0.5)
+                #yield from bps.sleep(0.5)
                 # Try again
                 return self.setTransmission(transmission, retries=retries-1, tolerance=tolerance, verbosity=verbosity)
             
@@ -1590,7 +1590,7 @@ class CMSBeam(object):
         # Check that absorber was actually correctly moved
         if abs(armr.position-(self.armr_absorber_o+slot*6)) > tolerance:
             if retries>0:
-                #time.sleep(0.5)
+                #yield from bps.sleep(0.5)
                 # Try again
                 return self.absorberCalcTransmission(slot), self.setAbsorber(transmission, retries=retries-1, tolerance=tolerance, verbosity=verbosity)
             
@@ -1897,7 +1897,7 @@ class CMS_Beamline(Beamline):
         self.beam.off()
         self.beam.setTransmission(1e-8)  #1e-6 for 13.5kev, 1e-8 for 17kev
         while beam.transmission() > 3e-8:
-            time.sleep(0.5)
+            yield from bps.sleep(0.5)
             self.beam.setTransmission(1e-8)
             
         #mov(bsx, -10.95)
@@ -1999,7 +1999,7 @@ class CMS_Beamline(Beamline):
         if verbosity>=4:
             print('  Opening {} (try # {:d})'.format(pv, tries))
         caput(pv+'Cmd:Opn-Cmd', 1)
-        time.sleep(wait_time)
+        yield from bps.sleep(wait_time)
         
         
         while caget(pv+'Pos-Sts')!= 1 and tries<max_tries:
@@ -2007,7 +2007,7 @@ class CMS_Beamline(Beamline):
             if verbosity>=4:
                 print('  Opening {} (try # {:d})'.format(pv, tries))
             caput(pv+'Cmd:Opn-Cmd', 1)
-            time.sleep(wait_time)
+            yield from bps.sleep(wait_time)
             
         if verbosity>=1 and caget(pv+'Pos-Sts')!= 1:
             print('ERROR, valve did not open ({})'.format(pv))
@@ -2018,7 +2018,7 @@ class CMS_Beamline(Beamline):
         if verbosity>=4:
             print('  Closing {} (try # {:d})'.format(pv, tries))
         caput(pv+'Cmd:Cls-Cmd', 1)
-        time.sleep(wait_time)
+        yield from bps.sleep(wait_time)
         
         
         while caget(pv+'Pos-Sts')!= 0 and tries<max_tries:
@@ -2026,7 +2026,7 @@ class CMS_Beamline(Beamline):
             if verbosity>=4:
                 print('  Closing {} (try # {:d})'.format(pv, tries))
             caput(pv+'Cmd:Cls-Cmd', 1)
-            time.sleep(wait_time)
+            yield from bps.sleep(wait_time)
             
         if verbosity>=1 and caget(pv+'Pos-Sts')!= 0:
             print('ERROR, valve did not close ({})'.format(pv))
@@ -2051,13 +2051,13 @@ class CMS_Beamline(Beamline):
         # Soft-open the upstream vent-valve
         #caput('XF:11BMB-VA{Chm:Smpl-VV:1}Cmd:Cls-Cmd', 1)
         self._actuate_close('XF:11BMB-VA{Chm:Smpl-VV:1}', verbosity=verbosity)
-        time.sleep(1.0)
+        yield from bps.sleep(1.0)
         #caput('XF:11BMB-VA{Chm:Smpl-VV:1_Soft}Cmd:Opn-Cmd', 1)
         self._actuate_open('XF:11BMB-VA{Chm:Smpl-VV:1_Soft}', verbosity=verbosity)
         # Soft-open the downstream vent-vale
         #caput('XF:11BMB-VA{Chm:Det-VV:1_Soft}Cmd:Cls-Cmd', 1)
         self._actuate_close('XF:11BMB-VA{Chm:Det-VV:1}', verbosity=verbosity)
-        time.sleep(1.0)
+        yield from bps.sleep(1.0)
         #caput('XF:11BMB-VA{Chm:Det-VV:1}Cmd:Opn-Cmd', 1)
         self._actuate_open('XF:11BMB-VA{Chm:Det-VV:1_Soft}', verbosity=verbosity)
   
@@ -2068,14 +2068,14 @@ class CMS_Beamline(Beamline):
         # Fully open the upstream vent-vale
         #caput('XF:11BMB-VA{Chm:Smpl-VV:1_Soft}Cmd:Cls-Cmd', 1)
         self._actuate_close('XF:11BMB-VA{Chm:Smpl-VV:1_Soft}', verbosity=verbosity)
-        time.sleep(1.0)
+        yield from bps.sleep(1.0)
         #caput('XF:11BMB-VA{Chm:Smpl-VV:1}Cmd:Opn-Cmd', 1)
         self._actuate_open('XF:11BMB-VA{Chm:Smpl-VV:1}', verbosity=verbosity)
 
         # Fully open the downstream vent-vale
         #caput('XF:11BMB-VA{Chm:Det-VV:1_Soft}Cmd:Cls-Cmd', 1)
         self._actuate_close('XF:11BMB-VA{Chm:Det-VV:1_Soft}', verbosity=verbosity)
-        time.sleep(1.0)
+        yield from bps.sleep(1.0)
         #caput('XF:11BMB-VA{Chm:Det-VV:1}Cmd:Opn-Cmd', 1)
         self._actuate_open('XF:11BMB-VA{Chm:Det-VV:1}', verbosity=verbosity)
         
@@ -2099,11 +2099,11 @@ class CMS_Beamline(Beamline):
         # Close valve connecting sample chamber to vacuum pump
         caput('XF:11BMB-VA{Chm:Det-IV:1}Cmd:Cls-Cmd',1)
         
-        time.sleep(0.5)
+        yield from bps.sleep(0.5)
         
         # Soft-open the upstream vent-valve
         caput('XF:11BMB-VA{Chm:Smpl-VV:1}Cmd:Cls-Cmd', 1)
-        time.sleep(1.0)
+        yield from bps.sleep(1.0)
         caput('XF:11BMB-VA{Chm:Smpl-VV:1_Soft}Cmd:Opn-Cmd', 1)
         
         
@@ -2112,12 +2112,12 @@ class CMS_Beamline(Beamline):
         
         # Fully open the upstream vent-vale
         caput('XF:11BMB-VA{Chm:Smpl-VV:1_Soft}Cmd:Cls-Cmd', 1)
-        time.sleep(1.0)
+        yield from bps.sleep(1.0)
         caput('XF:11BMB-VA{Chm:Smpl-VV:1}Cmd:Opn-Cmd', 1)
 
         # Fully open the downstream vent-vale
         caput('XF:11BMB-VA{Chm:Det-VV:1_Soft}Cmd:Cls-Cmd', 1)
-        time.sleep(1.0)
+        yield from bps.sleep(1.0)
         caput('XF:11BMB-VA{Chm:Det-VV:1}Cmd:Opn-Cmd', 1)
         
         self.chamberPressure(range_high=1000)
@@ -2155,7 +2155,7 @@ class CMS_Beamline(Beamline):
                 elif verbosity>=2:
                     print('Sample chamber pressure: {:8.2f} mbar ({:5.3f} atm)    \r'.format(P_mbar, P_atm), end='', flush=True)
                     
-                time.sleep(readout_period)
+                yield from bps.sleep(readout_period)
                 
                 
             except KeyboardInterrupt:
@@ -2179,26 +2179,26 @@ class CMS_Beamline(Beamline):
         tries = 1
         while caget('XF:11BMB-VA{Chm:Det-Pmp:1}Sts:Enbl-Sts')==0 and tries<=max_tries:
             caput('XF:11BMB-VA{Chm:Det-Pmp:1}Cmd:Enbl-Cmd', 0)
-            time.sleep(0.2)
+            yield from bps.sleep(0.2)
             caput('XF:11BMB-VA{Chm:Det-Pmp:1}Cmd:Enbl-Cmd', 1)
-            time.sleep(2.0)
+            yield from bps.sleep(2.0)
             tries += 1
         
         # Soft-open valve to pump
         #caput('XF:11BMB-VA{Chm:Det-IV:1}Cmd:Cls-Cmd', 1)
         self._actuate_close('XF:11BMB-VA{Chm:Det-IV:1}', verbosity=verbosity)
-        time.sleep(0.5)
+        yield from bps.sleep(0.5)
         #caput('XF:11BMB-VA{Chm:Det-IV:1_Soft}Cmd:Opn-Cmd', 1)
         self._actuate_open('XF:11BMB-VA{Chm:Det-IV:1_Soft}', verbosity=verbosity)
         
-        time.sleep(5.0)
+        yield from bps.sleep(5.0)
         # Check pump again
         tries = 1
         while caget('XF:11BMB-VA{Chm:Det-Pmp:1}Sts:Enbl-Sts')==0 and tries<=max_tries:
             caput('XF:11BMB-VA{Chm:Det-Pmp:1}Cmd:Enbl-Cmd', 0)
-            time.sleep(0.2)
+            yield from bps.sleep(0.2)
             caput('XF:11BMB-VA{Chm:Det-Pmp:1}Cmd:Enbl-Cmd', 1)
-            time.sleep(2.0)
+            yield from bps.sleep(2.0)
             tries += 1
         
         
@@ -2207,7 +2207,7 @@ class CMS_Beamline(Beamline):
         # Fully open valve to pump
         #caput('XF:11BMB-VA{Chm:Det-IV:1_Soft}Cmd:Cls-Cmd', 1)
         self._actuate_close('XF:11BMB-VA{Chm:Det-IV:1_Soft}', verbosity=verbosity)
-        time.sleep(0.5)
+        yield from bps.sleep(0.5)
         #caput('XF:11BMB-VA{Chm:Det-IV:1}Cmd:Opn-Cmd', 1)
         self._actuate_open('XF:11BMB-VA{Chm:Det-IV:1}', verbosity=verbosity)
         
@@ -2220,31 +2220,31 @@ class CMS_Beamline(Beamline):
         
         # Close vent-valves
         caput('XF:11BMB-VA{Chm:Smpl-VV:1_Soft}Cmd:Cls-Cmd', 1)
-        time.sleep(0.5)
+        yield from bps.sleep(0.5)
         caput('XF:11BMB-VA{Chm:Smpl-VV:1}Cmd:Cls-Cmd', 1)
-        time.sleep(0.5)
+        yield from bps.sleep(0.5)
         caput('XF:11BMB-VA{Chm:Det-VV:1_Soft}Cmd:Cls-Cmd', 1)
-        time.sleep(0.5)
+        yield from bps.sleep(0.5)
         caput('XF:11BMB-VA{Chm:Det-VV:1}Cmd:Cls-Cmd', 1)
-        time.sleep(0.2)
+        yield from bps.sleep(0.2)
         
         # Turn on pump (if necessary)
         if caget('XF:11BMB-VA{Chm:Det-Pmp:1}Sts:Enbl-Sts')==0:
             caput('XF:11BMB-VA{Chm:Det-Pmp:1}Cmd:Enbl-Cmd', 0)
-            time.sleep(0.2)
+            yield from bps.sleep(0.2)
             caput('XF:11BMB-VA{Chm:Det-Pmp:1}Cmd:Enbl-Cmd', 1)
         
         # Soft-open valve to pump
         caput('XF:11BMB-VA{Chm:Det-IV:1}Cmd:Cls-Cmd', 1)
-        time.sleep(1.0)
+        yield from bps.sleep(1.0)
         caput('XF:11BMB-VA{Chm:Det-IV:1_Soft}Cmd:Opn-Cmd', 1)
-        time.sleep(0.2)
+        yield from bps.sleep(0.2)
         
         sleep(5.0)
         # Check pump again
         if caget('XF:11BMB-VA{Chm:Det-Pmp:1}Sts:Enbl-Sts')==0:
             caput('XF:11BMB-VA{Chm:Det-Pmp:1}Cmd:Enbl-Cmd', 0)
-            time.sleep(0.2)
+            yield from bps.sleep(0.2)
             caput('XF:11BMB-VA{Chm:Det-Pmp:1}Cmd:Enbl-Cmd', 1)
         
         
@@ -2252,9 +2252,9 @@ class CMS_Beamline(Beamline):
 
         # Fully open valve to pump
         caput('XF:11BMB-VA{Chm:Det-IV:1_Soft}Cmd:Cls-Cmd', 1)
-        time.sleep(1.0)
+        yield from bps.sleep(1.0)
         caput('XF:11BMB-VA{Chm:Det-IV:1}Cmd:Opn-Cmd', 1)
-        time.sleep(0.2)
+        yield from bps.sleep(0.2)
         
         self.chamberPressure(range_low=200)
         
@@ -2492,7 +2492,7 @@ class CMS_Beamline_GISAXS(CMS_Beamline):
         self.beam.off()
         self.beam.setTransmission(1e-6)
         while beam.transmission() > 2e-6:
-            time.sleep(0.5)
+            yield from bps.sleep(0.5)
             self.beam.setTransmission(1e-6)
             
         #mov(bsx, -11.55)

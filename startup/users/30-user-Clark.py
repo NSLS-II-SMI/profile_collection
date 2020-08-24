@@ -284,5 +284,5 @@ def run_contRPI(t=1, numb = 100, sleep = 5):
     #dets = [pil300Kw]
     for i in range(numb):
         yield from bp.count(dets, num=1)
-        time.sleep(sleep)
+        yield from bps.sleep(sleep)
 

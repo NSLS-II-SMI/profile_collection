@@ -17,11 +17,11 @@ def saxsafrl( t = 2):
     for i in range(num): 
             temp = ls.ch1_read.value
             #fs.open()
-            #time.sleep(0.25)
+            #yield from bps.sleep(0.25)
             #pin = pin_diode.read()['pin_diode_current2_mean_value']['value']
             #pin = pdcurrent2.value
             #print(pin)
-            #time.sleep(0.25)
+            #yield from bps.sleep(0.25)
             #fs.close()
             #sample_name = name_fmt.format(temperature=temp, pinread = np.float('%.1f'%pin), i = '%4.4d'%i)
             sample_name = name_fmt.format(temperature=temp, i = '%4.4d'%(i))
@@ -30,7 +30,7 @@ def saxsafrl( t = 2):
             #yield from bp.count(dets)
             #yield from bp.rel_scan(dets, stage.y, *y_range)
             yield from bp.count(dets, num=1)
-            time.sleep(2)
+            yield from bps.sleep(2)
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3, 0.3)
 

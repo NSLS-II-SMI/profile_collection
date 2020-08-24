@@ -85,7 +85,7 @@ def gocko_res(meas_t = 1):
             plt.close('all')
             yield from bps.mv(att2_5, 'Insert')
             yield from bps.mv(att2_11, 'Insert')
-            time.sleep(1)
+            yield from bps.sleep(1)
             yield from bps.mv(GV7.open_cmd, 1 )
             i = 0
             a_off = piezo.th.position
@@ -119,7 +119,7 @@ def alignmentmodeCai():
         yield from SMIBeam().insertFoils('Alignement')
         if waxs.arc.position < 8:
             yield from bps.mv(waxs, 8)
-        time.sleep(1)
+        yield from bps.sleep(1)
         yield from bps.mv(pil1m_pos.x, -4)
         yield from bps.mv(pil1m_bs_rod.x, alignbspos)
         sample_id(user_name='test', sample_name='test')
@@ -129,9 +129,9 @@ def measurementmodeCai():
         yield from bps.mv(GV7.close_cmd, 1 )
         yield from bps.mv(pil1m_pos.x, -4)
         yield from bps.mv(pil1m_bs_rod.x, measurebspos)
-        time.sleep(1)
+        yield from bps.sleep(1)
         yield from SMIBeam().insertFoils('Measurment')
-        time.sleep(1)
+        yield from bps.sleep(1)
         
 def align_gisaxs_height_Cai(  rang = 0.3, point = 31 ,der=False  ):     
         yield from bp.rel_scan([pil1M], piezo.y, -rang, rang, point )

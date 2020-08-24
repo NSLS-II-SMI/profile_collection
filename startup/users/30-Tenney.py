@@ -105,7 +105,7 @@ def run_harv_poly(tim=1,name = 'HarvPoly'):
     det_exposure_time(tim, tim)
     for i_t, t in enumerate(temperatures):
         yield from bps.mv(ls.ch1_sp, t)
-        #time.sleep(30)
+        #yield from bps.sleep(30)
         yield from bps.mv(ls.ch1_sp, 28)
         for x,y, s in zip(x_list, y_list, samples):
             yield from bps.mv(piezo.x, x)
@@ -117,7 +117,7 @@ def run_harv_poly(tim=1,name = 'HarvPoly'):
                 print(f'\n\t=== Sample: {sample_name} ===\n')
                 sample_id(user_name=name, sample_name=sample_name) 
                 yield from bp.count(dets, num=1)
-                time.sleep(30)                
+                yield from bps.sleep(30)
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5,0.5)
     yield from bps.mv(ls.ch1_sp, 28)   

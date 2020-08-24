@@ -170,7 +170,7 @@ def SAXS_s_edge(t=1):
     wa = [0.0, 6.5, 13.0, 19.5]
 
     yield from bps.mv(GV7.close_cmd, 1 )
-    time.sleep(1)
+    yield from bps.sleep(1)
     yield from bps.mv(GV7.close_cmd, 1 )
     
     y0 = piezo.y.position
@@ -212,7 +212,7 @@ def SAXS_s_edge_1ENER(t=1):
     wa = [0.0, 6.5, 13.0, 19.5]
 
     yield from bps.mv(GV7.close_cmd, 1 )
-    time.sleep(1)
+    yield from bps.sleep(1)
     yield from bps.mv(GV7.close_cmd, 1 )
     
     for wax in wa:

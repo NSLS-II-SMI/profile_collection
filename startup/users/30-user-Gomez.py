@@ -165,14 +165,14 @@ def GISAXS_Ca_edge(t=0.5):
             yield from bps.mv(piezo.z, z)
 
             yield from bps.mv(GV7.open_cmd, 1 )
-            time.sleep(5)
+            yield from bps.sleep(5)
 
             yield from bps.mv(GV7.open_cmd, 1 )
             yield from alignement_gisaxs(0.3)
             yield from bps.mv(att2_11, 'Insert')
 
             yield from bps.mv(GV7.close_cmd, 1 )
-            time.sleep(5)
+            yield from bps.sleep(5)
             yield from bps.mv(att2_11, 'Insert')
 
             yield from bps.mv(GV7.close_cmd, 1 )
@@ -262,7 +262,7 @@ def SAXS_Ca_edge_dry1(t=1):
 
 
     yield from bps.mv(GV7.close_cmd, 1 )
-    time.sleep(1)
+    yield from bps.sleep(1)
     yield from bps.mv(GV7.close_cmd, 1 )
 
     for wax in wa:
@@ -304,7 +304,7 @@ def SAXS_Ca_edge_dry_special1(t=1):
 
 
     yield from bps.mv(GV7.close_cmd, 1 )
-    time.sleep(1)
+    yield from bps.sleep(1)
     yield from bps.mv(GV7.close_cmd, 1 )
 
     for x, y, name in zip(x_s, y_s, names):
@@ -370,7 +370,7 @@ def SAXS_Ca_edge_dry_special2(t=1):
     wa = [0.0, 6.5, 13.0]
 
     yield from bps.mv(GV7.open_cmd, 1 )
-    time.sleep(1)
+    yield from bps.sleep(1)
     yield from bps.mv(GV7.open_cmd, 1 )
 
     for x, y, name in zip(x_s, y_s, names):
@@ -602,7 +602,7 @@ def NEXAFS_P_edge(t=0.5):
         
         for e in energies_back:                              
             yield from bps.mv(energy, e)
-            time.sleep(2)
+            yield from bps.sleep(2)
 
 
 def NEXAFS_S_edge(t=0.5):
@@ -866,6 +866,6 @@ def trans_sulf(en1, en2, step):
         eners = np.linspace(en1, en2, step)
         for e in eners:
                 yield from bps.mv(energy, e)
-                time.sleep(10)
+                yield from bps.sleep(10)
                  
 

@@ -73,11 +73,11 @@ def run_waxs_fastRPI(t=1):
     waxs_range = np.linspace(0, 45.5, 8)
     
     #yield from bps.mv(GV7.open_cmd, 1 )
-    #time.sleep(10)
+    #yield from bps.sleep(10)
     #yield from bps.mv(GV7.open_cmd, 1 )
-    #time.sleep(10)
+    #yield from bps.sleep(10)
     #yield from bps.mv(GV7.open_cmd, 1 )
-    #time.sleep(10)
+    #yield from bps.sleep(10)
     
     for wa in waxs_range:
         yield from bps.mv(waxs, wa)
@@ -117,11 +117,11 @@ def run_waxs_fastRPIy(t=1):
     waxs_range = np.linspace(13, 13, 1)
     
     #yield from bps.mv(GV7.open_cmd, 1 )
-    #time.sleep(10)
+    #yield from bps.sleep(10)
     #yield from bps.mv(GV7.open_cmd, 1 )
-    #time.sleep(10)
+    #yield from bps.sleep(10)
     #yield from bps.mv(GV7.open_cmd, 1 )
-    #time.sleep(10)
+    #yield from bps.sleep(10)
     
     for wa in waxs_range:
         yield from bps.mv(waxs, wa)
@@ -141,11 +141,11 @@ def run_waxs_fastRPIy(t=1):
     det_exposure_time(0.3, 0.3)     
     
     #yield from bps.mv(GV7.close_cmd, 1 )
-    #time.sleep(10)
+    #yield from bps.sleep(10)
     #yield from bps.mv(GV7.close_cmd, 1 )
-    #time.sleep(10)
+    #yield from bps.sleep(10)
     #yield from bps.mv(GV7.close_cmd, 1 )
-    #time.sleep(10)
+    #yield from bps.sleep(10)
 
 
 
@@ -215,7 +215,7 @@ def run_contRPI(t=1, numb = 100, sleep = 5):
     #dets = [pil300Kw]
     for i in range(numb):
         yield from bp.count(dets, num=1)
-        time.sleep(sleep)
+        yield from bps.sleep(sleep)
         
 def acq_tem(t = 0.2):
         sam = '0122A-11-lk5.5m-1s'

@@ -32,7 +32,7 @@ def NEXAFS_Ag_edge(t=0.5):
     name_fmt = '{sample}_{energy}eV_xbpm{xbpm}'
     for e in energies:                              
         yield from bps.mv(energy, e)
-        time.sleep(2)
+        yield from bps.sleep(2)
         sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value)
         sample_id(user_name='CB', sample_name=sample_name)
         print(f'\n\t=== Sample: {sample_name} ===\n')

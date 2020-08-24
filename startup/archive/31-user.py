@@ -212,7 +212,7 @@ def run_rz2(t=5, name = 'RZ'):
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
     det_exposure_time(t)
     for x, sample in zip(x_list, samples):
-        time.sleep(300)
+        yield from bps.sleep(300)
         sample_name = name_fmt.format(sample=sample)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bps.mv(stage.x, x)

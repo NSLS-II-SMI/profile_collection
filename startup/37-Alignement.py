@@ -53,13 +53,19 @@ def alignement_xrr(angle=0.15):
         # Scan theta and height
         yield from align_xrr_height(800, 16, der=True)
 
+        # For XRR alignment, a poor results was obtained at incident angle 0. To improve the alignment success
+        # the prs alignment is done at an angle of 0.15 deg
         yield from smi.setReflectedBeamROI(total_angle=-0.15, technique='xrr')
         yield from align_xrr_prs(1.5, 20)
+
         yield from smi.setDirectBeamROI()
         yield from align_xrr_height(500, 13, der=True)
+
         yield from smi.setReflectedBeamROI(total_angle=-0.15, technique='xrr')
         yield from align_xrr_prs(0.6, 21)
-        
+        yield from bps.mv(prs, ps.peak + 0.15)
+
+
         # move to theta 0 + value
         yield from bps.mv(prs, ps.peak - angle)
 
@@ -75,7 +81,6 @@ def alignement_xrr(angle=0.15):
         plt.close('all')
         
         # Return angle
-        # TODO: Should we return to 0
         yield from bps.mv(prs, ps.cen + angle)
         yield from smi.modeMeasurement()
         

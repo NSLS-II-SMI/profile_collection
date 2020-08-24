@@ -29,7 +29,7 @@ def waxs_S_edge_guil(t=1):
             det_exposure_time(t,t) 
             name_fmt = '{sample}_{energy}eV_wa{wax}'
             for e, ysss in zip(energies, yss): 
-                time.sleep(1)                             
+                yield from bps.sleep(1)
                 yield from bps.mv(energy, e)
                 yield from bps.mv(piezo.y, ysss)
                 sample_name = name_fmt.format(sample=name, energy=e, wax = wa)

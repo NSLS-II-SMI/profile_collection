@@ -186,7 +186,7 @@ def waxs_S_edge_guil(t=1):
             det_exposure_time(t,t) 
             name_fmt = '{sample}_{energy}eV_wa{wax}'
             for e, ysss in zip(energies, yss): 
-                time.sleep(1)                             
+                yield from bps.sleep(1)
                 yield from bps.mv(energy, e)
                 yield from bps.mv(piezo.y, ysss)
                 sample_name = name_fmt.format(sample=name, energy=e, wax = wa)
@@ -298,7 +298,8 @@ def sin_generation():
 
     for gs in gx:
         yield from bps.sleep(0.01)
-        caput('XF:12IDB-BI:2{EM:BPM3}fast_pidY.VAL', gs) 
+        trigger_signal = 'XF:12IDB-BI:2{EM:BPM3}fast_pidY.VAL'
+        yield from bps.mv(trigger_signal, gs)
 
 
 

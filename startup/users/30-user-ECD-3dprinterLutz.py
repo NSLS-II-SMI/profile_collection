@@ -132,13 +132,13 @@ def track_printer(exp_t=1, meas_t=10, trigger_num = 1):
     if waxs.arc.position < 6 and waxs.x.position > -20:
         sys.exit("You moved waxs arc and not waxs ")
     
-    monitor_pv = 'XF:11ID-CT{M1}bi2'
-    ready_for_trigger_pv = 'XF:11ID-CT{M1}bi3' 
-    trigger_signal_pv = 'XF:11ID-CT{M1}bi4'
+    monitor_pv = EpicsSignal('XF:11ID-CT{M1}bi2', name="monitor_pv")
+    ready_for_trigger_pv = EpicsSignal('XF:11ID-CT{M1}bi3', name="ready_for_trigger_pv")
+    trigger_signal_pv = EpicsSignal('XF:11ID-CT{M1}bi4', name="trigger_signal")
     
     trigger_count = 0
-    while caget(monitor_pv) == 1:
-        if caget(trigger_signal_pv) == 1: # trigger signal to execute
+    while monitor_pv.get() == 1:
+        if trigger_signal_pv.get() == 1: # trigger signal to execute
             print('this is "function_triggered"! \nGoing to trigger detector...')
             
             trigger_count += 1
@@ -151,13 +151,13 @@ def track_printer(exp_t=1, meas_t=10, trigger_num = 1):
             print('function_triggered successfully executed...waiting for next call.')
              
             if trigger_count >= trigger_num:
-                caput(trigger_signal_pv, 0)
+                yield from bps.mv(trigger_signal_pv, 0)
                 break
                 print('number of requested triggers reached, stopping monitoring...')
             else:
                 pass
              
-        time.sleep(.5)
+        yield from bps.sleep(.5)
         print('monitoring trigger signal')
 
 
@@ -183,13 +183,13 @@ def track_printer_timeRes(exp_t=.1, meas_t=8, trigger_num = 1):
     if waxs.arc.position < 6 and waxs.x.position > -20:
         sys.exit("You moved waxs arc and not waxs ")
     
-    monitor_pv = 'XF:11ID-CT{M1}bi2'
-    ready_for_trigger_pv = 'XF:11ID-CT{M1}bi3' 
-    trigger_signal_pv = 'XF:11ID-CT{M1}bi4'
+    monitor_pv = EpicsSignal('XF:11ID-CT{M1}bi2', name="monitor_pv")
+    ready_for_trigger_pv = EpicsSignal('XF:11ID-CT{M1}bi3', name="ready_for_trigger_pv")
+    trigger_signal_pv = EpicsSignal('XF:11ID-CT{M1}bi4', name="trigger_signal")
     
     trigger_count = 0
-    while caget(monitor_pv) == 1:
-        if caget(trigger_signal_pv) == 1: # trigger signal to execute
+    while monitor_pv.get() == 1:
+        if trigger_signal_pv.get() == 1: # trigger signal to execute
             print('this is "function_triggered"! \nGoing to trigger detector...')
             
             trigger_count += 1
@@ -207,7 +207,7 @@ def track_printer_timeRes(exp_t=.1, meas_t=8, trigger_num = 1):
             det_exposure_time(meas_t, meas_t)
             loopNum = 0 
             while t1 - t0 <= 1800: #total experimental time after initial dynamics
-                #time.sleep(sleep_time) #sleep_time is 29 s between exposures
+                #yield from bps.sleep(sleep_time) #sleep_time is 29 s between exposures
                 yield from bp.scan(dets, waxs, *waxs_arc)
                 t1 = time.time()
                 print('total elapsed time and loop number')
@@ -222,13 +222,13 @@ def track_printer_timeRes(exp_t=.1, meas_t=8, trigger_num = 1):
             print('function_triggered successfully executed...waiting for next call.')
              
             if trigger_count >= trigger_num:
-                caput(trigger_signal_pv, 0)
+                yield from bps.mv(trigger_signal_pv, 0)
                 break
                 print('number of requested triggers reached, stopping monitoring...')
             else:
                 pass
              
-        time.sleep(.5)
+        yield from bps.sleep(.5)
         print('monitoring trigger signal')
      
     #Post printing WAXS measurment
@@ -259,7 +259,7 @@ def sample_alignment():
     sample_id(user_name='test', sample_name='test')
     
     smi = SMI_Beamline()
-    yield from smi.modeAlignment_gisaxs()        
+    yield from smi.modeAlignment()
     if waxs.arc.position < 6:
         yield from bps.mv(waxs, 6)
 
@@ -274,7 +274,7 @@ def sample_alignment():
     
     yield from bps.mv(waxs, waxs_arc)
     
-    yield from smi.modeMeasurement_gisaxs()
+    yield from smi.modeMeasurement()
     
     #Relative move of the nozzle
     #yield from bps.mvr(stage.x, x_offset)
@@ -319,7 +319,7 @@ def nozzle_alignment():
     
     #yield from bps.mv(GV7.open_cmd, 1)
     smi = SMI_Beamline()
-    yield from smi.modeAlignment_gisaxs()        
+    yield from smi.modeAlignment()
     if waxs.arc.position < 12:
         yield from bps.mv(waxs, 12)
 
@@ -332,7 +332,7 @@ def nozzle_alignment():
     if waxs.arc.position > 8:
         yield from bps.mv(waxs, waxs_arc)
     
-    yield from smi.modeMeasurement_gisaxs()
+    yield from smi.modeMeasurement()
     #yield from bps.mv(GV7.close_cmd, 1 )
 
 
@@ -399,8 +399,8 @@ def ex_situ_temp(meas_t = 1):
     for target_t in temp:
         for i in np.linspace(1,7,7):
                 yield from bps.mv(ls.ch1_sp, target_t-7+i)
-                time.sleep(10) 
-        time.sleep(240)
+                yield from bps.sleep(10)
+        yield from bps.sleep(240)
         for wa in waxs_arc:
             yield from bps.mv(waxs,wa)
             for k, (x,y) in enumerate(pos):

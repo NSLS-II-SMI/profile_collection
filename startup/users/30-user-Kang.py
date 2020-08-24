@@ -212,9 +212,9 @@ def rotation_saxs_att(t = 1): #attenuated WAXS, so SAXS recorded separately firs
             yield from bp.count(dets0, num = 1)
     
     yield from bps.mv(att1_5, 'Insert')
-    time.sleep(1)
+    yield from bps.sleep(1)
     yield from bps.mv(att1_6, 'Insert')
-    time.sleep(1)
+    yield from bps.sleep(1)
     for sam, y in zip(sample, y_list):
         #yield from bps.mv(stage.y, y) #hexapod
         yield from bps.mv(piezo.y, y) #SmarAct
@@ -236,9 +236,9 @@ def rotation_saxs_att(t = 1): #attenuated WAXS, so SAXS recorded separately firs
     det_exposure_time(0.5, 0.5)
     
     yield from bps.mv(att1_5, 'Retract')
-    time.sleep(1)
+    yield from bps.sleep(1)
     yield from bps.mv(att1_6, 'Retract')
-    time.sleep(1)
+    yield from bps.sleep(1)
     
     yield from bps.mv(pil1m_pos.x, -0.4997)
     yield from bps.mv(pil1m_pos.y, -59.9987)

@@ -70,7 +70,7 @@ def in_situ(meas_t = 1, t0=0):
         t0  = time.time()
     
     scan_id0 = RE.md['scan_id']+1
-    time.sleep(1)
+    yield from bps.sleep(1)
     count = 0
     
     for ii in range(50000):
@@ -88,7 +88,7 @@ def in_situ(meas_t = 1, t0=0):
             sample_id(user_name='EM_insitu', sample_name=sample_name) 
             print(f'\n\t=== Sample: {sample_name} ===\n')
 
-            time.sleep(1)
+            yield from bps.sleep(1)
             yield from bp.count(dets, num=1)
 
 
@@ -98,7 +98,7 @@ def in_situ_wrap(meas_t = 1, t0=0):
         yield from in_situ(meas_t, t0=t0)
     except:
         print('!!!! ERROR, but proceed in 2 sec!!!!')
-        time.sleep(2)
+        yield from bps.sleep(2)
         yield from in_situ_wrap(meas_t, t0=t0)  
          
          

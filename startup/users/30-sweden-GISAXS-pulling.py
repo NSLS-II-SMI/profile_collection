@@ -40,7 +40,7 @@ def run_gi_sweden_GISAXS_pulling(tim=0.5, sample='Test', ti_sl =4):
             
             
             
-            time.sleep(ti_sl)
+            yield from bps.sleep(ti_sl)
     
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(1,1)

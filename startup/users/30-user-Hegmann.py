@@ -59,13 +59,13 @@ def track_printer_hegmann(acq_t=1, full_meas_t=10, trigger_num = 1):
     if waxs.arc.position < 7.5 :
         sys.exit("waxs is on the way ")
     
-    monitor_pv = 'XF:11ID-CT{M1}bi2'
-    ready_for_trigger_pv = 'XF:11ID-CT{M1}bi3' 
-    trigger_signal_pv = 'XF:11ID-CT{M1}bi4'
+    monitor_pv = EpicsSignal('XF:11ID-CT{M1}bi2', name="monitor_pv")
+    ready_for_trigger_pv = EpicsSignal('XF:11ID-CT{M1}bi3', name="ready_for_trigger_pv")
+    trigger_signal_pv = EpicsSignal('XF:11ID-CT{M1}bi4', name="trigger_signal")
     
     trigger_count = 0
-    while caget(monitor_pv) == 1:
-        if caget(trigger_signal_pv) == 1: # trigger signal to execute
+    while monitor_pv.get() == 1:
+        if trigger_signal_pv.get() == 1: # trigger signal to execute
             print('this is "function_triggered"! \nGoing to trigger detector...')
             
             trigger_count += 1
@@ -79,13 +79,13 @@ def track_printer_hegmann(acq_t=1, full_meas_t=10, trigger_num = 1):
             print('function_triggered successfully executed...waiting for next call.')
              
             if trigger_count >= trigger_num:
-                caput(trigger_signal_pv, 0)
+                yield from bps.mv(trigger_signal_pv, 0)
                 break
                 print('number of requested triggers reached, stopping monitoring...')
             else:
                 pass
              
-        time.sleep(.5)
+        yield from bps.sleep(.5)
         print('monitoring trigger signal')
 
 
@@ -147,7 +147,7 @@ def sample_alignment():
     #Prepare SMI for alignement (BS and waxs det movement)
     sample_id(user_name='test', sample_name='test')
     smi = SMI_Beamline()
-    yield from smi.modeAlignment_gisaxs()  
+    yield from smi.modeAlignment()
     yield from smi.setDirectBeamROI()      
     if waxs.arc.position < 6:
         yield from bps.mv(waxs, 6)
@@ -162,7 +162,7 @@ def sample_alignment():
     
     #Return to measurment configuration (BS and waxs det movement)
     yield from bps.mv(waxs, waxs_arc)
-    yield from smi.modeMeasurement_gisaxs()
+    yield from smi.modeMeasurement()
     yield from bps.mv(GV7.close_cmd, 1 )
 
 def align_height_hexa(rang = 0.3, point = 31, der=False):   
@@ -200,7 +200,7 @@ def nozzle_alignment():
     
     #yield from bps.mv(GV7.open_cmd, 1)
     smi = SMI_Beamline()
-    yield from smi.modeAlignment_gisaxs()        
+    yield from smi.modeAlignment()
     if waxs.arc.position < 6:
         yield from bps.mv(waxs, 6)
 
@@ -213,7 +213,7 @@ def nozzle_alignment():
     if waxs.arc.position > 5:
         yield from bps.mv(waxs, waxs_arc)
     
-    yield from smi.modeMeasurement_gisaxs()
+    yield from smi.modeMeasurement()
     #yield from bps.mv(GV7.close_cmd, 1 )
 
 

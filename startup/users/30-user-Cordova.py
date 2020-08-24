@@ -249,14 +249,14 @@ def ai_scan_multilayer_nightscan(t=1):
         
         yield from bps.mv(piezo.x, x)
         yield from bps.mv(GV7.open_cmd, 1 )
-        time.sleep(10)
+        yield from bps.sleep(10)
         yield from bps.mv(GV7.open_cmd, 1 )
         yield from bps.mv(piezo.th, ai0)
 
         yield from alignement_gisaxs(0.4)
 
         yield from bps.mv(GV7.close_cmd, 1 )
-        time.sleep(10)
+        yield from bps.sleep(10)
         yield from bps.mv(GV7.close_cmd, 1 )
         yield from bps.mv(att2_9, 'Insert')
         yield from bps.mv(att2_10, 'Insert')
@@ -285,7 +285,7 @@ def ai_scan_multilayer_nightscan(t=1):
                     yield from bp.count(dets, num=1)
             
             yield from bps.mv(energy, 3960)
-            time.sleep(5)
+            yield from bps.sleep(5)
             yield from bps.mv(energy, 3920)
 
 '''
@@ -316,7 +316,7 @@ def ai_scan_reflectivity_scan(t=1):
 
         # Open gate valve for alignment
         yield from bps.mv(GV7.open_cmd, 1 )
-        time.sleep(10)
+        yield from bps.sleep(10)
         # Make sure valve is open?
         yield from bps.mv(GV7.open_cmd, 1 )
         # Move incident angle to guessed zero
@@ -325,7 +325,7 @@ def ai_scan_reflectivity_scan(t=1):
         yield from alignement_gisaxs(0.4)
         # Close the gate valve
         yield from bps.mv(GV7.close_cmd, 1 )
-        time.sleep(10)
+        yield from bps.sleep(10)
         yield from bps.mv(GV7.close_cmd, 1 )
         
         # Redefine zerp theta based on alignment
@@ -364,7 +364,7 @@ def ai_scan_reflectivity_scan(t=1):
                     yield from bp.count(dets, num=1)
             
             yield from bps.mv(energy, 3960)
-            time.sleep(5)
+            yield from bps.sleep(5)
             yield from bps.mv(energy, 3920)
 '''
 
@@ -395,20 +395,20 @@ def test_reflectivity_scan(t=1, nu=0):
 
         # Open gate valve for alignment
         yield from bps.mv(GV7.open_cmd, 1 )
-        time.sleep(10)
+        yield from bps.sleep(10)
         # Make sure valve is open?
         yield from bps.mv(GV7.open_cmd, 1 )
         # Move incident angle to guessed zero
-        time.sleep(5)
+        yield from bps.sleep(5)
 
         yield from bps.mv(piezo.th, ai0)
         # Align theta and z
         yield from alignement_gisaxs(0.4)
         # Close the gate valve
         yield from bps.mv(GV7.close_cmd, 1 )
-        time.sleep(10)
+        yield from bps.sleep(10)
         yield from bps.mv(GV7.close_cmd, 1 )
-        time.sleep(5)
+        yield from bps.sleep(5)
         
         ai0 = piezo.th.position
 
@@ -456,107 +456,107 @@ def test_reflectivity_scan(t=1, nu=0):
 
 def clean_shit(t=1):
     yield from bps.mv(att2_1, 'Retract')
-    time.sleep(t)
+    yield from bps.sleep(t)
     yield from bps.mv(att2_2, 'Retract')
-    time.sleep(t)
+    yield from bps.sleep(t)
     yield from bps.mv(att2_3, 'Retract')
-    time.sleep(t)
+    yield from bps.sleep(t)
     yield from bps.mv(att2_4, 'Retract')
-    time.sleep(t)
+    yield from bps.sleep(t)
     yield from bps.mv(att2_5, 'Retract')
-    time.sleep(t)
+    yield from bps.sleep(t)
     yield from bps.mv(att2_6, 'Retract')
-    time.sleep(t)
+    yield from bps.sleep(t)
     yield from bps.mv(att2_7, 'Retract')
-    time.sleep(t)
+    yield from bps.sleep(t)
     yield from bps.mv(att2_8, 'Retract')
-    time.sleep(t)
+    yield from bps.sleep(t)
     yield from bps.mv(att2_9, 'Retract')
-    time.sleep(t)
+    yield from bps.sleep(t)
     yield from bps.mv(att2_10, 'Retract')
-    time.sleep(t)
+    yield from bps.sleep(t)
     yield from bps.mv(att2_11, 'Retract')
-    time.sleep(t)
+    yield from bps.sleep(t)
     yield from bps.mv(att2_12, 'Retract')
-    time.sleep(t)
+    yield from bps.sleep(t)
 
     
 def function_att(ran_num,t=1):
     if ran_num == 0:
         #5x +1x
         yield from bps.mv(att2_5, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_9, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_11, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
     
     elif ran_num == 1:
         #4x +1x
         yield from bps.mv(att2_5, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_11, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
 
     elif ran_num == 2:
         #3x +1x
         yield from bps.mv(att2_5, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_10, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_9, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
 
     elif ran_num == 3:
         #12x
         yield from bps.mv(att2_12, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_11, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_10, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
 
     elif ran_num == 4:
         #11x
         yield from bps.mv(att2_12, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_11, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_9, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
 
     elif ran_num == 5:
         #10x
         yield from bps.mv(att2_12, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_11, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
 
     elif ran_num == 6:
         #8x
         yield from bps.mv(att2_12, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_10, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
 
     elif ran_num == 7:
         #7x
         yield from bps.mv(att2_12, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_9, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
 
     elif ran_num == 8:
         #6x
         yield from bps.mv(att2_12, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
 
     elif ran_num == 9:
         #5x
         yield from bps.mv(att2_11, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
         yield from bps.mv(att2_9, 'Insert')
-        time.sleep(t)
+        yield from bps.sleep(t)
 
 # © Luke Long. Venmo is an acceptable form of payment.
 def mv_energy(set_point,t=3,step = 30):
@@ -564,7 +564,7 @@ def mv_energy(set_point,t=3,step = 30):
     while abs(e_diff) > step:
         print(f'LARGE ENERGY DIFFERENCE. TAKING STEP SIZE OF {step}eV. @ GUI: DONT FORGET TO VENMO LUKE')
         yield from bps.mvr(energy,sign(e_diff)*30)
-        time.sleep(t)
+        yield from bps.sleep(t)
         e_diff = set_point - energy.energy.position    
     yield from bps.mv(energy,set_point)
 
@@ -594,7 +594,7 @@ def fluo_scan(t=1):
             print(f'\n\t=== Sample: {sample_name} ===\n')
             yield from bp.count(dets, num=1)
             #print(inc_ang)
-            #time.sleep(1)
+            #yield from bps.sleep(1)
 
     yield from bps.mvr(piezo.th, -incident_angle)
 

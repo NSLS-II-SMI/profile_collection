@@ -12,7 +12,7 @@ def alignement_gisaxs_stage(angle = 0.15):
         det_exposure_time(0.5, 0.5)
         
         smi = SMI_Beamline()
-        yield from smi.modeAlignment_gisaxs()
+        yield from smi.modeAlignment()
         
         #Set direct beam ROI
         yield from smi.setDirectBeamROI()
@@ -41,7 +41,7 @@ def alignement_gisaxs_stage(angle = 0.15):
         #Return angle
         # TODO: Should we return to 0
         yield from bps.mv(stage.th, ps.cen - angle)
-        yield from smi.modeMeasurement_gisaxs()
+        yield from smi.modeMeasurement()
 
 
 def run_tomo_ET(t=0.5): #2020C1

@@ -19,4 +19,4 @@ def aaron_rot(t=8):
 def test_scan(start=11800, t=10, step=10):
     for i in range(t):
         new_ivu_gap.set(start-i*step)
-        time.sleep(2)
+        yield from bps.sleep(2)

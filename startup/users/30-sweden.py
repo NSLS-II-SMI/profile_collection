@@ -44,7 +44,7 @@ def run_gi_sweden(tim=1):
             sample_id(user_name=name, sample_name=sample_name) 
             print(f'\n\t=== Sample: {sample_name} ===\n')
             yield from bp.rel_scan(dets, piezo.y, *piezo_y_range)
-            time.sleep(530)
+            yield from bps.sleep(530)
     
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(1,1)

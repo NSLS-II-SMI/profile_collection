@@ -11,7 +11,7 @@ def snapYale(t=1,dets=[pil1M,]):
 
 def ROI_yale():
         yield from bps.mv(att2_11, 'Insert')
-        time.sleep(5)
+        yield from bps.sleep(5)
         yield from bps.mv(att2_11, 'Retract')
  
 def do_grazing(meas_t=0.5):
@@ -117,7 +117,7 @@ def alignmentmodeCai():
                 
         if waxs.arc.position < 8:
             yield from bps.mv(waxs, 8)
-        time.sleep(1)
+        yield from bps.sleep(1)
         yield from bps.mv(pil1m_pos.x, -4)
         yield from bps.mv(pil1m_bs_rod.x, alignbspos)
         sample_id(user_name='test', sample_name='test')
@@ -127,9 +127,9 @@ def measurementmodeCai():
         yield from bps.mv(GV7.close_cmd, 1 )
         yield from bps.mv(pil1m_pos.x, -4)
         yield from bps.mv(pil1m_bs_rod.x, measurebspos)
-        time.sleep(1)
+        yield from bps.sleep(1)
         yield from bps.mv(att2_11, 'Retract')
-        time.sleep(1)
+        yield from bps.sleep(1)
         
 def align_gisaxs_height_Cai(  rang = 0.3, point = 31 ,der=False  ):     
         yield from bp.rel_scan([pil1M], piezo.y, -rang, rang, point )

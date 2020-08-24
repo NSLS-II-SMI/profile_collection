@@ -19,7 +19,7 @@ def grid_scan_xpcs():
     for name in names:
         for ener, xof, yof in zip(energies, x_off, y_off):
             yield from bps.mv(energy, ener)
-            time.sleep(10)
+            yield from bps.sleep(10)
             for i, (x, y) in enumerate(zip(xxs.ravel(), yys.ravel())):
                 
                 pil1M.cam.file_path.put(f"/ramdisk/images/users/2019_3/%s/1M/%s_pos%s"%(folder, name, i))
@@ -31,16 +31,18 @@ def grid_scan_xpcs():
                 name_fmt = '{sample}_{energy}eV_pos{pos}'
                 sample_name = name_fmt.format(sample=name, energy=ener, pos = '%2.2d'%i)
                 sample_id(user_name='Chen', sample_name=sample_name)
-                time.sleep(5)
+                yield from bps.sleep(5)
                 
                 det_exposure_time(0.03, 30)
                 
                 print(f'\n\t=== Sample: {sample_name} ===\n')
                  
                 pil1M.cam.acquire.put(1)
-                time.sleep(5) 
-                while caget('XF:12IDC-ES:2{Det:1M}cam1:Acquire')== 1:
-                        time.sleep(5) 
+                yield from bps.sleep(5)
+                pv = EpicsSignal('XF:12IDC-ES:2{Det:1M}cam1:Acquire', name="pv")
+
+                while pv.get() == 1:
+                        yield from bps.sleep(5)
                     
         yield from bps.mv(energy, 2475)
         yield from bps.mv(energy, 2450)
@@ -93,12 +95,12 @@ def grid_scan_static():
             yield from bps.mv(piezo.x, x)
             yield from bps.mv(piezo.y, y)
             energies = energies[::-1]            
-            time.sleep(2)
+            yield from bps.sleep(2)
             
             for ener in energies:           
                 yield from bps.mv(energy, ener)
 
-                time.sleep(0.1)
+                yield from bps.sleep(0.1)
                 
                 name_fmt = '{sample}_{energy}eV_pos{pos}_xbpm{xbpm}'
                 sample_name = name_fmt.format(sample=name, energy=ener, pos = '%2.2d'%i, xbpm='%3.1f'%xbpm3.sumY.value)

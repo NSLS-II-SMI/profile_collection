@@ -26,7 +26,7 @@ def run_harv_temp(tim=0.5):
     for i_t, t in enumerate(temperatures):
         yield from bps.mv(ls.ch1_sp, t)
         if i_t !=0:
-            time.sleep(600)
+            yield from bps.sleep(600)
         temp = ls.ch1_read.value
         for j, wa in enumerate(waxs_arc): #
             yield from bps.mv(waxs, wa)
@@ -79,7 +79,7 @@ def run_harv_temp_all(tim=0.5):
     for i_t, t in enumerate(temperatures):
         yield from bps.mv(ls.ch1_sp, t)
         if i_t !=0:
-            time.sleep(600)
+            yield from bps.sleep(600)
         temp = ls.ch1_read.value
         for j, wa in enumerate(waxs_arc): #
             yield from bps.mv(waxs, wa)
@@ -109,9 +109,9 @@ def run_harv_temp_linkam(tim=0.2):
 
     #Openinig the gate valve
     yield from bps.mv(GV7.open_cmd, 1 )
-    time.sleep(5)
+    yield from bps.sleep(5)
     yield from bps.mv(GV7.open_cmd, 1 )
-    time.sleep(5)
+    yield from bps.sleep(5)
 
     det_exposure_time(tim, tim)
 
@@ -128,9 +128,9 @@ def run_harv_temp_linkam(tim=0.2):
 
     #Closing the gate valve
     yield from bps.mv(GV7.close_cmd, 1 )
-    time.sleep(5)
+    yield from bps.sleep(5)
     yield from bps.mv(GV7.close_cmd, 1 )
-    time.sleep(5)
+    yield from bps.sleep(5)
 
 def run_harv_temp_time(tim=0.2): 
     name = 'SL'
@@ -143,9 +143,9 @@ def run_harv_temp_time(tim=0.2):
 
     #Openinig the gate valve
     yield from bps.mv(GV7.open_cmd, 1 )
-    time.sleep(5)
+    yield from bps.sleep(5)
     yield from bps.mv(GV7.open_cmd, 1 )
-    time.sleep(5)
+    yield from bps.sleep(5)
 
     det_exposure_time(tim, tim)
 
@@ -158,7 +158,7 @@ def run_harv_temp_time(tim=0.2):
             print(f'\n\t=== Sample: {sample_name} ===\n')
             sample_id(user_name=name, sample_name=sample_name) 
             yield from bp.count(dets, num=1)
-        time.sleep(gap)
+        yield from bps.sleep(gap)
     for j, wa in enumerate(waxs_arc):
             yield from bps.mv(waxs, wa)
             sample_name = name_fmt.format(sample=sample, temperature='%2.2f'%temp, waxs='%2.1f'%wa)
@@ -170,9 +170,9 @@ def run_harv_temp_time(tim=0.2):
 
     #Closing the gate valve
     yield from bps.mv(GV7.close_cmd, 1 )
-    time.sleep(5)
+    yield from bps.sleep(5)
     yield from bps.mv(GV7.close_cmd, 1 )
-    time.sleep(5)
+    yield from bps.sleep(5)
 
 
 def harvphi(meas_t=0.5):
@@ -215,7 +215,7 @@ def run_harv_poly(tim=1,name = 'HarvPoly'):
     det_exposure_time(tim, tim)
     for i_t, t in enumerate(temperatures):
         yield from bps.mv(ls.ch1_sp, t)
-        #time.sleep(def run_harv_pos_scan(tim=3,name = 'Harv_SideOn_2.5_PA'): 
+        #yield from bps.sleep(def run_harv_pos_scan(tim=3,name = 'Harv_SideOn_2.5_PA'):
     #x_list  = [-42000, -20400, 200, 20400, 44300]
     x_list  = np.linspace(-5800, -13800, 17)
     #y_list =  [  5600,   5800, 5920, 5822,  5972]

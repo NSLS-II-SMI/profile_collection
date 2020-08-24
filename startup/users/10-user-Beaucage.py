@@ -13,18 +13,18 @@ def alignmentmodeBoc():
     yield from bps.mv(att2_6,"Retract") #make sure that atten2_6 is out
     # yield from bps.mv(att2_8,"Insert")  # (for 7.5keV) make sure that atten2_8 is out
     yield from SMIBeam().insertFoils(1)   # (for >11keV in vac) 1 = insert
-    time.sleep(1)
+    yield from bps.sleep(1)
     
     # if bragg.position<8: 
     #     yield from bps.mv(att1_5,"Insert")  
-    #     time.sleep(1)
+    #     yield from bps.sleep(1)
     #     yield from bps.mv(att1_7,"Insert") 
     #     # yield from SMIBeam().insertFoils(1)   # (for >11keV in vac) 1 = insert
-    #     time.sleep(1)
+    #     yield from bps.sleep(1)
     # elif bragg.position>8 and bragg.position<9:
     # #for 13.5 keV
     #     yield from bps.mv(att1_12,"Insert")
-    #     time.sleep(1)
+    #     yield from bps.sleep(1)
     yield from bps.mv(pil1m_bs_rod.x, alignbspos) #move beamstop out of the way
     sample_id(user_name='test', sample_name='test') #don't overwrite user data
     det_exposure_time(0.5)
@@ -34,10 +34,10 @@ def measurementmodeBoc():
     # yield from bps.mv(att2_8,"Retract") # (for 7.5keV) 
     yield from SMIBeam().insertFoils(0)   # (for >11keV)
     yield from bps.mv(pil1m_bs_rod.x, measurebspos)
-    time.sleep(1)
+    yield from bps.sleep(1)
     #uncomment to close SAXS gate valve during measurements
     yield from bps.mv(GV7.close_cmd, 1 ) 
-    time.sleep(1)
+    yield from bps.sleep(1)
         
 def align_gisaxs_height_Boc(  rang = 0.3, point = 31 ,der=False  ):     
     yield from bp.rel_scan([pil1M], piezo.y, -rang, rang, point )
@@ -447,7 +447,7 @@ def run_giwaxsEnergyBoc(x_list,sample_list,energy_arc_waxs,t=5,tag=''):
         yield from remove_suspender( susp_xbpm2_sum)
         yield from bps.mv(energy, energy_arc_waxs[0])
         
-        time.sleep(10)
+        yield from bps.sleep(10)
         yield from install_suspender( susp_xbpm2_sum)
                 
         yield from alignement_gisaxs(0.1) #run alignment routine
@@ -461,7 +461,7 @@ def run_giwaxsEnergyBoc(x_list,sample_list,energy_arc_waxs,t=5,tag=''):
 
         #yield from remove_suspender( susp_xbpm2_sum)
         #yield from bps.mv(energy, 15200)
-        #time.sleep(10)
+        #yield from bps.sleep(10)
         #yield from install_suspender( susp_xbpm2_sum)
         #
         #yield from nexafs_scan([pil1M], energy_arc_nexafs_Rb, 0.10, ct_nexafs)
@@ -480,7 +480,7 @@ def run_giwaxsEnergyBoc(x_list,sample_list,energy_arc_waxs,t=5,tag=''):
                 
                 yield from remove_suspender( susp_xbpm2_sum)
                 yield from bps.mv(energy, e)
-                time.sleep(10)
+                yield from bps.sleep(10)
                 yield from install_suspender( susp_xbpm2_sum)
                 
                 #yield from bp.scan(dets, energy, e, e, 1)
@@ -535,7 +535,7 @@ def run_gisaxsAngleBoc(x_list,sample_list,angle_arc,waxs_arc,t=5,tag=''):
 
         #yield from remove_suspender( susp_xbpm2_sum)
         #yield from bps.mv(energy, 15200)
-        #time.sleep(10)
+        #yield from bps.sleep(10)
         #yield from install_suspender( susp_xbpm2_sum)
         #
         #yield from nexafs_scan([pil1M], energy_arc_nexafs_Rb, 0.10, ct_nexafs)
@@ -598,7 +598,7 @@ def run_saxswaxsEnergyBoc(x_list,sample_list,energy_arc_waxs,energy_arc_nexafs,t
         det_exposure_time(ct_nexafs, ct_nexafs)
         yield from remove_suspender( susp_xbpm2_sum)
         yield from bps.mv(energy, energy_arc_nexafs[0])
-        time.sleep(10)
+        yield from bps.sleep(10)
         yield from install_suspender( susp_xbpm2_sum)
         
         yield from nexafs_scan([pil1M], energy_arc_nexafs, 0.10, ct_nexafs)
@@ -613,7 +613,7 @@ def run_saxswaxsEnergyBoc(x_list,sample_list,energy_arc_waxs,energy_arc_nexafs,t
             
             yield from remove_suspender( susp_xbpm2_sum)
             yield from bps.mv(energy, e)
-            time.sleep(10)
+            yield from bps.sleep(10)
             yield from install_suspender( susp_xbpm2_sum)
             
             #yield from bp.scan(dets, energy, e, e, 1)
