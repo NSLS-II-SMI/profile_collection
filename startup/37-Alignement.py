@@ -45,7 +45,7 @@ def alignement_xrr(angle=0.15):
         det_exposure_time(0.5, 0.5)
         
         smi = SMI_Beamline()
-        yield from smi.modeAlignment_gisaxs(technique='xrr')
+        yield from smi.modeAlignment(technique='xrr')
         
         # Set direct beam ROI
         yield from smi.setDirectBeamROI()
@@ -77,7 +77,7 @@ def alignement_xrr(angle=0.15):
         # Return angle
         # TODO: Should we return to 0
         yield from bps.mv(prs, ps.cen + angle)
-        yield from smi.modeMeasurement_gisaxs()
+        yield from smi.modeMeasurement()
         
 
 def alignement_gisaxs(angle=0.15):
@@ -86,7 +86,7 @@ def alignement_gisaxs(angle=0.15):
         det_exposure_time(0.5, 0.5)
         
         smi = SMI_Beamline()
-        yield from smi.modeAlignment_gisaxs(technique='gisaxs')
+        yield from smi.modeAlignment(technique='gisaxs')
         
         # Set direct beam ROI
         yield from smi.setDirectBeamROI()
@@ -113,7 +113,7 @@ def alignement_gisaxs(angle=0.15):
         
         # Return angle
         yield from bps.mv(piezo.th, ps.cen - angle)
-        yield from smi.modeMeasurement_gisaxs()
+        yield from smi.modeMeasurement()
         
 
 def alignement_special(angle=0.15):
@@ -122,7 +122,7 @@ def alignement_special(angle=0.15):
         det_exposure_time(0.5, 0.5)
         
         smi = SMI_Beamline()
-        yield from smi.modeAlignment_gisaxs(technique='gisaxs')
+        yield from smi.modeAlignment(technique='gisaxs')
         
         # Set direct beam ROI
         yield from smi.setDirectBeamROI()
@@ -156,7 +156,7 @@ def alignement_special(angle=0.15):
         
         # Return angle
         yield from bps.mv(piezo.th, ps.cen - angle)
-        yield from smi.modeMeasurement_gisaxs()
+        yield from smi.modeMeasurement()
         
 
 def alignement_gisaxs_new(angle=0.15, he_ra_db=700, he_np_db=16, th_ra_db=0.7, th_np_db=11, th_ra_rb=700, th_np_rb = 16, he_ra_rb=700, he_np_rb = 16):
@@ -172,7 +172,7 @@ def alignement_gisaxs_new(angle=0.15, he_ra_db=700, he_np_db=16, th_ra_db=0.7, t
         det_exposure_time(0.5, 0.5)
         
         smi = SMI_Beamline()
-        yield from smi.modeAlignment_gisaxs(technique='gisaxs')
+        yield from smi.modeAlignment(technique='gisaxs')
         
         # Set direct beam ROI
         yield from smi.setDirectBeamROI()
@@ -199,7 +199,7 @@ def alignement_gisaxs_new(angle=0.15, he_ra_db=700, he_np_db=16, th_ra_db=0.7, t
         
         # Return angle
         yield from bps.mv(piezo.th, ps.cen - angle)
-        yield from smi.modeMeasurement_gisaxs()
+        yield from smi.modeMeasurement()
 
 
 def alignement_gisaxs_hex(angle=0.1):
@@ -208,7 +208,7 @@ def alignement_gisaxs_hex(angle=0.1):
         det_exposure_time(0.5, 0.5)
         
         smi = SMI_Beamline()
-        yield from smi.modeAlignment_gisaxs()
+        yield from smi.modeAlignment()
         
         # Set direct beam ROI
         yield from smi.setDirectBeamROI()
@@ -235,7 +235,7 @@ def alignement_gisaxs_hex(angle=0.1):
         
         # Return angle
         yield from bps.mv(stage.th, ps.cen - angle)
-        yield from smi.modeMeasurement_gisaxs()
+        yield from smi.modeMeasurement()
 
 
 def alignement_gisaxs_hex_short(angle = 0.12):
@@ -244,7 +244,7 @@ def alignement_gisaxs_hex_short(angle = 0.12):
         det_exposure_time(0.3, 0.3)
         
         smi = SMI_Beamline()
-        yield from smi.modeAlignment_gisaxs()
+        yield from smi.modeAlignment()
         
         # Set direct beam ROI
         yield from smi.setDirectBeamROI()
@@ -268,7 +268,7 @@ def alignement_gisaxs_hex_short(angle = 0.12):
         
         # Return angle
         yield from bps.mv(stage.th, ps.cen-angle)
-        yield from smi.modeMeasurement_gisaxs()
+        yield from smi.modeMeasurement()
 
 
 def quickalign_gisaxs(angle = 0.15):
@@ -276,7 +276,7 @@ def quickalign_gisaxs(angle = 0.15):
         det_exposure_time(0.3, 0.3)
         
         smi = SMI_Beamline()
-        yield from smi.modeAlignment_gisaxs()
+        yield from smi.modeAlignment()
         
         # move to theta 0 + value
         yield from bps.mv(piezo.th, ps.peak + angle)
@@ -293,7 +293,7 @@ def quickalign_gisaxs(angle = 0.15):
         
         # Return angle
         yield from bps.mv(piezo.th, ps.cen - angle)
-        yield from smi.modeMeasurement_gisaxs()
+        yield from smi.modeMeasurement()
 
 
 def alignement_gisaxs_shorter(angle = 0.15):      
@@ -302,7 +302,7 @@ def alignement_gisaxs_shorter(angle = 0.15):
         det_exposure_time(0.3, 0.3)
         
         smi = SMI_Beamline()
-        yield from smi.modeAlignment_gisaxs()
+        yield from smi.modeAlignment()
         
         # Set direct beam ROI
         yield from smi.setDirectBeamROI()
@@ -325,5 +325,5 @@ def alignement_gisaxs_shorter(angle = 0.15):
         
         #Return angle
         yield from bps.mv(piezo.th, ps.cen - angle)
-        yield from smi.modeMeasurement_gisaxs()
+        yield from smi.modeMeasurement()
 

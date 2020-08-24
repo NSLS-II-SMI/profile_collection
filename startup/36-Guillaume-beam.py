@@ -177,7 +177,7 @@ class SMI_Beamline(Beamline):
 
         self.update_md()
 
-    def modeAlignment_gisaxs(self, technique='gisaxs'):
+    def modeAlignment(self, technique='gisaxs'):
         """
         Set the beamline for alignement: move the beamstop out and insert the attenuators
         if technique is 'gisaxs', the reflected roi will be calculate for horizontal congif
@@ -196,7 +196,7 @@ class SMI_Beamline(Beamline):
         if waxs.arc.position < 7.9:
             yield from bps.mv(waxs, 15)
 
-    def modeMeasurement_gisaxs(self):
+    def modeMeasurement(self):
         """
         Set the beamline for measurments: bring the beamstop in and
         remove the attenuator
@@ -257,7 +257,7 @@ class SMI_Beamline(Beamline):
             # Define the reflected beam ROI on the pilatus 1M detector  
             yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x_pos))
             yield from bps.mv(pil1M.roi1.size.x, int(size[1]))
-            yield from bps.mv(pil1M.roi1.min_xyz.min_y, int(y0-size[1]/2))
+            yield from bps.mv(pil1M.roi1.min_xyz.min_y, int(y0-size[0]/2))
             yield from bps.mv(pil1M.roi1.size.y, int(size[0]))
         else:
             raise ValueError('Unknown geometry fo alignement mode')
