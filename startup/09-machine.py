@@ -8,7 +8,6 @@ from ophyd.status import StatusBase, MoveStatus, DeviceStatus
 from ophyd import Component as Cpt
 from ophyd import Component
 from scipy.interpolate import InterpolatedUnivariateSpline
-from epics import (caput, caget)
 
 
 class Ring(Device):

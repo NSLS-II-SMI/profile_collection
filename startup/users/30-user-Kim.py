@@ -61,22 +61,13 @@ def run_giwaxs_Kim(t=1):
 #
 # Check sample stage (SmarAct Y) is around 5600, 6000
 #
-# RE(shopen())
-# 
 # %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Kim.py
-# RE(run_giwaxs_Kim(t=1)) 
-#
-# RE(shclose())    
-#
 # if do ctrl+C: RE.abort()
 #
 # Data/result: /GPFS/xf12id1/data/images/users/2019_2/304848_Kim/
 
 
 # Note
-#
-# Move waxs 
-# RE(bps.mv(waxs,10))
 #
 # %run -i /home/xf12id/.ipython/profile_collection/startup/36-Guillaume-beam.py
 

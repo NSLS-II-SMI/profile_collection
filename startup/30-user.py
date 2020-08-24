@@ -1,7 +1,9 @@
 print(f'Loading {__file__}')
 
 def export_scan( sid, filename='', path='/home/xf12id/tmp/',verbose=True ):
-    '''Export table by giving a scan id'''
+    """
+    Export table by giving a scan id
+    """
     hdr = db[sid]
     d = hdr.table()
     output = path + 'sid=%s_%s.csv'%(sid,filename)
@@ -9,12 +11,12 @@ def export_scan( sid, filename='', path='/home/xf12id/tmp/',verbose=True ):
     if verbose:
         print( 'The table of sid=%s is saved as %s.'%(sid, output) )
 
+
 def find_peaks( x, y, thres= 0.5e7 ):
     x= np.array(x)
     xi = np.arange( len(y) )
     w = np.array( np.where(y>thres)[0] )
     w1 = np.diff(w)>1
-    #print( len(w), len(w1) )
     pos = (w[1:].ravel())[w1]
     ind = []
     ind.append( w[0] )
@@ -28,152 +30,8 @@ def find_peaks( x, y, thres= 0.5e7 ):
         xmax.append( round(x[ index_x ],2)   )   
       
     print(ind) 
-    return( xmax )
+    return(xmax)
 
-def mvrx( rx ):   
-     posx = stage.x.position
-     stage.x.move( posx + rx )
-def mvry( ry ):         
-     posy =  stage.y.position 
-     stage.y.move( posy + ry )
-     
-def mov(motor, pos):
-    motor.move(pos)
-def mvr(motor,val):
-    cur = motor.position
-    mov( motor, cur + val )  
-    
-     
-def create_string( d  ): 
-    d = round(d,2)
-    s = str( '%0.8f'%d )[:5]
-    return s
-    
-    
-    
-    
-def collect_data( exposure_time=1, meta_string=['X','Y', 'Exp'], dets= [  pil1M   ]  ): 
-        '''
-        dets: [pil1M], collect SAXS data
-              [rayonix ] collect MAXS data
-              [pil300KW] collect WAXS data
-              
-              the combination  will collect detectors data  simultineously 
-              e..g, [ pil1M, pil300KW] simultineously collect SAXS and WAXS             
-              
-        '''   
-        posy = stage.y.position
-        posx =  stage.x.position
-        #inc = stage.th.position
-        inc = sample.al.position
-        arc =   waxs.arc.position
-        #md = 'sample: %s, x=%.2f, y=%0.2f, inc=%0.2f, arc=%.2f, exp=%s s.'%(RE.md['sample_name'],posx, posy, inc, arc,  exposure_time )
-                 
-        posx_ =  create_string(posx)
-        posy_ =  create_string(posy) 
-        exposure_time_ =  create_string(exposure_time)         
-        inc_ = create_string(inc)
-        arc_ =   create_string(arc)
-        #filename= '%s_%s'%( RE.md['user_name'], RE.md['sample_name'] )
-        
-        if 'X' in meta_string:
-            filename +='_X%s'%posx_
-        if 'Y' in meta_string:
-            filename +='_Y%s'%posy_
-        if 'Inc' in meta_string:
-            filename += '_Inc%s'%inc_
-        if 'Arc' in meta_string:
-            filename += '_arc%s'%arc_            
-        if 'Exp' in meta_string:
-            filename +='_Exp%s'%exposure_time_
-        print(filename)
-        for detector in dets:                                
-                detector.cam.file_name.put(filename) 
-                detector.cam.acquire_time.put(exposure_time)
-                detector.cam.acquire_period.put(exposure_time)                 
-                RE( count( [detector] ),  
-                Measurement = '%s'%md)  
-                
-                
-## For a series of sample, only run transmission SAXS 
-def run_saxs_sample( sample_list, posx_list, user_name,   exposure_time = 2,
-	ystep = 0.05, ynum=5, dets= [pil1M, pil300KW],   ):
- 	
-    ''' 
-     For a series of samples, only run transmission SAXS  using SAXS det
-         For each sample, collect ynum points along y direction with ystep
-    
-	theta corresponds to 0.1, this would be only parameter to be changed for each sample
-        xstep: x step in mm
- 	waxs_arc: the waxs arc angle for WAXS data collection
-        
-    '''
-    cur_y = stage.y.position
-    for i, sam in enumerate(sample_list):
-        posx = posx_list[i]         
-        sample_id(  user_name = user_name, sample_name= sample_list[i] )
-        print('Start measurement for position x as: %s....'%posx)
-        stage.x.move( posx )
-        for yi in range(ynum):
-            posy = cur_y + yi * ystep
-            stage.y.move( posy  )            
-            collect_data( exposure_time= exposure_time, dets = dets  )
-        stage.y.move( cur_y )
-   
-   
-
-#For one smaple, run gi_saxs with different incident angle and different waxs_arc using SAXS and WAXS det        
-def run_gi_sample(user_name='X90', sample='2472-2480eV', theta= -0.344, exposure_time = 0.5,
-	xstep = 0.500,  off_v_01 = [0, -0.12],
- 	waxs_arc = [7.0, ], dets=[pil1M, pil300KW],   ):
- 	
-    ''' 
-        For one smaple, run gi_saxs with different incident angle and different waxs_arc using SAXS and WAXS det
-    
-	theta corresponds to 0.1, this would be only parameter to be changed for each sample
-        xstep: x step in mm
- 	waxs_arc: the waxs arc angle for WAXS data collection        
-    '''
-    sample_id(  user_name = user_name, sample_name= sample )
-    for detector in dets:
-        detector.cam.acquire_time.put(exposure_time)
-        detector.cam.acquire_period.put(exposure_time)
-    for ang in off_v_01:
-        act_ang = theta + ang 
-        print('Start measurement for incident angle as: %s....'%ang)
-        stage.th.move( act_ang )
-        
-
-    cur_xh = stage.x.position
-    stage.x.move( cur_xh + xstep )
-    for arc in waxs_arc:
-        waxs.arc.move( arc )
-        md = 'inc_ang=%s, waxs_arc=%s, xh=%.3f, exp=%s s.'%(ang, arc, cur_xh + xstep, exposure_time )
-        collect_data( exposure_time= exposure_time, dets = dets  )            
-        #RE( count( dets ),  Measurement = '%s'%md)
-            
-
-def run_gi_energy (angle, t=1, name='test'):
-    posx = stage.x.position
-    stage.th.move(angle)
-    det_exposure_time(t)
-    sample='0.1deg_waxs'
-    sample_id( user_name = name, sample_name= sample)
-    RE(escan([pil300KW, pil1M, pil1mroi2,pil1mroi3, ssacurrent], waxs.arc, 5, 43, 7))
-    stage.th.move(angle-0.1)
-    posx = stage.x.position
-#    stage.x.move(posx-0.4)
-    sample='0.2deg_waxs'
-    sample_id( user_name = name, sample_name= sample)
-    RE(escan([pil300KW, pil1M, pil1mroi2,pil1mroi3, ssacurrent], waxs.arc, 5, 43, 7))
-    stage.th.move(angle-0.2)
-    posx = stage.x.position
-#    stage.x.move(posx-0.4)
-    sample='0.4deg_waxs'
-    sample_id( user_name = name, sample_name= sample)
-    RE(escan([pil300KW, pil1M, pil1mroi2,pil1mroi3, ssacurrent], waxs.arc, 5, 43, 7))
-    sample_id( user_name = 'test', sample_name= 'test')
-   
 
 def run_saxs_lipids(y=1, t=2):
     # Parameters:
@@ -205,43 +63,6 @@ def run_saxs_lipids(y=1, t=2):
     sample_id(user_name='test', sample_name='test')
 
 
-### For one smaple, collect all detector data for different incident angle and different waxs_arc
-def run(  inc_list = [  -0.07,   -0.11, -0.22 ],  arc_list=[4, 10, 16], exposure_time=0.5,  step=-0.03, axis='x'  ):
-
-    '''For one smaple, collect all detector data for different incident angle and different waxs_arc
-       Only collect  SAXS/MAXS for the second arc in arc_list. By default for waxs_arc =10
-       Collect WAXS for all points
-       
-    '''
-
-    arc_listc = np.array(arc_list).copy()
-    for i, inc in enumerate(inc_list):
-        mov( stage.th, inc ) 
-        print('*'*50)
-        print('The incident angle is: %s.'%inc)
-        if i%2:
-            arc_list = arc_listc[::-1]
-        else:
-            arc_list = arc_listc    
-        print(arc_list)
-        for j, arc in enumerate(arc_list):
-            mov(waxs.arc, arc) 
-            if j==1:
-                collect_data( exposure_time, det =[ pil300KW, pil1M, rayonix ]   )                
-                print('Collect SAXS, MAXS and WAXS here with inc=%s,arc=%s'%(inc,arc))
-            else:
-                collect_data( exposure_time,det =[ pil300KW ] )
-                print('Collect WAXS here with   inc=%s,arc=%s'%(inc,arc))             
-        print('#'*50)  
-        if axis=='x':
-            mvr( stage.x, step )
-        elif aixs=='y':
-            mvr( stage.y, step )
-        else:
-            print('Error!!!, Please give axis either x or y.' )                    
- 
-    
-    
 def move_pos(  pos=1  ):
     sam = sample_list[pos-1]
     posx = posx_list[pos-1]    
@@ -249,32 +70,6 @@ def move_pos(  pos=1  ):
     stage.x.move( posx )
     sample_id(  user_name = user_name, sample_name= sam )    
   
-            
-#Aligam GiSAXS sample
-#        
-def align_gisaxs_height(  rang = 0.3, point = 21   ):     
-        RE(bp.rel_scan([pil1M], sample.y, -rang, rang, point ) )      
-        ps()
-        mov(sample.y, ps.cen)    
-
-def align_gisaxs_th(  rang = 0.2, point = 21   ):             
-        RE(bp.rel_scan([pil1M], sample.al, -rang, rang, point ) )    
-        ps()
-        mov(sample.al, ps.cen) 
-
-def align_gisaxs_manual(  rang = 0.3, point = 21   ):     
-        RE(bp.rel_scan([pil1M], sample.y, -rang, rang, point ) )      
-        ps()
-        mov(sample.y, ps.cen)        
-        RE(bp.rel_scan([pil1M], sample.al, -rang, rang, point ) )    
-        ps()
-        mov(sample.al, ps.cen)       
-        
-def align_gisax( ):     
-      align_gisaxs_manual(  rang = 0.3, point = 31   ) 
-      align_gisaxs_manual(  rang = 0.2, point = 21   )
-      align_gisaxs_manual(  rang = 0.1, point = 11   )
-      
 
 def grating_rana_temp(det, motor, name='Water_upRepeat', cycle=1, cycle_t=11, n_cycles=20):
     # Slowest cycle:

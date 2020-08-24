@@ -21,7 +21,7 @@ def run_giwaxs( t=.5  ): #2020C1
         yield from bps.mv(piezo.x, x) #move to next sample  
         #yield from bps.mv(piezo.th, 0)              
         yield from alignement_gisaxs(0.1) #run alignment routine        
-        #yield from bps.mv(waxs, 4) #RE(bps.mv(waxs, 0))
+        #yield from bps.mv(waxs, 4)
         try: 
             yield from bps.mv(waxs, 0)
         except:
@@ -100,29 +100,7 @@ def do_twaxs_scanx(meas_t = 1): # 2019_2
                 yield from bp.count(dets, num=1)
       
       
-#### 
-
-#
-# Close the hutch
-# RE(shopen()) 
-# 
-# Modify file (sample name, x pos), SAVE this file
-# Check sample stage (SmarAct Y) is aroundre 6500
-# 
-# %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Taylor.py 
-# RE(run_giwaxs(1)) 
-#
-# To take test measurements:
-#   sample_id(user_name='test',sample_name='test') 
-#
-# RE(shclose()) 
-# Can open hutch
-#
-# - If did ctrl+C:
-#    RE.abort()
-#
-# Data: /GPFS/xf12id1/data/images/users/2019_3/303802_Taylor/
-
+####
 '''
 ============RUN 2===========
    sample_list = [ 'JK_3DPerov_5_No10','JK_3DPerov_10_No12','M_2DPerov_CB_No16','JM_2DPerov_NS_No9','JM_2DPerov_PCBM_No10','JM_2DPerov_ITF_No17' ]  

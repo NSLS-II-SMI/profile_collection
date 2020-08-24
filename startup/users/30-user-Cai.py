@@ -1,6 +1,5 @@
 # command for running the code
 # %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Cai.py 
-# RE(run_giwaxs_cai(2))
 
 def mapping_saxs_Cai(t=1): 
     samples = ['3Dprinted_filament_sr3','3Dprinted_filament_sr30','3Dprinted_filament_sr300','3Dprinted_filament_sr3000',

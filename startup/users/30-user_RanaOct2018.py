@@ -35,20 +35,6 @@ def find_peaks( x, y, thres= 0.5e7 ):
     print(ind) 
     return( xmax )
 
-def mvrx( rx ):   
-     posx = stage.x.position
-     stage.x.move( posx + rx )
-def mvry( ry ):         
-     posy =  stage.y.position 
-     stage.y.move( posy + ry )
-     
-def mov(motor, pos):
-    motor.move(pos)
-def mvr(motor,val):
-    cur = motor.position
-    mov( motor, cur + val )  
-    
-
     
 def move_pos(  pos=1  ):
     sam = sample_list[pos-1]
@@ -61,22 +47,22 @@ def move_pos(  pos=1  ):
 #Aligam GiSAXS sample
 #        
 def align_gisaxs_heightRana(  rang = 0.1, point = 21   ):     
-        RE(bp.rel_scan([pil1M], stage.y, -rang, rang, point ) )      
+        yield from bp.rel_scan([pil1M], stage.y, -rang, rang, point )
         ps()
-        mov(stage.y, ps.cen)    
+        yield from bps.mv(stage.y, ps.cen)
 
 def align_gisaxs_thRana(  rang = 0.1, point = 21   ):             
-        RE(bp.rel_scan([pil1M], stage.th, -rang, rang, point ) )    
+        yield from bp.rel_scan([pil1M], stage.th, -rang, rang, point )
         ps()
-        mov(sample.al, ps.cen) 
+        yield from bps.mv(sample.al, ps.cen)
 
 def align_gisaxs_manual(  rang = 0.3, point = 21   ):     
-        RE(bp.rel_scan([pil1M], s.y, -rang, rang, point ) )      
+        yield from bp.rel_scan([pil1M], s.y, -rang, rang, point )
         ps()
-        mov(sample.y, ps.cen)        
-        RE(bp.rel_scan([pil1M], sample.al, -rang, rang, point ) )    
+        yield from bps.mv(sample.y, ps.cen)
+        yield from bp.rel_scan([pil1M], sample.al, -rang, rang, point )
         ps()
-        mov(sample.al, ps.cen)       
+        yield from bps.mv(sample.al, ps.cen)
         
 def align_gisax( ):     
       align_gisaxs_manual(  rang = 0.3, point = 31   ) 
@@ -178,9 +164,9 @@ pil1m_x = EpicsMotor('XF:12IDC-ES:2{Det:1M-Ax:X}Mtr', name='pil1m_x')
 def alignmentmodeRana():
         if Att_Align3.status.value=='Not Open':
                #Att_Align2.set("Insert")
-               #time.sleep(1)
+               # yield from bps.sleep(1)
                Att_Align3.set("Insert")
-               time.sleep(1)
+               yield from bps.sleep(1)
                pos = pil1m_bs_rod.x.position
                pil1m_bs_rod.x.move(pos+25)
         Att_Shutter.set("Retract")
@@ -196,11 +182,9 @@ def measurementmodeRana():
                 Att_Shutter.set("Insert")
                 pos = pil1m_bs_rod.x.position
                 pil1m_bs_rod.x.move(pos-25)
-        time.sleep(1)
-        #Att_Align2.set("Retract")
-        #time.sleep(1)
+        yield from bps.sleep(1)
         Att_Align3.set("Retract")
-        time.sleep(1)
+        yield from bps.sleep(1)
         pil1m_x.move(-0.2)
         #mov(waxs.arc,3)
 

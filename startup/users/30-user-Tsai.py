@@ -180,16 +180,8 @@ def stage_pos():
 # Modify file (sample name, x pos), Save file
 # Check sample stage (SmarAct Y) is aroundre 6500
 # xxCheck bsx at 0.7
-#
-# RE(shopen())
-# 
-# %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Tsai.py 
-# RE(run_gisaxsAngle_AB(0.5)) 
-# RE(run_gisaxsAngle_AB2(0.1))
-#
-# RE(shclose())    
-#
-# if do ctrl+C: RE.abort()
+
+# %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Tsai.py
 #
 # Data: /GPFS/xf12id1/data/images/users/2020_1/Tsai
 

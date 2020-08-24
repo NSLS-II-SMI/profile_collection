@@ -87,7 +87,7 @@ def run_gisaxsAngle_AB2(t=1): #2020C1
         yield from bps.mv(piezo.th, 0)              
         yield from alignement_gisaxs(0.1) #run alignment routine
         
-        yield from bps.mv(waxs, 4) #RE(bps.mv(waxs, 0))
+        yield from bps.mv(waxs, 4)
         try: 
             yield from bps.mv(waxs, 0)
         except:
@@ -128,23 +128,8 @@ def run_gisaxsAngle_AB2(t=1): #2020C1
     det_exposure_time(0.5)
 
 
-#### 
+####
 
-# 
-# Modify file (sample name, x pos), Save file
-# Check sample stage (SmarAct Y) is aroundre 6500
-# xxCheck bsx at 0.7
-#
-# RE(shopen())
-# 
-# %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Braunschweig.py 
-# RE(run_gisaxsAngle_AB(0.5)) 
-# RE(run_gisaxsAngle_AB2(0.1))
-#
-# RE(shclose())    
-#
-# if do ctrl+C: RE.abort()
-#
 # Data: /GPFS/xf12id1/data/images/users/2019_3/306008_Braunschweig/
 
 

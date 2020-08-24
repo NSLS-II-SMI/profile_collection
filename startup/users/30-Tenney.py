@@ -1,9 +1,6 @@
 ####line scan
 
-# RE(bps.mv(waxs, 0))
 # sample_id(user_name='ST',sample_name='Nitra-glass_RT_y-4300')
-# RE(bp.scan([pil300KW], waxs, 0, 30, 6))
-
 
 
 def run_tsaxs_ST(t=0.1): 

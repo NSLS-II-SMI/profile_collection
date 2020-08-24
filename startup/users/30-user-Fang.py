@@ -32,11 +32,11 @@ sample_list = [ 'Au10_FF', 'Au10FCC_50', 'Au10FCC_100', 'Au10FCC_150', 'Au10FCC_
 
 
 def movx( dx ):
-    RE( bps.mvr(piezo.x, dx  ) )
+    yield from bps.mvr(piezo.x, dx)
 
 
 def movy( dy ):
-    RE( bps.mvr(piezo.y, dy  ) )
+    yield from bps.mvr(piezo.y, dy)
 
 
 def measure_saxs( i, meas_t = 1, att='Sn60X4',   my=False ):
@@ -117,7 +117,6 @@ def in_situ_wrap(meas_t = 1, t0=0):
 # ======== To open bluesky: bsui
  
  # --- Close the hutch
- # RE(shopen())  
  #
  # %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Murray.py
  #
@@ -126,7 +125,6 @@ def in_situ_wrap(meas_t = 1, t0=0):
  #
  #
  # --- Before opening hutch:
- # RE(shclose())
  # If bluesky is set to running and want to stop just type 'exit'
  #
  # bsx 1.050000 for saxs_z 8300
@@ -135,7 +133,6 @@ def in_situ_wrap(meas_t = 1, t0=0):
  # bsx1.500000 for saxs_z 5300
  #
  # --- To move WAXS detector (Pilatus 300K)
- # RE(bps.mv(waxs, 6))
  #
  # %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Fang.py
 

@@ -82,41 +82,6 @@ def in_situ_wrap(meas_t = 1, t0=0):
          
          
           
-        
-#print(time.strftime('%Y-%m-%dT%H:%M:%S %Z',time.localtime(time.time()))) 
-        
- 
- # proposal_id('2019_3', '305435_Murray') 
- # purple OnAxis is beam position in air
- 
-# ======== To open bluesky: bsui
- 
- # --- Close the hutch
- # RE(shopen())  
- #
- # --- Edit the file 30-user-Murray.py and SAVE
- # %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Murray.py
- # RE(ex_situ(meas_t=1))
- # RE(in_situ(meas_t=1))
- # RE(in_situ_wrap(meas_t=2.5)) 
-
- # --- If ctrl+C: RE.abort()
- #
- # --- To take a single measurement: 
- # sample_id(user_name='EM',sample_name='test') then, on Pilatus1M, enter exposure time and click 'Start' 
- #
- #
- # --- Before opening hutch:
- # RE(shclose())
- # If bluesky is set to running and want to stop just type 'exit'
- #
- # bsx 1.050000 for saxs_z 8300
- # bsx0.350000 for saxs_z 7300
- # bsx0.750000 for saxs_z 6300
- # bsx1.500000 for saxs_z 5300 Dec-06-5pm
- #
- # --- To move WAXS detector (Pilatus 300K)
- # RE(bps.mv(waxs, 6))
  #
  # Note:
  # 2019-12-04 11pm started in-situ with 20ml/min at room temp; RE errors 

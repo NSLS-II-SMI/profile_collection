@@ -385,8 +385,7 @@ def earlyeveningtransmissionrun():
     yield from run_saxswaxsEnergyBoc(xl1,sl1,ea1,ea1,t=0.3)
     yield from run_saxswaxsEnergyBoc(xl2,sl2,ea_waxs_Br,ea_nexafs_Br,t=0.3)
     yield from run_saxswaxsEnergyBoc(xl2,sl2,ea_waxs_Rb,ea_nexafs_Rb,t=0.3)
-    #RE(run_saxswaxsEnergyBoc(-28000,'ScotchTape',[13480],[],t=0.3))
-    
+
 def tuesdaymorningtransmissionrun():
     ea_nexafs_Br = np.linspace(13450, 13500, 51)
     ea_nexafs_Rb = np.linspace(15150,15250,51)
