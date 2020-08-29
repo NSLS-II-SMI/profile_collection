@@ -63,6 +63,7 @@ class AmptekSoftTrigger(BlueskyInterface):
         self.kind = 'hinted'
         self.mca.kind = 'hinted'
         self.mca.rois.kind = 'hinted'
+        self._starting = None
 
     def stage(self, *args, **kwargs):
         # Set the labels for the count field to appear in the LiveTable, etc.
@@ -95,8 +96,12 @@ class AmptekSoftTrigger(BlueskyInterface):
 
         def callback(value, old_value, **kwargs):
             if int(round(old_value)) == 1 and int(round(value)) == 0:
-                return True
-            return False
+                if self._starting or self._starting is None:
+                    self.starting = False
+                    return True
+                else:
+                    self.starting = True
+                return False
 
         status = SubscriptionStatus(self.mca.when_acq_stops, callback, run=False)
         self._acquisition_signal.set(1)
