@@ -124,8 +124,9 @@ fd = FakeDetector(name='fd')
 pil1M = Pilatus("XF:12IDC-ES:2{Det:1M}", name="pil1M") #, detector_id="SAXS")
 pil1M.set_primary_roi(1)
 
-#pil1M.tiff.write_path_template = '/GPFS/xf12id1/data/1M/images/%Y/%m/%d/'
-pil1M.tiff.write_path_template = '/ramdisk/1M/images/%Y/%m/%d/'
+#pil1M.tiff.write_path_template = '/ramdisk/1M/images/%Y/%m/%d/'
+pil1M.tiff.write_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
+
 pil1M.tiff.read_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
 
 pil1mroi1 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats1:Total_RBV', name='pil1mroi1')
