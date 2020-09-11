@@ -123,7 +123,7 @@ class SMIBeam(object):
             print('current state: {}'.format(current_state))
             print('target state: {}'.format(target_state))
 
-    def _actuateFoil(self, foil, state, wait_time=1.0, max_retries=10):
+    def _actuateFoil(self, foil, state, wait_time=5.0, max_retries=10):
         itry = 0
         foil_st = yield from bps.read(foil)
                 
@@ -355,8 +355,10 @@ class SMI_SAXS_Det(object):
         if pil1m_bs_pd.x.position < 10 and pil1m_bs_rod.x.position < 10:
             smi_saxs_detector.bs_kind.put('rod_beamstop')
 
-            # To be implemented with the good values, not hard-coded
-            smi_saxs_detector.xbs_mask.put(10)
+            # To be implemented with the good values for y and test x position
+            x_bs = 494.24 - (bsx_pos / 0.172) + (pil1m_pos.x.position / 0.172)
+            smi_saxs_detector.xbs_mask.put(x_bs)
+            y_bs = 496.07 - (bsy_pos / 0.172) + (pil1m_pos.y.position / 0.172)
             smi_saxs_detector.ybs_mask.put(10)
 
         elif abs(pil1m_bs_pd.x.position) > 50 and abs(pil1m_bs_rod.x.position) < 50:
