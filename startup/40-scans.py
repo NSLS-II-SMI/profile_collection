@@ -3,18 +3,14 @@ import stat, os
 
 # ToDO: make sure the file_path and file_name properly shipped
 def activate_amptek():
-    newDir = os.path.join("/nsls2/xf12id2/data/images/users/",RE.md['cycle'],RE.md['proposal_number']+'_'+RE.md['main_proposer'],"Amptek")
+    newDir = os.path.join("/nsls2/xf12id2/data/images/users/", RE.md['cycle'], RE.md['proposal_number']+ '_' + RE.md['main_proposer'], "Amptek")
     try:
         os.stat(newDir)
     except FileNotFoundError:
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
-
-    RE.md['file_path_amptek'] = newDir, 
-    RE.md['filename_amptek'] = pil1M.cam.file_name.value
     
-    return
-
+    
 # ToDo: Improve the way of reading motor name from a cycler
 # ToDo: make sure that the ophyd signal can be give as an input to the cycler. If so, remove the 2 lines of definition of sample name later
 # ToDo: make sure that the sample_name ophyd Signal is defined somewhere when loading the profile collection
