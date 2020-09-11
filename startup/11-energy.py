@@ -32,7 +32,7 @@ def energy_to_gap(target_energy, undulator_harmonic=1):
     b6 = 2.64385e-18 #-7.633003e-18
     b7 = -1.70455e-22 #5.14881e-22
     gap_mm = a + b1*f + b2*f**2 + b3 * f**3 + b4 * f**4 + b5 * f**5 + b6 * f**6 + b7 * f**7
-    gap = gap_mm*1000 - 35 #-33 for 14 keV; -21 for 16.1 keV; -50 for 9540eV; -20 for 2450eV; -45 for 4050eV
+    gap = gap_mm*1000 - 21 #-33 for 14 keV; -21 for 16.1 keV; -50 for 9540eV; -20 for 2450eV; -45 for 4050eV
     return gap
 
 
