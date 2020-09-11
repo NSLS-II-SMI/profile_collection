@@ -28,6 +28,7 @@ def proposal_id(cycle_id, proposal_id):
     RE.md['cycle'] = cycle_id
     RE.md['proposal_number'] = proposal_id.split('_')[0]
     RE.md['main_proposer'] = proposal_id.split('_')[1]
+    RE.md['path'] = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id)
 
     # 2018-04-10: Maksim asked Tom about why this 'put' does not create the folder,
     # Tom suggested to ask PoC to update AD installation.
