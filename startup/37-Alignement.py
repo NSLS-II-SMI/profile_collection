@@ -119,8 +119,8 @@ def alignement_gisaxs(angle=0.15):
         # Return angle
         yield from bps.mv(piezo.th, ps.cen - angle)
         yield from smi.modeMeasurement()
-        
 
+        
 def alignement_special(angle=0.15):
         
         sample_id(user_name='test', sample_name='test')
