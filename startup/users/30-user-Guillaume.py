@@ -303,3 +303,292 @@ def sin_generation():
 
 
 
+def run_Liheng(t=1): 
+    # samples = ['LBBL_0.09_sdd8.3m_16.1keV', 'LBBL_0.32_sdd8.3m_16.1keV']
+
+    # x_list  = [37000, 24000]
+    # y_list =  [-200, -200]
+
+    # # Detectors, motors:
+    # dets = [pil1M]
+    # assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    # assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    
+    # ypos = [0, 200, 2]
+
+    # det_exposure_time(t,t)
+    # for x, y, sample in zip(x_list,y_list,samples):
+    #     yield from bps.mv(piezo.x, x)
+    #     yield from bps.mv(piezo.y, y)
+    #     sample_id(user_name='LC', sample_name=sample) 
+    #     yield from bp.rel_scan(dets, piezo.y, *ypos)
+    #     # yield from bp.count(dets, num=3)
+          
+
+    samples = ['LhBBL_1.08', 'LhBBL_0.94', 'LhBBL_0.84', 'glass_only']
+
+    x_list  = [-4500, -20000, -32000, -37000 ]
+    y_list =  [-500, -500, -500, -500]
+
+    ypos = [0, 200]
+
+    waxs_range = np.linspace(13, 0, 3)
+    det_exposure_time(t,t)
+    dets = [pil1M, pil300KW]
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+
+        for x, y, sample in zip(x_list,y_list, samples):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+
+            for yy, y_of in enumerate(ypos):        
+                yield from bps.mv(piezo.y, y+y_of)
+            
+                name_fmt = '{sam}_wa{waxs}_yloc{yy}'
+                sample_name = name_fmt.format(sam=sample, yy='%2.2d'%yy, waxs='%2.1f'%wa)
+                sample_id(user_name='LC', sample_name=sample_name) 
+
+
+                yield from bp.count(dets, num=1)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+
+def run_Herzi(t=1): 
+    # samples = ['Si1', 'P1', 'Y61', 'N41', 'PY61']
+    # x_list  = [-46000, -22000, -1000, 23000,  46000]
+
+    samples = ['HF20-181', 'HF20-199', 'HF20-218', 'HF20-228']
+    x_list  = [-45000, -19000, 8000, 33000]
+
+    waxs_range = np.linspace(0, 19.5, 4)
+    dets = [pil300KW, pil1M]
+
+    for x, name in zip(x_list, samples):
+        yield from bps.mv(piezo.x, x)
+
+        # yield from bps.mv(GV7.open_cmd, 1 )
+        # yield from bps.sleep(1)
+        # yield from bps.mv(GV7.open_cmd, 1 )
+
+        yield from alignement_gisaxs(0.1)
+        
+        # yield from bps.mv(GV7.close_cmd, 1 )
+        # yield from bps.sleep(1)
+        # yield from bps.mv(GV7.close_cmd, 1 )
+
+        ai0 = piezo.th.position
+        yield from bps.mv(piezo.th, ai0 + 0.18)
+
+        det_exposure_time(t,t)
+        yield from bps.mv(piezo.x, x + 500)
+
+        # yield from bps.mvr(piezo.th, angl)
+        name_fmt = '{sample}_exppos1_{num}_ai{angle}deg_wa{wax}'
+        for i in range(0, 3, 1):
+            if waxs.arc.position > 16:
+                wa_ran = waxs_range[::-1]
+            else:
+                wa_ran = waxs_range
+
+            for wa in wa_ran:
+                yield from bps.mv(waxs, wa)
+                sample_name = name_fmt.format(sample=name, num ='%1.1d'%i, angle='%3.2f'%0.18, wax = '%2.1f'%wa)
+                sample_id(user_name='EH', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=20)
+
+        
+        yield from bps.mv(piezo.th, ai0)
+
+        yield from bps.mv(piezo.x, x + 1000)
+        
+        det_exposure_time(t,t)
+        angl = np.linspace(0.06, 0.20, 15)
+        name_fmt = '{sample}_aiscan_ai{angle}deg_wa{wax}'
+
+        for wa in waxs_range:
+            yield from bps.mv(waxs, wa)
+            for ang in angl:
+                yield from bps.mv(piezo.th, ai0 + ang)
+                sample_name = name_fmt.format(sample=name, angle='%3.2f'%ang, wax = '%2.1f'%wa)
+                sample_id(user_name='EH', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+        
+
+        yield from bps.mv(piezo.th, ai0 + 0.18)
+
+        det_exposure_time(t,t)
+        yield from bps.mv(piezo.x, x - 500)
+
+        # yield from bps.mvr(piezo.th, angl)
+        name_fmt = '{sample}_exppos2_{num}_ai{angle}deg_wa{wax}'
+        for i in range(0, 3, 1):
+            if waxs.arc.position > 16:
+                wa_ran = waxs_range[::-1]
+            else:
+                wa_ran = waxs_range
+
+            for wa in wa_ran:
+                yield from bps.mv(waxs, wa)
+                sample_name = name_fmt.format(sample=name, num ='%1.1d'%i, angle='%3.2f'%0.18, wax = '%2.1f'%wa)
+                sample_id(user_name='EH', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=20)
+        
+        sample_id(user_name='test', sample_name='test')
+        det_exposure_time(0.3,0.3)
+
+
+
+
+def run_Herzi_test(t=1): 
+    samples = ['N41_test']
+    x_list  = [6000]
+
+    waxs_range = np.linspace(0, 19.5, 4)
+    dets = [pil300KW]
+
+    # for x, name in zip(x_list, samples):
+    #     yield from bps.mv(piezo.x, x)
+    #     # yield from alignement_gisaxs(0.1)
+        
+    #     det_exposure_time(t,t)
+    #     # angl = 0.18
+    #     # yield from bps.mvr(piezo.th, angl)
+    #     name_fmt = '{sample}_ai{angle}deg_wa{wax}'
+
+    #     for wa in waxs_range:
+    #         yield from bps.mv(waxs, wa)
+
+    #         sample_name = name_fmt.format(sample=name, angle='%3.2f'%0.18, wax = '%2.2d'%wa)
+    #         sample_id(user_name='EH', sample_name=sample_name)
+    #         print(f'\n\t=== Sample: {sample_name} ===\n')
+    #         yield from bp.count(dets, num=20)
+        
+
+    # yield from bps.mvr(piezo.th, -0.18)
+
+    
+    for x, name in zip(x_list, samples):
+        yield from bps.mv(piezo.x, x)
+        # yield from alignement_gisaxs(0.1)
+        
+        det_exposure_time(t,t)
+        angl = np.linspace(0.08, 0.20, 13)
+        ai0 = piezo.th.position
+        name_fmt = '{sample}_ai{angle}deg_wa{wax}'
+
+        for wa in waxs_range:
+            yield from bps.mv(waxs, wa)
+            for ang in angl:
+                yield from bps.mv(piezo.th, ai0 + ang)
+                sample_name = name_fmt.format(sample=name, angle='%3.2f'%ang, wax = '%2.2d'%wa)
+                sample_id(user_name='EH', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+        
+        # yield from bps.mvr(piezo.th, -an) 
+        
+        sample_id(user_name='test', sample_name='test')
+        det_exposure_time(0.3,0.3)
+
+
+def batch_caps(t=1): 
+    samples = [
+    '0.5RLPF',  '0.5RLPW',   '1.0RLPW',    'W2F2-G6',  'W2F-GL',  'W2F4-G6', 'W2F3-G6', 
+       '0.5RLPF_4AC','0.5RLPW_4AC','1.0RLPW_4AC', 'W2F3-G8', 'F3Y3-G8', 'W2F6-G8', 
+
+    # 'S2_CuHHTT_TEBF4_Soaked', 'S3_CuHHTT_KNO2_Soaked', 'S5_CuHHTT_TEBF4_Pos', 'S6_CuHHTT_KNO2_Pos','S7_CuHHTT_CsBr_Pos','S9_CuHHTT_KNO2_Neg','S10_CuHHTT_CsBr_Neg'
+    # 'S2_CuHHTT_TEBF4_Bare','S4_CuHHTT_CsBr_Soaked','S8_CuHHTT_TEBF4_Neg','S11',
+    ]
+
+    x_list  = [38110, 31700, 25500, 18810, 12640, 6420, -2000,
+                   35600, 29260, 22920, 16400, 10230, 2370, 
+    # -6600, -13000, -19800, -26000, -32400, -38500, -44800, 
+    # -9250, -21950, -28200, -34500, 
+    ]
+
+    y_list =  [1100, 1100, 1100, 1100, 1100, 1100, 1100,
+                1100, 1100, 1100, 1100, 1100, 1100, 
+    # 2000, 2000, 2000, 2000, 2000, 1000, 2000, 
+    # 2000, 2000, 2000, 2000, 
+    ]
+    
+    z_list = [2600, 2600, 2600, 2600, 2600, 2600, -1400,
+                11600, 11600, 11600, 11600, 11600, 11600,
+    # 2600, 2600, 2600, 2600, 2600, 2600, 2600,
+    # 11600, 11600, 11600, 11600, 
+    ]
+
+    # Detectors, motors:
+    dets = [pil1M]
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of Z coord ({len(z_list)})'
+    ypos = [0, 50, 2]
+
+    det_exposure_time(t,t)
+    for x, y, z, sample in zip(x_list,y_list,z_list, samples):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.z, z)
+        sample_id(user_name='KK_sdd1.8m', sample_name=sample) 
+        yield from bp.rel_scan(dets, piezo.y, *ypos)
+        # yield from bp.count(dets, num=3)
+          
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+def batch_caps_yugang(t=1): 
+    samples = [
+    # '2', '3', '5', '6',  '7',  '9', '10', 
+    #    '1',     '4', '8',  '11',  
+
+    'S2_CuHHTT_TEBF4_Soaked', 'S3_CuHHTT_KNO2_Soaked', 'S5_CuHHTT_TEBF4_Pos', 'S6_CuHHTT_KNO2_Pos','S7_CuHHTT_CsBr_Pos','S9_CuHHTT_KNO2_Neg','S10_CuHHTT_CsBr_Neg',
+    'S2_CuHHTT_TEBF4_Bare','S4_CuHHTT_CsBr_Soaked','S8_CuHHTT_TEBF4_Neg','S11'
+    ]
+
+    x_list  = [
+        # 38110, 31700, 25500, 18810, 12640, 6420, -2000,
+        #            35600,        22920, 16400, 10230, 
+    -6520, -12920, -19680, -25860, -32260, -38440, -44740, 
+    -8970, -21650, -27940, -34270, 
+    ]
+
+    y_list =  [
+        # 600, 600, 600, 600, 600, 600, 600,
+        #           600,      600, 600, 600,  
+    2000, 2000, 2000, 2000, 2000, 1000, 2000, 
+    2000, 2000, 2000, 2000
+    ]
+    
+    z_list = [
+        # 2600, 2600, 2600, 2600, 2600, 2600, -1400,
+        #         11600, 11600, 11600, 11600, 11600, 11600,
+    2600, 2600, 2600, 2600, 2600, 2600, 2600,
+    11600, 11600, 11600, 11600
+    ]
+
+    # Detectors, motors:
+    dets = [pil1M]
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of Z coord ({len(z_list)})'
+    ypos = [0, 50, 2]
+
+    det_exposure_time(t,t)
+    for x, y, z, sample in zip(x_list,y_list,z_list, samples):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.z, z)
+        sample_id(user_name='YZ', sample_name=sample) 
+        yield from bp.rel_scan(dets, piezo.y, *ypos)
+        # yield from bp.count(dets, num=3)
+          
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)

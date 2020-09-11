@@ -480,6 +480,33 @@ def clean_shit(t=1):
     yield from bps.mv(att2_12, 'Retract')
     yield from bps.sleep(t)
 
+
+def clean_sh(t=1):
+    yield from bps.mv(att2_1, 'Insert')
+    yield from bps.sleep(t)
+    yield from bps.mv(att2_2, 'Insert')
+    yield from bps.sleep(t)
+    yield from bps.mv(att2_3, 'Insert')
+    yield from bps.sleep(t)
+    yield from bps.mv(att2_4, 'Insert')
+    yield from bps.sleep(t)
+    yield from bps.mv(att2_5, 'Insert')
+    yield from bps.sleep(t)
+    yield from bps.mv(att2_6, 'Insert')
+    yield from bps.sleep(t)
+    yield from bps.mv(att2_7, 'Insert')
+    yield from bps.sleep(t)
+    yield from bps.mv(att2_8, 'Insert')
+    yield from bps.sleep(t)
+    yield from bps.mv(att2_9, 'Insert')
+    yield from bps.sleep(t)
+    yield from bps.mv(att2_10, 'Insert')
+    yield from bps.sleep(t)
+    yield from bps.mv(att2_11, 'Insert')
+    yield from bps.sleep(t)
+    yield from bps.mv(att2_12, 'Insert')
+    yield from bps.sleep(t)
+
     
 def function_att(ran_num,t=1):
     if ran_num == 0:

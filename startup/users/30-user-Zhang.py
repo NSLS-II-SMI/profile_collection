@@ -53,6 +53,66 @@ def song_waxs_S_edge_new(t=1):
             yield from bps.mv(energy, 2450)
 
 
+def song_waxs_new(t=1):
+    dets = [pil300KW, pil1M]
+
+    # yield from bps.mv(GV7.close_cmd, 1 )
+    # yield from bps.sleep(5)
+    # yield from bps.mv(GV7.close_cmd, 1 )
+
+    waxs_arc = np.linspace(0, 13, 3)
+    del_y = [-100, 0, 100]
+
+    # yield from bps.mv(stage.th, 1)
+    # yield from bps.mv(stage.y, -8)
+    names = ['C2C6C8_0per','C2C6C8_20per','C2C6C8_40per','C2C6C8_60per','C2C6C8_80per','C2C8C10_0per','C2C8C10_20per','C2C8C10_40per','C2C8C10_60per','C2C8C10_80per',
+    'C2C8C10_100per','C2C10C12_0per','C2C10C12_20per','C2C10C12_40per','C2C10C12_60per','C2C10C12_80per','C2C10C12_100per']
+    x = [43200, 38200, 33200, 27200, 21900, 16900, 11700, 6700, 1700, -3200, -9000,-14000,-19000,-24000,-29000,-34000,-40000]
+    y = [-8500, -8500, -8500, -8500, -8300, -8500, -8500,-8500,-8700, -8300, -8800, -8500, -8500, -8500, -8500, -8700, -8800]
+
+    names = ['bkg_vac']
+    x = [-10500]
+    y = [-3000]
+
+
+    for wa, de_y in zip(waxs_arc, del_y):
+        yield from bps.mv(waxs, wa)
+        for name, xs, ys in zip(names, x, y):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+           
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_10_16100eV_wa{wax}_bpm{xbpm}'
+
+            bpm = xbpm2.sumX.value
+
+            sample_name = name_fmt.format(sample=name, wax = wa, xbpm = '%4.3f'%bpm)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+    # yield from bps.mv(stage.y, 0)
+    # yield from bps.mv(stage.th, 0)
+    # names = ['C2C12C14_0per','C2C12C14_20per','C2C12C14_40per','C2C12C14_60per','C2C12C14_80per']
+    # x = [44100, 4100, -100, -5100, -16100]
+    # y = [-3000,-4000,-4000, -4000, -4000]
+
+    # for wa, de_y in zip(waxs_arc, del_y):
+    #     yield from bps.mv(waxs, wa)
+    #     for name, xs, ys in zip(names, x, y):
+    #         yield from bps.mv(piezo.x, xs)
+    #         yield from bps.mv(piezo.y, ys+de_y)
+          
+    #         det_exposure_time(t,t) 
+    #         name_fmt = '{sample}_8_16100eV_wa{wax}_bpm{xbpm}'
+
+    #         bpm = xbpm2.sumX.value
+
+    #         sample_name = name_fmt.format(sample=name, wax = wa, xbpm = '%4.3f'%bpm)
+    #         sample_id(user_name='GF', sample_name=sample_name)
+    #         print(f'\n\t=== Sample: {sample_name} ===\n')
+    #         yield from bp.count(dets, num=1)
+
 def waxs_zhang(t=2):
     dets = [pil300KW]
 

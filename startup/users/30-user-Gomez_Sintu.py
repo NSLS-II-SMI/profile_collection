@@ -133,7 +133,7 @@ def NEXAFS_Ca_edge_multi_sintu(t=0.5, name='test'):
     for e in energies:                              
         yield from bps.mv(energy, e)
         sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value)
-        RE.md['filename_amptek'] = sample_name
+        RE.md['filename'] = sample_name
         sample_id(user_name='OS', sample_name=sample_name)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bp.count(dets, num=1)
