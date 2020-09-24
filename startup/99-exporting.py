@@ -8,6 +8,7 @@ print(f'Loading {__file__}')
 
 def export_spectra_to_csv(run, file, columns=None):
     """Export spectra to a CSV file based on databroker.v2 run.
+
     Parameters:
     -----------
     run: BlueskyRun
@@ -18,6 +19,7 @@ def export_spectra_to_csv(run, file, columns=None):
         a list of columns to export to the CSV file. If None, all
         columns will be attempted to be exported (must have the same
         dimensions)
+
     Returns:
     --------
     df: pandas.DataFrame
