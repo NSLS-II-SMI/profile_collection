@@ -152,7 +152,4 @@ class SMIAmptek(AmptekSoftTrigger, Amptek):
                          configuration_attrs=configuration_attrs, **kwargs)
 
 amptek = SMIAmptek("XF:12IDC-ES:2{Det-Amptek:1}", name="amptek")
-amptek.energy_channels.kind = 'hinted'
-
-
-
+amptek.energy_channels.kind = 'normal'
