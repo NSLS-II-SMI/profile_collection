@@ -4,6 +4,7 @@ import pandas as pd
 from databroker.core import SingleRunCache
 from event_model import RunRouter
 
+print(f'Loading {__file__}')
 
 def export_spectra_to_csv(run, file, columns=None):
     """Export spectra to a CSV file based on databroker.v2 run.
@@ -39,7 +40,7 @@ def factory(name, doc):
         if name == "stop":
             run = src.retrieve()
             if 'amptek' in run.metadata['start']['detectors']:
-                export_spectra_to_csv(run, f"/tmp/CSV-export/{run.metadata['start']['uid']}.csv",
+                export_spectra_to_csv(run, f"{run.metadata['start']['path']}/Amptek/{run.metadata['start']['sample_name']}_{run.metadata['start']['uid'].split('-')[0]}.csv",
                                       ['amptek_energy_channels', 'amptek_mca_spectrum'])
 
     return [src.callback, export_on_stop], []
