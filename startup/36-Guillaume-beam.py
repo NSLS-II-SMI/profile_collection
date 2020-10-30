@@ -56,7 +56,7 @@ class SMIBeam(object):
         elif 2300 < self.dcm.energy.position < 3000:
             target_state = [att2_12, att2_11, att2_10]
         elif 3200 < self.dcm.energy.position < 3600:
-            target_state = [att2_5, att2_9]
+            target_state = [att2_5, att2_6, att2_8, att2_9]
         elif 3600 < self.dcm.energy.position < 3900:
             target_state = [att2_5, att2_11]
         elif 3900 < self.dcm.energy.position < 4500:
@@ -130,6 +130,7 @@ class SMIBeam(object):
         while itry < max_retries and\
                 ((foil_st['{}_status'.format(foil.name)]['value'] == 'Not Open' and state == 'Insert') or
                  (foil_st['{}_status'.format(foil.name)]['value'] == 'Open' and state == 'Retract')):
+            print('Try number', itry + 1, 'to update attenuator', foil)
             yield from bps.mv(foil, state)
             foil_st = yield from bps.read(foil)
             itry += 1
@@ -329,7 +330,7 @@ class SMI_SAXS_Det(object):
 
         self.pixel_size = 0.172
         self.getPositions()
-        self.get_beamstop()
+        # self.get_beamstop()
 
 
     def getPositions(self, **md):
@@ -342,9 +343,9 @@ class SMI_SAXS_Det(object):
         self.distance, self.direct_beam = interpolate_db_sdds()
         self.distance *= 1000
 
-        yield from bps.mv(smi_saxs_detector.x0_pix, self.direct_beam[0])
-        yield from bps.mv(smi_saxs_detector.y0_pix, self.direct_beam[1])
-        yield from bps.mv(smi_saxs_detector.sdd, self.distance)
+        smi_saxs_detector.x0_pix.put(self.direct_beam[0])
+        smi_saxs_detector.y0_pix.put(self.direct_beam[1])
+        smi_saxs_detector.sdd.put(self.distance)
 
     def get_beamstop(self):
         """
@@ -353,27 +354,27 @@ class SMI_SAXS_Det(object):
 
         #ToDo: Calculate what pixels to mask for different beamstop positions
         if pil1m_bs_pd.x.position < 10 and pil1m_bs_rod.x.position < 10:
-            yield from bps.mv(smi_saxs_detector.bs_kind, 'rod_beamstop')
+            smi_saxs_detector.bs_kind.put('rod_beamstop')
 
             # To be implemented with the good values for y and test x position
-            x_bs = 494.24 - (bsx_pos / 0.172) + (pil1m_pos.x.position / 0.172)
-            yield from bps.mv(smi_saxs_detector.xbs_mask, x_bs)
+            x_bs = 440.79 - (bsx_pos / 0.172) + (pil1m_pos.x.position / 0.172)
+            smi_saxs_detector.xbs_mask.put(x_bs)
             y_bs = 496.07 - (bsy_pos / 0.172) + (pil1m_pos.y.position / 0.172)
-            yield from bps.mv(smi_saxs_detector.ybs_mask, 10)
+            smi_saxs_detector.ybs_mask.put(10)
 
         elif abs(pil1m_bs_pd.x.position) > 50 and abs(pil1m_bs_rod.x.position) < 50:
-            yield from bps.mv(smi_saxs_detector.bs_kind, 'pindiode')
+            smi_saxs_detector.bs_kind.put('pindiode')
 
             # To be implemented with the good values, not hard-coded
-            yield from bps.mv(smi_saxs_detector.xbs_mask, 10)
-            yield from bps.mv(smi_saxs_detector.ybs_mask, 10)
+            smi_saxs_detector.xbs_mask.put(10)
+            smi_saxs_detector.ybs_mask.put(10)
 
         else:
-            yield from bps.mv(smi_saxs_detector.bs_kind., 'None')
+            smi_saxs_detector.bs_kind.put('None')
 
             # To be implemented with the good values, not hard-coded
-            yield from bps.mv(smi_saxs_detector.xbs_mask, 10)
-            yield from bps.mv(smi_saxs_detector.ybs_mask, 10)
+            smi_saxs_detector.xbs_mask.put(10)
+            smi_saxs_detector.ybs_mask.put(10)
 
     def set_beamstop(self):
         """
