@@ -53,6 +53,201 @@ def song_waxs_S_edge_new(t=1):
             yield from bps.mv(energy, 2450)
 
 
+def song_saxs_tensile_hard(t=1):
+    dets = [pil1M]
+
+    names = 'P3BT_loop2'
+
+    t0 = time.time()
+    for i in range(2000):
+
+        det_exposure_time(t,t) 
+        name_fmt = '{sample}_10_18250eV_sdd1p6_{time}_{i}'
+        t1 = time.time()
+        sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i)
+        sample_id(user_name='GF', sample_name=sample_name)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.count(dets, num=1)
+
+        time.sleep(20)
+
+
+def song_saxs_waxs_tensile_hard(t=1):
+    dets = [pil300KW, pil1M]
+
+    names = 'P3BT_loop2'
+    t0 = time.time()
+    for i in range(2000):
+        det_exposure_time(t,t) 
+
+        if waxs.arc.position > 5:
+            wa = [14, 7.5, 1]
+        else:
+            wa = [1, 7.5, 14]
+        
+        name_fmt = '{sample}_18250eV_{time}s_{i}_wa{wa}'
+        t1 = time.time()
+        for wax in wa:
+            yield from bps.mv(waxs, wax)
+            sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+
+
+
+def wenkai_waxs_tensile_tender(t=1):
+    dets = [pil300KW]
+
+    names = 'Rxbai-P_S_loop1'
+    t0 = time.time()
+    for i in range(2000):
+        det_exposure_time(t,t) 
+
+        if waxs.arc.position > 5:
+            wa = [19.5, 13, 6.5, 0]
+        else:
+            wa = [0, 6.5, 13, 19.5]
+        
+        t1 = time.time()
+        for wax in wa:
+                name_fmt = '{sample}_2476.2eV_{time}s_{i}_wa{wa}'
+
+                yield from bps.mv(waxs, wax)
+                sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+
+def song_saxs_waxs_tensile_tender(t=1):
+    dets = [pil300KW]
+
+    names = 'P3HT_loop1_S'
+    t0 = time.time()
+    for i in range(2000):
+        det_exposure_time(t,t) 
+
+        if waxs.arc.position > 5:
+            wa = [19.5, 13, 6.5, 0]
+        else:
+            wa = [0, 6.5, 13, 19.5]
+        
+        t1 = time.time()
+        for wax in wa:
+            if energy.energy.position > 2475:
+                ener = [2478, 2470]
+            else:
+                ener = [2470, 2478]
+
+            for ene in ener:
+                name_fmt = '{sample}_{energy}eV_{time}s_{i}_wa{wa}'
+                yield from bps.mv(energy, ene)
+
+                yield from bps.mv(waxs, wax)
+                sample_name = name_fmt.format(sample=names, energy='%6.2f'%ene , time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+
+def wenkai_saxs_waxs_tensile_hard(t=1):
+    dets = [pil300KW, pil1M]
+
+    names = 'PF-T2PO1_loop1'
+    t0 = time.time()
+    for i in range(2000):
+        det_exposure_time(t,t) 
+
+        if waxs.arc.position > 5:
+            wa = [13, 6.5, 0]
+        else:
+            wa = [0, 6.5, 13]
+        
+        name_fmt = '{sample}_14000eV_{time}s_{i}_wa{wa}'
+        t1 = time.time()
+        for wax in wa:
+            yield from bps.mv(waxs, wax)
+            sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+
+def wenkai_saxs_waxs_tensile_hard1(t=1):
+    dets = [pil300KW, pil1M]
+
+    names = 'Rxbai_P_loop3'
+    t0 = time.time()
+    for i in range(2000):
+        det_exposure_time(t,t) 
+
+        if i == 0:
+            wa = [1, 7.5, 14]
+
+            name_fmt = '{sample}_18250eV_{time}s_{i}_wa{wa}'
+            t1 = time.time()
+            for wax in wa:
+                yield from bps.mv(waxs, wax)
+                sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+        
+        t1 = time.time()
+        
+        if t1-t0 > 750 and t1-t0 < 1050:
+            if waxs.arc.position > 5:
+                wa = [14, 7.5, 1]
+            else:
+                wa = [1, 7.5, 14]
+
+            name_fmt = '{sample}_18250eV_{time}s_{i}_wa{wa}'
+            t1 = time.time()
+            for wax in wa:
+                yield from bps.mv(waxs, wax)
+                sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+        
+        else:
+            wa = [1]
+            name_fmt = '{sample}_18250eV_{time}s_{i}_wa{wa}'
+            t1 = time.time()
+            for wax in wa:
+                yield from bps.mv(waxs, wax)
+                sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+            
+            time.sleep(25)
+            
+
+
+
+def song_saxs_waxs_tensile_hard1(t=1, names='test'):
+    dets = [pil300KW, pil1M]
+
+    det_exposure_time(t,t) 
+
+    if waxs.arc.position > 5:
+        wa = [14, 7.5, 1]
+    else:
+        wa = [1, 7.5, 14]
+        
+    name_fmt = '{sample}_18250eV_wa{wa}'
+    for wax in wa:
+        yield from bps.mv(waxs, wax)
+        sample_name = name_fmt.format(sample=names, wa = '%2.1f'%wax)
+        sample_id(user_name='GF', sample_name=sample_name)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.count(dets, num=1)
+
+
+
 def song_waxs_new(t=1):
     dets = [pil300KW, pil1M]
 
@@ -112,6 +307,117 @@ def song_waxs_new(t=1):
     #         sample_id(user_name='GF', sample_name=sample_name)
     #         print(f'\n\t=== Sample: {sample_name} ===\n')
     #         yield from bp.count(dets, num=1)
+
+
+def song_waxs_2020_3(t=1):
+    dets = [pil300KW, pil1M]
+
+    waxs_arc = np.linspace(19.5, 19.5, 1)
+    del_y = [-500, 500, 3]
+
+    yield from bps.mv(stage.th, 0)
+    yield from bps.mv(stage.y, 0)
+    names = ['A1', 'A2', 'A3', 'A4', 'A5', 'B1', 'B2', 'B3', 'B4', 'B5', 'C1', 'C2', 'C3', 'C4', 'C5', 'D1', 'D2',
+    'D3', 'D4', 'D5', 'E1', 'E2', 'E3', 'E4', 'E5', 'F1', 'F2', 'F3', 'F4', 'F5', 'G1', 'G2', 'G3']
+    x = [43200, 37500, 32400, 27000, 21700, 16700, 11700,  6700,  1700, -3300, -8300, -13300, -18400, -23300, -28500, -34500, -40700, 
+    44000, 39000, 34000, 28200, 22700, 17000, 11000, 5300, -500, -6400, -12100, -17900, -23300, -29000, -35200, -41200]
+    y = [-7800, -7800, -7800, -7800, -7800, -7800, -7800, -7800, -7800, -7800, -7800, -7800,  -7800,  -7800,  -7800,  -7800,  -7800,
+    4500,  4500,  4300,  4500,  4500,  4500,  4500,  4500, 5400,  4500,  4500,   5100,   4500,   4700,   4700,  4700]
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        for name, xs, ys in zip(names, x, y):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+           
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_10_16100eV_wa{wax}_bpm{xbpm}'
+
+            bpm = xbpm2.sumX.value
+
+            sample_name = name_fmt.format(sample=name, wax = '%2.1f'%wa, xbpm = '%4.3f'%bpm)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.rel_scan(dets, piezo.x, *del_y)
+
+
+    # yield from bps.mv(stage.th, 1)
+    # yield from bps.mv(stage.y, -7)
+    # names = ['G4', 'H1', 'H2', 'H3', 'H4', 'H5']
+    # x = [43200, 36800, 30000, 24200, 17500, 10600]
+    # y = [-9000, -9000, -9000, -8900, -8900, -8500]
+
+    # for wa in waxs_arc:
+    #     yield from bps.mv(waxs, wa)
+    #     for name, xs, ys in zip(names, x, y):
+    #         yield from bps.mv(piezo.x, xs)
+    #         yield from bps.mv(piezo.y, ys)
+          
+    #         det_exposure_time(t,t) 
+    #         name_fmt = '{sample}_16100eV_wa{wax}_bpm{xbpm}'
+
+    #         bpm = xbpm2.sumX.value
+
+    #         sample_name = name_fmt.format(sample=name, wax = '%2.1f'%wa, xbpm = '%4.3f'%bpm)
+    #         sample_id(user_name='GF', sample_name=sample_name)
+    #         print(f'\n\t=== Sample: {sample_name} ===\n')
+    #         yield from bp.rel_scan(dets, piezo.x, *del_y)
+
+
+
+def song_waxs_Sedge_2020_3(t=1):
+    
+    yield from bps.mv(GV7.close_cmd, 1 )
+    yield from bps.sleep(5)
+    yield from bps.mv(GV7.close_cmd, 1 )
+
+    dets = [pil300KW]
+    waxs_arc = np.linspace(0, 19.5, 4)
+    energies = np.linspace(2460, 2490, 16)
+
+    yield from bps.mv(stage.th, 0)
+    yield from bps.mv(stage.y, 0)
+
+    names = ['A1', 'A2', 'A3', 'A4', 'A5', 'B1', 'B2', 'B3', 'B4', 'B5', 'C1', 'C2', 'C3', 'C4', 'C5', 'D1', 'D2',
+    'D3', 'D4', 'D5', 'E1', 'E2', 'E3', 'E4', 'E5', 'F1', 'F2', 'F3', 'F4', 'F5', 'G1', 'G2', 'G3']
+    x = [43300, 37500, 32150, 26600, 21600, 16600, 11600,  6500,  1500, -3500, -8300, -13300, -18650, -23800, -29000, -34500, -40950, 
+    44000, 38750, 33750, 28450, 22700, 16500, 11000, 5050, -250, -6400, -12100, -17900, -23300, -29000, -35450, -41200]
+    y = [-7300, -7300, -6800, -6800, -6800, -7000, -7000, -6500, -6500, -6700, -6700, -6700,  -6700,  -6500,  -7000,  -7000,  -7000,
+    5500,  5500,  5500,  5500,  5700,  5900,  5900,  5900, 6600,  6100,  5600,   6400,   5900,   5900,   6400,  6400]
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 500, 8)
+        xss = np.linspace(xs, xs + 250, 2)
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2475)
+            yield from bps.mv(energy, 2460)
+
 
 def waxs_zhang(t=2):
     dets = [pil300KW]

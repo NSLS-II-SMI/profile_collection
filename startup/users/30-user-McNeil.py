@@ -46,12 +46,8 @@ def waxs_S_edge_guil(t=1):
 def giwaxs_S_edge_chris(t=1):
     dets = [pil300KW]
     
-
-    # names = ['e1_01', 'e1_02', 'e1_03', 'e1_04', 'd1_01', 'd1_02', 'd1_03', 'd1_04', 'd1_05', 'd1_06']
-    # x = [56000, 45500, 34000, 22000, 11000, 0, -11000, -22500, -34000, -46000]
-    
-    names = ['d1_07', 'd1_08', 'd1_10', 'd1_11']
-    x = [55000, 42500, 31000, 19000]
+    names = ['F1_01', 'F1_02', 'F1_03', 'F1_04', 'G1_01', 'G1_02', 'G1_03']
+    x = [51000, 36000, 21000, 5000, -11000, -26000, -41000]
 
     energies = np.arange(2450, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist()
     waxs_arc = np.linspace(0, 39, 7)
@@ -68,10 +64,8 @@ def giwaxs_S_edge_chris(t=1):
 
         yield from alignement_gisaxs(angle = 0.4)
         
-        # yield from bps.mv(att2_9, 'Insert')
         yield from bps.mv(GV7.close_cmd, 1 )
         yield from bps.sleep(1)
-        # yield from bps.mv(att2_9, 'Insert')
         yield from bps.mv(GV7.close_cmd, 1 )
         yield from bps.sleep(1)
 
@@ -85,7 +79,13 @@ def giwaxs_S_edge_chris(t=1):
             det_exposure_time(t,t) 
             name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
             for e, xsss in zip(energies, xss): 
-                yield from bps.mv(energy, e)
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)
                 yield from bps.sleep(2)
 
                 yield from bps.mv(piezo.x, xsss)
@@ -164,16 +164,16 @@ def giwaxs_S_edge_chris_redo(t=1):
 
 
     
+
 def waxs_S_edge_chris_n(t=1):
     
     dets = [pil300KW]
     
 
-    names = ['b2_08', 'b2_09', 'b2_10', 'c2_01', 'c2_02', 'c2_03', 'c2_04', 'c2_05', 'c2_06', 'c2_07', 'c2_08']
-    x = [41500, 36300, 30900, 25600, 20200, 15200, 9700, 4700, -500, -5900, -11500]
-    y = [1000, 800, 800, 900, 800, 800, 600, 400, 500, 600, 500]
+    names = ['F2_01', 'F2_02', 'F2_03', 'F2_04', 'G2_01', 'G2_02', 'G2_03']
+    x = [42000, 35800, 29100, 23000, 17000, 10500, 3500]
+    y = [-3000, -2800, -3000, -3100, -2500, -3000, -2800]
 
-    
     energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist()
     waxs_arc = np.linspace(0, 39, 7)
 
@@ -194,7 +194,13 @@ def waxs_S_edge_chris_n(t=1):
             det_exposure_time(t,t) 
             name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
             for e, xsss, ysss in zip(energies, xss, yss): 
-                yield from bps.mv(energy, e)
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)
                 yield from bps.sleep(1)
 
                 yield from bps.mv(piezo.y, ysss)
@@ -210,115 +216,7 @@ def waxs_S_edge_chris_n(t=1):
             yield from bps.mv(energy, 2470)
             yield from bps.mv(energy, 2450)
 
-
-    dets = [pil300KW]
     
-
-
-    names = ['EH_static']
-    x = [-16700] 
-    y = [1000]
-
-    energies = [2450, 2470, 2475, 2500]
-    waxs_arc = np.linspace(0, 39, 7)
-
-    for name, xs, ys in zip(names, x, y):
-        yield from bps.mv(piezo.x, xs)
-        yield from bps.mv(piezo.y, ys)
-
-        for wa in waxs_arc:
-            yield from bps.mv(waxs, wa)    
-
-            det_exposure_time(t,t) 
-            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
-            for e in energies: 
-                yield from bps.mv(energy, e)
-                yield from bps.sleep(1)
-
-                bpm = xbpm2.sumX.value
-
-                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
-                sample_id(user_name='GF', sample_name=sample_name)
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                yield from bp.count(dets, num=1)
-
-            yield from bps.mv(energy, 2470)
-            yield from bps.mv(energy, 2450)
-
-    yield from bps.mv(energy, 2450)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2500)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2550)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2580)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2610)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2640)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2660)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2680)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2700)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2720)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2740)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2760)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2780)
-    yield from bps.sleep(5)
-    yield from bps.mv(energy, 2800)
-    yield from bps.sleep(5)
-    
-
-    dets = [pil300KW]
-
-    names = ['c2_04', 'c2_06', 'c2_08']
-    x = [10600, 400, -10400]
-    y = [600, 500, 500]
-    
-    energies = np.arange(2810, 2820, 5).tolist() + np.arange(2820, 2840, 0.5).tolist() + np.arange(2840, 2850, 1).tolist()
-    waxs_arc = np.linspace(0, 36, 5)
-
-    for name, xs, ys in zip(names, x, y):
-        yield from bps.mv(piezo.x, xs)
-        yield from bps.mv(piezo.y, ys)
-
-        yss = np.linspace(ys, ys + 1000, 52)
-
-        for wa in waxs_arc:
-            yield from bps.mv(waxs, wa)    
-
-            det_exposure_time(t,t) 
-            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
-            for e, ysss in zip(energies, yss): 
-                yield from bps.mv(energy, e)
-                yield from bps.sleep(1)
-
-                yield from bps.mv(piezo.y, ysss)
-
-                bpm = xbpm2.sumX.value
-
-                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
-                sample_id(user_name='GF', sample_name=sample_name)
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                yield from bp.count(dets, num=1)
-
-            yield from bps.mv(energy, 2830)
-            yield from bps.sleep(5)
-            yield from bps.mv(energy, 2810)
-            yield from bps.sleep(5)
-
-
-
-
-
-
-
     
 def waxs_S_edge_chris_night(t=1):
     dets = [pil300KW]

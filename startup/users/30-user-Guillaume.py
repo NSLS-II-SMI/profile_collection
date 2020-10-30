@@ -592,3 +592,820 @@ def batch_caps_yugang(t=1):
           
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3,0.3)
+
+
+
+def run_night_gui():
+    # proposal_id('2020_3', '307283_Zhang3')
+    # yield from song_waxs_Sedge_2020_3(1)
+
+    proposal_id('2020_3', '307283_Zhong2')
+    yield from waxs_S_edge_wenkai(1)
+
+    proposal_id('2020_3', '305401_Gomez2')
+    yield from NEXAFS_S_edge(0.5)
+    yield from gomez_S_edge(1)
+
+    proposal_id('2020_3', '000000_Su')
+    yield from Su_nafion_waxs_S_edge(1)
+    yield from Su_nafion_waxs_S_edge_extra(0.5)
+
+
+
+def song_waxs_Sedge_2020_3(t=1):
+    
+    yield from bps.mv(GV7.close_cmd, 1 )
+    yield from bps.sleep(5)
+    yield from bps.mv(GV7.close_cmd, 1 )
+
+    dets = [pil300KW]
+    waxs_arc = np.linspace(0, 19.5, 4)
+    energies = np.linspace(2460, 2490, 16)
+
+    yield from bps.mv(stage.th, 0)
+    yield from bps.mv(stage.y, 0)
+
+    names = ['G4', 'H1', 'H2', 'H3', 'H4', 'H5']
+    x = [44250, 38900, 32300, 26300, 20300, 14300]
+    y = [-2450, -2450, -2350, -2350, -2350, -2350]
+    z = [2700,  2700,  2700,   2700,  2700,  2700]
+
+    for name, xs, ys, zs in zip(names, x, y, z):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+        yss = np.linspace(ys, ys + 500, 8)
+        xss = np.linspace(xs, xs + 250, 2)
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2475)
+            yield from bps.mv(energy, 2460)
+
+
+
+
+def waxs_S_edge_wenkai(t=1):
+    
+    yield from bps.mv(GV7.close_cmd, 1 )
+    yield from bps.sleep(5)
+    yield from bps.mv(GV7.close_cmd, 1 )
+
+    dets = [pil300KW]
+
+    names = ['Rxbai-P', 'Rxbai-C']
+    x = [-9500, -16000]
+    y = [-2500, -2500]
+    z = [2700, 2700]
+
+    names = ['Rxbai-C']
+    x = [-16000]
+    y = [-2500]
+    z = [2700]
+    
+    energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist()
+    waxs_arc = np.linspace(19.5, 39, 4)
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1000, 29)
+        xss = np.array([xs, xs + 500])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)
+                
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='WZ', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+
+def NEXAFS_S_edge(t=0.5):
+    yield from bps.mv(GV7.close_cmd, 1 )
+    yield from bps.sleep(5)
+    yield from bps.mv(GV7.close_cmd, 1 )
+
+    yield from bps.mv(waxs, 52)
+    dets = [pil300KW]
+    names = ['sample1', 'sample2', 'sample3']
+    x = [9300, 3900, -2000]
+    y = [-2100, -2100, -1900]
+
+
+    energies = np.linspace(2430, 2500, 71)
+    
+    det_exposure_time(t,t) 
+    name_fmt = '{sample}_{energy}eV_xbpm{xbpm}'
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        for e in energies:                              
+            try: 
+                yield from bps.mv(energy, e)
+            except:
+                print('energy failed to move, sleep for 30 s')
+                yield from bps.sleep(30)
+                print('Slept for 30 s, try move energy again')
+                yield from bps.mv(energy, e)        
+            yield from bps.sleep(1)
+
+            sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%3.1f'%xbpm3.sumY.value)
+            sample_id(user_name='SR', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+        
+        yield from bps.mv(energy, 2470)
+        yield from bps.mv(energy, 2450)
+  
+
+def gomez_S_edge(t=1):
+
+    yield from bps.mv(GV7.close_cmd, 1 )
+    yield from bps.sleep(5)
+    yield from bps.mv(GV7.close_cmd, 1 )
+
+    dets = [pil300KW]
+
+    energies = [2456, 2464, 2472, 2477, 2478, 2479, 2490, 2492]
+    waxs_arc = np.linspace(0, 26, 5)
+
+    yield from bps.mv(stage.th, 0)
+    yield from bps.mv(stage.y, 0)
+
+    names = ['sample1', 'sample2', 'sample3']
+    x = [9100, 3700, -1800]
+    y = [-2100, -2100, -1900]
+    
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 400, 8)
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)   
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+def Su_nafion_waxs_S_edge(t=1):
+    dets = [pil300KW, pil1M]
+
+    yield from bps.mv(GV7.open_cmd, 1 )
+    yield from bps.sleep(5)
+    yield from bps.mv(GV7.open_cmd, 1 )
+
+    energies = 7 + np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist())
+    waxs_arc = np.linspace(19.5, 0, 4)
+
+    yield from bps.mv(stage.th, 1.5)
+    yield from bps.mv(stage.y, -9)
+
+    names = ['70nPA', '50nPA', '30nPA', '10nPA']
+    x = [42000, 19000, -3000, -27000]
+    y = [-9500, -9500, -9500,  -9000]
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1000, 15)
+        xss = np.linspace(xs, xs + 1000, 4)
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+    yield from bps.mv(stage.y, 0)
+    yield from bps.mv(stage.th, 0)
+    
+    names = ['Nafion_xl']
+    x = [-42800]
+    y = [-2500]
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1000, 15)
+        xss = np.linspace(xs, xs + 1000, 4)
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+
+
+def giwaxs_ashwant_(t=1):
+
+    samples = [ 'sample5.0per', 'sample7.5per', 'sample10per', 'sample15per', 'sample20per']
+    x_list = [43000, 26000, 7000, -13000, -32000]
+
+    waxs_arc = np.linspace(0, 19.5, 4)
+    angle = [0.45, 0.5]
+
+  # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    for x, sample in zip(x_list,samples):
+        yield from bps.mv(piezo.x, x)
+        yield from alignement_gisaxs(angle = 0.3)
+
+        # yield from bps.mv(att2_9, 'Insert')
+        # yield from bps.sleep(5)
+        # yield from bps.mv(att2_9, 'Insert')
+
+        ai0 = piezo.th.position
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            det_exposure_time(t, t) 
+            name_fmt = '{sample}_3.33keV_ai{angle}deg_wa{wax}'
+        
+            for an in angle:
+                yield from bps.mv(piezo.th, ai0 + an)
+                sample_name = name_fmt.format(sample=sample, angle='%3.3f'%an, wax = '%2.2d'%wa)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+
+def NEXAFS_Ag_edge(t=0.5):
+    yield from bps.mv(waxs, 52)
+
+    dets = [pil300KW]
+    energies = np.linspace(3330, 3450, 121)
+
+    name = 'nexafs_sample20per'
+
+    det_exposure_time(t,t) 
+    name_fmt = '{sample}_{energy}eV_xbpm{xbpm}'
+    for e in energies:                              
+        try: 
+            yield from bps.mv(energy, e)
+        except:
+            print('energy failed to move, sleep for 30 s')
+            yield from bps.sleep(30)
+            print('Slept for 30 s, try move energy again')
+            yield from bps.mv(energy, e)
+        yield from bps.sleep(1)
+        sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value)
+        sample_id(user_name='SR', sample_name=sample_name)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.count(dets, num=1)
+
+
+def Su_nafion_waxs_hard(t=1):
+    dets = [pil300KW, pil1M]
+
+    waxs_arc = np.linspace(0, 32.5, 6)
+
+    yield from bps.mv(stage.y, 0)
+    yield from bps.mv(stage.th, 0)
+
+    names = ['30nPA', '50nPA']
+    x = [12500, -15500]
+    y = [-300,  -300]
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)    
+        
+        for name, xs, ys in zip(names, x, y):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_16100eV_sdd8.3_wa{wax}'
+            sample_name = name_fmt.format(sample=name, wax = wa)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+    yield from bps.mv(stage.th, 1.5)
+    yield from bps.mv(stage.y, -8)
+    
+    names = ['70nPA', 'Nafion_xl']
+    x = [32000, 1000]
+    y = [-9000, -9000]
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)    
+        
+        for name, xs, ys in zip(names, x, y):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)  
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_16100eV_sdd8.3_wa{wax}'
+            sample_name = name_fmt.format(sample=name, wax = wa)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+
+def Su_nafion_waxs_S_edge_extra(t=1):
+    dets = [pil300KW, pil1M]
+
+    yield from bps.mv(GV7.open_cmd, 1 )
+    yield from bps.sleep(5)
+    yield from bps.mv(GV7.open_cmd, 1 )
+
+    energies = 7 + np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist())
+    waxs_arc = np.linspace(0, 19.5, 4)
+
+    yield from bps.mv(stage.th, 1.5)
+    yield from bps.mv(stage.y, -9)
+
+    names = ['70nPA_inverse', '50nPA_inverse', '30nPA_inverse', '10nPA_inverse']
+    x = [42000, 19000, -3000, -27000]
+    y = [-8500, -8500, -8500,  -8000]
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1000, 15)
+        xss = np.linspace(xs, xs + 1000, 4)
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+
+def run_Ca_Oskar_2020_3(t=1):
+    dets = [pil300KW, pil1M]
+
+    energies = [4030, 4040, 4042, 4044, 4046, 4048, 4050, 4052, 4054, 4056, 4058, 4060, 4070, 4075, 4080, 4105]
+    
+    det_exposure_time(t,t) 
+    name_fmt = '{sample}_{energy}eV_pos{posi}_wa{wa}_xbpm{xbpm}'
+    waxs_range = [0, 6.5, 13.0, 19.5, 26, 32.5]
+
+    det_exposure_time(t,t)
+
+    ypos = [0, 400, 3]    
+    for wa in waxs_range[::-1]:
+        yield from bps.mv(waxs, wa)
+        yield from bps.mv(stage.th, 0)
+        yield from bps.mv(stage.y, 0)
+
+        samples = ['J32_1', 'J32_2', 'J32_3', 'J33_1', 'J33_2', 'J33_3', 'J34_1', 'J34_2', 'J34_3', 'J34_4', 'J35_1', 'J35_2', 'J35_3', 'J35_4'][::-1]
+        x_list  = [45600, 41350, 34500, 29000, 19350, 15600, 11100,  6300, -7700, -13200, -19400, -27900, -35300, -42300]
+        y_list =  [-1400, -1400, -1400, -1400, -1400, -1400, -1400, -1400,  -600,  -1400,  -1400,  -1400,  -1400,  -1400]
+        z_list =  [ 4000,  4000,  4000,  4000,  4000,  4000,  4000,  4000,  4000,   4000,   4000,   4000,   4000,   4000]
+
+        for name, x, y, z in zip(samples, x_list, y_list, z_list):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            for k, e in enumerate(energies):                              
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
+
+                sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
+                sample_id(user_name='OS', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.rel_scan(dets, piezo.y, *ypos)
+                            
+            yield from bps.mv(energy, 4080)
+            yield from bps.mv(energy, 4055)
+            yield from bps.mv(energy, 4030)
+
+
+def run_Ca_Sintu_2020_3(t=1):
+    dets = [pil300KW]
+
+    det_exposure_time(t,t) 
+    waxs_range = [0, 6.5, 13.0]
+    energies = [4000, 4030, 4040, 4050, 4055, 4075, 4100]
+    det_exposure_time(t,t)
+
+    ypos = [0, 400, 3]    
+    for wa in waxs_range[::-1]:
+        yield from bps.mv(waxs, wa)
+        yield from bps.mv(stage.th, 2)
+        yield from bps.mv(stage.y, -13)
+    
+        samples = ['Ca', 'PL', 'PLC', 'PG3', 'PG2', 'PG1']
+        x_list = [-14400, -19800, -25800, -30800, -36300, -41800]
+        y_list = [ -9600,  -9700,  -9600,  -9700,  -9700,  -9700]
+        z_list = [  2700,   2700,   2700,   2700,   2700,   2700]
+
+        for name, x, y, z in zip(samples, x_list, y_list, z_list):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            for k, e in enumerate(energies):                              
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
+
+                sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
+                sample_id(user_name='OS', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.rel_scan(dets, piezo.y, *ypos)
+                            
+            yield from bps.mv(energy, 4080)
+            yield from bps.mv(energy, 4055)
+            yield from bps.mv(energy, 4030)
+
+
+    for wa in waxs_range[::-1]:
+        yield from bps.mv(waxs, wa)
+        yield from bps.mv(stage.th, 2)
+        yield from bps.mv(stage.y, -13)
+    
+        samples = ['O5Ca1', 'O5Ca2', 'O5Ca3']
+        x_list = [ 6500,   500, -6800]
+        y_list = [-9700, -9700, -9700]
+        z_list = [ 2700,  2700,  2700]
+
+        for name, x, y, z in zip(samples, x_list, y_list, z_list):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            xss = np.linspace(xs, xs + 1200, 6)
+            yss = np.linspace(ys, ys + 300, 6)
+
+            yss, xss = np.meshgrid(yss, xss)
+            yss = yss.ravel()
+            xss = xss.ravel()
+
+            xss1 = np.linspace(xs, xs + 1200, 6)
+            yss1 = np.linspace(ys +600, ys + 600 + 300, 6)
+
+            yss1, xss1 = np.meshgrid(yss1, xss1)
+            yss1 = yss1.ravel()
+            xss1 = xss1.ravel()
+
+            for k, e in enumerate(energies):                              
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                name_fmt = 'bigmap_{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
+
+                sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
+                sample_id(user_name='OS', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.rel_scan(dets, piezo.x, *xss, piezo.y, *yss)
+
+                name_fmt = 'smallmap_{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
+
+                sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
+                sample_id(user_name='OS', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.rel_scan(dets, piezo.x, *xss1, piezo.y, *yss1)
+                            
+            yield from bps.mv(energy, 4080)
+            yield from bps.mv(energy, 4055)
+            yield from bps.mv(energy, 4030)
+        
+        dets = [pil300KW]
+        yield from bps.mv(waxs, 52)
+        yield from bps.mv(stage.th, 2)
+        yield from bps.mv(stage.y, -13)
+
+
+def run_Ca_esther_2020_3(t=1):
+    proposal_id('2020_3', '000000_Esther')
+
+    dets = [pil300KW]
+
+    det_exposure_time(t,t) 
+    waxs_range = [0, 6.5, 13.0, 19.5, 26]
+    energies = [4030, 4040, 4042, 4044, 4046, 4048, 4050, 4052, 4054, 4056, 4058, 4060, 4070, 4075, 4080, 4105]
+    det_exposure_time(t,t)
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        yield from bps.mv(stage.th, 2)
+        yield from bps.mv(stage.y, -13)
+    
+        samples = ['sample9']
+        x_list = [-45400]
+        y_list = [ -9700]
+        z_list = [  2700]
+
+        for name, x, y, z in zip(samples, x_list, y_list, z_list):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            ys = np.linspace(y, y + 800, 16)
+
+            for k, (e, yy) in enumerate(zip(energies, ys)):
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+                yield from bps.mv(piezo.y, yy)
+
+                name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
+
+                sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
+                sample_id(user_name='OS', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+                            
+            yield from bps.mv(energy, 4080)
+            yield from bps.mv(energy, 4055)
+            yield from bps.mv(energy, 4030)
+
+
+        dets = [pil300KW]
+        yield from bps.mv(waxs, 52)
+        yield from bps.mv(stage.th, 2)
+        yield from bps.mv(stage.y, -13)
+        
+
+        yield from bps.mv(att2_10, 'Retract')
+        yield from bps.sleep(1)
+        yield from bps.mv(att2_10, 'Retract')
+        yield from bps.sleep(1)
+
+        yield from bps.mv(GV7.close_cmd, 1 )
+        yield from bps.sleep(5)
+        yield from bps.mv(GV7.close_cmd, 1 )
+        yield from bps.sleep(5)
+
+
+        energies = np.linspace(4030, 4150, 121)
+        det_exposure_time(0.5, 0.5) 
+        name_fmt = 'nexafs_{sample}_{energy}eV_xbpm{xbpm}'
+        
+
+        samples = ['sample9']
+        x_list = [-45400]
+        y_list = [ -9700]
+        z_list = [  2700]
+
+        for name, x, y, z in zip(samples, x_list, y_list, z_list):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+            for e in energies:                              
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value)
+                RE.md['filename'] = sample_name
+                sample_id(user_name='OS', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 4125)
+            yield from bps.mv(energy, 4100)        
+            yield from bps.mv(energy, 4075)
+            yield from bps.mv(energy, 4050)
+            yield from bps.mv(energy, 4030)
+
+
+        proposal_id('2020_3', '305401_Gomez4')
+        energies = np.linspace(4030, 4150, 121)
+        det_exposure_time(0.5, 0.5) 
+        name_fmt = 'nexafs_{sample}_{energy}eV_xbpm{xbpm}'
+        
+        samples = ['Ca', 'PL', 'PLC', 'PG3', 'PG2', 'PG1']
+        x_list = [-14400, -19800, -25800, -30800, -36300, -41800]
+        y_list = [ -9600,  -9700,  -9600,  -9700,  -9700,  -9700]
+        z_list = [  2700,   2700,   2700,   2700,   2700,   2700]
+
+        for name, x, y, z in zip(samples, x_list, y_list, z_list):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+            for e in energies:                              
+                try: 
+                    yield from bps.mv(energy, e)
+                except:
+                    print('energy failed to move, sleep for 30 s')
+                    yield from bps.sleep(30)
+                    print('Slept for 30 s, try move energy again')
+                    yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value)
+                RE.md['filename'] = sample_name
+                sample_id(user_name='OS', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 4125)
+            yield from bps.mv(energy, 4100)        
+            yield from bps.mv(energy, 4075)
+            yield from bps.mv(energy, 4050)
+            yield from bps.mv(energy, 4030)
+
+
+def run_night_Ca(t = 1):
+    yield from run_Ca_Oskar_2020_3(t)
+
+    yield from run_Ca_Sintu_2020_3(t)
+
+    yield from run_Ca_esther_2020_3(t)
+    

@@ -370,7 +370,7 @@ class SMI_SAXS_Det(object):
             smi_saxs_detector.ybs_mask.put(10)
 
         else:
-            smi_saxs_detector.bs_kind.put('None')
+            yield from bps.mv(smi_saxs_detector.bs_kind, 'None')
 
             # To be implemented with the good values, not hard-coded
             smi_saxs_detector.xbs_mask.put(10)
