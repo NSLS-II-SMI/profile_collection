@@ -1104,13 +1104,13 @@ def Su_nafion_waxs_S_edge_extra(t=1):
 
 
 def run_Ca_Oskar_2020_3(t=1):
-    dets = [pil300KW, pil1M]
+    dets = [pil300KW]
 
     energies = [4030, 4040, 4042, 4044, 4046, 4048, 4050, 4052, 4054, 4056, 4058, 4060, 4070, 4075, 4080, 4105]
     
     det_exposure_time(t,t) 
     name_fmt = '{sample}_{energy}eV_pos{posi}_wa{wa}_xbpm{xbpm}'
-    waxs_range = [0, 6.5, 13.0, 19.5, 26, 32.5]
+    waxs_range = [0, 6.5, 13.0, 19.5, 26]
 
     det_exposure_time(t,t)
 
@@ -1124,6 +1124,11 @@ def run_Ca_Oskar_2020_3(t=1):
         x_list  = [45600, 41350, 34500, 29000, 19350, 15600, 11100,  6300, -7700, -13200, -19400, -27900, -35300, -42300]
         y_list =  [-1400, -1400, -1400, -1400, -1400, -1400, -1400, -1400,  -600,  -1400,  -1400,  -1400,  -1400,  -1400]
         z_list =  [ 4000,  4000,  4000,  4000,  4000,  4000,  4000,  4000,  4000,   4000,   4000,   4000,   4000,   4000]
+
+        samples = ['J32_1', 'J32_2'][::-1]
+        x_list  = [-35300, -42300]
+        y_list =  [-1400, -1400]
+        z_list =  [ 4000,  4000]
 
         for name, x, y, z in zip(samples, x_list, y_list, z_list):
             yield from bps.mv(piezo.x, x)
@@ -1153,6 +1158,11 @@ def run_Ca_Oskar_2020_3(t=1):
 
 
 def run_Ca_Sintu_2020_3(t=1):
+    yield from bps.mv(GV7.close_cmd, 1 )
+    yield from bps.sleep(5)
+    yield from bps.mv(GV7.close_cmd, 1 )
+    yield from bps.sleep(5)
+    
     dets = [pil300KW]
 
     det_exposure_time(t,t) 
