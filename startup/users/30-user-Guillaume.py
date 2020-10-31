@@ -1125,11 +1125,6 @@ def run_Ca_Oskar_2020_3(t=1):
         y_list =  [-1400, -1400, -1400, -1400, -1400, -1400, -1400, -1400,  -600,  -1400,  -1400,  -1400,  -1400,  -1400]
         z_list =  [ 4000,  4000,  4000,  4000,  4000,  4000,  4000,  4000,  4000,   4000,   4000,   4000,   4000,   4000]
 
-        samples = ['J32_1', 'J32_2'][::-1]
-        x_list  = [-35300, -42300]
-        y_list =  [-1400, -1400]
-        z_list =  [ 4000,  4000]
-
         for name, x, y, z in zip(samples, x_list, y_list, z_list):
             yield from bps.mv(piezo.x, x)
             yield from bps.mv(piezo.y, y)
@@ -1223,15 +1218,15 @@ def run_Ca_Sintu_2020_3(t=1):
             yield from bps.mv(piezo.y, y)
             yield from bps.mv(piezo.z, z)
 
-            xss = np.linspace(xs, xs + 1200, 6)
-            yss = np.linspace(ys, ys + 300, 6)
+            xss = np.linspace(x, x + 1200, 6)
+            yss = np.linspace(y, y + 300, 6)
 
             yss, xss = np.meshgrid(yss, xss)
             yss = yss.ravel()
             xss = xss.ravel()
 
-            xss1 = np.linspace(xs, xs + 1200, 6)
-            yss1 = np.linspace(ys +600, ys + 600 + 300, 6)
+            xss1 = np.linspace(x, x + 600, 6)
+            yss1 = np.linspace(y + 600, y + 600 + 150, 6)
 
             yss1, xss1 = np.meshgrid(yss1, xss1)
             yss1 = yss1.ravel()
@@ -1265,11 +1260,6 @@ def run_Ca_Sintu_2020_3(t=1):
             yield from bps.mv(energy, 4055)
             yield from bps.mv(energy, 4030)
         
-        dets = [pil300KW]
-        yield from bps.mv(waxs, 52)
-        yield from bps.mv(stage.th, 2)
-        yield from bps.mv(stage.y, -13)
-
 
 def run_Ca_esther_2020_3(t=1):
     proposal_id('2020_3', '000000_Esther')
@@ -1331,12 +1321,6 @@ def run_Ca_esther_2020_3(t=1):
         yield from bps.sleep(1)
         yield from bps.mv(att2_10, 'Retract')
         yield from bps.sleep(1)
-
-        yield from bps.mv(GV7.close_cmd, 1 )
-        yield from bps.sleep(5)
-        yield from bps.mv(GV7.close_cmd, 1 )
-        yield from bps.sleep(5)
-
 
         energies = np.linspace(4030, 4150, 121)
         det_exposure_time(0.5, 0.5) 
