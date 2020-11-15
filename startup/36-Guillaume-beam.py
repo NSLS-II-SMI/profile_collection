@@ -296,7 +296,7 @@ class SMI_Beamline(Beamline):
             self.pressure_state = 'in-vacuum'
         else:
             try: 
-                pres = np.float(waxs_pressure.ch1_read.get())
+                pres = np.float(chamber_pressure.waxs.get())
                 if pres < 1E-02:
                     self.pressure_state = 'in-vacuum'
                 else:
