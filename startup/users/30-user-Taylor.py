@@ -1,6 +1,51 @@
 import numpy as np
      
-     
+def run_giwaxs_2020_3( t=.5  ): #2020C1
+    # define names of samples on sample bar
+
+    sample_list = ['JM_1', 'JM_2', 'JM_3', 'JM_4', 'JM_5', 'JM_6', 'JM_7', 'JM_8'] 
+    x_list = [      53000,  39000,  24000,   9000,  -5500,  -2100, -35000, -49000]
+    
+    assert len(x_list) == len(sample_list), f'Sample name/position list is borked'
+    angle_arc = np.array([0.08, 0.10, 0.12, 0.30]) # incident angles
+    waxs_angle_array = np.linspace(0, 19.5, 4) #(0, 18, 4)   # q=4*3.14/0.77*np.sin((max angle+3.5)/2*3.14159/180)
+                                               # if 12, 3: up to q=2.199
+                                               # if 18, 4: up to q=3.04
+    
+    dets = [pil300KW] # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]    
+    for x, sample in zip(x_list,sample_list): #loop over samples on bar
+
+        yield from bps.mv(piezo.x, x) #move to next sample  
+        yield from alignement_gisaxs(0.1) #run alignment routine        
+
+        th_meas = angle_arc + piezo.th.position #np.array([0.10 + piezo.th.position, 0.20 + piezo.th.position])
+        th_real = angle_arc
+
+        det_exposure_time(t,t) 
+        x_meas = x
+
+        for waxs_angle in waxs_angle_array:
+            yield from bps.mv(waxs, waxs_angle)
+            for i, th in enumerate(th_meas): #loop over incident angles
+                yield from bps.mv(piezo.th, th)                
+                # for jj in [  0 ]: # repeated measurements at different x
+                #     if i==0 and jj==0:
+                #         x_meas = x_meas + 200   # shift a bit in x
+                #     else:
+                #         x_meas = x_meas + 200   # shift a bit in x
+                yield from bps.mv(piezo.x, x_meas + i * 200) 
+                
+                sample_name = '{sample}_deg{th:5.3f}_x{x}_waxs{waxs_angle:05.2f}_{t}s'.format(sample = sample, th=th_real[i], x=x_meas, waxs_angle=waxs_angle, t=t)
+                sample_id(user_name='AT', sample_name=sample_name) 
+                print(f'\n\t=== Sample: {sample_name} ===\n')                        
+                        
+                #yield from bp.scan(dets, energy, e, e, 1)
+                #yield from bp.scan(dets, waxs, *waxs_arc)
+                yield from bp.count(dets, num=1)
+                    
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5)    
      
 
 def run_giwaxs( t=.5  ): #2020C1
@@ -30,7 +75,7 @@ def run_giwaxs( t=.5  ): #2020C1
         th_meas = angle_arc + piezo.th.position #np.array([0.10 + piezo.th.position, 0.20 + piezo.th.position])
         th_real = angle_arc	
         det_exposure_time(t,t) 
-        x_meas = x;
+        x_meas = x
         for waxs_angle in waxs_angle_array:
             yield from bps.mv(waxs, waxs_angle)
             for i, th in enumerate(th_meas): #loop over incident angles

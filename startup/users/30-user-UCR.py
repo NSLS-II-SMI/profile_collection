@@ -64,3 +64,36 @@ def run_mesh_fastUCI(t=1):
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3,0.3)
+
+
+
+
+
+def mesh_UCI_2020_3(t=1): 
+    waxs_range = [0, 6.5, 13, 19.5, 26]
+    name = 'TW'
+    dets = [pil300KW]
+    det_exposure_time(t,t)
+    
+    
+    samples = [    'T1',           'T2',           'T3']
+    x_list = [    10270,           2715,          -3465]
+    y_list = [    -1440,          -1860,          -1800]
+    x_range=[ [0, 450, 19],  [0, 375, 17],  [0, 375, 16]]
+    y_range=[[0, 400, 201], [0, 400, 201], [0, 500, 251]]
+    
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    for x, y, sample, x_r, y_r in zip(x_list, y_list, samples, x_range, y_range):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        for wa in waxs_range:
+            yield from bps.mv(waxs, wa)
+            name_fmt = '{sam}_wa{waxs}'
+            sample_name = name_fmt.format(sam=sample, waxs='%2.1f'%wa)
+            sample_id(user_name=name, sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)

@@ -1,4 +1,24 @@
-
+def run_caps_fastRPI(t=1): 
+    x_list  = [ 6908,13476,19764,26055]#
+    # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    waxs_range = np.linspace(0, 45.5, 8)
+    samples = [    'LC-O38-6-100Cto40C', 'LC-O37-7-100Cto40C', 'LC-O36-9-100Cto40C', 'LC-O35-8-100Cto40C']
+    #    param   = '16.1keV'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    det_exposure_time(t,t)
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x in zip(samples, x_list):
+            yield from bps.mv(piezo.x, x)            
+            name_fmt = '{sam}_wa{waxs}'
+            sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
+            sample_id(user_name=user, sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+          
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5) 
 
 
 def run_saxs_capsRPI(t=1): 
@@ -36,48 +56,82 @@ def run_saxs_capsRPI(t=1):
 
 def run_waxs_fastRPI(t=1):
 
-    xlocs = [-20600,-14600,-6600, 1400,7600,14000,21500,28500,33900,39900, -34600,-25100,-15100,-6100,2900,12900,21900,31900,41900]
-    y_top = -9300
-    y_bot = 8100
-    ylocs = [y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,   y_top,y_top,y_top,y_top,y_top,y_top,y_top,y_top,y_top]
-    ## A rack
-    # names = ['A_EPTD_40_y0.6','A_EPTD_40_y0.5','A_EPTD_40_y0.4','A_EPTD_40_y0.3','A_EPTD_40_y0.2','A_EPTD_40_y0.1','A_EPTD_40_y0.0','A_EPTD_40_y1.0','A_EPTD_40_y0.9',
-    #         'A_EPTD_100_y0.8','A_EPTD_100_y0.7','A_EPTD_100_y0.6','A_EPTD_100_y0.5','A_EPTD_100_y0.4','A_EPTD_100_y0.3','A_EPTD_100_y0.2','A_EPTD_100_y0.1', 'A_EPTD_100_y0.0']
     
-    ## C rack
-    # names = ['C_EITD_y0.6','C_EITD_y0.5','C_EITD_y0.4','C_EITD_y0.3','C_EITD_y0.2','C_EITD_y0.1','C_EITD_y0.0','C_EITD_y1.0','C_EITD_y0.9',
-    #        'C_EIT_y0.8','C_EIT_y0.7','C_EIT_y0.6','C_EPTD_20_y1.0','C_EPTD_20_y0.9','C_EPTD_20_y0.8','C_EPTD_20_y0.7','C_EPTD_20_0.6', 'C_EPTD_20_y0.5']
+    #        1      2      3      4      5      6      7      8      9      10
+    xlocs = [ 44000, 41700, 38100, 34600, 31400, 27200, 23800, 19700, 15100, 11300,
+               7300,  4200, -3300, -7100,-10500, -14800,-18800,-22700,-27000]
+    #        1      2       3     4      5      6      7      8      9      10
+
+    y_top = 1500
+    y_bot = 8800
     
-    ## D rack    
-    # names = ['D_ETTD_y0.8','D_ETTD_y0.7','D_ETTD_y0.6','D_ETTD_y0.5','D_ETTD_y0.4','D_ETTD_y0.3','D_ETTD_y0.2','D_ETTD_y0.1','D_ETTD_y0.0',
-    #       'D_ETT_x1.0','D_ETT_x0.9','D_ETT_x0.8','D_ETT_x0.7','D_ETT_x0.6','D_EITD_y1.0','D_EITD_y0.9','D_EITD_y0.8', 'D_EITD_y0.7']
+    #        1      2      3      4      5      6      7      8      9     10
+    ylocs = [y_top, y_top, y_top, y_top, y_top, y_top, y_top, y_top, y_top, y_top,
+            0, y_top, y_top, y_top, y_top, y_top, y_top, y_top, y_top]
+    #        1      2      3      4      5      6      7      8      9     10
+
+    ## A rack-Vapor
+    # names = ['A_Blank_Vapor_', 'A_QAS7C_Vapor_', 'A_QAS9C_Vapor_', 'A_QAS10C_Vapor_', 'A_QAS11C_Vapor_', 'A_QAT1C_Vapor_broken_', 'A_QAT2C_Vapor_', 'A_QAT3C_Vapor_', 'A_QAT4C_Vapor_', 'A_QAT5C_Vapor_',
+    #         'A_QAT6C_Vapor_', 'A_QAT7C_Vapor_', 'A_QAS9CP_Vapor_', 'A_QAS10CP_Vapor_', 'A_QAS11CP_Vapor_', 'A_QAT3CP_Vapor_', 'A_QAT5CP_Vapor_', 'A_QAT6CP_Vapor_', 'A_QAT7CP_Vapor_']
+
+    ## A rack-Water
+    names = ['A_Blank_Water_', 'A_QAS7C_Water_', 'A_QAS9C_Water_', 'A_QAS10C_Water_', 'A_QAS11C_Water_', 'A_QAT1C_Water_mostly_vapor_broken_', 'A_QAT2C_Water_', 'A_QAT3C_Water_', 'A_QAT4C_Water_', 'A_QAT5C_Water_',
+             'A_QAT6C_Water_', 'A_QAT7C_Water_', 'A_QAS9CP_Water_', 'A_QAS10CP_Water_', 'A_QAS11CP_Water_', 'A_QAT3CP_Water_', 'A_QAT5CP_Water_', 'A_QAT6CP_Water_', 'A_QAT7CP_Water_']
+
+    ## B rack 11/10/2020 - Done
+    # names = ['B_re_CT_QAS7_', 'B_re_CT_QAS9_', 'B_re_CT_QAS10_', 'B_re_CT_QAS11_',
+    #         'B_re_CT_QAT1_', 'B_re_CT_QAT2_', 'B_re_CT_QAT3_', 'B_re_CT_QAT4_', 'B_re_CT_QAT5_', 'B_re_CT_QAT6_', 'B_re_CT_QAT7_']
+
+    ## C rack 11/10/2020 - Done
+    # names = ['C_re_CT_PS_', 'C_re_CT_DPES_', 'C_re_CT_DPEtBS_', 'C_re_CT_BrS7_', 'C_re_CT_BrS9_', 'C_re_CT_BrS10_', 'C_re_CT_BrS11_', 'C_re_CT_BrS8_',
+    #         'C_re_CT_BrT1_', 'C_re_CT_BrT2_', 'C_re_CT_BrT3_', 'C_re_CT_BrT4_', 'C_re_CT_BrT5_', 'C_re_CT_BrT6_', 'C_re_CT_BrT7_']
     
-    ## E rack    
-    # names = ['E_EXTD_y1.0','E_EXTD_y0.9','E_EXTD_y0.8','E_EXTD_y0.7','E_EXTD_y0.6','E_EXTD_y0.5','E_EXTD_y0.4','E_EXTD_y0.3','E_EXTD_y0.2',
-    #       'E_EXTD_y0.1','E_EXTD_y0.0','E_EXT_x1.0','E_EXT_x0.9','E_EXT_x0.8','E_EXT_x0.7','E_EXT_x0.6','E_ETTD_y1.0','E_ETTD_y0.9']
+    ## D rack 11/10/2020 - Done 
+    # names = ['D_EPTD_N00_S_', 'D_EPTD_N01_S_', 'D_EPTD_N02_S_', 'D_EPTD_N03_S_', 'D_EPTD_N04_S_', 'D_EPTD_N05_S_', 'D_EPTD_N06_S_', 'D_EPTD_N07_S_',
+    #           'D_EPTD_N08_S_',
+    #           'D_EPTD_N09_S_', 'D_EPTD_N10_S_', 'D_ETTD_N00_S_', 'D_ETTD_N01_S_', 'D_ETTD_N02_S_', 'D_ETTD_N03_S_', 'D_ETTD_N04_S_',
+    #           'D_ETTD_N05_S_', 'D_ETTD_N06_S_']
     
-    ## B rack    
-    names = ['B_EPTD_e1.0','B_EPTD_e0.9','B_EPTD_e0.8','B_EPTD_e0.7','B_EPTD_e0.6','B_EPT_e1.0','B_EPT_e0.9','B_EPT_e0.8','B_EPT_e0.7','B_EPT_e0.6',
-          'B_EPTD_20_y0.4','B_EPTD_20_y0.3','B_EPTD_20_y0.2','B_EPTD_20_y0.1','B_EPTD_20_y0.0','B_EPTD_40_y1.0','B_EPTD_40_y0.9','B_EPTD_40_y0.8','B_EPTD_40_y0.7']
+    ## E rack 11/10/2020 - Done
+    # names = ['E_ETTD_N07_S_', 'E_ETTD_N08_S_', 'E_ETTD_N09_S_', 'E_ETTD_N10_S_', 'E_m01_60C_n00_S_', 'E_m01_60C_n01_S_', 'E_m01_60C_n02_S_', 'E_m01_60C_n03_S_', 'E_m01_60C_n04_S_',
+    #           'E_m01_60C_n05_S_', 'E_m01_60C_n06_S_', 'E_m01_60C_n07_S_', 'E_m01_60C_n08_S_', 'E_m01_60C_n09_S_', 'E_m01_60C_n10_S_', 'E_m02_60C_n00_S_', 'E_m02_60C_n01_S_', 'E_m02_60C_n02_S_']
+    
+    ## F rack 11/10/2020 - Done  
+    #names = ['F_m02_60C_n03_S_', 'F_m02_60C_n04_S_', 'F_m02_60C_n05_S_', 'F_m02_60C_n06_S_', 'F_m02_60C_n07_S_', 'F_m02_60C_n08_S_', 'F_m02_60C_n09_S_', 'F_m02_60C_n10_S_', 'F_m02_100C_n00_S_',
+    #          'F_m02_100C_n01_S_', 'F_m02_100C_n02_S_', 'F_m02_100C_n03_S_', 'F_m02_100C_n04_S_', 'F_m02_100C_n05_S_', 'F_m02_100C_n06_S_', 'F_m02_100C_n07_S_', 'F_m02_100C_n08_S_', 'F_m02_100C_n09_S_']
+
+    ## G rack 11/10/2020 - Done
+    #names = ['G_m02_100C_n10_S_', 'G_m02_140C_n00_S_', 'G_m02_140C_n01_S_', 'G_m02_140C_n02_S_', 'G_m02_140C_n03_S_', 'G_m02_140C_n04_S_',
+    #         'G_m02_140C_n05_S_', 'G_m02_140C_n06_S_', 'G_m02_140C_n07_S_', 'G_m02_140C_n08_S_', 'G_m02_140C_n09_S_', 'G_m02_140C_n10_S_']
+    
+    ## G rack - Epoxy Raw Materials 11/10/2020 - Done
+    # names = ['G_TETA_', 'G_D-230_', 'G_T3000_', 'G_EPON828_', 'G_Blank_cap_1_5mm_invacuum_', 'G_blank_vacuum_',
+    #         'G_TETA_', 'G_D-230_', 'G_T3000_', 'G_EPON828_', 'G_Blank_cap_1_5mm_invacuum_', 'G_blank_vacuum_',]
     
     
-    x_off = [-1000, 0, 1000]
-    y_off = [-500, 500] 
+    
+    # Test-Blank 11/10/2020   
+    # names = ['Test_']
+
+    x_off = [0]
+    y_off = [-400, -200, 200, 400] 
+    
+    # x_off = [-1000, 0, 1000]
+    # y_off = [-500, 500] 
+    
+
+
     user = 'SL'    
     det_exposure_time(t,t)     
     
-    assert len(xlocs) == len(names), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    
+
+    #Check if the length of xlocs, ylocs and names are the same 
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})'
+    assert len(xlocs) == len(ylocs), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(ylocs)})'
+
     # Detectors, motors:
     dets = [pil1M, pil300KW]
     waxs_range = np.linspace(0, 45.5, 8)
-    
-    #yield from bps.mv(GV7.open_cmd, 1 )
-    #yield from bps.sleep(10)
-    #yield from bps.mv(GV7.open_cmd, 1 )
-    #yield from bps.sleep(10)
-    #yield from bps.mv(GV7.open_cmd, 1 )
-    #yield from bps.sleep(10)
     
     for wa in waxs_range:
         yield from bps.mv(waxs, wa)

@@ -4,6 +4,50 @@ def run_saxs_nexafs_greg(t=1):
     yield from saxs_prep_multisample(t=0.5)
 
 
+
+
+def saxs_Matt_2020_3(t=1): 
+    xlocs = [44000, 34000, 23000, 13000,  3000, -8000, -19000, -30000, -40000, 44000, 34000, 22000, 10000, -1000, -14000]
+    ylocs = [-6600, -6600, -6600, -6600, -6000, -6000,  -6000,  -6000,  -6000,  6200,  6200,  6200,  6200,  6200,   6200]
+    zlocs = [ 2700,  2700,  2700,  2700,  2700,  2700,   2700,   2700,   2700,  2700,  2700,  2700,  2700,  2700,   2700]
+    names = ['MWET_01', 'MWET_02', 'MWET_03', 'MWET_04', 'MWET_05', 'MWET_06', 'MWET_07', 'MWET_08', 'MWET_09', 'MWET_10', 'MWET_11', 'MWET_12', 'MWET_13', 
+    'MWET_14', 'MWET_15']
+
+    xlocs = [-26000]
+    ylocs = [6200]
+    zlocs = [2700]
+    names = ['bkg']
+
+    user = 'LC'    
+    det_exposure_time(t,t)     
+    
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})'
+    
+    # Detectors, motors:
+    dets = [pil1M]
+    waxs_range = np.linspace(26, 26, 1)
+    #waxs_range = np.linspace(32.5, 32.5, 1)
+
+    ypos = [-200, 200, 3]
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z in zip(names, xlocs, ylocs, zlocs):
+            yield from bps.mv(piezo.x, x)            
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            name_fmt = '{sam}_stats1_16.1keV_sdd8.3m_wa{waxs}'
+            sample_name = name_fmt.format(sam=sam,  waxs='%2.1f'%wa)
+            sample_id(user_name=user, sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num = 50)
+            yield from bps.sleep(2)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3) 
+
+
 def nexafs_prep_multisample_greg(t=1):
 
     yield from bps.mv(stage.y, -5.5)
