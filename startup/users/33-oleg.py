@@ -31,7 +31,43 @@ def brian_caps(t=1):
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3,0.3)
 
+def brian_caps_2020_3(t=1): 
+    # samples = ['buffer1', 'GB01', 'GB02', 'GB03', 'GB04', 'GB05', 'GB06', 'GB08', 'GB09', 'GB10', 'GB11', 'GB12']
+    # samples = ['Y01', 'Y02', 'Y03', 'Y04', 'Y05', 'Y06']
 
+    # x_list = [-22300, -18600, -11000, -4500, 2300, 8500, 14500, 21000, 27500, 33800, 40300, 46700]
+    # y_list = [2500,     2500,   2500,  2500, 2500, 2500,  2500,  2500,  2500,  2500,  2500,  2500]
+    # z_list = [4000,     2500,   2500,  2500, 2500, 2500,  2500,  2500,  2500,  2500,  2500,  2500]
+
+    samples = ['S1_43', 'S1_44', 'S1_45', 'S1_46', 'S1_47', 'S1_48', 'S1_49', 'S1_50', 'S1_51', 'S1_52', 'S1_53', 'S1_54', 'S1_55', 'S1_56', 'S1_57',
+    'S1_58', 'S1_59', 'S1_60', 'S1_61', 'S1_62', 'S2_63', 'S2_67', 'S2_68', 'S2_69', 'S2_70', 'S2_71']
+
+    x_list = [-39100, -32820, -26400, -20240, -13880, -7020,  -720, 5390, 11680, 18180, 24560, 31040, 37360, 43820, -37780,
+    -31530, -24530, -17840, -12100, -5800, 790, 7170, 13000, 19420, 25840, 32260]
+    y_list = [  200,       0,      0,     0,   0,    0,     0,     0,     0,     0,     0,      0,      0,      0,    0,
+         0,      0,      0,      0,     0,   0,    0,     0,     0,     0,     0]
+    z_list = [ 12500,  12500,  12500,  12500,  12500, 12500,  12500,12500, 12500, 12500, 12500, 12500, 12500, 12500,   2000,
+      2000,   2000,   2000,   2000,  2000,2000, 2000,  2000,  2000,  2000,  2000]
+
+
+    # Detectors, motors:
+    dets = [pil1M]
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of Z coord ({len(z_list)})'
+    ypos = [0, 50, 2]
+
+    det_exposure_time(t,t)
+    for x, y, z, sample in zip(x_list,y_list,z_list, samples):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.z, z)
+        sample_id(user_name='BM', sample_name=sample + '_test_18.25keV') 
+        # yield from bp.rel_scan(dets, piezo.y, *ypos)
+        yield from bp.count(dets, num=240)
+          
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
 
 def brian_caps(t=1): 
     samples = ['sample44_1', 'sample44_2', 'sample45_1', 'sample45_2','sampleB_1', 'sampleB_2','sampleB_3', 'sampleP_1',
@@ -63,8 +99,8 @@ def brian_caps(t=1):
         yield from bps.mv(piezo.y, y)
         yield from bps.mv(piezo.z, z)
         sample_id(user_name='BM', sample_name=sample) 
-        yield from bp.rel_scan(dets, piezo.y, *ypos)
-        #yield from bp.count(dets, num=1)
+        # yield from bp.rel_scan(dets, piezo.y, *ypos)
+        yield from bp.count(dets, num=1)
           
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3,0.3)

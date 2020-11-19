@@ -14,6 +14,96 @@ import sys
 import time
 
 
+def saxs_hegmann_gird(t=1): 
+    
+    # yield from bps.mv(stage.th, 3)
+    # yield from bps.mv(stage.y, -12)
+    # names = ['HP09']
+    # xlocs = [ 30090]
+    # ylocs = [ 7490]
+    # zlocs = [ -3800]
+    # x_range=[ [0, 500, 21]]
+    # y_range=[ [0, 400, 126]]
+
+
+    # names = [ 'HP11', 'HP13', 'HP14', 'HP15', 'HP16', 'HP17']
+    # xlocs = [ 30570, 16720,  18580, 18445, 21245, -115] 
+    # ylocs = [ -830 , 6205,  2105, -2334, -8664, 4640]
+    # zlocs = [ -3500, -3500, -3500, -3500, -3500, -3500]
+    # x_range=[ [0, 500, 21], [0, 500, 11], [0, 150, 7], [0, 200, 9], [0, 150, 7], [0, 150, 7]]
+    # y_range=[ [0, 400, 126], [0, 100, 26], [0, 300, 101], [0, 120, 41], [0, 99, 34], [0, 162, 55]]
+    
+    names = ['HP09_pos2']
+    xlocs = [32284] 
+    ylocs = [5560]
+    zlocs = [-3500]
+    x_range=[ [0, 990, 33]]
+    y_range=[ [0, 500, 101]]
+
+    user = 'MP'    
+    det_exposure_time(t,t)     
+    
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(ylocs)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(zlocs)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(x_range)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(y_range)})'
+    
+    
+    # Detectors, motors:
+    dets = [pil1M]
+    
+    for x, y, sample, x_r, y_r in zip(xlocs, ylocs, names, x_range, y_range):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        name_fmt = '{sam}_1.6m_16.1keV'
+        sample_name = name_fmt.format(sam=sample)
+        sample_id(user_name=user, sample_name=sample_name) 
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+            
+        yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 1) #1 = snake, 0 = not-snake
+        
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+
+
+def saxs_hegmann_grid2(t=1): 
+    
+    names = ['HP12_3rd', 'HP12_2nd', 'HP13_3rd', 'HP14_2nd', 'HP14_3rd']
+    xlocs = [23784, 23584, 23584, 16284, 16284] 
+    ylocs = [-4500,  -900,  1500, -3700,  -100]
+    zlocs = [ 2700,  2700,  2700,  2700,  2700]
+    x_range=[[0, 800, 5],  [0, 800, 5],  [0, 800, 5],  [0, 800, 5],  [0, 800, 5]]
+    y_range=[[0, 400, 11], [0, 400, 11], [0, 400, 11], [0, 400, 11], [0, 400, 11]]
+
+    user = 'MP'    
+    det_exposure_time(t,t)     
+    
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(ylocs)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(zlocs)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(x_range)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(y_range)})'
+    
+    
+    # Detectors, motors:
+    dets = [pil1M]
+    
+    for x, y, sample, x_r, y_r in zip(xlocs, ylocs, names, x_range, y_range):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        name_fmt = '{sam}_5m_16.1keV'
+        sample_name = name_fmt.format(sam=sample)
+        sample_id(user_name=user, sample_name=sample_name) 
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+            
+        yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 1) #1 = snake, 0 = not-snake
+        
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+
 
 def saxs_hegmann(t=1): 
     # xlocs = [38200, 38400, 32800, 32800, 29400, 27300, 20400, 20400, 8400, 8400, -18500, 24800, -34200, -39550, 43000, 36300] 
