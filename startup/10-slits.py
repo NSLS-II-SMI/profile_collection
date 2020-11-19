@@ -45,8 +45,8 @@ class SLTV(Device):
     vg = Cpt(EpicsMotor, 'Vgap}Mtr')
 
 # FOE mono beam slits
-mbh = SLTH('XF:12IDA-OP:2{Slt:H-Ax:', name='mbh')
-mbv = SLTV('XF:12IDA-OP:2{Slt:V-Ax:', name='mbv')
+hfmslit = SLTH('XF:12IDA-OP:2{Slt:H-Ax:', name='hfmslit')
+vfmslit = SLTV('XF:12IDA-OP:2{Slt:V-Ax:', name='vfmslit')
 
 
 # apertures: would be good if one class could capture pinhole mask and 
