@@ -181,195 +181,96 @@ def ex_situ_hardxray_josh(t=1):
 
 
 def run_saxs_nexafs(t=1):
-    # yield from saxs_prep_multisample(t=0.5)
+    yield from waxs_prep_multisample_nov(t=0.5)
     # yield from bps.sleep(10)
-    yield from nexafs_prep_multisample(t=0.5)
+    # yield from nexafs_prep_multisample_nov(t=1)
 
 
-def nexafs_prep_multisample(t=1):
-
-    yield from bps.mv(stage.th, 2.5)
-    yield from bps.mv(stage.y, -13.5)
-
-    samples = ['SA1','Na1','PL_Ca','PGA','PGA_CA','Si3N4_empty']
-    x_list  = [9000, -13200,-29100,-34400,-39400,-44500]
-    y_list =  [-8500, -8500, -8800, -8700, -8800, -8700]
-
-    
-    # samples = ['F22_83','F22_84','F22_85','F23_86','F23_87','F23_88','F24_89','F24_90','F24_91','F24_92','F24_93','F24_94','F25_95','F25_96','F25_97','F25_98']
-    # x_list  = [44300, 38000, 32700, 25700, 20850, 16500, 6900, 2900, -3100, -8500, -14150, -19200, -29550, -33150, -37450, -43300]
-    # y_list =  [-9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880,  -9880,  -9880,  -9880, -9880, -9880]
-
-    # samples = ['D13_51','D14_54', 'D15_57','D15_58','D15_59','D16_60','D17_65']
-    # x_list  = [43700, 25200, 6700,  2500,  -2300, -6800, -34700]
-    # y_list =  [-9880, -9880, -9880, -9880, -9880, -9880, -9880]
-    
-    # samples = ['B7_1','B7_2','B12_1','B12_2']
-    # x_list  = [ -1900, -7900, -24100, -28200]
-    # y_list =  [-9300, -9300, -9300, -9300]
-
-    for x, y, name in zip(x_list, y_list, samples):
-        yield from bps.mv(piezo.x, x)
-        yield from bps.mv(piezo.y, y)
-
-        yield from NEXAFS_Ca_edge_multi(t=t, name=name)
-    
-
-    yield from bps.mv(stage.th, 2.5)
-    yield from bps.mv(stage.y, -5.5)
-
-    samples = ['G26_99','G26_100','G26_101','G27_102','G27_103','G27_104','G27_105','G27_106','G27_107','G28_108',
-    'G28_109','G28_110', 'O8_Ca', 'O8_3']
-    x_list  = [45300,39600,33900,24300,19400,15900,11400,7600,2100,-9600,-17100,-23700, -34700,-40700]
-    y_list =  [4100, 4100, 4100, 4100, 4100, 4100, 4100, 4100,4100, 4100, 4100,  4100,  4100,  4100]
-
-    # samples = ['E18_67','E18_68','E18_69','E19_70','E19_71','E19_72','E19_73','E19_74','E19_75','E20_76','E20_77','E20_78','E21_79','E21_80','E21_81','E22_82',]
-    # x_list  = [43300, 37300, 31700, 23200, 18000, 12700, 6900, 3000, -800, -9800, -14600, -19600, -26200, -31700, -36500, -43500 ]
-    # y_list =  [3900,  3900,  3900,  3900,  3900,  3900,  3900,  3900, 3900,  3900,  3900, 3900, 3900, 3900, 3900, 3900]
-
-    # samples = ['C8_32', 'C9_36', 'C10_40', 'C11_46']
-    # x_list  = [43700, 20900, -2700, -29300]
-    # y_list =  [3700,  3700,  3700,  3700]
-
-    # samples = ['A1_1','A1_2','A2_5','A2_6','A3_9','A3_10','A4_15', 'A4_16']
-    # x_list  = [45950, 43250, 24400, 18850, -3400, -7300, -33000,  -37400]
-    # y_list =  [3500,  3500, 3500,  3500, 3500,  3500,  3500, 3500]
-
-    for x, y, name in zip(x_list, y_list, samples):
-        yield from bps.mv(piezo.x, x)
-        yield from bps.mv(piezo.y, y)
-        yield from NEXAFS_Ca_edge_multi(t=t, name=name)
-
-    sample_id(user_name='test', sample_name='test')
-
-
-
-def saxs_prep_multisample(t=1):
-    dets = [pil300KW, pil1M]
-
-    energies = np.arange(4030, 4040, 5).tolist() + np.arange(4040, 4060, 0.5).tolist() + np.arange(4060, 4080, 2).tolist()+ np.arange(4100, 4150, 5).tolist()
+def saxs_prep_multisample_nov(t=1):
+    dets = [pil1M]
+    energies = [4030, 4040, 4050, 4055, 4065, 4075, 4105]
     det_exposure_time(t,t) 
     name_fmt = '{sample}_{energy}eV_pos{posi}_wa{wa}_xbpm{xbpm}'
-    waxs_range = [0, 6.5, 13.0, 19.5, 26, 32.5]
-
-    det_exposure_time(t,t)
+    waxs_range = [32.5]
 
     ypos = [0, 400, 3]    
-    for wa in waxs_range[::-1]:
-        yield from bps.mv(waxs, wa)
-        yield from bps.mv(stage.th, 2.5)
-        yield from bps.mv(stage.y, -13.5)
-
-        samples = ['ut', 'Ca', 'CH']
-        x_list  = [45500,38500,31500]
-        y_list =  [-8500,-8500,-8500]
-
-        for name, x, y in zip(samples, x_list, y_list):
-            yield from bps.mv(piezo.x, x)
-            yield from bps.mv(piezo.y, y)
-
-            for k, e in enumerate(energies):                              
-                yield from bps.mv(energy, e)
-                name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
-
-                sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
-                sample_id(user_name='OS', sample_name=sample_name)
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                yield from bp.rel_scan(dets, piezo.y, *ypos)
-                            
-
-            yield from bps.mv(energy, 4050)
-            yield from bps.mv(energy, 4030)
-
-
-    dets = [pil300KW, pil1M]
-
-    energies = [4030, 4040, 4050, 4055, 4075]
-    det_exposure_time(t,t) 
-    name_fmt = '{sample}_{energy}eV_pos{posi}_wa{wa}_xbpm{xbpm}'
-    waxs_range = [0, 6.5, 13.0, 19.5, 26, 32.5, 39.0, 45.5]
-    #waxs_range = [0, 6.5, 13.0, 19.5]
-
-
-    det_exposure_time(t,t)
-
-    ypos = [0, 800, 3]    
     for wa in waxs_range:
         yield from bps.mv(waxs, wa)
-        yield from bps.mv(stage.th, 2.5)
-        yield from bps.mv(stage.y, -13.5)
+        yield from bps.mv(stage.th, 3.5)
+        yield from bps.mv(stage.y, -13)
 
-        samples = ['ut', 'Ca', 'CH', 'AC1','AC2','AC3','SA1','SA2','SA3','Na1','Na2','Na3','PL_Ca','PGA','PGA_CA','Si3N4_empty']
-        x_list  = [45500,38500,31500,25500,21000,16000, 9000, 3000,-4000,-13200,-18400,-23600,-29100,-34400,-39400,-44500]
-        y_list =  [-8500,-8500,-8500,-8500,-8500,-8500,-8500,-8500,-8500, -8500, -9100, -9000, -8800, -8700, -8800, -8700]
+        # samples = ['K5-6', 'K5-5', 'K5-4', 'K5-3', 'K5-2', 'K5-1', 'K4-3', 'K4-2', 'K4-1', 'K3-3', 'K3-2', 'K3-1', 'K2-3', 'K2-2', 'K2-1', 'K1-3', 'K1-2', 'K1-1']
+        # x_list  = [41400, 37700,34300,26750,23800,20600,1700,-2100,-5300,-10200,-14150,-19200,-27500,-32000,-37500,-41100,-45800,-49400]
+        # y_list =  [-9500, -9500,-9500,-9500,-9500,-9500,-9500,-9500,-9500,-9500, -9500, -9500, -9500, -9500, -9500, -9500, -9700, -9500]
+        # z_list =  [ 5500,  5500, 5400, 5300, 5200, 5100, 5000, 4900, 4800, 4700,  4600,  4500,  4400,  4300,  4200,  4100,  4000,  3900]
+
+        # samples = ['M14-1', 'M14-2', 'M14-3', 'M15-1', 'M15-2', 'M15-3', 'M16-1', 'M16-2', 'M16-3', 'M17-1', 'M17-2', 'M17-3', 'M18-1', 'M18-2', 'M18-3', 'M18-4', 'M18-5']
+        # x_list  = [  46900,   44500,   41500,   31900,   27300,   22750,   12750,   10500,    7800,   -2800,   -4900,   -9100,  -17400,  -20800,  -23800,  -26550,  -29950]
+        # y_list =  [  -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8100,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500]
+        # z_list =  [   4800,    4800,    4700,    4600,    4500,    4500,    4400,    4300,    4200,    4100,    4100,    4000,    3900,    3800,    3800,    3700,    3600]
+
+        samples = [ 'M16-2', 'M16-3', 'M17-1', 'M17-2', 'M17-3', 'M18-1', 'M18-2', 'M18-3', 'M18-4', 'M18-5']
+        x_list  = [   10500,    7800,   -2800,   -4900,   -9100,  -17400,  -20800,  -23800,  -26550,  -29950]
+        y_list =  [   -8500,   -8500,   -8100,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500]
+        z_list =  [    4300,    4200,    4100,    4100,    4000,    3900,    3800,    3800,    3700,    3600]
 
 
-        # samples = ['F22_83','F22_84','F22_85','F23_86','F23_87','F23_88','F24_89','F24_90','F24_91','F24_92','F24_93','F24_94','F25_95','F25_96','F25_97','F25_98']
-        # x_list  = [44300, 38000, 32700, 25700, 20850, 16500, 6900, 2900, -3100, -8500, -14150, -19200, -29550, -33150, -37450, -43300]
-        # y_list =  [-9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880,  -9880,  -9880,  -9880, -9880, -9880]
-
-        # samples = ['D13_51','D13_52','D13_53','D14_54','D14_55','D14_56','D15_57','D15_58','D15_59','D16_60','D16_61','D16_62','D16_63','D16_64','D17_65',
-        # 'D17_66','D17_67']
-        # x_list  = [43700, 38400, 34000, 25200, 20000, 15400, 6700,  2500,  -2300, -6800, -14000, -19000, -23300, -28500, -34700, -39300, -43600]
-        # y_list =  [-9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880, -9880,  -9880,  -9880,  -9880, -9880, -9880, -9880]
-
-        # samples = ['B5_1','B5_2','B5_3', 'B6_1','B6_2','B6_3','B7_1','B7_2','B7_3','B12_1','B12_2','B12_3']
-        # x_list  = [45550, 41200, 35600, 25600, 20900, 15400, -1900, -7900, -14000, -24100, -28200, -32700, ]
-        # y_list =  [-9300, -9300, -9300, -9300, -9300, -9300, -9300, -9300, -9300, -9300, -9300, -9300]
-
-        for name, x, y in zip(samples, x_list, y_list):
+        for x, y, z, name in zip(x_list, y_list, z_list, samples):
             yield from bps.mv(piezo.x, x)
             yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
 
             for k, e in enumerate(energies):                              
                 yield from bps.mv(energy, e)
-                name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
+                yield from bps.sleep(3)
+                name_fmt = '{sample}_{energy}eV_5m_xbpm{xbpm}_wa{wa}'
 
                 sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
                 sample_id(user_name='OS', sample_name=sample_name)
                 print(f'\n\t=== Sample: {sample_name} ===\n')
                 yield from bp.rel_scan(dets, piezo.y, *ypos)
                             
-
-            yield from bps.mv(energy, 4050)
+            yield from bps.mv(energy, 4080)
+            yield from bps.mv(energy, 4055)
             yield from bps.mv(energy, 4030)
 
-        yield from bps.mv(stage.th, 2.5)
-        yield from bps.mv(stage.y, -5.5)
+    # for wa in waxs_range:
+    #     yield from bps.mv(waxs, wa)
+    #     yield from bps.mv(stage.y, 0)
+    #     yield from bps.mv(stage.th, 0)
 
-        samples = ['G26_99','G26_100','G26_101','G27_102','G27_103','G27_104','G27_105','G27_106','G27_107','G28_108',
-        'G28_109','G28_110', 'O8_Ca', 'O8_3']
-        x_list  = [45300,39600,33900,24300,19400,15900,11400,7600,2100,-9600,-17100,-23700, -34700,-40700]
-        y_list =  [4100, 4100, 4100, 4100, 4100, 4100, 4100, 4100,4100, 4100, 4100,  4100,  4100,  4100]
+    #     samples = ['L13-3', 'L13-2', 'L13-1', 'L12-3', 'L12-2', 'L12-1', 'L11-3', 'L11-2', 'L11-1', 'L10-3', 'L10-2', 'L10-1', 'L9-3', 'L9-2', 'L9-1', 'L8-3', 'L8-2',
+    #     'L8-1', 'L7-3', 'L7-2', 'L7-1', 'L6-3', 'L6-2', 'L6-1']
+    #     x_list  = [40600, 37500, 34500, 29400, 25600, 22300, 17100, 14250, 10800,  5900,  3450,  550, -5050, -7250, -9100, -13900,-16200,-18500,-22300,-24700,-27050,
+    #     -34800, -38450, -42250]
+    #     y_list =  [-1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000,
+    #     -1000,  -1000,  -1000]
+    #     z_list =  [ 5400, 5400,   5300,  5200,  5100,  5000,  4900,  4800,  4700,  4600,  4500,  4400,  4300,  4200,  4100,  4000,  3900,  3800,  3700,   3600, 3500,
+    #     3300,   3400,   3300]
 
-        # samples = ['E18_67','E18_68','E18_69','E19_70','E19_71','E19_72','E19_73','E19_74','E19_75','E20_76','E20_77','E20_78','E21_79','E21_80','E21_81','E22_82',]
-        # x_list  = [43300, 37300, 31700, 23200, 18000, 12700, 6900, 3000, -800, -9800, -14600, -19600, -26200, -31700, -36500, -43500 ]
-        # y_list =  [3900,  3900,  3900,  3900,  3900,  3900,  3900,  3900, 3900,  3900,  3900, 3900, 3900, 3900, 3900, 3900]
+    #     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    #     assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    #     assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of z coord ({len(z_list)})'
 
-        # samples = ['C8_32', 'C8_33', 'C8_34', 'C8_35', 'C9_36', 'C9_37', 'C9_38', 'C9_39', 'C10_40', 'C10_41', 'C10_42', 'C10_43',
-        # 'C10_44', 'C10_45', 'C11_46', 'C11_47', 'C11_48', 'C11_49', 'C11_50']
-        # x_list  = [43700, 38300, 34000, 27800, 20900, 16200, 12100, 7100, -2700, -6700, -10500, -15700, -20000, -24200, -29300, -32700, -36700, -41000, -45000]
-        # y_list =  [3700,  3700,  3700,  3700,  3700,  3700,  3700,  3700, 3700,  3700,  3700,   3700,   3700, 3700,   3700,    3700,   3700,  3700,  3700]
-        
-        # samples = ['A1_1','A1_2','A1_3', 'A1_4','A2_5','A2_6','A2_7','A2_8','A3_9','A3_10','A3_11','A3_12','A3_13','A3_14','A4_15', 'A4_16', 'A4_17', 'A4_19']
-        # x_list  = [45950, 43250, 37250, 31650, 24400, 18850, 12500, 8000, -3400, -7300, -11300, -16800, -20900, -26400, -33000,  -37400, -41900, -45200]
-        # y_list =  [3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,   3500,   3500,    3500, 3500, 3500, 3500]
+    #     for x, y, z, name in zip(x_list, y_list, z_list, samples):
+    #         yield from bps.mv(piezo.x, x)
+    #         yield from bps.mv(piezo.y, y)
+    #         yield from bps.mv(piezo.z, z)
 
-        for name, x, y in zip(samples, x_list, y_list):
-            yield from bps.mv(piezo.x, x)
-            yield from bps.mv(piezo.y, y)
+    #         for k, e in enumerate(energies):                              
+    #             yield from bps.mv(energy, e)
+    #             yield from bps.sleep(3)
 
-            for k, e in enumerate(energies):                              
-                yield from bps.mv(energy, e)
-                name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
+    #             name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
 
-                sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
-                sample_id(user_name='OS', sample_name=sample_name)
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                yield from bp.rel_scan(dets, piezo.y, *ypos)
+    #             sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
+    #             sample_id(user_name='OS', sample_name=sample_name)
+    #             print(f'\n\t=== Sample: {sample_name} ===\n')
+    #             yield from bp.rel_scan(dets, piezo.y, *ypos)
                             
-            yield from bps.mv(energy, 4050)
-            yield from bps.mv(energy, 4030)
+    #         yield from bps.mv(energy, 4080)
+    #         yield from bps.mv(energy, 4055)
+    #         yield from bps.mv(energy, 4030)
             
 
     sample_id(user_name='test', sample_name='test')
@@ -377,16 +278,210 @@ def saxs_prep_multisample(t=1):
 
 
 
+def waxs_prep_multisample_nov(t=1):
+    dets = [pil300KW]
+    energies = [4030, 4040, 4050, 4055, 4065, 4075, 4105]
+    det_exposure_time(t,t) 
+    name_fmt = '{sample}_{energy}eV_pos{posi}_wa{wa}_xbpm{xbpm}'
+    waxs_range = [0, 6.5, 13.0, 19.5, 26, 32.5, 39.0, 45.5]
+
+    ypos = [0, 400, 3]    
+    # for wa in waxs_range:
+    #     yield from bps.mv(waxs, wa)
+    #     yield from bps.mv(stage.th, 3.5)
+    #     yield from bps.mv(stage.y, -13)
+
+    #     # samples = ['K5-6', 'K5-5', 'K5-4', 'K5-3', 'K5-2', 'K5-1', 'K4-3', 'K4-2', 'K4-1', 'K3-3', 'K3-2', 'K3-1', 'K2-3', 'K2-2', 'K2-1', 'K1-3', 'K1-2', 'K1-1']
+    #     # x_list  = [41400, 37700,34300,26750,23800,20600,1700,-2100,-5300,-10200,-14150,-19200,-27500,-32000,-37500,-41100,-45800,-49400]
+    #     # y_list =  [-9500, -9500,-9500,-9500,-9500,-9500,-9500,-9500,-9500,-9500, -9500, -9500, -9500, -9500, -9500, -9500, -9700, -9500]
+    #     # z_list =  [ 5500,  5500, 5400, 5300, 5200, 5100, 5000, 4900, 4800, 4700,  4600,  4500,  4400,  4300,  4200,  4100,  4000,  3900]
+
+    #     samples = ['M14-1', 'M14-2', 'M14-3', 'M15-1', 'M15-2', 'M15-3', 'M16-1', 'M16-2', 'M16-3', 'M17-1', 'M17-2', 'M17-3', 'M18-1', 'M18-2', 'M18-3', 'M18-4', 'M18-5']
+    #     x_list  = [  46900,   44500,   41500,   31900,   27300,   22750,   12750,   10500,    7800,   -2800,   -4900,   -9100,  -17400,  -20800,  -23800,  -26550,  -29950]
+    #     y_list =  [  -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8100,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500]
+    #     z_list =  [   4800,    4800,    4700,    4600,    4500,    4500,    4400,    4300,    4200,    4100,    4100,    4000,    3900,    3800,    3800,    3700,    3600]
+
+    #     for x, y, z, name in zip(x_list, y_list, z_list, samples):
+    #         yield from bps.mv(piezo.x, x)
+    #         yield from bps.mv(piezo.y, y)
+    #         yield from bps.mv(piezo.z, z)
+
+    #         for k, e in enumerate(energies):                              
+    #             yield from bps.mv(energy, e)
+    #             yield from bps.sleep(3)
+    #             name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
+
+    #             sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
+    #             sample_id(user_name='OS', sample_name=sample_name)
+    #             print(f'\n\t=== Sample: {sample_name} ===\n')
+    #             yield from bp.rel_scan(dets, piezo.y, *ypos)
+                            
+    #         yield from bps.mv(energy, 4080)
+    #         yield from bps.mv(energy, 4055)
+    #         yield from bps.mv(energy, 4030)
+
+
+    # energies = [4030, 4040, 4050, 4055, 4065, 4075, 4105]
+    # waxs_range = [0, 6.5, 13.0, 19.5, 26, 32.5, 39.0, 45.5]
+    # for wa in waxs_range:
+    #     yield from bps.mv(waxs, wa)
+    #     yield from bps.mv(stage.y, 0)
+    #     yield from bps.mv(stage.th, 0)
+
+    #     # samples = ['L13-3', 'L13-2', 'L13-1', 'L12-3', 'L12-2', 'L12-1', 'L11-3', 'L11-2', 'L11-1', 'L10-3', 'L10-2', 'L10-1', 'L9-3', 'L9-2', 'L9-1', 'L8-3', 'L8-2',
+    #     # 'L8-1', 'L7-3', 'L7-2', 'L7-1', 'L6-3', 'L6-2', 'L6-1']
+    #     # x_list  = [40600, 37500, 34500, 29400, 25600, 22300, 17100, 14250, 10800,  5900,  3450,  550, -5050, -7250, -9100, -13900,-16200,-18500,-22300,-24700,-27050,
+    #     # -34800, -38450, -42250]
+    #     # y_list =  [-1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000,
+    #     # -1000,  -1000,  -1000]
+    #     # z_list =  [ 5400, 5400,   5300,  5200,  5100,  5000,  4900,  4800,  4700,  4600,  4500,  4400,  4300,  4200,  4100,  4000,  3900,  3800,  3700,   3600, 3500,
+    #     # 3300,   3400,   3300]
+
+    #     samples = [ 'P1', 'P2', 'E1',  'E2',  'PG1',  'PG2']
+    #     x_list  = [11400, 6200,  200, -5200, -13200, -26200]
+    #     y_list =  [-1000, -900, -900,  -700,  -1300,  -1300]
+    #     z_list =  [ 4500, 4300, 4200,  4100,   4000,   4000]
+
+        # assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+        # assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+        # assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of z coord ({len(z_list)})'
+
+        # for x, y, z, name in zip(x_list, y_list, z_list, samples):
+        #     yield from bps.mv(piezo.x, x)
+        #     yield from bps.mv(piezo.y, y)
+        #     yield from bps.mv(piezo.z, z)
+
+        #     for k, e in enumerate(energies):                              
+        #         yield from bps.mv(energy, e)
+        #         yield from bps.sleep(3)
+
+        #         name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
+
+        #         sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
+        #         sample_id(user_name='OS', sample_name=sample_name)
+        #         print(f'\n\t=== Sample: {sample_name} ===\n')
+        #         yield from bp.rel_scan(dets, piezo.y, *ypos)
+                            
+        #     yield from bps.mv(energy, 4080)
+        #     yield from bps.mv(energy, 4055)
+        #     yield from bps.mv(energy, 4030)
+
+
+    energies = np.arange(4030, 4040, 5).tolist() + np.arange(4040, 4060, 0.5).tolist() + np.arange(4060, 4080, 2).tolist() + np.arange(4080, 4150, 5).tolist()
+    # waxs_range = [0, 6.5, 13.0, 19.5, 26, 32.5, 39.0, 45.5]
+    waxs_range = [6.5]
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        yield from bps.mv(stage.y, 0)
+        yield from bps.mv(stage.th, 0)
+
+
+        # samples = [ 'U1',  'U2',  'Ca1',  'Ca2']
+        # x_list  = [43000, 31000, -36500, -44000]
+        # y_list =  [ -700,  -700,   -900,   -900]
+        # z_list =  [ 4600,  4600,   3600,   3600]
+
+        samples = [ 'Ca2']
+        x_list  = [ -44000]
+        y_list =  [  -900]
+        z_list =  [  3600]
+
+        assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+        assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+        assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of z coord ({len(z_list)})'
+
+        for x, y, z, name in zip(x_list, y_list, z_list, samples):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            for k, e in enumerate(energies):                              
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(3)
+
+                name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
+
+                sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
+                sample_id(user_name='OS', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.rel_scan(dets, piezo.y, *ypos)
+           
+            yield from bps.mv(energy, 4120)     
+            yield from bps.mv(energy, 4090)
+            yield from bps.mv(energy, 4060)
+            yield from bps.mv(energy, 4030)
+            
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+
+def nexafs_prep_multisample_nov(t=1):
+
+    # samples = ['K5-6', 'K5-5', 'K5-4', 'K5-3', 'K5-2', 'K5-1', 'K4-3', 'K4-2', 'K4-1', 'K3-3', 'K3-2', 'K3-1', 'K2-3', 'K2-2', 'K2-1', 'K1-3', 'K1-2', 'K1-1']
+    # x_list  = [41400,   37700,  34300,  26750,  23800,  20600,   1700,  -2100,  -5300, -10200,-14150,-19200,-27500,-32000,-37500,-41100,-45800,-49400]
+    # y_list =  [-9500,   -9500,  -9500,  -9500,  -9500,  -9500,  -9500,-  9500,  -9500,-9500, -9500, -9500, -9500, -9500, -9500, -9500, -9700, -9500]
+    # z_list =  [ 5500,    5500,   5400,   5300,   5200,   5100,   5000,   4900,   4800, 4700,  4600,  4500,  4400,  4300,  4200,  4100,  4000,  3900]
+
+    yield from bps.mv(stage.th, 3.5)
+    yield from bps.mv(stage.y, -13)
+    samples = ['M14-1', 'M14-2', 'M14-3', 'M15-1', 'M15-2', 'M15-3', 'M16-1', 'M16-2', 'M16-3', 'M17-1', 'M17-2', 'M17-3', 'M18-1', 'M18-2', 'M18-3', 'M18-4', 'M18-5']
+    x_list  = [  46900,   44500,   41500,   31900,   27300,   22750,   12750,   10500,    7800,   -2800,   -4900,   -9100,  -17400,  -20800,  -23800,  -26550,  -29950]
+    y_list =  [  -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8100,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500]
+    z_list =  [   4800,    4800,    4700,    4600,    4500,    4500,    4400,    4300,    4200,    4100,    4100,    4000,    3900,    3800,    3800,    3700,    3600]
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(z_list)})'
+
+    for x, y, z, name in zip(x_list, y_list, z_list, samples):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.z, z)
+
+        yield from NEXAFS_Ca_edge_multi(t=t, name=name)
+    
+    yield from bps.mv(stage.y, 0)
+    yield from bps.mv(stage.th, 0)
+
+    # samples = ['L13-3', 'L13-2', 'L13-1', 'L12-3', 'L12-2', 'L12-1', 'L11-3', 'L11-2', 'L11-1', 'L10-3', 'L10-2', 'L10-1', 'L9-3', 'L9-2', 'L9-1', 'L8-3', 'L8-2',
+    #  'L8-1', 'L7-3', 'L7-2', 'L7-1', 'L6-3', 'L6-2', 'L6-1']
+    # x_list  = [40600, 37500, 34500, 29400, 25600, 22300, 17100, 14250, 10800,  5900,  3450,  550, -5050, -7250, -9100, -13900,-16200,-18500,-22300,-24700,-27050,
+    # -34800, -38450, -42250]
+    # y_list =  [-1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000,
+    #  -1000,  -1000,  -1000]
+    # z_list =  [ 5400, 5400,   5300,  5200,  5100,  5000,  4900,  4800,  4700,  4600,  4500,  4400,  4300,  4200,  4100,  4000,  3900,  3800,  3700,   3600, 3500,
+    #   3300,   3400,   3300]
+
+    samples = [ 'C1',  'C2',  'P1', 'P2', 'E1',  'E2',  'PG1',  'PG2']
+    x_list  = [21800, 16500, 11400, 6200,  200, -5200, -13200, -26200]
+    y_list =  [ -900,  -700,  -800,  -700, -700, -500, -1100,  -1100]
+    z_list =  [ 4600,  4600,  4500, 4300, 4200,  4100,   4000,   4000]
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of z coord ({len(z_list)})'
+
+    for x, y, z, name in zip(x_list, y_list, z_list, samples):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.z, z)
+
+        yield from NEXAFS_Ca_edge_multi(t=t, name=name)
+
+    # sample_id(user_name='test', sample_name='test')
+    # yield from bps.mv(att2_11, 'Insert')
+    # yield from bps.mv(GV7.open_cmd, 1 )
+    # yield from bps.sleep(2)
+    # yield from bps.mv(att2_11, 'Insert')
+    # yield from bps.mv(GV7.open_cmd, 1 )
+
+
+
 
 def NEXAFS_Ca_edge_multi(t=0.5, name='test'):
-    yield from bps.mv(att2_11, 'Retract')
-    yield from bps.mv(GV7.close_cmd, 1 )
-    yield from bps.sleep(1)
-    yield from bps.mv(att2_11, 'Retract')
-    yield from bps.mv(GV7.close_cmd, 1 )
-
     yield from bps.mv(waxs, 52)
-    # dets = [pil300KW, amptek]
     
     dets = [pil300KW]
 
@@ -396,6 +491,7 @@ def NEXAFS_Ca_edge_multi(t=0.5, name='test'):
     name_fmt = 'nexafs_{sample}_{energy}eV_xbpm{xbpm}'
     for e in energies:                              
         yield from bps.mv(energy, e)
+        yield from bps.sleep(3)
         sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value)
         RE.md['filename_amptek'] = sample_name
         sample_id(user_name='OS', sample_name=sample_name)
@@ -410,8 +506,3 @@ def NEXAFS_Ca_edge_multi(t=0.5, name='test'):
 
     sample_id(user_name='test', sample_name='test')
 
-    yield from bps.mv(att2_11, 'Insert')
-    yield from bps.mv(GV7.open_cmd, 1 )
-    yield from bps.sleep(1)
-    yield from bps.mv(att2_11, 'Insert')
-    yield from bps.mv(GV7.open_cmd, 1 )
