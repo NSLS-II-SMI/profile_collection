@@ -195,7 +195,7 @@ class SMI_Beamline(Beamline):
         
         # Move the waxs detector out of the way
         if waxs.arc.position < 7.9:
-            yield from bps.mv(waxs, 15)
+            yield from bps.mv(waxs, 13)
 
     def modeMeasurement(self):
         """
@@ -292,7 +292,7 @@ class SMI_Beamline(Beamline):
                 self.crl_state = 'low_divergence'
 
     def pressure_measurments(self):
-        if waxs_pressure.ch1_read.get() == 'LO<E-03':
+        if chamber_pressure.waxs.get() == 'LO<E-03':
             self.pressure_state = 'in-vacuum'
         else:
             try: 
