@@ -4,6 +4,118 @@ def run_night_Pete(t=1):
     yield from nexafs_S_edge_Pete(t=1)
 
 
+def giwaxs_multiprsangles_2020_3(t=1):
+    dets = [pil1M, pil300KW]
+
+    names = ['DDP_50','DDP_25','DDP_10','DDP_100','SEBS']
+    x = [ -45000, -25000, -3000, 17000, 43000]
+    z = [ 4190,  1690, -2310, -3310, -3810]
+    chi_piezo = [-0.284, -0.129, -0.341, -0.401, -0.435]
+    chi_hexa = [-0.256, -0.361, -0.349, -0.289, -0.255]
+    th_hexa = [0.287, 0.287, 0.287, 0.287, 0.287]
+    th_piezo = [0.76, 0.76, 0.56, 0.5, 0.5]
+
+    waxs_arc = [1, 7.5]
+    
+    ai0 = 0
+    ai_list = np.arange(0.07, 0.15, 0.002).tolist() 
+    ai_list = [round(1000*x, 4) for x in ai_list] 
+    ai_list = np.asarray(ai_list)/1000
+
+    dets = [pil1M, pil300KW]
+    
+    for name, xs, zs, chi_pi, chi_hexa, th_pi, th_hexa in zip(names, x, z, chi_piezo, chi_hexa, th_piezo, th_hexa):
+        yield from bps.mv(prs, 0)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.ch, chi_pi)
+        yield from bps.mv(stage.ch, chi_hexa)
+        yield from bps.mv(piezo.th, th_pi)
+        yield from bps.mv(stage.th, th_hexa)
+
+        yield from alignement_gisaxs(angle = 0.14)
+        yield from bps.mv(att1_9, 'Insert')
+        yield from bps.sleep(1)
+        yield from bps.mv(att1_9, 'Insert')
+        
+        yield from bps.mv(prs, 20)
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)   
+            dets = [pil1M, pil300KW]
+
+            for k, ais in enumerate(ai_list):
+                yield from bps.mv(stage.th, th_hexa + ais)
+
+                x_list = [-700, -500, -300, -100, 100, 300, 500, 700]
+                for pos, xss in enumerate(x_list):
+                    yield from bps.mv(piezo.x, xs + xss)
+                    det_exposure_time(t,t) 
+                    name_fmt = '{sample}_aiscan_14keV_ai{ai}_pos{pos}_prs{prs}_wa{wax}'
+                    sample_name = name_fmt.format(sample=name, ai ='%4.3f'%ais, pos ='%2.2d'%pos, prs='00', wax = wa)
+                    sample_id(user_name='GF', sample_name=sample_name)
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    yield from bp.count(dets, num=1)
+
+
+        yield from bps.mv(prs, -70)
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)   
+            dets = [pil1M, pil300KW]
+
+            for k, ais in enumerate(ai_list):
+                yield from bps.mv(stage.th, th_hexa + ais)
+                yield from bps.mv(piezo.x, xs)
+                det_exposure_time(t,t) 
+                name_fmt = '{sample}_aiscan_14keV_ai{ai}_pos{pos}_prs{prs}_wa{wax}'
+                sample_name = name_fmt.format(sample=name, ai ='%4.3f'%ais, pos ='00', prs='90', wax = wa)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+        
+        yield from bps.mv(prs, -70)
+        yield from bps.mv(stage.th, th_hexa + 0.15)
+        prs_list = np.linspace(-70, 20, 46)
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)   
+            dets = [pil1M, pil300KW]
+
+            for k, prss in enumerate(prs_list):
+                yield from bps.mv(prs, prss)
+                yield from bps.mv(piezo.x, xs)
+                det_exposure_time(t,t) 
+                name_fmt = '{sample}_prsscan_14keV_ai{ai}_pos{pos}_prs{prs}_wa{wax}'
+                sample_name = name_fmt.format(sample=name, ai ='0.15', pos ='00', prs='%2.2d'%prss, wax = wa)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+        yield from bps.mv(prs, 20)
+        yield from bps.mv(stage.th, th_hexa + 0.2)
+        prs_list = np.linspace(20, -70, 46)
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)   
+            dets = [pil1M, pil300KW]
+
+            for k, prss in enumerate(prs_list):
+                yield from bps.mv(prs, prss)
+                yield from bps.mv(piezo.x, xs)
+                det_exposure_time(t,t) 
+                name_fmt = '{sample}_prsscan_14keV_ai{ai}_pos{pos}_prs{prs}_wa{wax}'
+                sample_name = name_fmt.format(sample=name, ai ='0.20', pos ='00', prs='%2.2d'%prss, wax = wa)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+        det_exposure_time(0.3,0.3) 
+        sample_id(user_name='test', sample_name='test')
+
+
+
+
 def giwaxs_S_edge_Pete(t=1):
     dets = [pil1M, pil300KW]
     
