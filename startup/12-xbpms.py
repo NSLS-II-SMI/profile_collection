@@ -15,9 +15,9 @@ class XBPM(Device):
     x = Cpt(EpicsMotor, 'X}Mtr')
     y = Cpt(EpicsMotor, 'Y}Mtr')
 
-xbpm1 = XBPM('XF:12IDA-BI:2{XBPM:1-Ax:', name='xbpm1')
-xbpm2 = XBPM('XF:12IDA-BI:2{XBPM:2-Ax:', name='xbpm2')
-xbpm3 = XBPM('XF:12IDB1-BI:2{XBPM:3-Ax:', name='xbpm3')
+xbpm1_pos = XBPM('XF:12IDA-BI:2{XBPM:1-Ax:', name='xbpm1_pos')
+xbpm2_pos = XBPM('XF:12IDA-BI:2{XBPM:2-Ax:', name='xbpm2_pos')
+xbpm3_pos = XBPM('XF:12IDB-BI:2{XBPM:3-Ax:', name='xbpm3_pos')
 
 # need work to input elecetrometer current PVs - what headers needed?
 
