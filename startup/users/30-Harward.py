@@ -46,6 +46,81 @@ def run_harv_temp(tim=0.5):
 
 
 
+def run_harv_temp_all_2020_3(tim=0.5): 
+    # Slowest cycle:
+    temperatures = [26, 60, 80, 100, 120, 140, 160]
+    # temperatures = [30, 100, 150]
+
+    name = 'ML'
+
+    # x_list  = [-45880, -38480, -29480, -23480, -16700, -4700, 3300, 10300, 18300, 26300, 32700, 37600, 45800]
+    # y_list =  [  6700,   6700,   6700,   6520,   6480,  6440, 6400,  6340,  6340,  6220,  6180,  6180,  6380]
+    # samples = ['set1_MML_071', 'set1_MML_076', 'set1_MML_077', 'set1_MML_081', 'set1_MML_082-1', 'set1_MML_082-2', 'set1_MML_083-1',
+    # 'set1_MML_083-2', 'set2_ST03457', 'set2_ST03866', 'set2_ST05874', 'set2_ST02670', 'set2_ST04180']
+    
+    # x_list  = [-42000, -34500, -27000, -21000, -14000, -8300, -2300, 5300, 13000, 19500, 26500, 32500, 40500, 49500]
+    # y_list =  [  6630,   6630,   6530,   6330,   6530,  6330,  6130, 6230,  6330,  6030,  6130,  6130,  6330,  6230]
+    # samples = ['set3_RM257_2.5', 'set3_RM257_5.0', 'set3_RM257_10.0', 'set3_RM257_15.0', 'set4_RM82_2.5', 'set4_RM82_5.0', 'set4_RM82_10.0', 
+    # 'set5_sample1', 'set7_700G', 'set7_790G', 'set7_600G', 'set7_250G', 'set10_sample1', 'set10_sample2d']
+    
+    # x_list  = [-48000, -40000, -32000, -25000, -20500, -16500, -11700, -6700, 3300, 15300, 26200, 32800, 41900, 49500]
+    # y_list =  [  6580,   6580,   6880,   6730,   6830,   6830,   6330,  6430, 5030,  5030,  6730,  6670,  6630,  6690]
+    # samples = ['set4_RM82_2.5-2', 'set4_RM82_15.0', 'set8_azo_2.5', 'set8_azo_5.0', 'set8_azo_5.0-2', 'set8_azo_10.0', 'set8_azo_15.0',
+    # 'stex_MML-076', 'set11_symx_1', 'set11_symz_2', 'set6_SP1', 'set6_SP2', 'set6_SP3', 'set6_SP4']
+
+    x_list  = [-41000, -30500, -22500, -14000, -3000]
+    y_list =  [  6620,   6500,   6580,   6400,  6220]
+    samples = ['set9_ST04180', 'set9_ST03866', 'set9_ST03866_2', 'set9_ST02670', 'set9_ST05874', ]
+
+
+
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    #Detectors, motors:
+    dets = [pil1M, pil300KW] #ALL detectors
+    #dets = [pil300KW,ls.ch1_read, xbpm3.sumY] # WAXS detector ALONE
+    
+    x_offset = [0, 0, 400, 400]
+    y_offset = [0, 50, 0, 50]
+    zoff = -10000
+    waxs_arc = np.linspace(0, 32.5, 6) 
+    name_fmt = '{sample}_2_pos{offset}_{temperature}C_wa{waxs}'
+    yield from bps.mv(piezo.z, zoff)
+
+    det_exposure_time(tim, tim)
+    for i_t, t in enumerate(temperatures):
+        yield from bps.mv(ls.ch1_sp, t)
+        if i_t !=0:
+            yield from bps.sleep(600)
+
+        temp = ls.ch1_read.value
+        for j, wa in enumerate(waxs_arc): #
+            yield from bps.mv(waxs, wa)
+            for x, y, s in zip(x_list, y_list, samples):
+                yield from bps.mv(piezo.x, x)
+                yield from bps.mv(piezo.y, y)
+                if s == 'set11_symx_1' or s == 'set11_symz_2':
+                    sample_name = name_fmt.format(sample=s, offset = 0, temperature='%3.1f'%temp, waxs='%2.1f'%wa)
+                    yield from bps.mv(piezo.x, x)
+                    yield from bps.mv(piezo.y, y)
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    sample_id(user_name=name, sample_name=sample_name) 
+                    yield from bp.scan(dets, piezo.y, y, y+1110, 38)
+
+                else:
+                    for i_0, (x_0, y_0) in enumerate(zip(x_offset, y_offset)):
+                        sample_name = name_fmt.format(sample=s, offset = i_0+1, temperature='%3.1f'%temp, waxs='%2.1f'%wa)
+                        yield from bps.mv(piezo.x, x+x_0)
+                        yield from bps.mv(piezo.y, y+y_0)
+                        print(f'\n\t=== Sample: {sample_name} ===\n')
+                        sample_id(user_name=name, sample_name=sample_name) 
+                        yield from bp.count(dets, num=1)
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
+    yield from bps.mv(ls.ch1_sp, 28)
+
+
 
 
 def run_harv_temp_all(tim=0.5): 

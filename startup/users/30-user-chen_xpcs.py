@@ -109,3 +109,72 @@ def grid_scan_static():
                 det_exposure_time(0.1, 0.1)
                 yield from bp.count(dets, num=1)
 
+
+
+
+def nexafs_S_edge_chen(t=1):
+    dets = [pil300KW]
+    det_exposure_time(t,t) 
+
+    waxs_arc = [45.0]
+
+    name_fmt = 'nexafs_sampletest1_4_{energy}eV_wa{wax}_bpm{xbpm}'
+
+
+
+    for wa in waxs_arc:
+        for e in energies: 
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(1)
+
+            bpm = xbpm2.sumX.value
+
+            sample_name = name_fmt.format(energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+            sample_id(user_name='WC', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+    yield from bps.mv(energy, 2490)
+    yield from bps.mv(energy, 2470)
+    yield from bps.mv(energy, 2450)
+
+
+
+
+
+def waxs_S_edge_chen_2020_3(t=1):
+    dets = [pil300KW, pil1M]
+
+    names = ['sampleA1', 'sampleB1', 'sampleB2', 'sampleB3', 'sampleC4', 'sampleC5', 'sampleE8', 'sampleD1', 'sampleD2', 'sampleD3', 'sampleD4',
+    'sampleD5', 'sampleC8', 'sampleF1', 'sampleF2', 'sampleE1', 'sampleE3', 'sampleE4', 'sampleE5', 'sampleD8', 'sampleF8']
+    x = [43800, 28250, 20750, 13350,  5150, -5660, -10900, -18400, -26600, -34800, -42800, 42300, 34400, 26700, 18800, 11200, 2900, -5000, -12000,
+    -20300, -27800, ]
+    y = [-4900, -5440, -5960, -5660, -5660, -5660,  -5880,  -4750,  -5450,  -5000,  -4450,  6950,  6950,  6950,  7450,  7200, 7400,  8250,   8250,
+     8250, 7750]
+
+    energies = [2450.0, 2474.0, 2475.0, 2476.0, 2477.0, 2478.0, 2479.0, 2482.0, 2483.0, 2484.0, 2485.0, 2486.0, 2487.0, 2490.0, 2500.0]
+    
+    waxs_arc = np.linspace(0, 13, 3)
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys+30)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_rev_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e in energies[::-1]: 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2480)
+            yield from bps.mv(energy, 2460)
