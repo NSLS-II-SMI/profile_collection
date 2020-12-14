@@ -52,9 +52,10 @@ class SMIBeam(object):
         if self.dcm.energy.position < 2000:
             target_state = [att1_12]
         elif 2000 < self.dcm.energy.position < 2300:
-            target_state = [att2_10]
+            target_state = [att2_10, att2_9]
         elif 2300 < self.dcm.energy.position < 3000:
             target_state = [att2_12, att2_11, att2_10]
+            # target_state = [att2_12, att2_11] #For humidity cell only
         elif 3200 < self.dcm.energy.position < 3600:
             target_state = [att2_5, att2_6, att2_8, att2_9]
         elif 3600 < self.dcm.energy.position < 3900:
