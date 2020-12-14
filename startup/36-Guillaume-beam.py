@@ -293,17 +293,12 @@ class SMI_Beamline(Beamline):
                 self.crl_state = 'low_divergence'
 
     def pressure_measurments(self):
-        if chamber_pressure.waxs.get() == 'LO<E-03':
+        if get_chamber_pressure(chamber_pressure.waxs) < 1E-02 and get_chamber_pressure(chamber_pressure.maxs) < 1E-02:
             self.pressure_state = 'in-vacuum'
+        elif get_chamber_pressure(chamber_pressure.waxs) > 1E-02 and get_chamber_pressure(chamber_pressure.maxs) < 1E-02:
+            self.pressure_state = 'in-air'
         else:
-            try: 
-                pres = np.float(chamber_pressure.waxs.get())
-                if pres < 1E-02:
-                    self.pressure_state = 'in-vacuum'
-                else:
-                    self.pressure_state = 'in-air'
-            except:
-                self.pressure_state = 'Not read'
+            self.pressure_state = 'Not read'
 
     def update_md(self, prefix='beamline_', **md):
         md_beamline = self.md.copy()
