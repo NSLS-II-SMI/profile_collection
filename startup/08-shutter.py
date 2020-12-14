@@ -82,12 +82,13 @@ def shopen():
     yield from bps.sleep(1)
     yield from bps.mv(manual_PID_disable_pitch, '0')
     yield from bps.mv(manual_PID_disable_roll, '0')
-
-    # if np.float(chamber_pressure.waxs.get()) > 1E-02 and np.float(chamber_pressure.maxs.get()) < 1E-02:
-    #     yield from bps.mv(GV7.open_cmd, 1 )
-    #     yield from bps.sleep(1)
-    #     yield from bps.mv(GV7.open_cmd, 1 )
-    #     yield from bps.sleep(1)
+    
+    #Check if te set-up is in-air or not. If so, open the GV automatically when opening the shutter
+    if get_chamber_pressure(chamber_pressure.waxs) > 1E-02 and get_chamber_pressure(chamber_pressure.maxs) < 1E-02:
+        yield from bps.mv(GV7.open_cmd, 1 )
+        yield from bps.sleep(1)
+        yield from bps.mv(GV7.open_cmd, 1 )
+        yield from bps.sleep(1)
 
 
 def shclose():
@@ -96,11 +97,12 @@ def shclose():
     yield from bps.sleep(1)
     yield from bps.mv(ph_shutter, 'Retract')
 
-    # if np.float(chamber_pressure.waxs.get()) > 1E-02 and np.float(chamber_pressure.maxs.get()) < 1E-02:
-    #     yield from bps.mv(GV7.close_cmd, 1 )
-    #     yield from bps.sleep(1)
-    #     yield from bps.mv(GV7.close_cmd, 1 )
-    #     yield from bps.sleep(1)
+    #Check if te set-up is in-air or not. If so, close the GV automatically when opening the shutter
+    if get_chamber_pressure(chamber_pressure.waxs) > 1E-02 and get_chamber_pressure(chamber_pressure.maxs) < 1E-02:
+        yield from bps.mv(GV7.close_cmd, 1 )
+        yield from bps.sleep(1)
+        yield from bps.mv(GV7.close_cmd, 1 )
+        yield from bps.sleep(1)
 
 
 class SMIFastShutter(Device): 
