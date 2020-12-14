@@ -1,3 +1,104 @@
+
+def alignement_herzig_2020_3():
+    global names, x_piezo, z_piezo, incident_angles, y_piezo_aligned, x_hexa, y_hexa
+    
+    names =   ['s315h', 's324h', 's325h', 's338h', 's339v', 's339h', '313h']
+    x_piezo = [  20000,   50000,   36000,    12000,  -14000,  -40000, -59000]
+    y_piezo = [   8000,   -2900,   -2900,   -2900,   -2800,   -2700,  -2670]
+    z_piezo = [   5000,    -500,    -500,    -500,    -500,    -500,   -500]
+    x_hexa =  [      0,      10,       0,       0,       0,       0,     -5]
+    y_hexa =  [    6.5,       0,       0,       0,       0,       0,      0]
+
+    incident_angles = [ 1.11119 , -0.191966,  0.598941,  0.714874,  0.404448, 0.569336,  0.545989]
+    y_piezo_aligned = [ 7934.81 , -3182.572, -3047.423, -2976.562, -2917.547, -2778.959, -2602.172]
+
+    # incident_angles = [ 0.83422 ,  0.168648, -0.315438,  0.538535,  0.5593  ,  0.537955, 0.545215,  0.48137 ] 
+    # y_piezo_aligned = [ 7919.766,  8172.95 , -3172.044, -3065.634, -2925.553, -2917.084, -2781.573, -2627.836]
+
+    # smi = SMI_Beamline()
+    # yield from smi.modeAlignment(technique='gisaxs')
+
+    # for name, xs_piezo, ys_piezo, zs_piezo, xs_hexa, ys_hexa in zip(names[1:], x_piezo[1:], y_piezo[1:], z_piezo[1:], x_hexa[1:], y_hexa[1:]):
+    #     yield from bps.mv(piezo.x, xs_piezo)
+    #     yield from bps.mv(piezo.y, ys_piezo)
+    #     yield from bps.mv(stage.y, ys_hexa)
+    #     yield from bps.mv(stage.x, xs_hexa)
+    #     yield from bps.mv(piezo.z, zs_piezo)
+
+    #     yield from alignement_gisaxs_multisample(angle = 0.1)
+
+    #     incident_angles = incident_angles + [piezo.th.position]
+    #     y_piezo_aligned = y_piezo_aligned + [piezo.y.position]
+
+    # yield from smi.modeMeasurement()
+
+    # print(incident_angles)
+    # print(y_piezo_aligned)
+
+    # yield from bps.mv(att1_9, 'Insert')
+    # yield from bps.sleep(1)
+    # yield from bps.mv(att1_9, 'Insert')
+    # yield from bps.sleep(1)
+
+    # yield from bps.mv(stage.x, 0)
+    # yield from bps.mv(stage.y, 0)
+
+
+def run_Herzi_short_2020_3(t=1): 
+   
+    waxs_range = np.linspace(0, 13, 3)
+    dets = [pil300KW, pil1M]
+
+    for name, xs, zs, aiss, ys, xs_hexa, ys_hexa in zip(names, x_piezo, z_piezo, incident_angles, y_piezo_aligned, x_hexa, y_hexa):
+        yield from bps.mv(stage.y, ys_hexa)
+        yield from bps.mv(stage.x, xs_hexa)
+
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, aiss)
+
+        ai0 = piezo.th.position
+
+        # yield from bps.mvr(piezo.th, angl)
+        name_fmt = '{sample}_14keV_exppos1_{num}_ai{angle}deg_wa{wax}'
+        if waxs.arc.position > 12:
+            wa_ran = waxs_range[::-1]
+        else:
+            wa_ran = waxs_range
+
+        for wa in wa_ran:
+            yield from bps.mv(waxs, wa)
+            sample_name = name_fmt.format(sample=name, num ='%1.1d'%i, angle='%3.2f'%0.11, wax = '%2.1f'%wa)
+            sample_id(user_name='EH', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=20)
+
+        
+        yield from bps.mv(piezo.th, ai0)
+        yield from bps.mv(piezo.x, xs + 1000)
+        
+        det_exposure_time(t,t)
+        angl = np.linspace(0.05, 0.20, 16)
+        name_fmt = '{sample}_14keV_aiscan_ai{angle}deg_wa{wax}'
+
+        for wa in waxs_range:
+            yield from bps.mv(waxs, wa)
+            for ang in angl:
+                yield from bps.mv(piezo.th, ai0 + ang)
+                sample_name = name_fmt.format(sample=name, angle='%3.2f'%ang, wax = '%2.1f'%wa)
+                sample_id(user_name='EH', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+        
+        sample_id(user_name='test', sample_name='test')
+        det_exposure_time(0.3,0.3)
+
+def run_hxray_herzig(t=0.5):
+    alignement_herzig_2020_3()
+    yield from run_Herzi_short_2020_3(t=t)
+
+
 def run_Herzi_2020_3(t=1): 
     # samples = ['sample251', 'sample269', 'sample272', 'sample307h', 'sample319h']
     # x_list  = [-47000, -23000, -1000, 27000, 47000]

@@ -281,3 +281,106 @@ def gisaxsnetzkeSi(meas_t=1):
                 
         yield from bps.mv(prs, 0)
 '''
+
+
+def gisaxs_netzke_2020_3(meas_t=0.6):
+    waxs_arc = np.linspace(0, 45.5, 8)
+    dets = [pil300KW]
+
+    # xlocs = [-44500, -34800, -25700, -15500, -5000, 6900, 15200, 25500, 35500, 46800]
+    # names = ['RY13_phioffset','RY15_phioffset','RY16_phioffset','RY17_phioffset','RY18_phioffset','RY19_phioffset','RY21_phioffset','RY26_phioffset','TiN1_phioffset','TiN2_phioffset']
+    # assert len(xlocs) == len(names), f'Sample name/position list is borked' 
+
+    
+    angle_off_from02 = [0.20, 0.29, 0.40]
+    energ = [9540, 9580]
+    phis = [-40, -20, 0]
+
+    ref_th_0 = stage.th.position
+
+    for name, xs, zs, aiss, ys in zip(names, x_piezo, z_piezo, incident_angles, y_piezo_aligned):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, aiss)
+                
+        det_exposure_time(meas_t, meas_t) 
+        name_fmt = '{sample}_E{ene}eV_ai{angle}deg_phi{phi}deg_wa{waxs}'
+        
+        #phi is the slowest cycle:s
+        if waxs.arc.position > 20:
+            waxs_arc = np.linspace(0, 45.5, 8)[::-1]
+        else:
+            waxs_arc = np.linspace(0, 45.5, 8)
+        
+        for j, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            
+            for phi in phis: #(phi_min phi_max steps)
+                yield from bps.mv(prs, phi)
+
+                #check waxs value and adjust waxs range
+                for a, an in enumerate(angle_off_from02):
+                    yield from bps.mv(stage.th, ref_th_0 + an)
+
+                    for en in energ:
+                        yield from bps.mv(energy, en)
+                        yield from bps.sleep(1)
+
+                        sample_name = name_fmt.format(sample=name, ene='%2.0f'%en, angle='%3.2f'%an, phi = phi, waxs='%2.1f'%wa)
+                        sample_id(user_name='SN', sample_name=sample_name)
+                
+                        print(f'\n\t=== Sample: {sample_name} ===\n')
+                        yield from bp.count(dets, num=2)
+            
+            yield from bps.mv(stage.th, ref_th_0)
+        yield from bps.mv(prs, 0)
+
+
+
+def alignement_netzke():
+    global names, x_piezo, z_piezo, incident_angles, y_piezo_aligned
+    
+    # names = ['ALLS80', 'ALLS87', 'RK3', 'RK14', 'ALLS88', 'ALLS101', 'RK16', 'RK19_800C_1', 'RK19_800C_2', 'RK19_750C', 'S25', 'RK13', 'RK2']
+    # x_piezo = [-50800, -42800, -35800, -29800, -22800, -14800, -7800, 200, 7200, 15200, 22200, 29200, 36200]
+    # z_piezo = [  1660,   1660,   1460,    960,    560,    160,   160, 160, -240,  -240,  -440,  -740, -1040]
+
+    names = ['ALLS82', 'ALLS102', 'ALLS112', 'ALLS68', 'ALLS77', 'RK1', 'ALLS76', 'ALLS78', 'ALLS84', 'ALLS103', 'ALLS91', 'ALLS86', 'RK20',
+    'RA3', 'ALLS81']
+    x_piezo = [-50000, -44000, -37000, -30000, -23000, -16000, -9000, -2000, 5000, 13000, 20000, 28000, 36000, 43000, 50000]
+    z_piezo = [   560,    560,    560,    560,    360,    360,   360,   160,  160,   -40,  -340,  -340,  -540,  -740, -1540]
+
+
+
+    incident_angles = [] 
+    y_piezo_aligned = []
+
+    smi = SMI_Beamline()
+    yield from smi.modeAlignment(technique='gisaxs')
+
+    for name, xs_piezo, zs_piezo in zip(names, x_piezo, z_piezo):
+        yield from bps.mv(piezo.x, xs_piezo)
+        # yield from bps.mv(piezo.y, ys_piezo)
+        yield from bps.mv(piezo.z, zs_piezo)
+
+        yield from alignement_gisaxs_multisample(angle = 0.15)
+
+        incident_angles = incident_angles + [piezo.th.position]
+        y_piezo_aligned = y_piezo_aligned + [piezo.y.position]
+
+        print(incident_angles)
+        print(y_piezo_aligned)
+
+    yield from smi.modeMeasurement()
+
+    print(incident_angles)
+    print(y_piezo_aligned)
+
+# y_piezo_aligned = array([7271.133, 7235.479, 7214.69 , 7177.205, 7144.364, 7151.092, 7063.728, 7081.229, 7058.901, 7029.661, 6874.397, 6958.301, 6971.521])
+# incident_angles = [ 0.341887,  0.978769,  0.193741,  0.478084,  0.728999,  0.429933, 0.929884,  0.660595,  0.459128,  0.078492, 
+#     0.262723,  0.100632, -0.328383]
+
+# incident_angles = array([-1.226571, -0.552806,  0.28984 , -0.419068,  0.103962, -0.162368, 0.42735 , -0.451796,  0.124283, -1.463176, -0.168004,
+# -0.62571, -0.23411 , -0.106975, -0.307471])
+# y_piezo_aligned =array([7144.954, 7172.772, 7184.785, 7133.138, 7088.943, 7091.481, 7050.918, 7039.402, 7007.882, 6938.484, 6947.378, 6943.667,
+# 6901.995, 6796.63 , 6892.514])

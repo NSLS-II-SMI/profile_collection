@@ -26,19 +26,20 @@ def saxs_hegmann_gird(t=1):
     # y_range=[ [0, 400, 126]]
 
 
-    # names = [ 'HP11', 'HP13', 'HP14', 'HP15', 'HP16', 'HP17']
-    # xlocs = [ 30570, 16720,  18580, 18445, 21245, -115] 
-    # ylocs = [ -830 , 6205,  2105, -2334, -8664, 4640]
-    # zlocs = [ -3500, -3500, -3500, -3500, -3500, -3500]
-    # x_range=[ [0, 500, 21], [0, 500, 11], [0, 150, 7], [0, 200, 9], [0, 150, 7], [0, 150, 7]]
-    # y_range=[ [0, 400, 126], [0, 100, 26], [0, 300, 101], [0, 120, 41], [0, 99, 34], [0, 162, 55]]
+    names = [ 'HP24_vessel', 'HP26_vessel', 'HP25_platform']
+    xlocs = [         11200,         10700,           22800] 
+    ylocs = [         -1000,         -9500,           -9600]
+    zlocs = [         -5000,         -5000,           -5000]
+    stage_y = [0           ,             0,              -7]
+    x_range=[ [0, 1000, 42], [0, 1000, 42],       [0, 0, 1]]
+    y_range=[[0, 1000, 251], [0, 1000, 251], [0, 6400, 641]]
     
-    names = ['HP09_pos2']
-    xlocs = [32284] 
-    ylocs = [5560]
-    zlocs = [-3500]
-    x_range=[ [0, 990, 33]]
-    y_range=[ [0, 500, 101]]
+    # names = ['HP09_pos2']
+    # xlocs = [32284] 
+    # ylocs = [5560]
+    # zlocs = [-3500]
+    # x_range=[ [0, 990, 33]]
+    # y_range=[ [0, 500, 101]]
 
     user = 'MP'    
     det_exposure_time(t,t)     
@@ -53,7 +54,8 @@ def saxs_hegmann_gird(t=1):
     # Detectors, motors:
     dets = [pil1M]
     
-    for x, y, sample, x_r, y_r in zip(xlocs, ylocs, names, x_range, y_range):
+    for x, y, sample, x_r, y_r, sta_y in zip(xlocs, ylocs, names, x_range, y_range, stage_y):
+        yield from bps.mv(stage.y, sta_y)
         yield from bps.mv(piezo.x, x)
         yield from bps.mv(piezo.y, y)
         name_fmt = '{sam}_1.6m_16.1keV'
@@ -61,7 +63,7 @@ def saxs_hegmann_gird(t=1):
         sample_id(user_name=user, sample_name=sample_name) 
         print(f'\n\t=== Sample: {sample_name} ===\n')
             
-        yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 1) #1 = snake, 0 = not-snake
+        yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 0) #1 = snake, 0 = not-snake
         
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3,0.3)

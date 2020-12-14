@@ -32,15 +32,14 @@ def cd_saxs_new(sample, x, y, num=1, exp_t=1, step = 121):
     yield from bps.mv(piezo.y, y)
 
     for i, theta in enumerate(np.linspace(-60, 60, step)):
-        yield from bps.mv(prs, theta)
+        yield from bps.mv(prs, theta-1)
         name_fmt = '{sample}_{num}_{th}deg'
 
         sample_name = name_fmt.format(sample=sample, num = '%2.2d'%i, th='%2.2d'%theta)
         sample_id(user_name='PG', sample_name=sample_name)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         
-        yield from bp.count(det, num=1)
-        yield from bp.count(det, num=1)
+        yield from bp.count(det, num=num)
 
 
 def cdsaxs_all_pitch(sample, x, y, num=1, exp_t=1, step=121):
@@ -55,38 +54,6 @@ def cdsaxs_all_pitch(sample, x, y, num=1, exp_t=1, step=121):
         name_fmt = '{sample}_{pit}'
         sample_name = name_fmt.format(sample=sample, pit=pitch)
         yield from cd_saxs_new(sample_name, x+x_of, y, num=1, exp_t=exp_t, step=step)  
-
-
-def cdsaxs_important_pitch(sample, x, y, num=1, exp_t=1):
-    pitches = ['p112nm', 'p120nm', 'p128nm']
-    x_off = [0, 12000, 24000]
-    det_exposure_time(exp_t, exp_t)
-    for x_of, pitch in zip(x_off, pitches):
-        yield from bps.mv(piezo.x, x+x_of)
-
-        name_fmt = '{sample}_{pit}'
-        sample_name = name_fmt.format(sample=sample, pit=pitch)
-        yield from cd_saxs_new(sample_name, x+x_of, y, num=num, exp_t=exp_t)            
-
-def mesure_rugo(sample, x, y, num=200, exp_t=1):
-    pitches = ['p112nm', 'p120nm', 'p128nm']
-    x_off = [0, 12000, 24000]
-    det_exposure_time(exp_t, exp_t)
-    for x_of, pitch in zip(x_off, pitches):
-        yield from bps.mv(piezo.x, x+x_of)
-        yield from bps.mv(piezo.y, y)
-
-        name_fmt = '{sample}_rugo_{pit}_up'
-        sample_name = name_fmt.format(sample=sample, pit=pitch)
-        yield from cd_saxs_new(sample_name, x+x_of, y, num=num, exp_t=exp_t)            
-
-    yield from bps.mvr(pil1m_pos.y, 4.3)
-    for x_of, pitch in zip(x_off, pitches):
-        name_fmt = '{sample}_rugo_{pit}_down'
-        sample_name = name_fmt.format(sample=sample, pit=pitch)
-        yield from cd_saxs_new(sample_name, x+x_of, y, num=num, exp_t=exp_t)            
-   
-    yield from bps.mvr(pil1m_pos.y, -4.3)
 
 
 def night_patrice(exp_t=1):
@@ -291,3 +258,149 @@ def fly_scan_ai(det, motor, cycle=1, cycle_t=10, phi = -0.6):
 
 
 
+
+def sample_patrice_2020_3(exp_t=1):
+    numero = 1
+    det = [pil1M]
+    # wafer = 'wafer16'
+    # names = ['champs5', 'champs5_bkg', 'champs4', 'champs4_bkg', 'champs3', 'champs3_bkg']
+    # names = ['champs-1', 'champs-1_bkg', 'champs-2', 'champs-2_bkg', 'champs-3', 'champs-3_bkg']
+
+    wafer = 'wafer25'
+    # names = ['champs-1', 'champs-1_bkg', 'champs-2', 'champs-2_bkg', 'champs-3', 'champs-3_bkg']
+    names = ['champs1', 'champs1_bkg', 'champs0', 'champs0_bkg']
+
+    xs = [-3400, -3400, 22650, 22650]
+    ys = [ 6360,  7300,  6410,  7300]
+    zs = [ 1800,  1800,  1470,  1470]
+
+
+    for name, x, y, z in zip(names, xs, ys, zs):
+        yield from bps.mv(piezo.z, z)
+        numero+=1
+        name_fmt = '{sample}_num{numb}'
+        sample_name = name_fmt.format(wafer = wafer, sample=name, numb=numero)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        
+        if 'bkg' in name:
+            yield from cdsaxs_important_pitch(sample_name, x, y, num=1)
+        else:
+            yield from cdsaxs_important_pitch(sample_name, x, y, num=2)
+
+
+
+    names = ['champs2', 'champs2_bkg', 'champs1', 'champs1_bkg', 'champs0', 'champs0_bkg']
+
+    xs = [ -29420, -29420, -3400, -3400, 22650, 22650]
+    ys = [   6460,   7300,  6360,  7300,  6410,  7300]
+    zs = [   2130,   2130,  1800,  1800,  1470,  1470]
+
+    for name, x, y, z in zip(names, xs, ys, zs):
+        yield from bps.mv(piezo.z, z)
+        numero+=1
+        name_fmt = '{sample}_num{numb}'
+        sample_name = name_fmt.format(sample=name, numb=numero)
+
+        if 'bkg' in name:
+            yield from mesure_rugo(sample_name, x, y, num=10, exp_t=exp_t)
+        else:
+            yield from mesure_rugo(sample_name, x, y, num=100, exp_t=exp_t)
+
+
+    yield from bps.mvr(pil1m_pos.x,-5)
+    smi = SMI_Beamline()
+    yield from smi.modeAlignment(technique='gisaxs')
+
+    for name, x, y, z in zip(names, xs, ys, zs):
+        numero+=1
+        name_fmt = '{sample}_num{numb}'
+        sample_name = name_fmt.format(sample=name, numb=numero)
+        yield from bps.mv(piezo.z, z)
+        yield from mesure_db(sample_name, x, y, num=1, exp_t=1)
+    
+    yield from smi.modeMeasurement()
+    yield from bps.mvr(pil1m_pos.x, 5)
+
+
+
+def cdsaxs_important_pitch(sample, x, y, num=1, exp_t=1):
+    pitches = ['p113nm', 'p100nm']
+
+
+    if 'bkg' in sample:
+        x_off = [0, 0]
+        y_off = [0, -13300]
+    else:
+        x_off = [0, 0]
+        y_off = [0, -10500]
+
+
+    det_exposure_time(exp_t, exp_t)
+    for x_of, y_of, pitch in zip(x_off, y_off, pitches):
+        yield from bps.mv(piezo.x, x+x_of)
+        yield from bps.mv(piezo.y, y+y_of)
+
+        name_fmt = '{sample}_{pit}'
+        sample_name = name_fmt.format(sample=sample, pit=pitch)
+        yield from cd_saxs_new(sample_name, x+x_of, y+y_of, num=num, exp_t=exp_t)            
+
+
+def mesure_rugo(sample, x, y, num=200, exp_t=1):
+    print(sample)
+    pitches = ['p100nm']
+    
+    if 'bkg' in sample:
+        x_off = [0]
+        y_off = [-13300]
+    else:
+        x_off = [0]
+        y_off = [-10500]
+
+
+    yield from bps.mv(prs, -1)
+
+    det_exposure_time(exp_t, exp_t)
+    for x_of, y_of, pitch in zip(x_off, y_off, pitches):
+        yield from bps.mv(piezo.x, x+x_of)
+        yield from bps.mv(piezo.y, y+y_of)
+
+        name_fmt = '{sample}_rugo_{pit}_up'
+        sample_name = name_fmt.format(sample=sample, pit=pitch)
+        print(sample_name)
+        sample_id(user_name='PG', sample_name=sample_name)
+
+        yield from bp.count([pil1M], num=num)            
+
+
+    yield from bps.mvr(pil1m_pos.y, 4.3)
+    for x_of, y_of, pitch in zip(x_off, y_off, pitches):
+        yield from bps.mv(piezo.x, x+x_of)
+        yield from bps.mv(piezo.y, y+y_of)
+        name_fmt = '{sample}_rugo_{pit}_down'
+        sample_name = name_fmt.format(sample=sample, pit=pitch)
+        sample_id(user_name='PG', sample_name=sample_name)
+        yield from bp.count([pil1M], num=num)            
+   
+    yield from bps.mvr(pil1m_pos.y, -4.3)
+
+
+def mesure_db(sample, x, y, num=1, exp_t=1):
+    pitches = ['p100nm']
+    if 'bkg' in sample:
+        x_off = [0]
+        y_off = [-13300]
+    else:
+        x_off = [0]
+        y_off = [-10500]
+    yield from bps.mv(prs, -1)
+
+    det_exposure_time(exp_t, exp_t)
+    for x_of, y_of, pitch in zip(x_off, y_off, pitches):
+        yield from bps.mv(piezo.x, x+x_of)
+        yield from bps.mv(piezo.y, y+y_of)
+
+        name_fmt = '{sample}_db_{pit}_att9x60umSn'
+        sample_name = name_fmt.format(sample=sample, pit=pitch)
+        sample_id(user_name='PG', sample_name=sample_name)
+
+        yield from bp.count([pil1M], num=1)            
