@@ -9,7 +9,7 @@ class sample_chamber_pressure(Device):
     maxs = Cpt(EpicsSignal, '{B1:WAXS-TCG:9}P:Raw-I')  # Change PVs
 
 
-chamber_pressure = sample_chamber_pressure('XF:12IDC-VA:2', name='waxs_chamber_pressure')  # Change PVs
+chamber_pressure = sample_chamber_pressure('XF:12IDC-VA:2', name='chamber_pressure')  # Change PVs
 chamber_pressure.waxs.kind = 'hinted'
 chamber_pressure.maxs.kind = 'hinted'
 
