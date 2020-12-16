@@ -26,7 +26,3 @@ chamber_pressure.waxs.kind = 'hinted'
 chamber_pressure.maxs.kind = 'hinted'
 
 
-GV7 = TwoButtonShutter('XF:12IDC-VA:2{Det:1M-GV:7}', name='GV7')
-
-
-
