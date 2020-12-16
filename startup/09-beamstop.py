@@ -9,10 +9,25 @@ class PIL1MBS(Device):
     y = Cpt(EpicsMotor, 'IBM}Mtr')
     x_other = Cpt(EpicsMotor, 'OBB}Mtr')
     y_other = Cpt(EpicsMotor, 'OBM}Mtr')
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.x_center = None
         self.y_center = 13.1
+
+    def mv_in(self):
+        if self.x.position > 0:
+            print('bs rod already in')
+        else:
+            # Move the pindiode out of teh way to avoid collision
+            yield from pil1m_bs_pd.mv_out()
+            
+            # move the bs rod in
+            yield from bps.mv(self.x, 1.5)
+    
+    def mv_out(self):
+        yield from bps.mv(self.x, -205)
+        
         
 pil1m_bs_rod = PIL1MBS('XF:12IDC-ES:2{BS:SAXS-Ax:', name='detector_saxs_bs_rod')
 
@@ -20,6 +35,21 @@ pil1m_bs_rod = PIL1MBS('XF:12IDC-ES:2{BS:SAXS-Ax:', name='detector_saxs_bs_rod')
 class SAXSPindiode(Device):
     x = Cpt(EpicsMotor, 'OBB}Mtr')
     y = Cpt(EpicsMotor, 'OBM}Mtr') 
+
+    def mv_in(self):
+        if self.x.position < -180:
+            print('pindiode already in')
+        else:
+            # make sure that the pil1M bs is out of teh way to avoid collision
+            yield from pil1m_bs_rod.mv_out()
+
+            # move the pindiode in
+            yield from bps.mv(self.x, -197.5)
+    
+    def mv_out(self):
+        yield from bps.mv(self.x, 0)
+        
+        
 
 pil1m_bs_pd = SAXSPindiode( 'XF:12IDC-ES:2{BS:SAXS-Ax:', name = 'detector_saxs_bs_pindiode' )
 
