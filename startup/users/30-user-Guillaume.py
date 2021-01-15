@@ -1220,7 +1220,29 @@ def nexafs_Se(t = 0.5):
 
 
 
-def add_sample(bar):
-    sample = {}
-    sample
-    piezo.x.position
+# def add_sample(bar):
+#     sample = {}
+#     sample
+#     piezo.x.position
+
+def att_in():
+    att = [att2_1, att2_2, att2_3, att2_4, att2_5, att2_6, att2_7, att2_8, att2_9, att2_10, att2_11, att2_12,
+    att1_1, att1_2, att1_3, att1_4, att1_5, att1_6, att1_7, att1_8, att1_9, att1_10, att1_11, att1_12]
+    for atte in att:
+        yield from bps.mv(atte, 'Insert')
+        yield from bps.sleep(1)
+
+def att_out():
+    att = [att2_1, att2_2, att2_3, att2_4, att2_5, att2_6, att2_7, att2_8, att2_9, att2_10, att2_11, att2_12,
+    att1_1, att1_2, att1_3, att1_4, att1_5, att1_6, att1_7, att1_8, att1_9, att1_10, att1_11, att1_12]
+    for atte in att:
+        yield from bps.mv(atte, 'Retract')
+        yield from bps.sleep(1)
+
+
+def loop_att(i=1):
+    for j in range(0, i, 1):
+        yield from att_in()
+        yield from bps.sleep(1)
+        yield from att_out()
+        yield from bps.sleep(1)
