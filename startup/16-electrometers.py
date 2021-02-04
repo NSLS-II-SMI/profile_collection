@@ -16,23 +16,70 @@ from nslsii.ad33 import QuadEMV33
 #ch1,2,3,4 = pads 2,3,5,4 respectively; thick active area
 
 
-class LakeShore(Device):
+# class LakeShore(Device):
+#     """
+#     Lakeshore is the device reading the temperature from the heating stage for SAXS and GISAXS.
+#     This class define the PVs to read and write to control lakeshore
+#     :param Device: ophyd device
+#     """
+#     ch1_read = Cpt(EpicsSignal, 'TC1:IN1')
+#     ch1_sp = Cpt(EpicsSignal, 'TC1:OUT1:SP')
+#     ch2_read = Cpt(EpicsSignal, 'TC1:IN2')
+#     ch2_sp = Cpt(EpicsSignal, 'TC1:OUT2:SP')
+#     ch2_out_mode = Cpt(EpicsSignal, 'TC1:OUT2:Mode')
+#     ch3_out_mode = Cpt(EpicsSignal, 'TC1:OUT3:Mode')
+#     p1 = Cpt(EpicsSignal, 'TC1:P1')
+#     p3 = Cpt(EpicsSignal, 'TC1:P3')
+
+
+
+# ls = LakeShore('XF:12IDC:LS336:', name='ls')
+# ls.ch1_read.kind = 'hinted'
+# ls.ch1_sp.kind = 'hinted'
+# ls.ch2_read.kind = 'hinted'
+# ls.ch2_sp.kind = 'hinted'
+
+
+class output_lakeshore(Device):
+    status = Cpt(EpicsSignal, 'Val:Range-Sel')
+    P = Cpt(EpicsSignal, 'Gain:P-SP')
+    I = Cpt(EpicsSignal, 'Gain:I-SP')
+    D = Cpt(EpicsSignal, 'Gain:I-SP')
+    temp_set_point = Cpt(EpicsSignal, 'T-SP')
+
+    def turn_on(self):
+        yield from bps.mv(self.status, 1)
+
+    def turn_off(self):
+        yield from bps.mv(self.status, 0)
+
+    def mv_temp(self, temp):
+        yield from bps.mv(self.temp_set_point, temp)
+
+
+class new_LakeShore(Device):
     """
     Lakeshore is the device reading the temperature from the heating stage for SAXS and GISAXS.
     This class define the PVs to read and write to control lakeshore
     :param Device: ophyd device
     """
-    ch1_read = Cpt(EpicsSignal, 'TC1:IN1')
-    ch1_sp = Cpt(EpicsSignal, 'TC1:OUT1:SP')
-    ch2_read = Cpt(EpicsSignal, 'TC1:IN2')
-    ch2_sp = Cpt(EpicsSignal, 'TC1:OUT2:SP')
+    input_A = Cpt(EpicsSignal, '{Env:01-Chan:A}T-I')
+    input_B = Cpt(EpicsSignal, '{Env:01-Chan:A}T-I')
+    input_C = Cpt(EpicsSignal, '{Env:01-Chan:A}T-I')
+    input_D = Cpt(EpicsSignal, '{Env:01-Chan:A}T-I')
 
+    output1 = output_lakeshore('XF:12ID-ES{Env:01-Out:1}', name='ls_outpu1')
+    output2 = output_lakeshore('XF:12ID-ES{Env:01-Out:2}', name='ls_outpu2')
+    output3 = output_lakeshore('XF:12ID-ES{Env:01-Out:3}', name='ls_outpu3')
+    output4 = output_lakeshore('XF:12ID-ES{Env:01-Out:4}', name='ls_outpu4')
 
-ls = LakeShore('XF:12IDC:LS336:', name='ls')
-ls.ch1_read.kind = 'hinted'
-ls.ch1_sp.kind = 'hinted'
-ls.ch2_read.kind = 'hinted'
-ls.ch2_sp.kind = 'hinted'
+ls = new_LakeShore('XF:12ID-ES', name='ls')
+# ls.ch1_read.kind = 'hinted'
+# # ls.ch1_sp.kind = 'hinted'
+# ls.ch2_read.kind = 'hinted'
+# # ls.ch2_sp.kind = 'hinted'
+# ls.ch3_read.kind = 'hinted'
+
 
 
 class XBPM(Device):
