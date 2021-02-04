@@ -124,18 +124,24 @@ class SMIBeam(object):
             print('current state: {}'.format(current_state))
             print('target state: {}'.format(target_state))
 
-    def _actuateFoil(self, foil, state, wait_time=5.0, max_retries=10):
+    def _actuateFoil(self, foil, state, wait_time=2.0, max_retries=5):
         itry = 0
         foil_st = yield from bps.read(foil)
                 
         while itry < max_retries and\
                 ((foil_st['{}_status'.format(foil.name)]['value'] == 'Not Open' and state == 'Insert') or
                  (foil_st['{}_status'.format(foil.name)]['value'] == 'Open' and state == 'Retract')):
-            print('Try number', itry + 1, 'to update attenuator', foil)
-            yield from bps.mv(foil, state)
-            foil_st = yield from bps.read(foil)
+            
+            if state == 'Retract':
+                yield from bps.mv(foil.close_cmd, 1)
+
+            elif state == 'Insert':
+                yield from bps.mv(foil.open_cmd, 1)
+
             itry += 1
             yield from bps.sleep(wait_time)
+            foil_st = yield from bps.read(foil)
+
 
 # End class SMIBeam(object)
 ########################################
