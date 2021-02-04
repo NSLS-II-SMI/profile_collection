@@ -128,6 +128,59 @@ def saxs_cai_2020_3(t=1):
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3, 0.3) 
 
+
+
+
+def saxs_cai_2021_1(t=1): 
+    # names = ['glass_bkg', 'M11_LBBL_0.26', 'M11_LBBL_0.30', 'M11_LBBL_0.34', 'M11_LBBL_0.38', 'M11_LBBL_0.44', 'M17_LBBL_200k','M17_LBBL_500k',
+    # 'M17_LBBL_1000k', 'HA_251_f_10', 'HA_251_f_25', 'HA_988_f_11', 'HA_909_AAPA_89_f_12', 'HA_239_AAPA_23_f_12', 'HA_239_AAPA_23_f_26']
+    # xlocs = [39000, 44000, 31000, 16000,  3000, -10000, -23000, -37000, 42000, 26000, 14000,    0, -13000, -27000, -41000]
+    # ylocs = [-7000, -7000, -7000, -7000, -6000,  -6000,  -6000,  -6000,  6000,  6000,  6000, 6000,   6000,   6000,   6000]
+    # zlocs = [ 2700,  2700,  2700,  2700,  2700,   2700,   2700,   2700,  2700,  2700,  2700, 2700,   2700,   2700,   2700]
+
+    # names = ['HA_180_AAPA_60_f_11', 'HA_188_AAPA_62_f_32', 'BMB_6per', 'BMB_17per', 'BMB_1.1', 'Si']
+    # xlocs = [38000, 24000, 10000, -2000, -14000, -25000]
+    # ylocs = [    0,     0,     0,     0,      0,      0]
+    # zlocs = [ 2700,  2700,  2700,  2700,   2700,   2700]
+
+    # names = ['HA_251', 'HA_988', 'HA_239_AAPA_23', 'HA_180_AAPA_60', 'HA_188_AAPA_62', 'HA_909_AAPA_89']
+    # xlocs = [-39000, -23600, -14600,  9000, 26500, 38000]
+    # ylocs = [ -9500,   2800,   2800,  2800,  2800,  2000]
+    # zlocs = [  2700,  -6100,  -5900, -5900, -5900,  -200]
+
+    names = ['Cap_blank', 'HA_988_2', 'HA_239_AAPA_23_2', 'HA_180_AAPA_60_2', 'HA_188_AAPA_62_2']
+    xlocs = [     -38900,    -24000,              -13800,               8100,              25900]
+    ylocs = [      -2500,     -2500,               -6000,              -8300,              -9500]
+    zlocs = [        500,     -6100,               -5900,              -5900,              -5900]
+  
+    user = 'LC'    
+    det_exposure_time(t,t)     
+    
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})'
+    
+    # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    waxs_range = np.linspace(0, 32.5, 6)
+
+    ypos = [-200, 200, 3]
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z in zip(names, xlocs, ylocs, zlocs):
+            yield from bps.mv(piezo.x, x)            
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            name_fmt = '{sam}_16.1keV_sdd8.3m_wa{waxs}'
+            sample_name = name_fmt.format(sam=sam,  waxs='%2.1f'%wa)
+            sample_id(user_name=user, sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.rel_scan(dets, piezo.y, *ypos)
+            yield from bps.sleep(2)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3) 
+
 def saxs_cai(t=1): 
     xlocs = [-26000,-13000,-2000, 10000,21000,33000,42000, -33000,-22000,-11000,0,12000,22000,34000,42000]
     y_top = -6500

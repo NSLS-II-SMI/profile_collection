@@ -627,7 +627,7 @@ def measure_waxs( t = 1, att='None', move_y=False, user_name='', sample= None,
         Twaxs_angle_array = waxs_angle_array[::-1]
     else:
         Twaxs_angle_array = waxs_angle_array            
-    for waxs_angle in waxs_angles:
+    for waxs_angle in Twaxs_angles:
         yield from bps.mv(waxs, waxs_angle)  
         if inverse_angle:
             name_fmt = '{sample}_x{x_pos}_y{y_pos}_waxsN{waxs_angle:05.2f}_expt{expt}s_att{att}_sid{scan_id:08d}'

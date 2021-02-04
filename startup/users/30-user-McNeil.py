@@ -435,19 +435,24 @@ def giwaxs_S_edge_2020_3(t=1):
 def waxs_S_edge_chris_2020_3(t=1):
     dets = [pil300KW]
 
-    names = ['L2_01_01per', 'L2_01_02-45deg', 'L2_01_03par', 'L2_01_04-45deg', 'R2_01_01', 'R2_01_02', 'R2_02_01', 'R2_02_02', 'R2_03_01', 'R2_03_02',]
-    x = [29800, 22800, 15400,  8800, -17200, -23400, -29300, -34700, -40200, 39200]
-    y = [-5660, -5460, -5600, -5600,  -5600,  -5300,  -5300,  -5600,  -5500,  7000]
-
+    # names = [e'L2_01_01per', 'L2_01_02-45dg', 'L2_01_03par', 'L2_01_04-45deg', 'R2_01_01', 'R2_01_02', 'R2_02_01', 'R2_02_02', 'R2_03_01', 'R2_03_02',]
+    # x = [29800, 22800, 15400,  8800, -17200, -23400, -29300, -34700, -40200, 39200]
+    # y = [-5660, -5460, -5600, -5600,  -5600,  -5300,  -5300,  -5600,  -5500,  7000]
+    # names = ['X1_03_per']
+    # x = [-1500]
+    # y = [-116]
+    names = ['X1_03_par_redo3_pos1']
+    x = [1600]
+    y = [1335]
     energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist()
-    waxs_arc = np.linspace(0, 39, 7)
+    waxs_arc = np.linspace(0, 0, 1)
 
     for name, xs, ys in zip(names, x, y):
         yield from bps.mv(piezo.x, xs)
         yield from bps.mv(piezo.y, ys)
 
-        yss = np.linspace(ys, ys + 1000, 29)
-        xss = np.array([xs, xs + 500])
+        yss = np.linspace(ys, ys + 150, 15)
+        xss = np.linspace(xs, xs + 200, 4)
 
         yss, xss = np.meshgrid(yss, xss)
         yss = yss.ravel()
@@ -457,15 +462,9 @@ def waxs_S_edge_chris_2020_3(t=1):
             yield from bps.mv(waxs, wa)    
 
             det_exposure_time(t,t) 
-            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            name_fmt = '{sample}_sdd260.6_{energy}eV_wa{wax}_bpm{xbpm}'
             for e, xsss, ysss in zip(energies, xss, yss): 
-                try: 
-                    yield from bps.mv(energy, e)
-                except:
-                    print('energy failed to move, sleep for 30 s')
-                    yield from bps.sleep(30)
-                    print('Slept for 30 s, try move energy again')
-                    yield from bps.mv(energy, e)
+                yield from bps.mv(energy, e)
                 yield from bps.sleep(1)
 
                 yield from bps.mv(piezo.y, ysss)
@@ -507,10 +506,12 @@ def nexafs_oriented_S_edge(t=1):
     # x = [23100, 3700]
     # y = [-5660, -5660]
 
-    names = ['L2_02_02-45deg']
-    x = [24100]
-    y = [-5400] 
-
+    # names = ['X1_03_par_30deg']
+    # x = [31300]
+    # y = [320] 
+    names = ['X1_03_45deg_60deg']
+    x = [6500]
+    y = [-9150]
 
     energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist()
     waxs_arc = np.linspace(52, 52, 1)
@@ -519,8 +520,11 @@ def nexafs_oriented_S_edge(t=1):
         yield from bps.mv(piezo.x, xs)
         yield from bps.mv(piezo.y, ys)
 
-        yss = np.linspace(ys, ys + 1000, 58)
-        xss = np.array([xs])
+        # yss = np.linspace(ys, ys + 200, 12)
+        # xss = np.linspace(xs, xs + 1000, 5)
+
+        yss = np.linspace(ys, ys + 250, 58)
+        xss = np.linspace(xs, xs, 1)
 
         yss, xss = np.meshgrid(yss, xss)
         yss = yss.ravel()
@@ -530,7 +534,7 @@ def nexafs_oriented_S_edge(t=1):
             yield from bps.mv(waxs, wa)    
 
             det_exposure_time(t,t) 
-            name_fmt = 'nexafs_or_{sample}_prs60deg_{energy}eV_wa{wax}_bpm{xbpm}'
+            name_fmt = 'nexafs_{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
             for e, xsss, ysss in zip(energies, xss, yss): 
                 yield from bps.mv(energy, e)
                 yield from bps.sleep(2)

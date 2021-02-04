@@ -130,28 +130,22 @@ def nexafs_S_edge_cherun(t=1):
     yield from bps.mv(waxs, 52.5)   
     dets = [pil300KW]
     
-    names = ['bar1_sa03.5deg']
+    names = ['nexafs_sam2_ex_situ']
 
-    energies = np.arange(2460, 2521, 1).tolist()
-    energies = np.arange(2450, 2476, 5).tolist() + np.arange(2476, 2486, 0.25).tolist() + np.arange(2486, 2496, 1).tolist()+ np.arange(2496, 2511, 5).tolist()
-
+    # energies = np.arange(2460, 2521, 1).tolist()
+    energies = -2.5 + np.asarray(np.arange(2450, 2476, 5).tolist() + np.arange(2476, 2486, 0.25).tolist() + np.arange(2486, 2496, 1).tolist()+ np.arange(2496, 2511, 5).tolist())
+    ys = np.linspace(320, 1320, 59)
     
     for name in (names):
-
-        yield from bps.mv(att2_9, 'Retract')
-        yield from bps.mv(GV7.close_cmd, 1 )
-        yield from bps.sleep(1)
-        yield from bps.mv(att2_9, 'Retract')
-        yield from bps.mv(GV7.close_cmd, 1 )
-        yield from bps.sleep(1)
 
         # yield from bps.mv(piezo.th, 1.5)
 
         det_exposure_time(t,t) 
         name_fmt = '{sample}_{energy}eV_wa52.5_bpm{xbpm}'
-        for e in energies:
+        for e, yss in zip(energies, ys):
+            yield from bps.mv(piezo.y, yss)
             yield from bps.mv(energy, e)
-            yield from bps.sleep(0.5)
+            yield from bps.sleep(1)
             bpm = xbpm2.sumX.value
             sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%4.3f'%bpm)
             sample_id(user_name='GF', sample_name=sample_name)
@@ -162,3 +156,104 @@ def nexafs_S_edge_cherun(t=1):
         yield from bps.mv(energy, 2490)
         yield from bps.mv(energy, 2470)
         yield from bps.mv(energy, 2450)
+
+
+
+def instec_insitu_hard_xray(t=0.5):
+
+    dets = [pil300KW, pil1M]
+    det_exposure_time(t,t) 
+
+    
+    name = 'sampleA'
+    # temperatures = np.arange(150, 130, -5).tolist() + np.arange(130, 115, -1).tolist() + np.arange(115, 100, -0.5).tolist()
+    # temperatures = np.arange(140, 130, -5).tolist() + np.arange(130, 115, -1).tolist() + np.arange(115, 100, -0.5).tolist()
+    temperatures = np.arange(119, 100, -1).tolist()
+    temperatures = np.arange(90, 84, -1).tolist()
+
+    # temperatures = [120]
+    waxs_arc = np.linspace(0, 19.5, 4) 
+
+    for i_t, t in enumerate(temperatures):
+
+        t_kelvin = t + 273.15
+        yield from ls.output3.mv_temp(t_kelvin)
+        yield from bps.sleep(120)
+
+        if i_t != 0:
+            yield from bps.mvr(stage.y, 0.025)
+
+        temp = ls.input_A.value
+        while abs(temp - t_kelvin) > 0.25:
+            print(abs(temp - t_kelvin))
+            yield from bps.sleep(10)
+            temp = ls.input_A.value
+
+        temp_C = temp -273.15
+        if waxs.arc.position > 15:
+            wa_arc = waxs_arc[::-1]
+        else:
+            wa_arc = waxs_arc
+
+        for j, wa in enumerate(wa_arc):
+            yield from bps.mv(waxs, wa)
+            name_fmt = '{sample}_{temperature}C_wa{waxs}_sdd1.6m'
+            sample_name = name_fmt.format(sample=name, offset = 0, temperature='%3.1f'%temp_C, waxs='%2.1f'%wa)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            sample_id(user_name=name, sample_name=sample_name) 
+            yield from bp.count(dets, num=1)
+
+
+def instec_insitu_tender_xray(t=0.5):
+
+    dets = [pil300KW, pil1M]
+    det_exposure_time(t,t) 
+
+    energies = [2460, 2475]
+    
+    x = -0.87
+
+    name = 'sampleB_unaligned'
+
+    temperatures = np.arange(140, 125, -5).tolist() + np.arange(125, 101, -2).tolist() + np.arange(101, 90, -1).tolist()
+    waxs_arc = np.linspace(0, 19.5, 4) 
+
+    for i_t, t in enumerate(temperatures):
+
+        t_kelvin = t + 273.15
+        yield from ls.output3.mv_temp(t_kelvin)
+
+        if i_t != 0:
+            yield from bps.mvr(stage.y, 0.025)
+            yield from bps.sleep(120)
+
+        temp = ls.input_A.value
+        while abs(temp - t_kelvin) > 0.25:
+            print(abs(temp - t_kelvin))
+            yield from bps.sleep(10)
+            temp = ls.input_A.value
+
+        temp_C = temp -273.15
+        if waxs.arc.position > 15:
+            wa_arc = waxs_arc[::-1]
+        else:
+            wa_arc = waxs_arc
+
+        for j, wa in enumerate(wa_arc):
+            yield from bps.mv(waxs, wa)
+
+            for k, energ in enumerate(energies):
+                yield from bps.mv(energy, energ)
+                yield from bps.sleep(1)
+                # yield from bps.mv(stage.x, x + (k * 0.1))
+
+                name_fmt = '{sample}_{temperature}C_wa{waxs}_sdd1.6m_{ener}eV'
+                sample_name = name_fmt.format(sample=name, offset = 0, temperature='%3.1f'%temp_C, waxs='%2.1f'%wa, ener=energ)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                sample_id(user_name=name, sample_name=sample_name) 
+                yield from bp.count(dets, num=1)
+
+            # yield from bps.mv(energy, 2480)
+
+    
+    yield from ls.output3.mv_temp(303.15)

@@ -87,3 +87,81 @@ def Nafion_waxs_S_edge(t=1):
 
     #         yield from bps.mv(energy, 2470)
     #         yield from bps.mv(energy, 2450)
+
+
+
+
+def Su_nafion_waxs_hard(t=1):
+    dets = [pil300KW, pil1M]
+
+    waxs_arc = np.linspace(0, 32.5, 6)
+
+    yield from bps.mv(stage.y, 0)
+    yield from bps.mv(stage.th, 0)
+
+    names = ['30nPA', '50nPA']
+    x = [12500, -15500]
+    y = [-300,  -300]
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)    
+        
+        for name, xs, ys in zip(names, x, y):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_16100eV_sdd8.3_wa{wax}'
+            sample_name = name_fmt.format(sample=name, wax = wa)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+    yield from bps.mv(stage.th, 1.5)
+    yield from bps.mv(stage.y, -8)
+    
+    names = ['70nPA', 'Nafion_xl']
+    x = [32000, 1000]
+    y = [-9000, -9000]
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)    
+        
+        for name, xs, ys in zip(names, x, y):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)  
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_16100eV_sdd8.3_wa{wax}'
+            sample_name = name_fmt.format(sample=name, wax = wa)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+
+def sara_nafion_waxs_hard(t=1):
+    dets = [pil300KW, pil1M]
+
+    waxs_arc = np.linspace(0, 32.5, 6)
+
+    # names = ['10nPA_sol', '30nPA_sol', '50nPA_sol', '60nPA_sol']
+    # x = [-37200, -31200, -25100, -12200]
+    # y = [1000,     1000,   1000,   1000]
+
+    names = ['SPES_20', 'SPES_40', 'SPES_60']
+    x = [        26000,      4000,    -20000]
+    y = [            0,       0,           0]
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)    
+        
+        for name, xs, ys in zip(names, x, y):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_16100eV_sdd8.3_wa{wax}'
+            sample_name = name_fmt.format(sample=name, wax = wa)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
