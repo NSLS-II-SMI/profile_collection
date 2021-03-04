@@ -64,9 +64,9 @@ class new_LakeShore(Device):
     :param Device: ophyd device
     """
     input_A = Cpt(EpicsSignal, '{Env:01-Chan:A}T-I')
-    input_B = Cpt(EpicsSignal, '{Env:01-Chan:A}T-I')
-    input_C = Cpt(EpicsSignal, '{Env:01-Chan:A}T-I')
-    input_D = Cpt(EpicsSignal, '{Env:01-Chan:A}T-I')
+    input_B = Cpt(EpicsSignal, '{Env:01-Chan:B}T-I')
+    input_C = Cpt(EpicsSignal, '{Env:01-Chan:C}T-I')
+    input_D = Cpt(EpicsSignal, '{Env:01-Chan:D}T-I')
 
     output1 = output_lakeshore('XF:12ID-ES{Env:01-Out:1}', name='ls_outpu1')
     output2 = output_lakeshore('XF:12ID-ES{Env:01-Out:2}', name='ls_outpu2')
