@@ -102,45 +102,17 @@ def saxs_prep_multisample(t=1):
     energies = [4030, 4040, 4050, 4055, 4075]
     det_exposure_time(t,t) 
     name_fmt = '{sample}_{energy}eV_pos{posi}_wa{wa}_xbpm{xbpm}'
-    waxs_range = [0, 6.5, 13.0, 19.5, 26, 32.5, 39.0]
-    #waxs_range = [0, 6.5, 13.0, 19.5]
-
+    waxs_range = np.linspace(0, 39, 7)
 
     det_exposure_time(t,t)
 
     for wa in waxs_range[::-1]:
         yield from bps.mv(waxs, wa)
-        yield from bps.mv(stage.y, -5.5)
-        yield from bps.mv(stage.th, 1.5)
 
-        samples = ['sample02', 'sample03', 'sample04', 'sample05', 'sample06', 'sample07', 'sample08', 'sample01']
-        x_list  = [32500, 19500, 8500, -3500, -15500, -27500, -39500, 44500]
-        y_list =  [3900,  3900,  3900,  3900, 3900,  3900,   3900,   3900]
+        samples = ['mwet_01', 'mwet_02', 'mwet_03', 'mwet_04', 'mwet_05', 'mwet_06', 'mwet_07', 'mwet_08', 'mwet_09', 'mwet_10', 'mwet_11', 'mwet_12', 'mwet_13', 'mwet_14']
+        x_list  = [    43000,     33000,     23000,     12000,      1000,    -11000,    -22500,    -33000,     41500,     30500,     19500,      8500,     -3000,    -14000]
+        y_list =  [    -8000,     -8000,     -8000,     -8000,     -8000,     -8000,     -8000,     -8000,      5000,      5000,      5000,      5000,      5000,      5000]
         
-        for name, x, y in zip(samples, x_list, y_list):
-            yield from bps.mv(piezo.x, x)
-            yield from bps.mv(piezo.y, y)
-
-            for k, e in enumerate(energies):                              
-                yield from bps.mv(energy, e)
-                name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
-
-                sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
-                sample_id(user_name='OS', sample_name=sample_name)
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                yield from bp.count(dets, num=1)
-                            
-
-            yield from bps.mv(energy, 4050)
-            yield from bps.mv(energy, 4030)
-        
-
-        yield from bps.mv(stage.y, -6.5)
-        yield from bps.mv(stage.th, 1.5)
-
-        samples = ['sample09', 'sample10', 'sample11']
-        x_list  = [41000, 24000, 9000]
-        y_list =  [-9500, -9500, -9500]
 
         for name, x, y in zip(samples, x_list, y_list):
             yield from bps.mv(piezo.x, x)
@@ -148,49 +120,61 @@ def saxs_prep_multisample(t=1):
 
             for k, e in enumerate(energies):                              
                 yield from bps.mv(energy, e)
-                name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
+                yield from bps.mv(piezo.y, y + k * 30)
 
-                sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
-                sample_id(user_name='OS', sample_name=sample_name)
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                yield from bp.count(dets, num=1)
+                name_fmt = '{sample}_pos{pos}_{energy}eV_xbpm{xbpm}_wa{wa}'
+
+                for i in [0, 1, 3]:
+                    yield from bps.mv(piezo.x, x + i * 500)
+
+                    sample_name = name_fmt.format(sample=name, pos = '%1.1d'%i, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wa)
+                    sample_id(user_name='OS', sample_name=sample_name)
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    yield from bp.count(dets, num=1)
                             
-
             yield from bps.mv(energy, 4050)
             yield from bps.mv(energy, 4030)
-
-    sample_id(user_name='test', sample_name='test')
-    det_exposure_time(0.3,0.3)
-
 
 
 def NEXAFS_Ca_edge_multi_greg(t=0.5, name='test'):
-    yield from bps.mv(waxs, 52)
-    dets = [pil300KW, amptek]
-    
-    #dets = [pil300KW]
+    yield from bps.mv(waxs, 52.5)
+    dets = [pil300KW]
 
     energies = np.linspace(4030, 4150, 121)
 
-    det_exposure_time(t,t) 
-    name_fmt = 'nexafs_{sample}_{energy}eV_xbpm{xbpm}'
-    for e in energies:                              
-        yield from bps.mv(energy, e)
-        sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value)
-        RE.md['filename_amptek'] = sample_name
-        sample_id(user_name='GS', sample_name=sample_name)
-        print(f'\n\t=== Sample: {sample_name} ===\n')
-        yield from bp.count(dets, num=1)
 
-    yield from bps.mv(energy, 4125)
-    yield from bps.mv(energy, 4100)        
-    yield from bps.mv(energy, 4075)
-    yield from bps.mv(energy, 4050)
-    yield from bps.mv(energy, 4030)
+    samples = ['mwet_01', 'mwet_02', 'mwet_03', 'mwet_04', 'mwet_05', 'mwet_06', 'mwet_07', 'mwet_08', 'mwet_09', 'mwet_10', 'mwet_11', 'mwet_12', 'mwet_13', 'mwet_14']
+    x_list  = [    43000,     33000,     23000,     12000,      1000,    -11000,    -22500,    -33000,     41500,     30500,     19500,      8500,     -3000,    -14000]
+    y_list =  [    -8000,     -8000,     -8000,     -8000,     -8000,     -8000,     -8000,     -8000,      5000,      5000,      5000,      5000,      5000,      5000]
+    
 
-    sample_id(user_name='test', sample_name='test')
+    for name, x, y in zip(samples, x_list, y_list):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y + 500)
+
+        det_exposure_time(t,t) 
+        name_fmt = 'nexafs_{sample}_{energy}eV_xbpm{xbpm}'
+        for e in energies:                              
+            yield from bps.mv(energy, e)
+            sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.2f'%xbpm3.sumY.value)
+            RE.md['filename_amptek'] = sample_name
+            sample_id(user_name='GS', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+        yield from bps.mv(energy, 4125)
+        yield from bps.mv(energy, 4100)        
+        yield from bps.mv(energy, 4075)
+        yield from bps.mv(energy, 4050)
+        yield from bps.mv(energy, 4030)
+
+        sample_id(user_name='test', sample_name='test')
 
 
+
+def run_day():
+    yield from NEXAFS_Ca_edge_multi_greg(t=0.5)
+    yield from saxs_prep_multisample(t=0.5)
 
 
 def Su_nafion_waxs_S_edge(t=1):

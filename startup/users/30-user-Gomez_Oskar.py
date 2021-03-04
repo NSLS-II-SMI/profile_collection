@@ -122,18 +122,95 @@ def ex_situ_hardxray_2020_3(t=1):
     det_exposure_time(0.3,0.3)
 
 
-def ex_situ_hardxray_josh(t=1):
+
+# def ex_situ_hardxray_2021_1(t=1):
+#     yield from bps.mv(stage.y, 0)
+#     yield from bps.mv(stage.th, 0)
+#     samples = ['F22_83','F22_84','F22_85','F23_86','F23_87','F23_88','F24_89','F24_90','F24_91','F24_92','F24_93','F24_94','F25_95','F25_96','F25_97','F25_98']
+#     x_list  = [45100, 38750, 33500, 26450, 21600, 17300,  7800,  3600, -2300, -7800, -13400, -18500, -28800, -32400, -36700, -42500]
+#     y_list =  [-1500, -1500, -1500, -1500, -1500, -1500, -1500, -1500, -1500, -1500,  -1500,  -1500,  -1500,  -1500,  -1500,  -1500]
+#     z_list =  [ 2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,   2700,   2700,   2700,   2700,   2700,   2700]
+
+
+#     # Detectors, motors:
+#     dets = [pil1M, pil300KW]
+#     waxs_range = np.linspace(0, 32.5, 6)
     
-    yield from bps.mv(stage.th, 2.5)
-    yield from bps.mv(stage.y, -12)
-    samples = ['J01', 'J02', 'J03', 'J04', 'J05', 'J06', 'J07', 'J08', 'J09', 'J10', 'J11', 'J12', 'J13', 'J14', 'J15', 'J16', 'J17', 'J18', 'J19', 'J20']
-    x_list  = [44000, 40000, 36500, 32600, 26850, 22800, 18700, 14700, 9250,  4850,  1100,  -3200, -9100, -12000, -15600, -18900, -23150, -26150, -29600, -32700]
-    y_list =  [-9000, -9000, -9000, -9000, -9000, -9000, -9000, -9000, -9000, -9000, -9000, -9000, -9000, -9000,  -9000, -9000 , -9000 , -9000 , -9000 , -9000]
-    z_list =  [2000,  2000,  2000,  2000,  2000,  2000,  2000,  2000,  2000,  2000,  2000,  2000,  2000,  2000,   2000,   2000,  2000,   2000,   2000,   2000]
+#     ypos = [0, 400, 3]    
+#     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+#     assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+
+#     det_exposure_time(t,t)
+
+#     for wa in waxs_range:
+#         yield from bps.mv(waxs, wa)
+#         for sam, x, y, z in zip(samples, x_list, y_list, z_list):
+#             yield from bps.mv(piezo.x, x)
+#             yield from bps.mv(piezo.y, y)
+#             yield from bps.mv(piezo.z, z)
+
+#             name_fmt = '{sam}_wa{waxs}'
+#             sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
+#             sample_id(user_name='OS', sample_name=sample_name) 
+#             yield from bp.rel_scan(dets, piezo.y, *ypos)
+            
+#     sample_id(user_name='test', sample_name='test')
+#     # det_exposure_time(0.3,0.3)
+
+#     yield from bps.mv(stage.th, 1.5)
+#     yield from bps.mv(stage.y, -11)
+#     samples = ['E18_67','E18_68','E18_69','E19_70','E19_71','E19_72','E19_73','E19_74','E19_75','E20_76','E20_77','E20_78','E21_79','E21_80','E21_81','E22_82']
+#     x_list  = [43500, 37500, 32100, 23600, 18350, 13000,  7200,  3300,  -450, -9400, -14300, -19400, -25900, -31300, -36200, -43200]
+#     y_list =  [-9700, -9700, -9700, -9700, -9700, -9700, -9700, -9700, -9700, -9700,  -9700,  -9700,  -9700,  -9700,  -9700,  -9700]
+#     z_list =  [ 4200,  4200,  4200,  4200,  4200,  4200,  4200,  4200,  4200,  4200,   4200,   4200,   4200,   4200,   4200,   4200]
+
+#     # Detectors, motors:
+#     dets = [pil1M, pil300KW]
+#     waxs_range = np.linspace(0, 32.5, 6)
+    
+#     ypos = [0, 400, 3]    
+#     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+#     assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+
+#     det_exposure_time(t,t)
+
+#     for wa in waxs_range:
+#         yield from bps.mv(waxs, wa)
+#         for sam, x, y, z in zip(samples, x_list, y_list, z_list):
+#             yield from bps.mv(piezo.x, x)
+#             yield from bps.mv(piezo.y, y)
+#             yield from bps.mv(piezo.z, z)
+
+#             name_fmt = '{sam}_16.1keV_wa{waxs}'
+#             sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
+#             sample_id(user_name='OS', sample_name=sample_name) 
+#             yield from bp.rel_scan(dets, piezo.y, *ypos)
+            
+#     sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+def ex_situ_hardxray_2021_1(t=1):
+    
+    yield from bps.mv(stage.th, 0)
+    yield from bps.mv(stage.y, 0)
+    # samples = ['P1_1', 'P1_2', 'P1_3', 'P2_1', 'P2_2', 'P2_3', 'P3_1', 'P3_2', 'P3_3', 'P4_1', 'P4_2', 'P4_3', 'P5_1', 'P5_2', 'P5_3',
+    # 'P6_1', 'P6_2', 'P6_3', 'P7_1', 'P7_2', 'P7_3', 'P8_1', 'P8_2', 'P8_3']
+    # x_list  = [ 45400, 41100, 37500, 32400, 29400, 25900, 20200, 16700, 13100, 6800, 3700, 200, -4600, -8400, -12000, -17200, -20600, 
+    # -24000, -29400, -33100, -36200, -40000, -42500, -45500]
+    # y_list =  [ -3000,  -3000,  -3000,  -3000,  -3000,  -3000,  -3000,  -3000,  -3000, -3000, -3000, -3000,  -3000,  -3000,   -3000,   -3000,   -3000,
+    #     -3000,   -3000,   -3000,   -3000,   -3000,   -3000,   -3000]
+    # z_list =  [  4000,  4000,  4100,  4100,  4200,  4200,  4200,  4200,  4300, 4300, 4400, 4400,  4500,  4500,   4600,   4600,   4700,
+    #     4700,   4800,   4800,   4900,   4900,   5000,   5000]
+    
+    samples = ['N1_1', 'N1_2', 'N1_3', 'N1_4', 'N2_1', 'N2_2', 'N2_3', 'N2_4', 'N3_1', 'N3_2', 'N3_3', 'N4_1', 'N4_2', 'N4_3', 'N5_1',
+    'N5_2', 'N5_3']
+    x_list  = [ 45300, 41400, 38200, 34700, 29600, 26300, 22900, 18400,  7700,  3100, -1300, -9300, -14200, -19600, -28600, -35100, -41200]
+    y_list =  [ -2500, -2500, -2500, -2500, -2500, -2500, -2500, -2500, -2500, -2500, -2500, -2500,  -2500,  -2500,  -2500,  -2500,  -2500]
+    z_list =  [  4500,  4500,  4500,  4500,  4500,  4500,  4500,  4500,  4500,  4500,  4500,  4500,   4500,   4500,   4500,   4500,   4500]
 
     # Detectors, motors:
     dets = [pil1M, pil300KW]
-    waxs_range = np.linspace(19.5, 0, 4)
+    waxs_range = np.linspace(0, 32.5, 6)
     
     ypos = [0, 400, 3]    
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
@@ -148,35 +225,35 @@ def ex_situ_hardxray_josh(t=1):
             yield from bps.mv(piezo.y, y)
             yield from bps.mv(piezo.z, z)
 
-            name_fmt = '{sam}_wa{waxs}'
+            name_fmt = '{sam}_wa{waxs}_sdd8.3m_16.1keV'
             sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
-            sample_id(user_name='JDM', sample_name=sample_name) 
+            sample_id(user_name='OS', sample_name=sample_name) 
             yield from bp.rel_scan(dets, piezo.y, *ypos)
             
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3,0.3)
 
-    yield from bps.mv(stage.th, 2.5)
-    yield from bps.mv(stage.y, -5)
-    samples = ['K01', 'K02', 'K03', 'K04', 'K05', 'K06', 'K07', 'K08', 'K09', 'K10', 'K11', 'K12']
-    x_list  = [44100, 39400, 34400, 29400, 24000, 20300, 17250, 12900, 10100,  2000, -4000, -7250]
-    y_list =  [3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500,  3500]
-    z_list =  [4000,  4000,  4000,  4000,  4000,  4000,  4000,  4000,  4000,  4000,  4000,  4000]
+    # yield from bps.mv(stage.th, 2.5)
+    # yield from bps.mv(stage.y, -13)
+    # samples = ['R1_1', 'R1_2', 'R1_3', 'R2_1', 'R2_2', 'R2_3', 'R3_1', 'R3_2', 'R3_3', 'R4_1', 'R4_2', 'R4_3', 'R5_1', 'R5_2', 'R5_3']
+    # x_list  = [ 44800,  40300,  34800,  24800,  18800,  12300,   4000,  -1700,  -7800, -13700, -20700, -27700, -33200, -38200, -43400]
+    # y_list =  [ -9500,  -9500,  -9500,  -9500,  -9500,  -9500,  -9500,  -9500,  -9500,  -9500,  -9500,  -9500,  -9500,  -9500,  -9500]
+    # z_list =  [  3000,   3000,   3000,   3000,   3000,   3000,   3000,   3000,   3000,   3000,   3000,   3000,   3000,   3000,   3000]
 
-    for wa in waxs_range:
-        yield from bps.mv(waxs, wa)
-        for sam, x, y, z in zip(samples, x_list, y_list, z_list):
-            yield from bps.mv(piezo.x, x)
-            yield from bps.mv(piezo.y, y)
-            yield from bps.mv(piezo.z, z)
+    # for wa in waxs_range:
+    #     yield from bps.mv(waxs, wa)
+    #     for sam, x, y, z in zip(samples, x_list, y_list, z_list):
+    #         yield from bps.mv(piezo.x, x)
+    #         yield from bps.mv(piezo.y, y)
+    #         yield from bps.mv(piezo.z, z)
 
-            name_fmt = '{sam}_wa{waxs}'
-            sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
-            sample_id(user_name='JDM', sample_name=sample_name) 
-            yield from bp.rel_scan(dets, piezo.y, *ypos)
+    #         name_fmt = '{sam}_wa{waxs}_sdd8.3m_16.1keV'
+    #         sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
+    #         sample_id(user_name='OS', sample_name=sample_name) 
+    #         yield from bp.rel_scan(dets, piezo.y, *ypos)
             
-    sample_id(user_name='test', sample_name='test')
-    det_exposure_time(0.3,0.3)
+    # sample_id(user_name='test', sample_name='test')
+    # det_exposure_time(0.3,0.3)
 
 
 

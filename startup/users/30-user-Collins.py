@@ -44,6 +44,56 @@ def giwaxs_collins_2020_3(t=1):
 
 
 
+def giwaxs_collins_2021_1(t=1):
+    # samples = [ 'F4', 'F44',  'F3', 'F33', 'F9', 'F41',   'F1',  'F11',   'F2',  'F22',  'P3W', 'C61W']
+    # x_piezo = [58500, 51000, 38000, 22000, 9000, -4000, -14000, -25000, -37000, -48000, -58000, -59000]
+    # x_hexa =  [    6,     0,     0,     0,    0,     0,      0,      0,      0,     0,      -3,    -11]
+
+    # samples = [ 'BSW', 'BBW']
+    # x_piezo = [56000, 44000]
+    # x_hexa =  [    0,     0]
+
+    samples = [ 'F1_redo']
+    x_piezo = [-57000]
+    x_hexa =  [    -6]
+
+    waxs_arc = np.linspace(0, 19.5, 4)
+    angle = [0.09, 0.15, 0.20]
+
+  # Detectors, motors:
+    dets = [pil300KW]
+    
+    assert len(x_piezo) == len(samples), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(samples)})'
+    assert len(x_piezo) == len(x_hexa), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})'
+
+    for xs_piezo, xs_hexa, sample in zip(x_piezo, x_hexa, samples):
+        yield from bps.mv(piezo.x, xs_piezo)
+        yield from bps.mv(stage.x, xs_hexa)
+
+        yield from alignement_gisaxs(angle = 0.14)
+
+        ai0 = piezo.th.position
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            det_exposure_time(t, t) 
+            name_fmt = '{sample}_16.1keV__ai{angle}deg_wa{wax}'
+        
+            for an in angle:
+                yield from bps.mv(piezo.th, ai0 + an)
+                sample_name = name_fmt.format(sample=sample, angle='%3.3f'%an, wax = '%2.1f'%wa)
+                sample_id(user_name='ZG', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+                    
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+
+
+
+
 def giwaxs_collins(t=1):
     #samples = ['FCuPcCuI', 'FCuPc', 'Si', 'ITO_pos1', 'ITO_pos2', 'Z5S', 'Z5CS', 'Z5CI_pos1', 'Z5CI_pos2', 'Z5I', 'Z10S']
     #samples = ['Z10CS', 'Z10CI', 'Z10I', 'Z2OS', 'Z20CS', 'Z20CI', 'Z20I', 'Z4Os']
@@ -53,7 +103,7 @@ def giwaxs_collins(t=1):
     samples = ['Z20I_pos1', 'Z20I_pos1', 'Z4OI']
     x_list = [-45700, -40200, -21200]
 
-    waxs_arc = [3, 9.5, 16]
+    waxs_arc = [3, 9.5, 16, 22.5]
     angle = [0.09, 0.15, 0.20]
 
     alpha_0=[]

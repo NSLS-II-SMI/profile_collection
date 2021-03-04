@@ -161,6 +161,285 @@ def gisaxs_Thed1(t=1):
     det_exposure_time(0.1,0.1)
 
 
+
+def saxs_well_Thed_2021(t=1): 
+    samples = [
+    'bkg19',      'PT10E_019A', 'PT10E_019B', 'PT10E_019C', 'PT10E_019D', 'PT10E_019E',
+    'PT10E_019F', 'PT10E_019G', 'PT10E_019H', 'PT10E_019I', 'PT10E_019J', 'PT10E_019K',
+    'PT10E_019L', 'PT10E_019M', 'PT10E_019N', 'PT10E_019O', 'PT10E_019P', 'PT10E_019Q',
+    'PT10E_019R', 'PT10E_019S', 'PT10E_019T', 'PT10E_019U', 'PT10E_019V', 'PT10E_019W',
+
+                  'PT10E_024A', 'PT10E_024B', 'PT10E_024C', 'PT10E_024D', 'PT10E_024E',
+    'PT10E_024F', 'PT10E_024G', 'PT10E_024H', 'PT10E_024I', 'PT10E_024J', 'PT10E_024K',
+    'PT10E_024L', 'PT10E_024M', 'PT10E_024N', 'PT10E_024O', 'PT10E_024P', 'PT10E_024Q']
+
+    x_list = [
+       56600,  47300,  38300,  29500,  20500,  11500,
+       56600,  47300,  38600,  29600,  20700,  11500,
+       56500,  47300,  38400,  29500,  20800,  12000,
+       56300,  47300,  38400,  29600,  20600,  12000,
+
+              -18000, -27000, -36000, -44500, -54000,
+       -9500, -17500, -26500, -35500, -44500, -54900,
+       -9000, -18000, -27000, -36000, -45000, -54000]
+
+    y_list = [
+       -7100,  -6200,  -6200,  -6800,  -6800,  -6800, 
+       -1500,  -1700,  -1800,  -1800,  -1600,  -1600,
+        3300,   3800,   3600,   3400,   3800,   3800,
+        8800,   8800,   8800,   8700,   8700,   8800,
+
+               -7400,  -7400,  -7400,  -7400,  -7400, 
+        -1700, -1700,  -1700,  -1700,  -1700,  -1700,
+         3800,  3800,   3800,   3800,   3800,   3800]
+
+    waxs_arc = np.linspace(13, 13, 1)
+
+  # Detectors, motors:
+    dets = [pil1M]
+    det_exposure_time(t,t)
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(y_list)})'
+
+    for j, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+    
+        for x, y, sample in zip(x_list, y_list, samples):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+
+            sample_id(user_name='PT', sample_name=sample) 
+            
+            det_exposure_time(t, t) 
+            name_fmt = '{sample}_sdd5m_14keV_wa{waxs}'
+
+            sample_name = name_fmt.format(sample=sample, waxs='%2.1f'%wa)
+            sample_id(user_name='PT', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+
+            yield from bp.count(dets, num=1)
+                
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
+
+
+def saxs_well_rot_Thed_2021(t=1): 
+    waxs_arc = np.linspace(0, 58.5, 10)
+    dets = [pil1M, pil300KW]
+    det_exposure_time(t,t)
+   
+    for j, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+    
+
+        samples = ['PT10E_019H_0deg', 'PT10E_019J_0deg', 'PT10E_019K_0deg', 'PT10E_019M_0deg', 'PT10E_019N_0deg', 'PT10E_019P_0deg', 'PT10E_019T_0deg', 'PT10E_019U_0deg']
+        x_list = [        26200,         8200,         -800,        35000,        26000,         8400,        26000,        17500]
+        y_list = [         -800,         -800,        -1000,         4700,         4400,         4600,         9500,         9600]
+        assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+        assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(y_list)})'
+        
+        yield from bps.mv(prs, 0)
+        for x, y, sample in zip(x_list, y_list, samples):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            
+            name_fmt = '{sample}_wa{waxs}'
+            sample_name = name_fmt.format(sample=sample, waxs='%2.1f'%wa)
+            sample_id(user_name='PT', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+
+            yield from bp.count(dets, num=1)
+                
+
+        samples = ['PT10E_019H_-30deg', 'PT10E_019J_-30deg', 'PT10E_019K_-30deg', 'PT10E_019M_-30deg', 'PT10E_019N_-30deg', 'PT10E_019P_-30deg', 'PT10E_019T_-30deg', 'PT10E_019U_-30deg']
+        x_list = [        26800,         9600,          600,        35000,        26900,         9500,        27000,        18500]
+        y_list = [         -800,         -800,        -1000,         4700,         4400,         4600,         9500,         9600]
+        assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+        assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(y_list)})'
+
+        yield from bps.mv(prs, -30)
+        for x, y, sample in zip(x_list, y_list, samples):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            
+            name_fmt = '{sample}_wa{waxs}'
+            sample_name = name_fmt.format(sample=sample, waxs='%2.1f'%wa)
+            sample_id(user_name='PT', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+
+            yield from bp.count(dets, num=1)
+    
+        samples = ['PT10E_019H_30deg', 'PT10E_019J_30deg', 'PT10E_019K_30deg', 'PT10E_019M_30deg', 'PT10E_019N_30deg', 'PT10E_019P_30deg', 'PT10E_019T_30deg', 'PT10E_019U_30deg']
+        x_list = [        25500,         7600,        -1800,        34200,        25400,         7500,        25200,        16700]
+        y_list = [         -800,         -800,        -1000,         4700,         4400,         4600,         9600,         9600]
+        assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+        assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(y_list)})'
+
+        yield from bps.mv(prs, 30)
+        for x, y, sample in zip(x_list, y_list, samples):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            
+            name_fmt = '{sample}_wa{waxs}'
+            sample_name = name_fmt.format(sample=sample, waxs='%2.1f'%wa)
+            sample_id(user_name='PT', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+
+            yield from bp.count(dets, num=1)
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
+def gisaxs_Thed_2021_1(t=1): 
+    
+    global names, x_piezo, z_piezo, incident_angles, y_piezo_aligned, xs_hexa
+
+    # names =  ['FY01','FY02','FY03','FY04','FY05','FY06','FY07','FY08','FY09', 'FY10','FY11', 'FY12', 'FY13', 'FY14', 'FY15', 'FY16',]    
+    # x_piezo = [60000, 53000, 45000, 38000, 31000, 22000, 15500,  9000,  1000, -7000, -17000, -27000, -36000, -44000, -52000, -60000,]
+    # y_piezo = [ 6900,  6900,  6900,  6900,  6900,  6900,  6900,  6900,  6900,  6900,   6900,   6900,   6900,   6900,   6900,   6900,]
+    # z_piezo = [    0,     0,     0,     0,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,      0,]   
+    # x_hexa =  [    6,     6,     6,     6,     6,     6,     6,     6,     6,     0,      0,      0,      0,      0,      0,      0,]
+    # incident_angles = [0.225457, 0.07311, 0.13644, 0.131744, 0.090663, 0.203624, 0.140589, 0.117837,
+    # 0.066659, 0.060986, 0.083272, 0.055102, 0.472708, 0.080632, 0.063615]
+    # y_piezo_aligned = [6674.616, 6664.133, 6655.723, 6652.42, 6628.407, 6619.978, 6615.386, 6607.622, 6604.918, 6625.53,
+    # 6612.155, 6594.748, 6568.487, 6559.445, 6552.764, 6552.231]
+    
+    # names = ['FY32', 'FY33','FY34','FY35','FY36','DVC1', 'DVC2','DVC3','DVC4','DVC5','DVC6', 'DVC7',
+    #     'FY17','FY18','FY19', 'FY20','FY21','FY22','FY23','FY24', 'FY25','FY26','FY27','FY28','FY29','FY30','FY31']
+    
+    # x_piezo = [58000, 45000, 34000, 28000, 24000, 13000, 2000, -13000,-25000,-40000,-47000, -55000, 
+    #            58000, 45000, 31000, 25000, 19000, 13000,  5000, -1000, -8000, -7000,-14000, -27000, -44000, -55000, -60000]
+    # y_piezo = [ 6900,  6900,  6900,  6900,  6900,  6900,  6900,  6900,  6900,  6900,  6900,   6900,
+    #            -2200, -2200, -2200, -2200, -2200, -2200, -2200, -2200, -2200, -2200, -2200,  -2200,  -2200,  -2200,  -2200]
+    # z_piezo = [    0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,      0,
+    #                0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0]
+    # x_hexa =  [    6,      6,    6,     6,     6,     6,     6,     6,     6,     6,     0,     -5,
+    #                6,      6,    6,     6,     6,     6,     6,     6,     6,     0,     0,      0,     0,      0,      -5]
+
+
+    # names = ['FY16', 'FY37','FY38','FY39','FY40', 'FY41', 'FY42','FY43','FY44','FY45', 'FY46','FY47','FY48', 'FY49','FY50',
+    # 'FY51','FY52','FY53', 'FY54','FY55','FY56','FY57','FY58','FY59','FY60', 'FY61','FY62','FY63','FY64','FY65','FY66', 'FY67','FY68','FY69', 'DVC8']
+    
+    # x_piezo = [60000, 51000, 43000, 35500, 30500, 23000, 17500, 13200,  7000,  2000, -4000, -15000, -21500, -23000, -29000, -35000, -41000, -48000, -54000,
+    #            60000, 48000, 35500, 29500, 25000, 21500, 17500, 13200,  8000, -6000,-15000, -17500, -29000, -38000, -48000, -56000]
+    # y_piezo = [ 6900,  6900,  6900,  6900,  6900,  6900,  6900,  6900,  6900,  6900,  6900,   6900,   6900,   6900,   6900,   6900,   6900,   6900,   6900,
+    #            -2200, -2200, -2200, -2200, -2200, -2200, -2200, -2200, -2200, -2200, -2200,  -2200,  -2200,  -2200,  -2200,  -2200]
+    # z_piezo = [    0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,      0,      0,      0,
+    #                0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0]
+    # x_hexa =  [    7,     7,     7,     7,     7,     7,     7,     7,     7,     7,     7,      7,      7,      0,      0,      0,      0,      0,      0,
+    #                7,     7,     7,     7,     7,     7,     7,     7,     7,     7,     7,      0,     0,       0,      0,     -5]
+
+
+    names = ['DVC9', 'DVC10','DVC11','DVC12','DVC13', 'DVC14', 'DVC15','DVC16','DVC17','DVC18',
+    'WEE1', 'WEE2', 'WEE3', 'WEE4','WEE5', 'WEE6']
+    
+    x_piezo = [58000, 43000, 29000, 15000,  1000,-11000,-18000,-32000,-46000,-58000,
+               58000, 43000, 29000, 15000,  1000,-11000]
+    y_piezo = [ 6200,  6200,  6200,  6200,  6200,  6200,  6200,  6200,  6200,  6200,
+               -2900, -2900, -2900, -2900, -2900, -2900]
+    z_piezo = [    0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+                   0,     0,     0,     0,     0,     0]
+    x_hexa =  [    7,     7,     7,     7,     7,     7,     0,     0,     0,    -4,
+                   7,     7,     7,     7,     7,     7]
+
+
+    incident_angles = []
+    y_piezo_aligned = []
+
+
+    assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
+    assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
+    assert len(x_piezo) == len(z_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})'
+    assert len(x_piezo) == len(x_hexa), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})'
+
+    smi = SMI_Beamline()
+    yield from smi.modeAlignment(technique='gisaxs')
+
+    for name, xs_piezo, zs_piezo, ys_piezo, xs_hexa in zip(names, x_piezo, z_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs_piezo)
+        yield from bps.mv(piezo.y, ys_piezo)
+        yield from bps.mv(piezo.z, zs_piezo)
+        yield from bps.mv(piezo.th, 0)
+
+
+        # if ys_piezo>0:
+        yield from alignement_gisaxs_multisample(angle = 0.08)
+        # else:
+        #     yield from bps.mv(piezo.th, -1)
+        #     yield from alignement_gisaxs_multisample_special(angle = 0.08)
+
+        incident_angles = incident_angles + [piezo.th.position]
+        y_piezo_aligned = y_piezo_aligned + [piezo.y.position]
+
+    yield from smi.modeMeasurement()
+
+
+    waxs_arc = np.linspace(0, 58.5, 10)
+    angle = [0.1, 0.15, 0.2]
+
+    dets = [pil1M,pil300KW]
+    det_exposure_time(t,t)
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)    
+
+        for name, xs, zs, aiss, ys, xs_hexa in zip(names, x_piezo, z_piezo, incident_angles, y_piezo_aligned, x_hexa):
+            yield from bps.mv(stage.x, xs_hexa)
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            yield from bps.mv(piezo.z, zs)
+            yield from bps.mv(piezo.th, aiss)
+            
+            for an in angle:
+                yield from bps.mv(piezo.th, aiss + an)                
+                name_fmt = '{sample}_sdd5m_14keV_ai{angl}deg_wa{waxs}'
+                sample_name = name_fmt.format(sample=name, angl='%3.2f'%an, waxs='%2.1f'%wa)
+                sample_id(user_name='PT', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+                
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
+
+
+
+
+def capillaries_saxs_Thed_2021_1(t=1): 
+    samples = ['LT830','LT830MB','LT830MB-1','LT831','LT831M', 'LT832','LT833','LT833-1','LT834','LT835', 'LT836','LT836-1','LT837','LT837-1',
+    'LT838','LT840M', 'LT841M','LT842', 'LT842M','LT843', 'LT844-1','LT844-2', 'LT844-3', 'LT845', 'LT846-1', 'LT846-2']
+    
+    x_list = [39500, 32500, 26100, 19900, 13600, 7500, 1000, -5000, -12300, -18500, -24700, -31200, -37300,
+    43200, 36400, 30000, 23300, 17200, 11000,  4000, -2950, -8050, -13700, -20350, -26500, -32650]
+    y_list = [ 8000,  8000,  8000,  8000,  8000, 8000, 8000,  8000,   8000,   8000,   8000,   8000,   8000,
+     8000,  8000,  8000,  8000,  8000,  8000,  8000,  8000,  8000,   8000,   8000,   8000,   8000]
+    z_list = [  500,   500,   500,   500,   500,  500,  500,   500,    500,    500,    500,    500,    500, 
+    10500, 10500, 10500, 10500, 10500, 10500, 10500, 10500, 10500,  10500,  10500,  10500,  10500]
+
+  # Detectors, motors:
+    dets = [pil1M]# dets = [pil1M,pil300KW]
+    det_exposure_time(t,t)
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    for x, y, z, sample in zip(x_list, y_list, z_list, samples):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.z, z)
+
+        sample_id(user_name='PT_5m_14keV', sample_name=sample) 
+        yield from bp.count(dets, num=10)
+   
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
+
+
 def gisaxs_Thed2(t=1): 
     samples = ['FY1','FY2','FY3','FY4']
     

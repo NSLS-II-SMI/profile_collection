@@ -122,6 +122,117 @@ def run_harv_temp_all_2020_3(tim=0.5):
 
 
 
+def temp_2021_1(tim=0.5): 
+    # Slowest cycle:
+    temperatures = [60, 80, 100, 120, 140, 160]
+    # temperatures = [30, 100, 150]
+
+    name = 'ML'
+
+    # x_list  = [53500, 47000, 40500, 34000, 28500, 23500, 17500, 11500, 5500, -1500, -9500, -14500, -21500, -28500, -38000, -46000]
+    # y_list =  [ 4800,  4800,  4900,  4900,  5100,  5000,  4900,  4900, 4900,  4600,  4700,   4800,   4800,   4800,   4600,   4700]
+    # samples = ['set1_sam1', 'set1_sam2', 'set1_sam3', 'set1_sam4', 'set2_sam1', 'set2_sam2', 'set2_sam3', 'set2_sam4', 'set2_sam5', 'set2_sam6', 'set2_sam7', 'set2_sam8',
+    # 'set2_sam9', 'set2_sam10', 'set2_sam11', 'set2_sam12']
+
+    x_list  = [14500, 2500, -12500, -24500, -34700, -41300]
+    y_list =  [ 4550, 4650,   4850,   4750,   4750,   4650]
+    samples = ['set1_sam13', 'set1_sam14', 'set1_sam15', 'set3_sam1', 'set3_sam2', 'set3_sam3']
+
+
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    #Detectors, motors:
+    dets = [pil1M, pil300KW] #ALL detectors
+    
+   
+    x_offset = [0, 0, 400, 400]
+    y_offset = [0, 50, 0, 50]
+    waxs_arc = np.linspace(0, 32.5, 6) 
+    name_fmt = '{sample}_18.25keV_1.6m_pos{offset}_{temperature}C_wa{waxs}'
+
+    det_exposure_time(tim, tim)
+    for i_t, t in enumerate(temperatures):
+        t_kelvin = t + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+        temp = ls.input_A.get()
+
+        while abs(temp - t_kelvin) > 2:
+            print(abs(temp - t_kelvin))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+
+        if i_t !=0:
+            yield from bps.sleep(450)
+
+        # temp = ls.input_A.get()
+        t_celsius = temp - 273.15
+
+        for j, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            for x, y, s in zip(x_list, y_list, samples):
+                yield from bps.mv(piezo.x, x)
+                yield from bps.mv(piezo.y, y)
+                
+                for i_0, (x_0, y_0) in enumerate(zip(x_offset, y_offset)):
+                    sample_name = name_fmt.format(sample=s, offset = i_0+1, temperature='%3.1f'%t_celsius, waxs='%2.1f'%wa)
+                    yield from bps.mv(piezo.x, x+x_0)
+                    yield from bps.mv(piezo.y, y+y_0)
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    sample_id(user_name=name, sample_name=sample_name) 
+                    yield from bp.count(dets, num=1)
+    
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
+    
+    t_kelvin = 25 + 273.15
+    yield from ls.output1.mv_temp(t_kelvin)
+
+
+
+
+def hydrogel_2021_1(tim=0.5): 
+
+    x_list  = [43900, 35000, 23500, 13500, 6000, -10700, -18500, -32400, -33800, -36400]
+    y_list =  [ 8700, -5300, -5300, -5300, 8700,   8700, -5300,    8700,   8700,   8700]
+    samples = ['hyd_gel_Spindmso', 'hyd_gel_sample2', 'hyd_gel_sample3', 'hyd_gel_sample9',  'hyd_gel_sample10', 'hyd_gel_sample5', 'hyd_gel_sample11', 'hyd_gel_sample6',  'hyd_gel_sample7',  'hyd_gel_sample8']
+
+
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    #Detectors, motors:
+    dets = [pil1M, pil300KW] #ALL detectors
+    
+   
+    x_offset = [0, 0, 0]
+    y_offset = [-200, 0, 200]
+    waxs_arc = np.linspace(0, 32.5, 6) 
+    name_fmt = '{sample}_18.25keV_1.6m_pos{offset}_wa{waxs}'
+
+    det_exposure_time(tim, tim)
+
+    for j, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        for x, y, s in zip(x_list, y_list, samples):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            
+            for i_0, (x_0, y_0) in enumerate(zip(x_offset, y_offset)):
+                sample_name = name_fmt.format(sample=s, offset = i_0+1, waxs='%2.1f'%wa)
+                yield from bps.mv(piezo.x, x+x_0)
+                yield from bps.mv(piezo.y, y+y_0)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                sample_id(user_name='ML', sample_name=sample_name) 
+                yield from bp.count(dets, num=1)
+    
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
+    
+    t_kelvin = 25 + 273.15
+    yield from ls.output1.mv_temp(t_kelvin)
+
+
 
 def run_harv_temp_all(tim=0.5): 
     # Slowest cycle:

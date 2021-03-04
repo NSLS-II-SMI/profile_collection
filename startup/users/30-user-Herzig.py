@@ -478,10 +478,11 @@ def run_Herzi_Sedge_2021_1(t=1):
     # x_hexa =  [      5,       0,       0,       0,       0,     5,       0,      0,       0,      0]
     # y_piezo = [   4500,    4500,    4500,    4500,    4500, -4400,   -4400,  -4400,   -4400,  -4400]
 
-    samples = [ '044oa','061oa', '008oa','030oa', '047an',  '045']
-    x_piezo = [  -52000, 48000,   28000,   1000,  -24000,  -52000]
-    x_hexa =  [       0,     5,       0,      0,       0,       0]
-    y_piezo = [    4500, -4400,   -4400,  -4400,   -4400,   -4400]
+    samples = ['017an',   '014',  '059an',  '058', '026an', '025', '053an',  '052', '056ac',  '056oa']
+    x_piezo = [  49000,   24000,   -1500,  -27000,  -54000, 48000,   24000,  -1500,  -27000,  -54000]
+    x_hexa =  [      3,       0,       0,       0,       0,     3,       0,      0,       0,      0]
+    y_piezo = [   4500,    4500,    4500,    4500,    4500, -4400,   -4400,  -4400,   -4400,  -4400]
+
 
     assert len(x_piezo) == len(samples), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(samples)})'
     assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
