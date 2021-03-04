@@ -105,9 +105,7 @@ rayonix.cam.configuration_attrs.append('num_images')
 rayonix.configuration_attrs.append('roi1')
 
 rayonix.stats1.total.kind = 'hinted'
-
-rayonix.tiff.write_path_template = '/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/'
-
+rayonix.tiff.write_path_template = '/nsls2/xf12id2/data/MAXS/images/%Y/%m/%d/'
 
 class StandardProsilica(SingleTrigger, ProsilicaDetector):
     image = Cpt(ImagePlugin, 'image1:')
