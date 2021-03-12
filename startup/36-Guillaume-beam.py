@@ -210,7 +210,8 @@ class SMI_Beamline(Beamline):
         remove the attenuator
         """
         # Move beamstop
-        yield from bps.mv(pil1m_bs_rod.x, bsx_pos) #2 for 4000 mm, 1.2 for 6500
+        yield from pil1m_bs_rod.mv_in(x_pos=bsx_pos)
+        # yield from bps.mv(pil1m_bs_rod.x, bsx_pos) #2 for 4000 mm, 1.2 for 6500
         
         # Remove attenuators
         yield from SMIBeam().insertFoils('Measurement')       
