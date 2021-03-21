@@ -286,3 +286,90 @@ def run_contRPI(t=1, numb = 100, sleep = 5):
         yield from bp.count(dets, num=1)
         yield from bps.sleep(sleep)
 
+
+
+
+
+def instec_insitu_hard_xray(t=0.5):
+    dets = [pil300KW, pil1M]
+    det_exposure_time(t,t) 
+
+    name = 'DIO_t60s'
+    temperatures = np.arange(75, 69, -1).tolist() + [68, 66, 64, 62, 60]
+
+    waxs_arc = np.linspace(0, 13.0, 3) 
+
+    for i_t, t in enumerate(temperatures):
+        t_kelvin = t + 273.15
+        yield from ls.output3.mv_temp(t_kelvin)
+        yield from bps.sleep(120)
+
+        if waxs.arc.position > 10:
+            wa_arc = waxs_arc[::-1]
+        else:
+            wa_arc = waxs_arc
+
+        for j, wa in enumerate(wa_arc):
+            yield from bps.mv(waxs, wa)
+            name_fmt = '{sample}_{temperature}C_wa{waxs}_sdd1.6m'
+            sample_name = name_fmt.format(sample=name, temperature='%3.1f'%t, waxs='%2.1f'%wa)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            sample_id(user_name='NC', sample_name=sample_name) 
+            yield from bp.count(dets, num=1)
+
+
+def instec_insitu_hard_xray_fixT(t=0.5):
+
+    dets = [pil300KW, pil1M]
+    det_exposure_time(t,t) 
+
+    
+    name = 'DIO_t180s_up'
+
+    temp_C = 150
+    # temperatures = [120]
+    waxs_arc = np.linspace(0, 13.0, 3) 
+
+      
+    if waxs.arc.position > 10:
+        wa_arc = waxs_arc[::-1]
+    else:
+        wa_arc = waxs_arc
+
+    for j, wa in enumerate(wa_arc):
+        yield from bps.mv(waxs, wa)
+        name_fmt = '{sample}_{temperature}C_wa{waxs}_sdd1.6m'
+        sample_name = name_fmt.format(sample=name, temperature='%3.1f'%temp_C, waxs='%2.1f'%wa)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        sample_id(user_name='NC', sample_name=sample_name) 
+        yield from bp.count(dets, num=1)
+
+
+
+def hard_xray_greg(t=0.5):
+
+    dets = [pil300KW, pil1M]
+    det_exposure_time(t,t) 
+
+    
+    name = 'glass'
+
+    # temperatures = [120]
+    waxs_arc = np.linspace(0, 13.0, 3) 
+
+      
+    if waxs.arc.position > 10:
+        wa_arc = waxs_arc[::-1]
+    else:
+        wa_arc = waxs_arc
+
+
+    ypos = [-300, 300, 3]
+    for j, wa in enumerate(wa_arc):
+        yield from bps.mv(waxs, wa)
+        name_fmt = '{sample}_wa{waxs}_sdd1.6m'
+        sample_name = name_fmt.format(sample=name, waxs='%2.1f'%wa)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        sample_id(user_name='GS', sample_name=sample_name) 
+        # yield from bp.rel_scan(dets, piezo.y, *ypos)
+        yield from bp.count(dets)

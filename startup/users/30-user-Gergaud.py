@@ -404,3 +404,25 @@ def mesure_db(sample, x, y, num=1, exp_t=1):
         sample_id(user_name='PG', sample_name=sample_name)
 
         yield from bp.count([pil1M], num=1)            
+
+
+
+def NEXAFS_P_edge(t=0.5):
+        yield from bps.mv(waxs, 30)
+        dets = [pil300KW]
+        name = 'NEXAFS_S4_Pedge_wa30.0deg_ai0.6deg'
+
+        energies = np.linspace(2140, 2180, 41)
+        
+        det_exposure_time(t,t) 
+        name_fmt = '{sample}_{energy}eV_xbpm{xbpm}'
+        for e in energies:                              
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+
+            sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.2f'%xbpm3.sumY.value)
+            sample_id(user_name='SR', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+
