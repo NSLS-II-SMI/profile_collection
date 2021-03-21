@@ -195,7 +195,7 @@ class SMI_Beamline(Beamline):
         yield from SMIBeam().insertFoils('Alignement')
         
         # Move beamstop
-        yield from bps.mv(pil1m_bs_rod.x, bsx_pos + 5)
+        yield from pil1m_bs_rod.mv_in(x_pos=bsx_pos + 5)
 
         self.setReflectedBeamROI(technique=technique)
         self.setDirectBeamROI()
