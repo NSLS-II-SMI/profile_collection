@@ -160,37 +160,86 @@ def run_waxs_fastRPI_2021_1(t=1):
 
 def run_waxs_fastRPI(t=1):
 
-    y_top = -9000
-    y_bot = 8500
+    y_top = -8500
+    y_bot = 8000
+    #         1         2       3       4       5       6       7       8       9
+    # xlocs = [ -41000, -31000,  -21000,  -12000,   -2000,  8000, 17000, 26000, 35000,
+    #          -41000, -31000,  -21000,  -12000,   -2000,  8000, 17000, 26000, 35000, 42000]
+    #ylocs = [ y_top,    y_top,  y_top,  y_top,  y_top,  y_top,  y_top,  y_top,  y_top,
+    #          y_bot,    y_bot,  y_bot,  y_bot,  y_bot,  y_bot,  y_bot,  y_bot,  y_bot, y_bot]
 
-    # xlocs = [ 37500, 27500, 17500, 8500, -1000, -10000, -21000, -29000, -39000, 37500, 27500, 18000, 9500, -1000, -10000, -19000, -29000, -39000]
-    # ylocs = [y_top, y_top, y_top, y_top, y_top, y_top, y_top, y_top, y_top, y_bot, y_bot, y_bot, y_bot, y_bot, y_bot, y_bot, y_bot, y_bot]
-
-    # ## RACK J8:
-    # names = ['J8_S01_ABA_XDA_n00_S', 'J8_S02_ABA_XDA_n01_S', 'J8_S03_ABA_XDA_n02_S', 'J8_S04_ABA_XDA_n03_S', 'J8_S05_ABA_XDA_n04_S',
-    # 'J8_S06_ABA_XDA_n05_S', 'J8_S07_ABA_XDA_n06_S', 'J8_S08_ABA_XDA_n07_S', 'J8_S09_ABA_XDA_n08_S', 'J8_S10_ABA_XDA_n09_S',
-    # 'J8_S11_ABA_XDA_n10_S', 'J8_S12_XDA_PDA_n00_S', 'J8_S13_XDA_PDA_n01_S', 'J8_S14_XDA_PDA_n02_S', 'J8_S15_XDA_PDA_n03_S',
-    # 'J8_S16_XDA_PDA_n04_S', 'J8_S17_XDA_PDA_n05_S', 'J8_S18_XDA_PDA_n06_S']
+    # # RACK K:
+    #names = [   'K_S01_ETTD_n00', 'K_S02_ETTD_n01', 'K_S03_ETTD_n02', 'K_S04_ETTD_n03', 'K_S05_ETTD_n04', 'K_S06_ETTD_n05', 'K_S07_ETTD_n06', 'K_S08_ETTD_n07', 'K_S09_ETTD_n08',
+    #            'K_S10_ETTD_n09', 'K_S11_ETTD_n10', 'K_S12_ETTD_m07', 'K_S13_ETTD_m08', 'K_S14_ETTD_m09', 'K_S15_4CMP_n00', 'K_S16_4CMP_n01', 'K_S17_4CMP_n02', 'K_S18_4CMP_n03', 'K_Blank']
     
     # xlocs = [ 37000, 28500, 18500, 8500, 37000, 27500, 18500, 8500]
     # ylocs = [y_top, y_top, y_top, y_top, y_bot, y_bot, y_bot, y_bot]
 
-    # # RACK J9:
-    # names = ['J9_S01_XDA_PDA_n07_S', 'J9_S02_XDA_PDA_n08_S', 'J9_S03_XDA_PDA_n09_S', 'J9_S04_XDA_PDA_n10_S', 'J9_S05_828_PDA_S','J9_S06_828_XDA_S', 
-    # 'J9_S07_828_ABA_S_11', 'J9_S08_828_T3000_S']
+    # # RACK L-Plaques:
+    #           1                 2                 3                4                  5                6                  7      
+    # names = ['L_S01_4CMP_n04', 'L_S02_4CMP_n05', 'L_S03_4CMP_n06', 'L_S04_4CMP_n07', 'L_S05_4CMP_n08', 'L_S06_4CMP_n09',  'L_S07_4CMP_n10', 
+    #         'L_S08_828_D230', 'L_S09_828_PDA',  'L_S10_828_XDA',  'L_S11_828_ABA',  'L_S12_828_TETA', 'L_S13_828_T3000', 'L_S14_Vacuum_Blank']
+    #         1         2       3       4       5       6       7      
+    # xlocs = [ -41000, -31000,  -21000,  -12000,   -2000,  8000, 17000,
+    #          -41000, -31000,  -21000,  -12000,   -2000,  7000, 17000]
+    #         1         2       3       4       5       6       7      
+    #ylocs = [ y_top,   y_top,  y_top,  y_top,  y_top,  y_top,  y_top,
+    #          y_bot,   y_bot,  y_bot,  y_bot,  y_bot,  y_bot,  y_bot]
 
-    xlocs = [ 41000, 26000, 10400, -5300, -34000, 41000, 28000, 11400, -3300, -18500, -39000]
-    ylocs = [y_top, y_top, y_top, y_top, y_top, 6500, y_bot, y_bot, y_bot, y_bot, y_bot]
+    # # RACK L-Capillaries:
+    #        1                    2                      3                 4                        5                      6                       7      
+    # names = ['L_S15_EPON828_S34', 'L_S16_JEFF_D230_S23', 'L_S17_TETA_S35', 'L_S19_JEFF_T3000_S32', 'L_S20_Amine_Mixtures', 'L_S21_Cap_blank_15mm', 'L_S22_CT_Cap_blank_25mm']
+    #         1      2       3       4       5       6       7      
+    # xlocs = [ 23600, 27700,  30900,  34700,   38300, 41800,  45600]
+    #         1      2       3       4       5       6       7      
+    # ylocs = [ 8100,   8100,  7900,  7100,    4660,   5740,   5740]
 
-    names = ['CT3_11_QAS7P_S_11', 'CT3_12_QAS9P_S_11', 'CT3_13_QAS10P_S_11', 'CT3_14_QAS11P_S_11', 'CT3_15_PS_S_11', 'CT3_21_QAT2P_S_11',
-    'CT3_22_QAT3P_S_11', 'CT3_23_QAT5P_S_11', 'CT3_24_QAT6P_S_11', 'CT3_25_QAT7P_S_11', 'CT3_26_DPES_S_11']
+    # RACK J9 Two Components
+    #        1                      2                      3                      4                        5                       6                       7      
+    # names = ['J9_S05_828_PDA_S_11', 'J9_S06_828_XDA_S_11', 'J9_S07_828_ABA_S_11', 'J9_S08_828_T3000_S_11', 'J9_S09_828_D230_S_11', 'J9_S10_828_TETA_S_11', 'J9_S11_828_TETA_D230_S_11']
+    #         1      2          3       4       5       6       7      
+    # xlocs = [ -38000, -28000,  -16000,  -7000,   12500, 23000,  33000]
+    #         1      2          3       4       5       6       7      
+    # ylocs = [ 6000,   6000,     6000,   6000,    -9300, -9300,  -9300]
+
+    # RACK CT1-DPE Membranes
+    #        1                        2              3              4              5              6              7               8               9                10 
+    # names = ['CT1-RE-_1_H2O-Vapor-Blank-RE-', 'CT1-RE-_2_QAT2C', 'CT1-RE-_3_QAT3C', 'CT1-RE-_4_QAT5C', 'CT1-RE-_5_QAT6C', 'CT1-RE-_6_QAT7C', 'CT1-RE-_12_QAS7C', 'CT1-RE-_13_QAS9C', 'CT1-RE-_14_QAS10C', 'CT1-RE-_15_QAS11C']
+    #         1      2          3       4         5       6       7      8         9        10
+    # xlocs = [ -43800, -38000,  -31500,  -25200,   -19000, -12600, 25200, 31600   , 38000  , 44200]
+    #         1      2          3       4         5       6       7      8         9        10
+    # ylocs = [ -9700,   -9700,    -9700,  -9700,    -9700, -9700,  -9700, -9700   , -9700  , -9700]
 
 
-    # x_off = [0]
-    # y_off = [-400, -200, 200, 400] 
+    # RACK CT2-DPE Membranes
+    #        1               2               3               4               5               6               7                8                 9               
+    # names = ['CT2_1_QAT2CP', 'CT2_2_QAT3CP', 'CT2_3_QAT5CP', 'CT2_4_QAT6CP', 'CT2_5_QAT7CP', 'CT2_9_QAS7CP', 'CT2_11_QAS9CP', 'CT2_12_QAS10CP', 'CT2_14_QAS11CP']
+    #         1      2          3       4         5       6       7      8         9      
+    # xlocs = [ -43900, -37800,  -31500,  -25200,   -18700, 6700, 19300, 25300   , 38300  ]
+    #         1      2          3       4         5       6       7      8         9      
+    # ylocs = [ -9700,   -9700,    -9700,  -9700,    -9700, -9700,  -9700, -9700   , -9700  ]
+
+
+    # ETTDm03n05
+    #        1 
+    names = ['ETTDm03n05_28C-0min']
+    #         1
+    xlocs = [ 38300]
+    #         1
+    ylocs = [ -7000]
+
+
+
+    #names = ['CT3_11_QAS7P_S_11', 'CT3_12_QAS9P_S_11', 'CT3_13_QAS10P_S_11', 'CT3_14_QAS11P_S_11', 'CT3_15_PS_S_11', 'CT3_21_QAT2P_S_11',
+    #'CT3_22_QAT3P_S_11', 'CT3_23_QAT5P_S_11', 'CT3_24_QAT6P_S_11', 'CT3_25_QAT7P_S_11', 'CT3_26_DPES_S_11']
+
+    # Capillary
+    x_off = [0]
+    y_off = [0] 
     
-    x_off = [-1000, 0, 1000]
-    y_off = [-500, 500] 
+    # Plaques
+    # x_off = [-1000, 0, 1000]
+    # y_off = [-500, 500] 
 
     user = 'SL'    
     det_exposure_time(t,t)     
@@ -202,17 +251,17 @@ def run_waxs_fastRPI(t=1):
 
     # Detectors, motors:
     dets = [pil1M, pil300KW]
-    waxs_range = np.linspace(0, 45.5, 8)
+    waxs_range = np.linspace(45.5, 0, 8)
     
     for wa in waxs_range:
         yield from bps.mv(waxs, wa)
         for sam, x, y in zip(names, xlocs, ylocs):
-            yield from bps.mv(piezo.x, x)            
-            yield from bps.mv(piezo.y, y)
+            # yield from bps.mv(piezo.x, x)            
+            # yield from bps.mv(piezo.y, y)
             for yy, y_of in enumerate(y_off):        
-                yield from bps.mv(piezo.y, y+y_of)
+                # yield from bps.mv(piezo.y, y+y_of)
                 for xx, x_of in enumerate(x_off):
-                    yield from bps.mv(piezo.x, x+x_of)
+                    # yield from bps.mv(piezo.x, x+x_of)
                     xxa = xx+1
                     yya = yy+1 
                     name_fmt = '{sam}_wa{waxs}_loc{xx}{yy}'
@@ -275,7 +324,36 @@ def run_waxs_fastRPI(t=1):
     #         sample_id(user_name=user, sample_name=sample_name)
     #         yield from bp.count(dets, num=1)
 
+
+
+
+
+
+def run_waxs_fastRPI(t=1):
+
+    names = ['ETTDm03n05_60C-42min']
+    user = 'SL'    
+    det_exposure_time(t,t)     
     
+
+    # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    waxs_range = np.linspace(45.5, 0, 8)
+    
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        name_fmt = '{sam}_wa{waxs}'
+        sample_name = name_fmt.format(sam=names[0], waxs='%2.1f'%wa)
+        sample_id(user_name=user, sample_name=sample_name) 
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.count(dets, num=1)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3) 
+
+    
+
+
 def run_waxs_fastRPIy(t=1):
 
     xlocs = [13000,6700,400,-5950,-12400,-18700,-25200,-31600]
