@@ -91,7 +91,7 @@ def det_exposure_time(exp_t, meas_t=1):
     rayonix.cam.acquire_time.put(exp_t)
     rayonix.cam.acquire_period.put(exp_t+0.01)
     rayonix.cam.num_images.put(int(meas_t/exp_t))
-    amptek.mca.preset_real_time.put(exp_t)
+    # amptek.mca.preset_real_time.put(exp_t)
     
 def det_next_file (n):
     pil1M.cam.file_number.put(n)
