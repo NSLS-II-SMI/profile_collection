@@ -59,7 +59,7 @@ class VFM_voltage(Device):
 
     #This is the default vfm mirror voltage for smi swaxs hutch
     # default_vfm_v2 = [39, -102, 277, 234, 325, 163, 392, 280, 365, 273, 196, 400, 219, 304, 51, -327]
-    default_vfm_v2_ca = [  39,   85, 311, 310,  -15, 485,   68, 447, 291,  130, 606,  170, 272, 437,  192, -308] #Ca edge
+    # default_vfm_v2 = [  39,   85, 311, 310,  -15, 485,   68, 447, 291,  130, 606,  170, 272, 437,  192, -308] #Ca edge
     default_vfm_v2 =  [-281, -235,  -9, -10, -335, 165, -252, 127, -29, -190, 286, -150, -48, 117, -128, -628] #S edge
 
     #This is the default vfm mirror voltage for opls hutch
