@@ -92,6 +92,80 @@ def xrr_spol_waxs(t=1):
 
 
 
+def xrr_ppol_waxs(t=1):
+    names =  ['PSS_20']
+    x_piezo = [  13800]
+    y_piezo = [   6570]
+    z_piezo = [   2000]
+    ener = [[2450]]
+
+    assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
+    assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
+    assert len(x_piezo) == len(z_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})'
+    assert len(x_piezo) == len(ener), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(ener)})'
+
+    dets = [pil300KW]
+    waxs_arc = [1]
+
+    ai_lists = [[np.linspace(0.03, 1.03, 51).tolist() + np.linspace(1.05,  2.01, 33).tolist()] + [np.linspace(0.87,  1.5, 22).tolist()] + [np.linspace(1.55, 4, 50).tolist()]
+    + [np.linspace(4, 6, 41).tolist()] + [np.linspace(6, 8, 41).tolist()] + [np.linspace(8, 10, 41).tolist()]]
+
+    for name, xs, zs, ys, eners in zip(names, x_piezo, z_piezo, y_piezo, ener):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+        yield from alignement_xrr(angle = 0.15)
+        ai0 = prs.position
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs.arc, wa)
+
+            for energ in eners:
+                yield from bps.mv(energy, energ)
+                yield from bps.sleep(5)
+                yield from bps.mvr(piezo.x, 300)
+
+                #ai_list should be a list of list. No change of attenuation inside one list
+                for k, ai_list in enumerate(ai_lists[0]):
+                    ai_list = [round(1000 * x, 4) for x in ai_list]
+                    ai_list = np.asarray(ai_list) / 1000
+                    print(ai_list)
+
+                    # yield from calc_absorbers(num=k)
+                    absorbers, exp_time = yield from calc_absorbers_expt(num=k)
+
+                    #iterate over the angle stored in one list
+                    for l, ais in enumerate(ai_list):
+                        #check if negative is the good direction
+                        yield from bps.mv(piezo.th, prs - ais)
+                        yield from bps.sleep(0.5)
+
+                        #How to move waxs => reste / quotien of ais
+
+                        det_exposure_time(exp_time,exp_time)
+
+                        bpm = xbpm3.sumX.value
+                        name_fmt = '{sample}_aiscan_{energy}keV_ai{angle}deg_wa{waxs}_abs{absorber}_bpm{bpm}_time{time}'
+                        sample_name = name_fmt.format(sample=name,
+                                                        energy = '%4.2f'%energ,
+                                                        angle ='%4.3f'%ais,
+                                                        waxs ='%2.1f'%wa,
+                                                        absorber = absorbers,
+                                                        bpm = '%2.3f'%bpm,
+                                                        time = '%1.1f'%exp_time)
+
+                        sample_id(user_name='TF', sample_name=sample_name)
+                        print(f'\n\t=== Sample: {sample_name} ===\n')    #Duplicate the
+                        yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 2450)
+        yield from bps.mv(piezo.th, ai0)
+
+
+
 def refl_ener_scan_spol_waxs(t=1):
     names =  ['PS-20', 'PSS_20', 'Y6_ac-ref', 'homo_M', 'homo_T', 'homo_S' ]
     x_piezo = [ 30000,    13800,       -3200,   -17500,   -36200,    -48200]
