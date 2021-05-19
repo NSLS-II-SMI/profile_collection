@@ -212,3 +212,93 @@ def waxs_S_edge_wenkai_2021_1(t=1):
 
             yield from bps.mv(energy, 2470)
             yield from bps.mv(energy, 2450)
+
+
+
+def wenkai_waxs_tensile_tender_2021_2(t=1):
+    #85s to do the loop
+    dets = [pil300KW, pil1M]
+
+    names = 'SSC_loop4_waxs'
+    t0 = time.time()
+    # yield from bps.mvr(stage.y, -0.4)
+
+    for i in range(60):
+        det_exposure_time(t,t)
+        yield from bps.mvr(stage.y, 0.03)
+
+        if waxs.arc.position > 5:
+            wa = [19.5, 13, 6.5, 0]
+        else:
+            wa = [0, 6.5, 13, 19.5]
+        
+        t1 = time.time()
+        for wax in wa:
+            name_fmt = '{sample}_2455.0eV_sdd3m_{time}s_{i}_wa{wa}'
+
+            yield from bps.mv(waxs, wax)
+            sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+        yield from bps.sleep(5)
+
+    
+    t2 = time.time()
+    print(t2-t0)
+
+
+
+def wenkai_waxsonly_tensile_tender_2021_2(t=1):
+    #85s to do the loop
+    dets = [pil300KW]
+
+    names = 'LSC_loop5_waxs_kaclamp'
+    t0 = time.time()
+    # yield from bps.mvr(stage.y, -0.4)
+
+    for i in range(1000):
+        det_exposure_time(t,t)
+        yield from bps.mvr(stage.y, 0.01)
+
+        t1 = time.time()
+        name_fmt = '{sample}_2484.25eV_sdd3m_{time}s_{i}_wa{wa}'
+
+        sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%0)
+        sample_id(user_name='GF', sample_name=sample_name)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.count(dets, num=1)
+
+    
+    t2 = time.time()
+    print(t2-t0)
+
+
+
+def wenkai_saxsonly_tensile_tender_2021_2(t=1):
+    #85s to do the loop
+    dets = [pil300KW, pil1M]
+
+    names = 'SSC_loop3_saxs'
+    t0 = time.time()
+    # yield from bps.mvr(stage.y, -0.4)
+
+    for i in range(1000):
+        det_exposure_time(t,t)
+        yield from bps.mvr(stage.y, 0.005)
+
+        t1 = time.time()
+        name_fmt = '{sample}_2484.24eV_sdd3m_{time}s_{i}_wa{wa}'
+
+        sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%8)
+        sample_id(user_name='GF', sample_name=sample_name)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.count(dets, num=1)
+
+        yield from bps.sleep(0.5)
+
+    t2 = time.time()
+    print(t2-t0)
+
+
