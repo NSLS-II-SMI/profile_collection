@@ -71,3 +71,72 @@ def run_gordon_2021_1(t=1):
         
         sample_id(user_name='test', sample_name='test')
         det_exposure_time(0.3,0.3)
+
+
+
+def waxs_S_edge_gordon_2021_2(t=1):
+    dets = [pil300KW]
+
+    # names = ['pbTTT_neat', 'p3RT_neat', 'pbTTT_dopped', 'p3RT_dopped']
+    # x = [   26200, 20400, 14100, 7300]
+    # y = [     700,   500,   900,  500]
+    
+
+    names = ['p3RT_dopped']
+    x = [  7300]
+    y = [   500]
+
+    energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist()
+    waxs_arc = np.linspace(0, 39, 7)
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 400, 31)
+        xss = np.array([xs, xs + 400])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t,t)
+
+            if wa == 0 and name != 'pbTTT_neat':
+                yield from bps.mv(energy, 2450)
+                name_fmt = 'int_cor_{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+                for e, xsss, ysss in zip(energies, xss, yss): 
+                    yield from bps.sleep(0.5)
+
+                    yield from bps.mv(piezo.y, ysss)
+                    yield from bps.mv(piezo.x, xsss)
+
+                    bpm = xbpm2.sumX.value
+                    sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                    sample_id(user_name='GF', sample_name=sample_name)
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                    yield from bp.count(dets, num=1)
+
+
+            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
