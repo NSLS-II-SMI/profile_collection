@@ -408,11 +408,11 @@ def mesure_db(sample, x, y, num=1, exp_t=1):
 
 
 def NEXAFS_P_edge(t=0.5):
-        yield from bps.mv(waxs, 30)
+        yield from bps.mv(waxs, 0)
         dets = [pil300KW]
-        name = 'NEXAFS_S4_Pedge_wa30.0deg_ai0.6deg'
+        name = 'nexafs_s4_wa0_0.5deg'
 
-        energies = np.linspace(2140, 2180, 41)
+        energies = np.linspace(2140, 2200, 61)
         
         det_exposure_time(t,t) 
         name_fmt = '{sample}_{energy}eV_xbpm{xbpm}'
@@ -425,4 +425,15 @@ def NEXAFS_P_edge(t=0.5):
             print(f'\n\t=== Sample: {sample_name} ===\n')
             yield from bp.count(dets, num=1)
 
-
+        yield from bps.mv(energy, 2190)
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2180)
+        yield from bps.sleep(2)            
+        yield from bps.mv(energy, 2170)
+        yield from bps.sleep(2)            
+        yield from bps.mv(energy, 2160)
+        yield from bps.sleep(2)            
+        yield from bps.mv(energy, 2150)
+        yield from bps.sleep(2)           
+        yield from bps.mv(energy, 2140)
+        yield from bps.sleep(2)            

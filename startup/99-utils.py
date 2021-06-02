@@ -65,7 +65,7 @@ from Maksim
     return x, y, t
 
 
-def ps(uid='-1',det='default',suffix='default',shift=.5,logplot='off', der  = False ):
+def ps(uid='-1',det='default',suffix='default',shift=.5, logplot='off', der  = False, plot = True ):
     '''
     YG Copied from CHX beamline@March 18, 2018
     function to determine statistic on line profile (assumes either peak or erf-profile)
@@ -161,30 +161,31 @@ def ps(uid='-1',det='default',suffix='default',shift=.5,logplot='off', der  = Fa
         ps.fwhm = FWHM
 
     ### re-plot results:
-    if logplot=='on':
-        plt.close(999)
-        plt.figure(999)
-        plt.semilogy([PEAK,PEAK],[np.min(y),np.max(y)],'k--',label='PEAK')
-        #plt.hold(True)
-        plt.semilogy([CEN,CEN],[np.min(y),np.max(y)],'r-.',label='CEN')
-        plt.semilogy([COM,COM],[np.min(y),np.max(y)],'g.-.',label='COM')
-        plt.semilogy(x,y,'bo-')
-        plt.xlabel(field);plt.ylabel(intensity_field)
-        plt.legend()
-        plt.title('uid: '+str(uid)+' @ '+str(t)+'\nPEAK: '+str(PEAK_y)[:8]+' @ '+str(PEAK)[:8]+'   COM @ '+str(COM)[:8]+ '\n FWHM: '+str(FWHM)[:8]+' @ CEN: '+str(CEN)[:8],size=9)
-        plt.show()
-    else:
-        plt.close(999)
-        plt.figure(999)
-        plt.plot([PEAK,PEAK],[np.min(y),np.max(y)],'k--',label='PEAK')
-        #plt.hold(True)
-        plt.plot([CEN,CEN],[np.min(y),np.max(y)],'r-.',label='CEN')
-        plt.plot([COM,COM],[np.min(y),np.max(y)],'g.-.',label='COM')
-        plt.plot(x,y,'bo-')
-        plt.xlabel(field);plt.ylabel(intensity_field)
-        plt.legend()
-        plt.title('uid: '+str(uid)+' @ '+str(t)+'\nPEAK: '+str(PEAK_y)[:8]+' @ '+str(PEAK)[:8]+'   COM @ '+str(COM)[:8]+ '\n FWHM: '+str(FWHM)[:8]+' @ CEN: '+str(CEN)[:8],size=9)
-        plt.show()
+    if plot:
+        if logplot=='on':
+            plt.close(999)
+            plt.figure(999)
+            plt.semilogy([PEAK,PEAK],[np.min(y),np.max(y)],'k--',label='PEAK')
+            #plt.hold(True)
+            plt.semilogy([CEN,CEN],[np.min(y),np.max(y)],'r-.',label='CEN')
+            plt.semilogy([COM,COM],[np.min(y),np.max(y)],'g.-.',label='COM')
+            plt.semilogy(x,y,'bo-')
+            plt.xlabel(field);plt.ylabel(intensity_field)
+            plt.legend()
+            plt.title('uid: '+str(uid)+' @ '+str(t)+'\nPEAK: '+str(PEAK_y)[:8]+' @ '+str(PEAK)[:8]+'   COM @ '+str(COM)[:8]+ '\n FWHM: '+str(FWHM)[:8]+' @ CEN: '+str(CEN)[:8],size=9)
+            plt.show()
+        else:
+            plt.close(999)
+            plt.figure(999)
+            plt.plot([PEAK,PEAK],[np.min(y),np.max(y)],'k--',label='PEAK')
+            #plt.hold(True)
+            plt.plot([CEN,CEN],[np.min(y),np.max(y)],'r-.',label='CEN')
+            plt.plot([COM,COM],[np.min(y),np.max(y)],'g.-.',label='COM')
+            plt.plot(x,y,'bo-')
+            plt.xlabel(field);plt.ylabel(intensity_field)
+            plt.legend()
+            plt.title('uid: '+str(uid)+' @ '+str(t)+'\nPEAK: '+str(PEAK_y)[:8]+' @ '+str(PEAK)[:8]+'   COM @ '+str(COM)[:8]+ '\n FWHM: '+str(FWHM)[:8]+' @ CEN: '+str(CEN)[:8],size=9)
+            plt.show()
 
     ### assign values of interest as function attributes:
     ps.peak=PEAK

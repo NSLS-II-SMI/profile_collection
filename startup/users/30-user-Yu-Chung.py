@@ -176,3 +176,39 @@ def saxs_waxs_yuchung_2021_1(t=1):
             print(f'\n\t=== Sample: {sample_name} ===\n')
             # yield from bp.list_scan(dets, piezo.x, xss.tolist() , piezo.y, yss.tolist())
             yield from bp.count(dets)
+
+
+
+
+def saxs_waxs_yuchung_2021_2(name='test', t=0.5):
+
+    det_exposure_time(t,t)
+    dets = [pil300KW, pil1M]
+    waxs_arc = np.linspace(0, 26, 5)
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)    
+        
+        name_fmt = '{sample}_full_16.1keV_sdd7m_wa{wax}'
+        sample_name = name_fmt.format(sample=name, wax = wa)
+        sample_id(user_name='YC', sample_name=sample_name)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.count(dets, num=1)
+    
+    det_exposure_time(0.3, 90)
+    yield from bps.mv(waxs, 7)    
+
+
+def y_scan_yuchung_2021_2(name = 'test', t=0.5):
+
+    det_exposure_time(t,t)
+    dets = [pil300KW, pil1M]
+        
+    name_fmt = '{sample}_scany_16.1keV_sdd7m_wa{wax}'
+    sample_name = name_fmt.format(sample=name, wax = '7')
+    sample_id(user_name='YC', sample_name=sample_name)
+    print(f'\n\t=== Sample: {sample_name} ===\n')
+    yield from bp.scan(dets, stage.y, 7.1, 10, 581)
+
+    det_exposure_time(0.5, 0.5)
+    yield from bps.mv(waxs, 7)

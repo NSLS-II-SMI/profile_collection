@@ -175,13 +175,28 @@ def giwaxs_S_edge_Pete(t=1):
 
 
 
-def giwaxs_S_edge_Pete_2121_1(t=1):
+def giwaxs_S_edge_Pete_2121_2(t=1):
     dets = [pil1M, pil300KW]
     
-    names =   ['sample5a', 'sample5b', 'sample6a', 'sample6b', 'sample7a', 'sample7b', 'sample8a', 'sample8b']
-    x_piezo = [     50000,      51000,      39000,      28000,      18200,       9000,      -1300,     -11000]   
-    x_hexa =  [         9,          0,          0,          0,          0,          0,          0,          0]
-    z_piezo = [       300,        300,        300,        300,        300,        300,        300,        300]
+    # names =   ['sample1a', 'sample1b', 'sample2a', 'sample2b', 'sample3a', 'sample3b', 'sample4a', 'sample4b', 'sample5a', 'sample5b', 'sample6a',
+    # 'sample6b','sample7a', 'sample7b']
+    # x_piezo = [     50000,      42000,      35000,      28000,      21000,      13500,       6500,      -1500,      -9000,     -16000,     -23000,
+    #     -32000,    -40800,     -49500]  
+    # x_hexa =  [         0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,
+    #          0,         0,          0]
+    # z_piezo = [         0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,
+    #          0,         0,          0]
+
+
+    names =   ['sample8a', 'sample8b', 'sample9a', 'sample9b', 'sample10a', 'sample10b', 'sample11a', 'sample11b', 'sample12a', 'sample12b']
+    x_piezo = [     49500,      41000,      33500,      26000,       18000,       10000,        2000,       -7000,      -14000,      -21000]  
+    x_hexa =  [         0,          0,          0,          0,           0,           0,           0,           0,           0,           0]
+    z_piezo = [         0,          0,          0,          0,           0,           0,           0,           0,           0,           0]
+
+
+    assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
+    assert len(x_piezo) == len(x_hexa), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})'
+    assert len(x_piezo) == len(z_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})'
 
     dets = [pil1M, pil300KW]
     waxs_arc = [15, 0]

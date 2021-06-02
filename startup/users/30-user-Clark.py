@@ -290,45 +290,127 @@ def run_contRPI(t=1, numb = 100, sleep = 5):
 
 
 
-def instec_insitu_hard_xray(t=0.5):
+def instec_insitu_hard_xray(t=0.4):
     dets = [pil300KW, pil1M]
     det_exposure_time(t,t) 
 
-    name = 'DIO_t60s'
-    temperatures = np.arange(75, 69, -1).tolist() + [68, 66, 64, 62, 60]
+    name = 'DIO_loop3'
+    temperatures = np.arange(90, 39, -1).tolist() 
 
-    waxs_arc = np.linspace(0, 13.0, 3) 
+    waxs_arc = np.linspace(0, 19.5, 4) 
 
-    for i_t, t in enumerate(temperatures):
+    yss = np.linspace(-1.05, -0.85, 21)
+    xss = np.linspace(-1.3, -1.5, 21)
+
+
+    yss, xss = np.meshgrid(yss, xss)
+
+    yss = yss.ravel()
+    xss = xss.ravel()
+
+    num = 0
+    cur_temp = 400
+
+    t0 = time.time()
+
+    while num < 200 and cur_temp > 313:
+        yield from bps.mv(stage.y, yss[num])
+        yield from bps.mv(stage.x, xss[num])
+        
+        num=num+1
+
         t_kelvin = t + 273.15
-        yield from ls.output3.mv_temp(t_kelvin)
-        yield from bps.sleep(120)
+        cur_temp = ls.input_A.value
+
+        while cur_temp < 100:
+            yield from bps.sleep(10)
+            cur_temp = ls.input_A.value
+
+        # yield from bps.sleep(60)
 
         if waxs.arc.position > 10:
             wa_arc = waxs_arc[::-1]
         else:
             wa_arc = waxs_arc
 
+        t1 = time.time()
+
+
         for j, wa in enumerate(wa_arc):
             yield from bps.mv(waxs, wa)
-            name_fmt = '{sample}_{temperature}C_wa{waxs}_sdd1.6m'
-            sample_name = name_fmt.format(sample=name, temperature='%3.1f'%t, waxs='%2.1f'%wa)
+            name_fmt = '{sample}_{temperature}C_t{time}_wa{waxs}_sdd1.6m'
+            sample_name = name_fmt.format(sample=name, temperature='%3.1f'%(cur_temp-273.15), time = '%3.1f'%(t1-t0), waxs='%2.1f'%wa)
             print(f'\n\t=== Sample: {sample_name} ===\n')
             sample_id(user_name='NC', sample_name=sample_name) 
             yield from bp.count(dets, num=1)
 
 
-def instec_insitu_hard_xray_fixT(t=0.5):
+
+
+
+def instec_insitu_t_step_hard_xray(t=0.4):
+    dets = [pil300KW, pil1M]
+    det_exposure_time(t,t) 
+
+    name = 'RM734_loop1'
+    temperatures = np.arange(86, 80, -2).tolist() 
+
+    waxs_arc = np.linspace(0, 19.5, 4) 
+
+    yss = np.linspace(-1.0, -0.9, 11)
+    xss = np.linspace(1.2, 1.1, 11)
+
+    yss, xss = np.meshgrid(yss, xss)
+
+    yss = yss.ravel()
+    xss = xss.ravel()
+
+
+
+    for num, temper in enumerate(temperatures):
+        yield from bps.mv(stage.y, yss[num])
+        yield from bps.mv(stage.x, xss[num])
+        
+        t_kelvin = temper + 273.15
+        yield from ls.output3.mv_temp(t_kelvin - 10)
+
+        cur_temp = ls.input_A.value
+
+        while abs(cur_temp - t_kelvin) > 1.5:
+            yield from bps.sleep(10)
+            cur_temp = ls.input_A.value
+
+        yield from bps.sleep(60)
+
+
+        if waxs.arc.position > 10:
+            wa_arc = waxs_arc[::-1]
+        else:
+            wa_arc = waxs_arc
+
+
+        for j, wa in enumerate(wa_arc):
+            yield from bps.mv(waxs, wa)
+            name_fmt = '{sample}_{temperature}C_wa{waxs}_sdd1.6m'
+            sample_name = name_fmt.format(sample=name, temperature='%3.1f'%temper, waxs='%2.1f'%wa)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            sample_id(user_name='NC', sample_name=sample_name) 
+            yield from bp.count(dets, num=1)
+
+
+
+
+def instec_insitu_hard_xray_fixT(t=0.4):
 
     dets = [pil300KW, pil1M]
     det_exposure_time(t,t) 
 
     
-    name = 'DIO_t180s_up'
+    name = 'RM734__edgeglass'
 
-    temp_C = 150
+    temp_C = 110
     # temperatures = [120]
-    waxs_arc = np.linspace(0, 13.0, 3) 
+    waxs_arc = np.linspace(0, 19.5, 4) 
 
       
     if waxs.arc.position > 10:
@@ -338,7 +420,7 @@ def instec_insitu_hard_xray_fixT(t=0.5):
 
     for j, wa in enumerate(wa_arc):
         yield from bps.mv(waxs, wa)
-        name_fmt = '{sample}_{temperature}C_wa{waxs}_sdd1.6m'
+        name_fmt = '{sample}_{temperature}C_wa{waxs}_sdd1.6m_11.15keV'
         sample_name = name_fmt.format(sample=name, temperature='%3.1f'%temp_C, waxs='%2.1f'%wa)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         sample_id(user_name='NC', sample_name=sample_name) 

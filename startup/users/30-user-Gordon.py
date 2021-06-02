@@ -140,3 +140,36 @@ def waxs_S_edge_gordon_2021_2(t=1):
 
             yield from bps.mv(energy, 2470)
             yield from bps.mv(energy, 2450)
+
+
+def gordon_saxswaxs_2021_2(t=1):
+    dets = [pil300KW, pil1M]
+
+    waxs_arc = np.linspace(0, 32.5, 6)
+
+    # names = ['pbTTT_neat', 'p3RT_neat', 'pbTTT_dopped', 'p3RT_dopped']
+    # x = [   24600, 19300, 14500, 7700]
+    # y = [    6800,  6800,  6900, 7400]
+
+
+    names = ['pbTTT_dopped']
+    x = [   14500]
+    y = [   6900]
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)    
+        
+        for name, xs, ys in zip(names, x, y):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            xss = [0, -300]
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_16.1keV_pos{pos}_wa{wax}_sdd1.6m'
+            for k, xsss in enumerate(xss):
+                yield from bps.mv(piezo.x, xs + xsss)
+
+                sample_name = name_fmt.format(sample=name, pos = k, wax = wa)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)

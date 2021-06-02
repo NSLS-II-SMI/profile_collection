@@ -182,16 +182,21 @@ def saxs_cai_2021_1(t=1):
     det_exposure_time(0.3, 0.3) 
 
 def saxs_cai(t=1): 
-    xlocs = [-26000,-13000,-2000, 10000,21000,33000,42000, -33000,-22000,-11000,0,12000,22000,34000,42000]
-    y_top = -6500
-    y_bot = 6000
+    # xlocs = [-40000,-29000,-18500, -5500,8500,16500,32500,42500, -37000,-24500,-14000, -6000,-2500,9000, 19000, 34000, 44000]
+    # y_top = -5900
+    # y_bot = 6500
  
-    ylocs = [y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,   y_top,y_top,y_top,y_top,y_top,y_top,y_top,y_top]
+    # ylocs = [y_top,y_top,y_top,y_top,y_top,y_top,y_top,y_top,   y_bot,y_bot,y_bot,y_bot,y_bot,y_bot,y_bot, y_bot, y_bot ]
  
-    names = ['LhBBL_3.0_ann','LhBBL_0.8_ann','LhBBL_0.3_ann','LhBBL_0.0_ann','LhBBL_1.1_new','LhBBL_0.54','LhBBL_5.5',
-    'LhBBL_3.0','LhBBL_2.0','LhBBL_1.1','LhBBL_0.85','LhBBL_0.8','LhBBL_0.6','LhBBL_0.3','LhBBL_0.0']
+    # names = ['HA_123_AAPA_133', 'HA_64_AAPA_191', 'AAPA_247', 'AAPA_280', 'LhBBL_tBuMA_x_0.6', 'LhBBL_tBuMA_x_1', 'LhBBL_tBuMA_x_1.44', 'LhBBL_tBuMA_x_2.3',
+    # 'LBBL_378', 'LhBBL_306_BnMA_x_0.83', 'LhBBL_402_BnMA_x_0.84', 'LhBBL_508_BnMA_x_0.83', 'M17_LBBL_0.45','glass_bkg', 'M17_LBBL_0.49', 'M17_LBBL_0.54', 'HA_188_AAPA_62_f_27']
     
-        
+
+    xlocs = [1000, -8000, -21000, -31500, -41500]
+    ylocs = [6500,  5900,   5900,   5900,   5000]
+ 
+    names = ['LhBBL_207_BnMA_x_2.39', 'LhBBL_200_BnMA_x_3.46', 'hPDMS_207_BnMA_x_2.39', 'hPDMS_200_BnMA_x_3.46', 'hPDMS_198_BnMA_x_6.2']
+
     user = 'LC'    
     det_exposure_time(t,t)     
     
@@ -199,9 +204,9 @@ def saxs_cai(t=1):
     
     # Detectors, motors:
     dets = [pil1M, pil300KW]
-    waxs_range = np.linspace(13, 0, 3)
+    waxs_range = np.linspace(32.5, 0, 6)
     
-    x_off = [-1000, 0, 1000]
+    x_off = [-500, 0, 500]
 
     for wa in waxs_range:
         yield from bps.mv(waxs, wa)
@@ -213,7 +218,7 @@ def saxs_cai(t=1):
                 yield from bps.mv(piezo.x, x+x_of)
                 xxa = xx+1
 
-                name_fmt = '{sam}_swaxs_pos{pos}_wa{waxs}'
+                name_fmt = '{sam}_pos{pos}_wa{waxs}_16.1keV_sdd8.3m'
                 sample_name = name_fmt.format(sam=sam, pos='%1.1d'%xxa, waxs='%2.1f'%wa)
                 sample_id(user_name=user, sample_name=sample_name) 
                 print(f'\n\t=== Sample: {sample_name} ===\n')
@@ -477,3 +482,52 @@ def Cai_saxs_tensile_hard(t=0.2):
         yield from bp.count(dets, num=1)
 
         time.sleep(20)
+
+
+
+
+def saxs_cai_2021_2(t=1): 
+ 
+    # xlocs = [45800, 42800, 35500, 29000, 17500, 12900,  1400, -7300, -13400, -17700, -24200, -30500, -35500, -40500]
+    # ylocs = [ 3000,  1500, -1800, -1200,  3600,  5500,  5700,  4900,   5800,   5800,   2600,  -8400,  -2400,   3000]
+    # zlocs = [ 2000,  -700,  -700,  -700,  -700,  -700, -3500,  5000,   5000,   5000,   -700,   -700,   -700,   -700]
+    # ystage = [-2.99,-2.99, -2.99, -2.99, -2.99, -2.99, -2.99, -2.99,  -2.99,  -2.99,  -2.99,   -6.0,   -2.99, -2.99]
+    # names = ['HA_251', 'HA_229_AAPA_21', 'HA_189_AAPA_64', 'HA_1009', 'HA_927_AAPA_93', 'HA_725_AAPA_255', 'hPDMS_tBuMA_x_0.6', 'hPDMS_tBuMA_x_1', 
+    # 'hPDMS_tBuMA_x_1.44', 'hPDMS_tBuMA_x_2.3', 'PDMS_378', 'hPDMS_306_BnMA_x_0.83', 'hPDMS_402_BnMA_x_0.84', 'hPDMS_508_BnMA_x_0.83']
+  
+  
+    names = ['LhBBL _207_BnMA_x_2.39', 'LhBBL _200_BnMA_x_3.46', 'hPDMS_207_BnMA_x_2.39', 'hPDMS_200_BnMA_x_3.46', 'hPDMS_198_BnMA_x_6.2']
+  
+    user = 'LC'    
+    det_exposure_time(t,t)     
+    
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})'
+    assert len(xlocs) == len(ylocs), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(ylocs)})'
+    assert len(xlocs) == len(zlocs), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(zlocs)})'
+    assert len(xlocs) == len(ystage), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(ystage)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})'
+
+    # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    waxs_range = np.linspace(32.5, 0, 6)
+    #waxs_range = np.linspace(32.5, 32.5, 1)
+
+    ypos = [-200, 200, 3]
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z, y_sta in zip(names, xlocs, ylocs, zlocs, ystage):
+            yield from bps.mv(piezo.x, x)            
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+            yield from bps.mv(stage.y, y_sta)
+
+            name_fmt = '{sam}_16.1keV_sdd8.3m_wa{waxs}'
+            sample_name = name_fmt.format(sam=sam,  waxs='%2.1f'%wa)
+            sample_id(user_name=user, sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.rel_scan(dets, piezo.y, *ypos)
+            yield from bps.sleep(2)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3) 

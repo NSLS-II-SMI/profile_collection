@@ -302,3 +302,25 @@ def wenkai_saxsonly_tensile_tender_2021_2(t=1):
     print(t2-t0)
 
 
+
+def wenkai_saxs_waxs_tensile_hard(t=1):
+    dets = [pil300KW, pil1M]
+
+    names = 'PF-T2PO1_loop1'
+    t0 = time.time()
+    for i in range(2000):
+        det_exposure_time(t,t) 
+
+        if waxs.arc.position > 5:
+            wa = [13, 6.5, 0]
+        else:
+            wa = [0, 6.5, 13]
+        
+        name_fmt = '{sample}_14000eV_{time}s_{i}_wa{wa}'
+        t1 = time.time()
+        for wax in wa:
+            yield from bps.mv(waxs, wax)
+            sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)

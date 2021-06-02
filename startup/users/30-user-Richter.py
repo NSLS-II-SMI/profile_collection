@@ -453,7 +453,8 @@ def P_edge_measurments(t=1):
         yield from alignement_special(angle = 0.75)
 
         ai0 = piezo.th.position
-        for i, wa in enumerate(waxs_arc):P_            yield from bps.mv(waxs, wa)
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
 
             for k, ais in enumerate(ai_list):
                 yield from bps.mv(piezo.th, ai0 + ais)

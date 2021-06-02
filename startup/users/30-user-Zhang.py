@@ -97,30 +97,6 @@ def song_saxs_waxs_tensile_hard(t=1):
 
 
 
-def wenkai_waxs_tensile_tender(t=1):
-    dets = [pil300KW]
-
-    names = 'Rxbai-P_S_loop1'
-    t0 = time.time()
-    for i in range(2000):
-        det_exposure_time(t,t) 
-
-        if waxs.arc.position > 5:
-            wa = [19.5, 13, 6.5, 0]
-        else:
-            wa = [0, 6.5, 13, 19.5]
-        
-        t1 = time.time()
-        for wax in wa:
-                name_fmt = '{sample}_2476.2eV_{time}s_{i}_wa{wa}'
-
-                yield from bps.mv(waxs, wax)
-                sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
-                sample_id(user_name='GF', sample_name=sample_name)
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                yield from bp.count(dets, num=1)
-
-
 def song_saxs_waxs_tensile_tender(t=1):
     dets = [pil300KW]
 
@@ -150,81 +126,6 @@ def song_saxs_waxs_tensile_tender(t=1):
                 sample_id(user_name='GF', sample_name=sample_name)
                 print(f'\n\t=== Sample: {sample_name} ===\n')
                 yield from bp.count(dets, num=1)
-
-
-def wenkai_saxs_waxs_tensile_hard(t=1):
-    dets = [pil300KW, pil1M]
-
-    names = 'PF-T2PO1_loop1'
-    t0 = time.time()
-    for i in range(2000):
-        det_exposure_time(t,t) 
-
-        if waxs.arc.position > 5:
-            wa = [13, 6.5, 0]
-        else:
-            wa = [0, 6.5, 13]
-        
-        name_fmt = '{sample}_14000eV_{time}s_{i}_wa{wa}'
-        t1 = time.time()
-        for wax in wa:
-            yield from bps.mv(waxs, wax)
-            sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
-            sample_id(user_name='GF', sample_name=sample_name)
-            print(f'\n\t=== Sample: {sample_name} ===\n')
-            yield from bp.count(dets, num=1)
-
-
-def wenkai_saxs_waxs_tensile_hard1(t=1):
-    dets = [pil300KW, pil1M]
-
-    names = 'Rxbai_P_loop3'
-    t0 = time.time()
-    for i in range(2000):
-        det_exposure_time(t,t) 
-
-        if i == 0:
-            wa = [1, 7.5, 14]
-
-            name_fmt = '{sample}_18250eV_{time}s_{i}_wa{wa}'
-            t1 = time.time()
-            for wax in wa:
-                yield from bps.mv(waxs, wax)
-                sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
-                sample_id(user_name='GF', sample_name=sample_name)
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                yield from bp.count(dets, num=1)
-        
-        t1 = time.time()
-        
-        if t1-t0 > 750 and t1-t0 < 1050:
-            if waxs.arc.position > 5:
-                wa = [14, 7.5, 1]
-            else:
-                wa = [1, 7.5, 14]
-
-            name_fmt = '{sample}_18250eV_{time}s_{i}_wa{wa}'
-            t1 = time.time()
-            for wax in wa:
-                yield from bps.mv(waxs, wax)
-                sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
-                sample_id(user_name='GF', sample_name=sample_name)
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                yield from bp.count(dets, num=1)
-        
-        else:
-            wa = [1]
-            name_fmt = '{sample}_18250eV_{time}s_{i}_wa{wa}'
-            t1 = time.time()
-            for wax in wa:
-                yield from bps.mv(waxs, wax)
-                sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
-                sample_id(user_name='GF', sample_name=sample_name)
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                yield from bp.count(dets, num=1)
-            
-            time.sleep(25)
-            
 
 
 
@@ -501,22 +402,32 @@ def nightplan_S_edge_zhang(t=2):
 
 
 
-def song_nexafs_S_2021_1(t=1):
+def song_nexafs_S_2021_2(t=1):
     dets = [pil300KW]
 
     energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist()
     waxs_arc = np.linspace(52, 52, 1)
 
-    names = ['A2_2_nexafs', 'B1_2_nexafs', 'C1_2_nexafs']
-    # x = [-10600, 22000]
-    # y = [ -4400, -5000]
+    # names = ['1A1', '1A2', '2E3', '1A4']
+    # x = [42500, 36500, 30500, 25000]
+    # y = [-4700, -4800, -5200, -5400]
 
-    x = [15500, 9500, 1800]
-    y = [-4000, -4400, -4400]
+    # names=['1A6','1A7','1A8', '1A9','1A10','1A11', '1A12',  '1B1',  '1B2',  '1B3',  '1B4',  '1B5',
+    #      '1B6', '1B7', '1B8', '1B9','1B11','1B12',   'D1',   'D2',   'D3',   'D4',   'D5',   'D6',   'D7',   'D8',   'D9', 'D10']
+    # x = [20100, 13200,  8900,  3100, -2900, -9200, -14700, -20700, -26700, -33700, -38700, -43000,
+    #      45200, 39800, 33800, 28800, 22800, 17300, 10300,   4300,   -700,  -7500, -12500, -17700, -23700, -29400, -35300, -40800]
+    # y = [-5000, -6100, -4700, -4700, -4700, -5100,  -4800,  -4800,  -4800,  -4800,  -4800,  -4500, 
+    #       7500,  7400,  7700,  7700,  7700,  8000,  7800,   7500,   7500,   7700,   7700,   7700,   7000,   7700,   7700,   7100]
 
-    # names = ['C2_2_nexafs']
-    # x = [-5400]
-    # y = [-5200]
+    names=['D11','D12', '1E1', '1E2', '1E3', '1E4', '1E5', '1E6', '1E7', '1E8',  '1E9', '1E10',  '2E1',  '2E2',  '2E4',  '2E6', '2F1', '2F2', '2F3']
+    x = [44800,  38800, 33800, 27800, 22800, 16800, 11300,  5500,     0, -5300, -11000, -17000, -22000, -27200, -33700, -40500, 43300, 37300, 31400]
+    y = [-5700,  -5700, -5700, -5500, -5500, -5600, -5600, -5600, -5600, -5600,  -5600,  -5600,  -5600,  -4500,  -4700,  -4400,  6800,  6800,  6800]
+
+
+    assert len(names) == len(x), f'Number of X coordinates ({len(names)}) is different from number of samples ({len(x)})'
+    assert len(y) == len(x), f'Number of X coordinates ({len(y)}) is different from number of samples ({len(x)})'
+
+
     for name, xs, ys in zip(names, x, y):
         yield from bps.mv(piezo.x, xs)
         yield from bps.mv(piezo.y, ys)
@@ -525,7 +436,7 @@ def song_nexafs_S_2021_1(t=1):
             yield from bps.mv(waxs, wa)    
 
             det_exposure_time(t,t) 
-            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            name_fmt = '{sample}_nexafs_{energy}eV_wa{wax}_bpm{xbpm}'
             for e in energies: 
                 yield from bps.mv(energy, e)
                 yield from bps.sleep(1)
@@ -542,19 +453,22 @@ def song_nexafs_S_2021_1(t=1):
 
 
 
-def song_waxs_2021_1(t=1):
+def song_waxs_2021_2(t=1):
     dets = [pil300KW, pil1M]
 
     waxs_arc = np.linspace(0, 19.5, 4)
 
-    # names = ['A1',  'A3',  'A5',  'A8',  'A9', 'A11',  'B1',  'B3',   'B5',   'B8',  'B10',  'B11',   'C1',   'C2']
-    # x =    [37200, 31900, 25400, 18400, 11400,  5400,  -600, -7900, -14200, -19900, -25900, -31900, -37900, -43500]
-    # y =    [-5480, -4700, -4800, -4800, -4800, -4600, -4100, -5100,  -4700,  -4100,  -4500,  -4100,  -4500,  -4100]
+    # names=['1A1','1A2','2E3', '1A4', '1A6', '1A7', '1A8', '1A9','1A10','1A11', '1A12',  '1B1',  '1B2',  '1B3',  '1B4',  '1B5',
+    #      '1B6', '1B7', '1B8', '1B9','1B11','1B12',  'D1',  'D2',  'D3',  'D4',   'D5',   'D6',   'D7',   'D8',   'D9', 'D10']
+    # x = [42500, 36500, 30500, 25000, 20100, 13200,  8900,  3100, -2900, -9200, -14700, -20700, -26700, -33700, -38700, -43000,
+    #      45200, 39800, 33800, 28800, 22800, 17300, 10300,  4300,  -700, -7500, -12500, -17700, -23700, -29400, -35300, -40800]
+    # y = [-4700, -4800, -5000, -5200, -5000, -6100, -4700, -4700, -4700, -5100, -4800,  -4800,  -4800,  -4800,  -4800,  -4500, 
+    #       7500,  7400,  7700,  7700,  7700,  8000,  7800,  7500,  7500,  7700,   7700,   7700,   7000,   7700,   7700,   7100]
 
+    names=['1A4']
+    x = [25000]
+    y = [-5200]
 
-    names = ['B10']
-    x =    [-25900]
-    y =    [-4500]
 
     for wa in waxs_arc:
         yield from bps.mv(waxs, wa)
@@ -563,7 +477,7 @@ def song_waxs_2021_1(t=1):
             yield from bps.mv(piezo.x, xs)
             yield from bps.mv(piezo.y, ys)
            
-            for pos, i in enumerate([-250, 0, 250]):
+            for pos, i in enumerate([0, 200, 400]):
                 yield from bps.mv(piezo.x, xs + i)
 
                 det_exposure_time(t,t) 
@@ -580,38 +494,49 @@ def song_waxs_2021_1(t=1):
 
 
 def song_waxs_Sedge_2021_1(t=1):
+    # dets = [pil1M]
     dets = [pil300KW, pil1M]
-    waxs_arc = np.linspace(0, 39, 7)
-    energies = [2450, 2474, 2476, 2478]
 
-    # names = ['A1',  'A3',  'A5',  'A8',  'A9', 'A11',  'B1',  'B3',   'B5',   'B8',  'B10',  'B11',   'C1',   'C2',  'A2',  'A4', 'A10', 'A12',  'B2', 'B4', 'B6', 'xxx']
-    # x =    [36800, 31500, 24400, 18100, 10600,  4700,  -800, -8400, -14600, -19900, -25900, -31700, -37900, -43700, 41500, 35500, 28500, 21000, 14000, 8150,  650, -5400]
-    # y =    [-5500, -4800, -5400, -5200, -5100, -5100, -4400, -5100,  -5100,  -4700,  -4700,  -4600,  -4900,  -4500,  8000,  7000,  7500,  7500,  8200, 8300, 8100,  8300]
+    waxs_arc = np.linspace(0, 32.5, 6)
+
+    # waxs_arc = np.linspace(0, 39, 7)
+    energies = [2450, 2474, 2475, 2476, 2477, 2478]
 
 
-    names = ['A3_2',  'A9_2', 'A11_2',  'B1_2',  'B10_2',  'B11_2',   'C2_2',  'A2_2',  'A12_2',  'B2_2']
-    x =    [30800, 11200,  4700, -1100, -26500, -32300, -44000, 41300,  21000, 13500]
-    y =    [-4500, -4800, -5100, -5560,  -4700,  -4460,  -4360,  8040,   8120,  7260]
+    # names=['1A1','1A2','2E3', '1A4', '1A6', '1A7', '1A8', '1A9','1A10','1A11', '1A12',  '1B1',  '1B2',  '1B3',  '1B4',  '1B5',
+    #      '1B6', '1B7', '1B8', '1B9','1B11','1B12',  'D1',  'D2',  'D3',  'D4',   'D5',   'D6',   'D7',   'D8',   'D9', 'D10']
+    # x = [42500, 36700, 30000, 25300, 20100, 13600,  9000,  3100, -3100, -9400, -14700, -21200, -27000, -33700, -38700, -43000,
+    #      45200, 39800, 33800, 28800, 22800, 17300, 10300,  4300,  -700, -7500, -12500, -17700, -23700, -29400, -35300, -40800]
+    # y = [-4700, -4800, -5700, -5400, -5000, -6100, -4700, -4700, -2000, -5600, -4800,  -5100,  -5100,  -4800,  -4800,  -4500, 
+    #       7500,  7400,  7700,  7700,  7700,  8000,  7800,  7500,  7500,  7700,   7700,   7700,   7000,   7700,   7000,   7100]
 
-    for wa in waxs_arc[::-1]:
+    names=['D11','D12', '1E1', '1E2', '1E3', '1E4', '1E5', '1E6', '1E7', '1E8',  '1E9', '1E10',  '2E1',  '2E2',  '2E4',  '2E6', '2F1', '2F2', '2F3']
+    x = [44800,  38800, 33800, 27800, 22800, 16800, 11300,  5500,     0, -5300, -11000, -17000, -22000, -27200, -33700, -40500, 43300, 37300, 31400]
+    y = [-5700,  -5700, -5700, -5500, -5500, -5600, -5600, -5600, -5600, -5600,  -5600,  -5600,  -5600,  -4500,  -4700,  -4400,  6800,  6800,  6800]
+
+
+
+    for wa in waxs_arc:
         yield from bps.mv(waxs, wa)    
         
         for name, xs, ys in zip(names, x, y):
             yield from bps.mv(piezo.x, xs)
             yield from bps.mv(piezo.y, ys)
-            yss = np.linspace(ys, ys + 120, 4)
+            xss = [0, -300]
 
             det_exposure_time(t,t) 
-            name_fmt = '{sample}_sdd1.6m_{energy}eV_wa{wax}_bpm{xbpm}'
-            for e, ysss in zip(energies, yss): 
+            name_fmt = '{sample}_pos{pos}_sdd1.6m_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e in zip(energies): 
                 yield from bps.mv(energy, e)
                 yield from bps.sleep(1)
 
-                yield from bps.mv(piezo.y, ysss)
 
-                bpm = xbpm2.sumX.value
+                for k, xsss in enumerate(xss):
+                    yield from bps.mv(piezo.x, xs + xsss)
 
-                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                bpm = xbpm3.sumX.value
+
+                sample_name = name_fmt.format(sample=name, pos = k, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
                 sample_id(user_name='GF', sample_name=sample_name)
                 print(f'\n\t=== Sample: {sample_name} ===\n')
                 yield from bp.count(dets, num=1)
@@ -620,3 +545,46 @@ def song_waxs_Sedge_2021_1(t=1):
             yield from bps.sleep(2)
             yield from bps.mv(energy, 2450)
             yield from bps.sleep(2)
+
+
+
+
+def song_waxs_2021_2(t=1):
+    # dets = [pil1M]
+    dets = [pil300KW, pil1M]
+
+    waxs_arc = np.linspace(26, 26, 1)
+
+    # names=['D11','D12', '1E1', '1E2', '1E3', '1E4', '1E5', '1E6', '1E7', '1E8',  '1E9', '1E10',  '2E1',  '2E2',  '2E4',  '2E6', '2F1', '2F2', '2F3']
+    # x = [44800,  38800, 33800, 27800, 22500, 16800, 11300,  5500,     0, -5300, -11000, -17000, -22000, -27400, -33900, -40500, 43300, 37300, 31400]
+    # y = [-5700,  -5700, -5700, -5500, -5350, -5800, -5800, -5800, -5800, -5500,  -5500,  -5500,  -5500,  -5100,  -5400,  -5400,  6800,  6800,  6500]
+
+
+    names=['1A1','1A2','2E3', '1A4', '1A6', '1A7', '1A8', '1A9','1A10','1A11', '1A12',  '1B1',  '1B2',  '1B3',  '1B4',  '1B5',
+         '1B6', '1B7', '1B8', '1B9','1B11','1B12',  'D1',  'D2',  'D3',  'D4',   'D5',   'D6',   'D7',   'D8',   'D9', 'D10']
+    x = [42500, 37200, 30500, 25300, 20800, 13800,  9500,  3100, -3100, -9200, -14700, -20700, -27000, -32600, -37300, -43000,
+         45500, 39800, 34300, 29800, 22800, 17900, 10300,  5000,  -700, -6500, -12000, -17700, -23200, -29400, -34500, -40300]
+    y = [-4700, -4900, -5700, -5400, -5200, -6400, -4900, -4800, -5500, -5600,  -5600,  -5600,  -5600,  -5600,  -5600,  -5600, 
+          7500,  7400,  7700,  7700,  7700,  7900,  6700,  6700,  6700,  6700,   6700,   6700,   7000,   7000,   6400,   6400]
+
+
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)    
+        
+        for name, xs, ys in zip(names, x, y):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            xss = [0, -300]
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_16.1keV_pos{pos}_wa{wax}_sdd1.6m'
+            for k, xsss in enumerate(xss):
+                yield from bps.mv(piezo.x, xs + xsss)
+
+                sample_name = name_fmt.format(sample=name, pos = k, wax = wa)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+

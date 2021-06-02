@@ -273,13 +273,13 @@ def Su_nafion_waxs_S_edge(t=1):
 def nexafs_Su(t=1):
     dets = [pil300KW]
 
-    energies = 7 + np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist())
-    # energies = np.linspace(2450, 2500, 26)
+    energies = np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist())
+    # energies = np.linspace(2450, 2500, 51)
     waxs_arc = [52.5]
 
-    names = ['SPES20_2']
-    x = [42000]
-    y = [ 2000]
+    names = ['sampleA_redo', 'sampleB', 'sampleC', 'sampleD']
+    x = [-22200, -33200, -38700, -29600]
+    y = [ -5250,  -5250,  -5450,   7600]
 
     for name, xs, ys in zip(names, x, y):
         yield from bps.mv(piezo.x, xs)
@@ -302,3 +302,119 @@ def nexafs_Su(t=1):
 
             yield from bps.mv(energy, 2470)
             yield from bps.mv(energy, 2450)
+
+
+
+def waxs_S_edge_greg_2021_2(t=1):
+    dets = [pil300KW, pil1M]
+    yield from bps.mv(prs, 1)
+
+    names = ['sampleA', 'sampleB', 'sampleC', 'sampleD']
+    x = [-22200, -33200, -39200, -29600]
+    y = [ -5250,  -5250,  -5450,   7600]
+
+    energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.5).tolist() + np.arange(2480, 2490, 2).tolist()+ np.arange(2490, 2501, 5).tolist()
+    waxs_arc = np.linspace(13, 13, 1)
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 200, 33)
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t)
+
+            name_fmt = '{sample}_1.6m_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+
+def humidity_experiment(t=1):
+    dets = [pil300KW, pil1M]
+
+    # ai_aligned = [1.931, 1.788, 1.666, 1.817]
+    # ys_aligned = [3.2, 3.189, 3.122, 3.053]
+    # names = ['A30_T0', 'A50_T0', 'A70_T0', 'A90_T0']
+    # x_hexa = [     23,        8,       -6,      -18]
+    # y_hexa = [    3.2,      3.2,      3.2,      3.2]
+
+    ai_aligned = [1.1248, 0.985, 0.995, 0.916] 
+    ys_aligned = [3.293, 3.247, 3.19, 3.123]
+                                                                                                                                           
+    # names = ['A30_T7', 'A50_T7', 'A70_T7', 'A90_T7']
+    # x_hexa = [     22,       9,       -7,      -16.5]
+    # y_hexa = [    3.2,      3.2,      3.2,      3.2]
+
+    names = ['bkg']
+    x_hexa = [23.6]
+    y_hexa = [    0]
+
+    setDryFlow(5)
+    setWetFlow(0)
+
+    humidity = '%3.2f'%readHumidity(verbosity=0)
+
+    waxs_arc = np.linspace(0, 13, 3)
+
+    ai_list = [0.10]
+
+    for num, (name, xs_hexa, ys_hexa) in enumerate(zip(names, x_hexa, y_hexa)):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(stage.y, ys_hexa)
+
+        # yield from alignement_special_hex(angle = 0.15)
+
+        # ai_aligned = ai_aligned + [ai0]
+        # ys_aligned = ys_aligned + [stage.y.position]
+        
+        # yield from bps.mv(stage.y, ys_aligned[num])
+        # yield from bps.mv(stage.th, ai_aligned[num])
+
+        ai0 = stage.th.position
+
+        # print(ai_aligned)
+        # print(ys_aligned)
+
+        det_exposure_time(t,t)                                                                                                                                                                     
+
+        for i, wa in enumerate(waxs_arc[::-1]):
+            yield from bps.mv(waxs, wa)
+            
+            for k, ais in enumerate(ai_list):
+                yield from bps.mv(stage.th, ai0 + ais)
+                yield from bps.mv(stage.x, xs_hexa + k*0.2)
+ 
+                name_fmt = '{sample}_posthumi_16.1keV_3m_hum{hum}_wa{wax}'
+                sample_name = name_fmt.format(sample=name, hum = humidity, wax = wa)
+                sample_id(user_name='AB', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+        
+        yield from bps.mv(stage.th, ai0)
+
+    print(ai_aligned)
+    print(ys_aligned)
