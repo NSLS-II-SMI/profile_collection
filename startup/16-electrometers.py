@@ -64,6 +64,8 @@ class new_LakeShore(Device):
     :param Device: ophyd device
     """
     input_A = Cpt(EpicsSignal, '{Env:01-Chan:A}T-I')
+    input_A_celsius = Cpt(EpicsSignal, '{Env:01-Chan:A}T:C-I')
+
     input_B = Cpt(EpicsSignal, '{Env:01-Chan:B}T-I')
     input_C = Cpt(EpicsSignal, '{Env:01-Chan:C}T-I')
     input_D = Cpt(EpicsSignal, '{Env:01-Chan:D}T-I')
