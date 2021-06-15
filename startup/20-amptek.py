@@ -96,7 +96,7 @@ class AmptekSoftTrigger(BlueskyInterface):
                                "Call the stage() method before triggering.")
 
         def callback(value, old_value, **kwargs):
-            print(f'  {self.name} old value {old_value} --> new_value {value}')
+            # print(f'  {self.name} old value {old_value} --> new_value {value}')
             if int(round(old_value)) == 1 and int(round(value)) == 0:
                 if self._starting or self._starting is None:
                     self.starting = False
@@ -106,22 +106,22 @@ class AmptekSoftTrigger(BlueskyInterface):
                 return False
 
         status = SubscriptionStatus(self.mca.when_acq_stops, callback, run=False)
-        print(f'  !!! attempting to put to {self._acquisition_signal.pvname} value 1')
+        # print(f'  !!! attempting to put to {self._acquisition_signal.pvname} value 1')
         # ttime.sleep(0.1)
         timeout = 10  # s
         self._acquisition_signal.put(1)
 
-        print(f'  !!! sleeping 0.1s after putting')
+        # print(f'  !!! sleeping 0.1s after putting')
         t0 = ttime.time()
-        print(f'Start waiting at {ttime.ctime(t0)}...')
+        # print(f'Start waiting at {ttime.ctime(t0)}...')
         while True:
             ttime.sleep(0.01)
             if int(round(self.mca.when_acq_stops.get())) == 1:
-                print(f'Success, {self.mca.when_acq_stops.pvname} was set to 1. Waited for {ttime.time() - t0}s.')
+                # print(f'Success, {self.mca.when_acq_stops.pvname} was set to 1. Waited for {ttime.time() - t0}s.')
                 break
             else:
                 if ttime.time() - t0 > timeout:
-                    print(f'Waited for {timeout}s, but the signal {self.mca.when_acq_stops.pvname} did not change. Attempting again.')
+                    # print(f'Waited for {timeout}s, but the signal {self.mca.when_acq_stops.pvname} did not change. Attempting again.')
                     self._acquisition_signal.put(1)
                     break
 
