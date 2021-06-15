@@ -1075,3 +1075,123 @@ def ex_situ_nexafsznedge_2021_2(t=1):
     yield from bps.mv(GV7.open_cmd, 1)
     yield from bps.sleep(2)
     yield from bps.mv(GV7.open_cmd, 1)
+
+
+
+
+def ex_situ_nexafsLaedge_2021_2(t=1):
+    yield from bps.mv(GV7.close_cmd, 1)
+    yield from bps.sleep(2)
+    yield from bps.mv(GV7.close_cmd, 1)
+
+    # Detectors, motors:
+    dets = [pil300KW]
+    waxs_range = [55]
+
+    energies = np.linspace(5450, 5550, 101)
+
+    samples = ['sample1_2', 'sample1_3', 'sample2_1', 'sample2_2']
+
+    # x_list  = [-21100, -24100, -26900, -29400, -34400, -37600, -40200, -42500]
+    # y_list =  [ -1000,  -1000,  -1000,  -1000,  -1000,  -1000,  -1000, -1000]
+    # z_list =  [  4700,   4700,   4700,   4700,   4700,   4700,   4700,  4700]
+
+    x_list  = [-24100, -26900, -34400, -37600]
+    y_list =  [ -1000,  -1000,  -1000,  -1000]
+    z_list =  [  4700,   4700,   4700,   4700]
+
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+
+    det_exposure_time(t,t)
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y in zip(samples, x_list, y_list):
+            yield from bps.mv(piezo.x, x)
+
+            for k, e in enumerate(energies):                              
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+                
+                name_fmt = 'nexafs_{sam}_{energy}eV_wa{waxs}_bpm{bpm}'
+
+                bpm1 = xbpm3.sumX.value
+                sample_name = name_fmt.format(sam=sam, energy=e, waxs='%2.1f'%wa, bpm = '%1.3f'%bpm1)
+                sample_id(user_name='SR', sample_name=sample_name)
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 5520)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 5490)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 5470)
+            yield from bps.sleep(2)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+    yield from bps.mv(GV7.open_cmd, 1)
+    yield from bps.sleep(2)
+    yield from bps.mv(GV7.open_cmd, 1)
+
+
+
+
+
+def ex_situ_laedge_2021_2(t=1):
+
+    # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    waxs_range = np.linspace(32.5, 32.5, 1)
+    ypos = [0, 400, 800]
+
+    energies = [9640, 9660, 9665, 9670, 9680, 9700]
+    energies = [5460, 5485, 5490, 5495, 5505, 5525]
+
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+
+
+    samples = ['sample1_1', 'sample1_2', 'sample1_3', 'sample1_4', 'sample2_1', 'sample2_2', 'sample2_3', 'sample2_4']
+
+    x_list  = [-21100, -24100, -26900, -29400, -34400, -37600, -40200, -42500]
+    y_list =  [ -1000,  -1000,  -1000,  -1000,  -1000,  -1000,  -1000, -1000]
+    z_list =  [  4700,   4700,   4700,   4700,   4700,   4700,   4700,  4700]
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(z_list)})'
+
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z in zip(samples, x_list, y_list, z_list):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y) 
+            yield from bps.mv(piezo.z, z)
+
+            if wa != 19.5:
+                yield from bps.mv(pil1m_pos.y, -60.0)
+                name_fmt = '{sam}_{energy}eV_wa{waxs}_sdd5m_up_bpm{bpm}'
+            
+            elif wa == 19.5:
+                yield from bps.mv(pil1m_pos.y, -55.7)
+                name_fmt = '{sam}_{energy}eV_wa{waxs}_sdd5m_do_bpm{bpm}'
+
+            for k, e in enumerate(energies):                              
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                bpm1 = xbpm3.sumX.value
+                sample_name = name_fmt.format(sam=sam, energy=e, waxs='%2.1f'%wa, bpm = '%1.3f'%bpm1)
+                sample_id(user_name='SR', sample_name=sample_name)
+                yield from bp.rel_list_scan(dets, piezo.y, ypos)
+                
+            yield from bps.mv(energy, 5500)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 5470)
+            yield from bps.sleep(2)

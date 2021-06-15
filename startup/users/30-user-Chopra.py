@@ -10,13 +10,19 @@ def bu(user_name, start_y, end_y, acq_t=2, meas_t=2):
         name_fmt = 'nb{i}_pd_{pd}'
         det_exposure_time(acq_t, meas_t)
         
-        yield from bps.mv(att1_10, 'Insert') 
+        yield from bps.mv(att1_9.open_cmd, 1)
+        yield from bps.mv(att1_10.open_cmd, 1)
+
         fs.open()
         yield from bps.sleep(0.3)
         pd_curr = pdcurrent2.value
         fs.close()
-        yield from bps.mv(att1_10, 'Retract') 
-        yield from bps.sleep(0.5)
+
+        yield from bps.mv(att1_9.close_cmd, 1)
+        yield from bps.mv(att1_10.close_cmd, 1)
+
+        yield from bps.sleep(1)
+
         sample_name= name_fmt.format(i='%2.2d'%(1+i), pd='%5.5d'%pd_curr)
         sample_id(user_name=user_name, sample_name=sample_name)
         

@@ -124,21 +124,21 @@ def run_harv_temp_all_2020_3(tim=0.5):
 
 def temp_2021_1(tim=0.5): 
     # Slowest cycle:
-    temperatures = [60, 80, 100, 120, 140, 160]
-    # temperatures = [30, 100, 150]
+    # temperatures = [34, 60, 80, 100, 120, 140, 160]
+    temperatures = [35, 100, 150]
 
     name = 'ML'
 
-    # x_list  = [53500, 47000, 40500, 34000, 28500, 23500, 17500, 11500, 5500, -1500, -9500, -14500, -21500, -28500, -38000, -46000]
-    # y_list =  [ 4800,  4800,  4900,  4900,  5100,  5000,  4900,  4900, 4900,  4600,  4700,   4800,   4800,   4800,   4600,   4700]
-    # samples = ['set1_sam1', 'set1_sam2', 'set1_sam3', 'set1_sam4', 'set2_sam1', 'set2_sam2', 'set2_sam3', 'set2_sam4', 'set2_sam5', 'set2_sam6', 'set2_sam7', 'set2_sam8',
-    # 'set2_sam9', 'set2_sam10', 'set2_sam11', 'set2_sam12']
+    # samples = ['set1_sam1', 'set1_sam2', 'set1_sam3', 'set1_sam4', 'set1_sam5', 'set1_sam6', 'set1_sam7', 'set1_sam8', 'set1_sam9', 'set1_sam10',
+    #  'set1_sam11', 'set1_sam12','set1_sam13', 'set1_sam14', 'set1_sam15', 'set1_sam16']
+    # x_list  = [49600, 45600, 41000, 35800, 29000, 23800, 17800, 7600,  800, -5000, -12500, -18900, -24500, -31300,-37900, -44300]
+    # y_list =  [-8700, -8700, -9000, -8700,-8700, -8700, -8700, -8700, -8600, -8500, -8700, -8700,  -8600, -8700, -8450, -8450]
 
-    x_list  = [14500, 2500, -12500, -24500, -34700, -41300]
-    y_list =  [ 4550, 4650,   4850,   4750,   4750,   4650]
-    samples = ['set1_sam13', 'set1_sam14', 'set1_sam15', 'set3_sam1', 'set3_sam2', 'set3_sam3']
+    samples = ['set2_samA', 'set2_samB', 'set2_samC', 'set2_samD', 'set2_samF', 'set3_sam1']
+    x_list  = [46000, 29500, 11500,  -500, -14000, -24000]
+    y_list =  [-9400, -9500, -9100, -9450,  -9700,  -9300]
 
-
+# -24000 -50000
     assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
     
@@ -162,7 +162,7 @@ def temp_2021_1(tim=0.5):
             yield from bps.sleep(10)
             temp = ls.input_A.get()
 
-        if i_t !=0:
+        if i_t != 0:
             yield from bps.sleep(450)
 
         # temp = ls.input_A.get()
@@ -173,6 +173,15 @@ def temp_2021_1(tim=0.5):
             for x, y, s in zip(x_list, y_list, samples):
                 yield from bps.mv(piezo.x, x)
                 yield from bps.mv(piezo.y, y)
+
+                if s != 'set3_sam1':
+                    x_offset = [0, 0, 400, 400]
+                    y_offset = [0, 50, 0, 50]
+                
+                else:
+                    x_offset = np.linspace(0, -26000, 27)
+                    y_offset = np.linspace(0, 0, 27)
+
                 
                 for i_0, (x_0, y_0) in enumerate(zip(x_offset, y_offset)):
                     sample_name = name_fmt.format(sample=s, offset = i_0+1, temperature='%3.1f'%t_celsius, waxs='%2.1f'%wa)
