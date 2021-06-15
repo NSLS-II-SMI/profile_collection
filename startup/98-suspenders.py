@@ -6,7 +6,7 @@ from bluesky.suspenders import SuspendFloor, SuspendBoolLow, SuspendBoolHigh, Su
 from ophyd import EpicsMotor, EpicsSignal, Device, Component as Cpt
 
 # Temperature of the WAXS motor suspender
-susp_waxs_motor = SuspendCeil(ls.input_B, 150+273, resume_thresh=120+273)
+susp_waxs_motor = SuspendCeil(ls.input_C, 150+273, resume_thresh=120+273)
 RE.install_suspender(susp_waxs_motor)
 
 # Count on XBPM2 suspender
