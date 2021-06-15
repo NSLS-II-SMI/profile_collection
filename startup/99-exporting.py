@@ -71,5 +71,5 @@ def factory(name, doc):
     return [src.callback, export_on_stop], []
 
 
-rr = RunRouter([factory])
-RE.subscribe(rr)  # noqa F821
+# rr = RunRouter([factory])
+# RE.subscribe(rr)  # noqa F821
