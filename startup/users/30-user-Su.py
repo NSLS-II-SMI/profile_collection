@@ -418,3 +418,54 @@ def humidity_experiment(t=1):
 
     print(ai_aligned)
     print(ys_aligned)
+
+
+
+def waxs_Se_edge_greg(t=1):
+    
+    det_exposure_time(t,t) 
+
+    names = ['PBTTTSe_neat', 'P3RSe_dopped', 'PBTTTS_dopped', 'PBTTTSe_dopped']
+    x = [      23700,  17600, 11300,  5400]
+    y = [      -8300,  -8400, -8200, -8600]
+
+    dets = [pil300KW, pil1M]
+    energies = np.arange(12620, 12640, 5).tolist() + np.arange(12640, 12660, 0.5).tolist() + np.arange(12660, 12670, 1).tolist() + np.arange(12670, 12716, 5).tolist()
+    waxs_arc = np.linspace(0, 26, 5)
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 400, 32)
+        xss = np.array([xs, xs - 400])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%7.2f'%e, wax = wa, xbpm = '%1.3f'%bpm)
+                sample_id(user_name='CM', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 12680)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 12645)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 12620)
+            yield from bps.sleep(2)

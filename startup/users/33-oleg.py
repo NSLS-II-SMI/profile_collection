@@ -100,7 +100,7 @@ def brian_caps_damage_2021_1(t=1):
         yield from bps.mv(piezo.y, y)
         yield from bps.mv(piezo.z, z)
         sample_id(user_name='BM', sample_name=sample + '_11.85keV_8.3m_1s') 
-        caput('XF:12IDC-ES:2{Det:1M}cam1:Acquire', 1)
+        yield from bp.count(dets, num=1)
         yield from bps.sleep(200)
 
           
@@ -108,26 +108,34 @@ def brian_caps_damage_2021_1(t=1):
     det_exposure_time(0.3,0.3)
 
 
-def brian_caps_2021_1(t=1): 
-    # samples = ['buffer1', 'GB01', 'GB02', 'GB03', 'GB04', 'GB05', 'GB06', 'GB08', 'GB09', 'GB10', 'GB11', 'GB12']
-    # samples = ['Y01', 'Y02', 'Y03', 'Y04', 'Y05', 'Y06']
+def brian_caps_2021_2(t=1): 
+    # samples = ['NT1_01', 'NT1_02', 'NT1_03', 'NT1_04', 'NT1_05', 'NT1_06', 'NT1_08', 'NT1_09', 'NT1_10', 'NT1_11', 'NT1_12', 'NT1_13', 'NT1_14', 'NT1_15',
+    #            'NT1_17', 'NT1_18', 'NT1_19', 'NT1_20', 'NT1_21', 'NT1_22', 'NT1_23', 'NT2_59', 'NT2_60', 'NT2_61', 'NT2_62', 'NT2_63', 'NT2_64',
+    #            'NT2_73', 'NT2_74', 'NT2_75', 'NT2_76', 'NT2_77', 'NT2_78', 'NT2_79', 'NT2_80', 'NT2_81', 'NT2_82', 'NT2_83', 'NT2_84', 'NT2_85']
 
-    # x_list = [-22300, -18600, -11000, -4500, 2300, 8500, 14500, 21000, 27500, 33800, 40300, 46700]
-    # y_list = [2500,     2500,   2500,  2500, 2500, 2500,  2500,  2500,  2500,  2500,  2500,  2500]
-    # z_list = [4000,     2500,   2500,  2500, 2500, 2500,  2500,  2500,  2500,  2500,  2500,  2500]
+    # samples = ['NT2_86', 'NT2_87', 'NT2_88', 'NT2_89', 'NT2_90',  'B1_01',  'B1_02',  'B1_03',  'B1_04',  'B1_05',  'B1_06',  'B1_07',  'B1_08',  'B1_09',
+    #             'B1_10',  'B1_11',  'B1_12',  'B1_13',  'B1_14',  'B1_15',  'B1_16',  'B1_17',  'B1_18',  'B1_19',  'B1_20',  'B1_21',  'B1_22',
+    #             'B2_23',  'B2_24',  'B2_25',  'B2_26',  'B2_27',  'B2_28',  'B2_29',  'B2_30',  'B2_31',  'B2_32',  'B2_33',  'B2_34',  'B2_35']
 
-    # samples = ['NPT_Blank', 'NPT_09', 'NPT_13', 'NPT_14', 'NPT_16', 'NPT_59', 'NPT_60', 'NPT_61', 'NPT_62', 'NPT_63', 'NPT_64', 'MLE_blank', 'MLE_01', 'MLE_02',
-    # 'MLE_03', 'MLE_05', 'MLE_06', 'MLE_07', 'MLE_08', 'MLE_09', 'MLE_10', 'MLE_11', 'MLE_12', 'MLE_13', 'MLE_14', 'MLE_15', 'MLE_04']
+    # samples = [ 'B2_36',  'B2_37',  'B2_38',  'B2_39',  'B2_40',  'B2_41',  'B2_42',  'B2_43',  'B2_44',  'B2_45',  'B2_46',  'B2_47',  'B2_48',  'B2_49',
+    #             'B2_50',  'B2_51',  'B2_52',  'B2_53',  'B2_54',  'B2_55',  'B2_56',  'B2_57',  'B2_59',  'B2_60',  'B2_61',  'B2_62',  'B2_63',
+    #             'B2_64',  'B2_65',  'B2_66',  'B2_67',  'B@_68',  'B2_69',  'B2_70',  'B2_71',  'G1_01',  'G1_02',  'G1_03',  'G1_04',  'G1_05']
+    
+    samples = [ 'G1_09',  'G1_10',  'G1_08',  'G1_07',  'G1_12',  'G1_11',  'G1_06',  'TD_01',  'TD_02']
 
-    samples = ['NT_Blank', 'NT_05', 'NT_06', 'NT_07', 'NT_08', 'NT_17', 'NT_18', 'NT_19', 'NT_20', 'NT_21', 'NT_22', 'NT_23', 'NT_24', 'NT_25', 'NT26',
-    'NT_27', 'NT_28', 'NT_29', 'NT_30', 'NT_31', 'NT_32', 'NT_33', 'NT_34', 'NT_35', 'NT_36', 'NT_37', 'NT_38', 'NT_39', 'NT_40']
+    x_list = [    46350,    40400,    33450,    27700,    21350,    14700,     8650,     2350,    -3950]
+    y_list = [     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000]
+    z_list = [    -9600,    -9600,    -9600,    -9600,    -9600,    -9600,    -9600,    -9600,    -9600]
 
-    x_list = [47000, 40650, 34300, 27950, 21600, 15350, 9000, 2650, -3700, -10250, -16450, -22750, -29300, -35650, -42100,
-    45300, 38750, 32500, 26550, 19800, 13450, 7200,  650, -5500, -11850, -18200, -24450, -30900, -37250]
-    y_list = [ 3000,  3000,  3000,  3700,  3700,  3700, 3700, 3700,  3700,   3700,   3700,   3700,   3700,   3700,   3300,
-     3300,  3700,  3700,  3700,  3700, 3700, 3700,  3700,  3700,   3700,   3700,   3700,   3700,  3700]
-    z_list = [  900,   900,   900,   900,   900,   900,  900, 900,   900,    900,    900,    900,    900,    900,     900,
-    10900, 10900, 10900, 10900, 10900,10900,10900, 10900, 10900,  10900,  10900,  10900,  10900, 10900]
+    # x_list = [    46350,    39500,    33400,    27400,    21300,    14900,     8700,     2300,    -3850,   -9850,   -16800,   -23050,   -29550,   -35600,
+    #               41800,    35400,    29300,    22900,    16650,    10200,     4000,    -2100,    -8700,   -14800,   -20900,   -27500,   -33500,
+    #               43900,    37700,    31100,    25100,    18550,    12600,     6000,        0,    -6100,   -12800,   -18800,   -25000,   -31900]
+    # y_list = [     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,
+    #                2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,
+    #                2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000,     2000]
+    # z_list = [    -9600,    -9600,    -9600,    -9600,    -9600,    -9600,    -9600,    -9600,    -9600,    -9600,    -9600,    -9600,    -9600,    -9600,
+    #                -600,     -600,     -600,     -600,     -600,     -600,     -600,     -600,     -600,     -600,     -600,     -600,     -600,
+    #               10300,    10300,    10300,    10300,    10300,    10300,    10300,    10300,    10300,    10300,    10300,    10300,    10300]
 
     # Detectors, motors:
     dets = [pil1M]
@@ -135,7 +143,6 @@ def brian_caps_2021_1(t=1):
     assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
     assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of Z coord ({len(z_list)})'
     ypos = [0, 50, 2]
-    ypos1 = [100, 150, 2]
 
     det_exposure_time(t,t)
     for x, y, z, sample in zip(x_list,y_list,z_list, samples):
@@ -143,28 +150,10 @@ def brian_caps_2021_1(t=1):
         yield from bps.mv(piezo.y, y)
         yield from bps.mv(piezo.z, z)
 
-        det_exposure_time(1,1)
+        det_exposure_time(1, 1)
 
-        sample_id(user_name='BM', sample_name=sample + '_16.1keV_8.3m_1s_pos1') 
-        yield from bps.mv(piezo.y, y + 0)
-        caput('XF:12IDC-ES:2{Det:1M}cam1:Acquire', 1)
-        yield from bps.sleep(2)
-
-        sample_id(user_name='BM', sample_name=sample + '_16.1keV_8.3m_1s_pos2') 
-        yield from bps.mv(piezo.y, y + 50)
-        caput('XF:12IDC-ES:2{Det:1M}cam1:Acquire', 1)
-        yield from bps.sleep(2)
-
-        det_exposure_time(2,2)
-
-        sample_id(user_name='BM', sample_name=sample + '_16.1keV_8.3m_2s_pos1') 
-        yield from bps.mv(piezo.y, y + 100)
-        caput('XF:12IDC-ES:2{Det:1M}cam1:Acquire', 1)
-        yield from bps.sleep(2)
-
-        sample_id(user_name='BM', sample_name=sample + '_16.1keV_8.3m_2s_pos2') 
-        yield from bps.mv(piezo.y, y + 150)
-        caput('XF:12IDC-ES:2{Det:1M}cam1:Acquire', 1)
+        sample_id(user_name='BM', sample_name=sample + '_16.1keV_8.3m_1s') 
+        yield from bp.rel_scan(dets, piezo.y, *ypos)
         yield from bps.sleep(2)
 
     sample_id(user_name='test', sample_name='test')
@@ -202,7 +191,7 @@ def run_mesh_aaron_2021(t=1):
                 sample_id(user_name=name, sample_name=sample_name)
                 print(f'\n\t=== Sample: {sample_name} ===\n')
 
-                caput('XF:12IDC-ES:2{Det:1M}cam1:Acquire', 1)
+                yield from bp.count(dets, num=1)
                 yield from bps.sleep(1)
 
                 i+=1
@@ -224,7 +213,7 @@ def run_mesh_aaron_2021(t=1):
                 sample_id(user_name=name, sample_name=sample_name)
                 print(f'\n\t=== Sample: {sample_name} ===\n')
 
-                caput('XF:12IDC-ES:2{Det:1M}cam1:Acquire', 1)
+                yield from bp.count(dets, num=1)
                 yield from bps.sleep(2)
 
                 i+=1

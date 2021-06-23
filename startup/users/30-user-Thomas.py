@@ -78,6 +78,8 @@ def saxs_cryo(t=0.5, tem = 25, num_max = 100):
 
 
 
+
+
 def gisaxs_Thomas(t=1): 
     samples = ['T1_A', 'T1_B', 'T2_A', 'T2_B']
     x_list = [58500, 49000, 39000, 28000]
@@ -179,3 +181,193 @@ def run_Thomas(t=1, x_off = 0):
     yield from waxs_Thomas(t=0.5, x_off = -500, user = 'NT_pos2_0.5s')
     yield from waxs_Thomas(t=0.5, x_off = -250, user = 'NT_pos3_0.5s')
     yield from waxs_Thomas(t=0.5, x_off = 250, user = 'NT_pos4_0.5s')
+
+
+
+
+def saxs_cryo_2021_1(t=0.5, tem = 25, num_max = 100):
+    global num
+    # Slowest cycle:
+    name = 'ET'
+    
+    # Detectors, motors:
+    dets = [pil300KW, pil1M]
+    sample = 'kapton'
+
+    waxs_range = np.linspace(0, 13, 3)
+    det_exposure_time(t,t)
+
+    
+    # while num < num_max:
+        # yield from bps.mvr(stage.y, 0.02)
+    num +=1
+    if waxs.arc.position > 7:
+        waxs_ran = waxs_range[::-1]
+    else:
+        waxs_ran = waxs_range
+
+    for wa in waxs_ran:
+        yield from bps.mv(waxs, wa)
+        name_fmt = 'num{nu}_{temperature}C_wa{wa}'
+        sample_name = name_fmt.format(nu = num, temperature='%4.2f'%tem, wa=wa)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        sample_id(user_name=sample, sample_name=sample_name) 
+
+        yield from bp.count(dets, num=1)
+
+    yield from bps.mvr(stage.y, 0.02)
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3)
+
+
+
+def saxs_2021_1(t=0.5, tem = 25, num_max = 100):
+    global num
+    # Slowest cycle:
+    name = 'ET'
+    
+    # Detectors, motors:
+    dets = [pil1M]
+    sample = 'PS_PDMS_50.33dg_sdd8.3m_loop2'
+
+    waxs_range = np.linspace(0, 13, 3)
+    det_exposure_time(t,t)
+
+    yield from bps.mv(waxs, 13.0)
+
+    t0 = time.time()
+
+    while num < 500:
+        t1 = time.time()
+
+        name_fmt = 'num{nu}_{temperature}C_{time}s'
+        sample_name = name_fmt.format(nu = num, temperature='%4.2f'%tem, time=np.round(t1-t0))
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        sample_id(user_name=sample, sample_name=sample_name) 
+
+        yield from bp.count(dets, num=1)
+        yield from bps.sleep(30)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3)
+
+
+
+
+def waxs_2021_1(t=0.5, tem = 25, num_max = 1000):
+    global num
+    # Slowest cycle:
+    name = 'ET'
+    
+    # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    sample = 'PS_PDMS_50.33dg_sdd8.3m_isotherm'
+
+    waxs_range = np.linspace(0, 13, 3)
+    det_exposure_time(t,t)
+
+    yield from bps.mv(waxs, 6.5)
+
+    t0 = time.time()
+
+    while num < num_max:
+        t1 = time.time()
+
+        name_fmt = 'num{nu}_{temperature}C_{time}s'
+        sample_name = name_fmt.format(nu = num, temperature='%4.2f'%tem, time=np.round(t1-t0))
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        sample_id(user_name=sample, sample_name=sample_name) 
+
+        yield from bp.count(dets, num=1)
+        yield from bps.sleep(5)
+        yield from bps.mvr(stage.y, 0.02)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3)
+
+
+
+
+
+
+def saxs_Thomas(t=1, x_off = 0, user = 'NT'): 
+    samples = ['sample01', 'sample02', 'sample03', 'sample04', 'sample05', 'sample06', 'sample07', 'sample08', 'sample09', 'sample10', 'sample11', 'sample12',
+    'sample13', 'sample14', 'sample16', 'sample17', 'sample18', 'sample19', 'sample20', 'sample21', 'sample22', 'sample23', 'sample24', 'sample25', 
+    'sample26', 'sample27', 'sample28', 'sample29', 'sample30', 'sample31', 'kapton_bkg']
+    x_list = [46000, 42000, 38500, 35000, 31500, 27500, 23500, 21000, 16000, 11000,  5000, -500, -5000, -13000,
+              45700, 43700, 41000, 34000, 29800, 25800, 22800, 19800, 17200, 15200, 12200, 9000,  2000,  -4000, -7000, -10300, -13300]
+    y_list = [-7600, -7600, -7600, -7600, -7600, -7600, -7600, -7600, -7600, -7600, -7600,-7600, -7600,  -7600,  
+               5000,  4500,  5000,  5000,  5000,  5000,  5000,  5000,  5300,  5300,  5300, 5300,  4300,   5400,  5400,   3800,   3800]
+    z_list = [ 2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700, 2700,  2700,   2700,
+               2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700, 2700,   2700,  2700,   2700,   2700]
+
+
+    assert len(samples) == len(x_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(samples) == len(y_list), f'Number of X coordinates ({len(y_list)}) is different from number of samples ({len(samples)})'
+    assert len(samples) == len(z_list), f'Number of X coordinates ({len(z_list)}) is different from number of samples ({len(samples)})'
+
+    xpos = [-500, 500, 5]
+
+
+  # Detectors, motors:
+    dets = [pil1M]
+    det_exposure_time(t,t)   
+
+    for x, y, z, sample in zip(x_list, y_list, z_list, samples):
+        yield from bps.mv(piezo.x, x + x_off)
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.z, z)
+
+        det_exposure_time(t, t) 
+        name_fmt = '{sample}_8.3m_16.1keV'
+            
+
+        sample_name = name_fmt.format(sample=sample)
+        sample_id(user_name=user, sample_name=sample_name)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+
+        yield from bp.rel_scan(dets, piezo.x, *xpos)
+                
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
+
+
+
+def rotscan_Thomas(t=1): 
+    samples = ['sample15_grid']
+    x_list = [-30600]
+    y_list = [-9400]
+    z_list = [ 1600]
+
+
+    assert len(samples) == len(x_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(samples) == len(y_list), f'Number of X coordinates ({len(y_list)}) is different from number of samples ({len(samples)})'
+    assert len(samples) == len(z_list), f'Number of X coordinates ({len(z_list)}) is different from number of samples ({len(samples)})'
+
+  # Detectors, motors:
+    dets = [pil1M]
+    det_exposure_time(t,t)   
+
+    for x, y, z, sample in zip(x_list, y_list, z_list, samples):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.z, z)
+
+        for i, prs_pos in enumerate(np.linspace(-65, 65, 131)):
+            yield from bps.mv(prs, prs_pos)
+            yield from bps.sleep(2)
+
+            name_fmt = '{sample}_8.3m_16.1keV_num{num}_{prs}deg'
+                
+            sample_name = name_fmt.format(sample=sample, num ='%3.3d'%prs_pos, prs='%3.1f'%prs_pos)
+            sample_id(user_name='NT', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            
+            y_r = [-200, 200, 3]
+            x_r = [-500, 500, 3]
+            yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 0)
+
+                
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
