@@ -38,7 +38,7 @@ def export_spectra_to_csv(run, *, dir, common_column, columns):
     logger.info(f'Start exporting of {num_events} spectra to {dir}')
     for i in range(num_events):
         file = os.path.join(dir,
-                            f"{run.metadata['start']['uid']}-{i+1:05d}.csv")
+                            f"{run.metadata['start']['sample_name']}-{run.metadata['start']['uid'].split('-')[0]}-{i+1:05d}.csv")
 
         data = getattr(xr, common_column)[i]
         for j in range(len(columns)):
@@ -64,12 +64,26 @@ def factory(name, doc):
         if name == "stop":
             run = src.retrieve()
             if 'amptek' in run.metadata['start']['detectors']:
-                export_spectra_to_csv(run, dir="/tmp/CSV-export/",
+                #retreive information from the start document
+                cycle = run.metadata['start']['cycle']
+                propos = run.metadata['start']['proposal_number'] + '_' + run.metadata['start']['main_proposer']
+                direc = '/nsls2/xf12id2/data/images/users/%s/%s/Amptek/'%(cycle, propos)
+
+                #create a new directory
+                try:
+                    os.stat(direc)
+                except FileNotFoundError:
+                    os.makedirs(direc)
+                    os.chmod(direc, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
+                
+                
+                export_spectra_to_csv(run,
+                                      dir=direc,
                                       common_column='amptek_energy_channels',
                                       columns=['amptek_mca_spectrum'])
 
     return [src.callback, export_on_stop], []
 
 
-# rr = RunRouter([factory])
-# RE.subscribe(rr)  # noqa F821
+rr = RunRouter([factory])
+RE.subscribe(rr)  # noqa F821
