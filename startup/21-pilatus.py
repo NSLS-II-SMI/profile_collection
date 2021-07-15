@@ -75,10 +75,47 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
     over1 = Cpt(OverlayPlugin, 'Over1:')
     trans1 = Cpt(TransformPlugin, 'Trans1:')
 
+    threshold = Cpt(EpicsSignal, 'cam1:ThresholdEnergy')
+    energy = Cpt(EpicsSignal, 'cam1:Energy')
+    gain = Cpt(EpicsSignal, 'cam1:GainMenu')
+    apply = Cpt(EpicsSignal, 'cam1:ThresholdApply')
+
+    threshold_read = Cpt(EpicsSignal, 'cam1:ThresholdEnergy_RBV')
+    energy_read = Cpt(EpicsSignal, 'cam1:Energy_RBV')
+    gain_read = Cpt(EpicsSignal, 'cam1:GainMenu_RBV')
+    apply_read = Cpt(EpicsSignal, 'cam1:ThresholdApply_RBV')
+
+
     def set_primary_roi(self, num):
         st = f'stats{num}'
         self.read_attrs = [st, 'tiff']
         getattr(self, st).kind = 'hinted'
+
+
+    def apply_threshold(self, energy=16.1, threshold=8.0, gain='autog'):
+        if 1.5 < energy < 24:
+            yield from bps.mv(self.energy, energy)
+        else:
+            raise ValueError("The energy range for Pilatus is 1.5 to 24 keV. The entered value is {}".format(energy))
+        
+        if 1.5 < threshold < 24:
+            yield from bps.mv(self.threshold, threshold)
+        else:
+            raise ValueError("The threshold range for Pilatus is 1.5 to 24 keV. The entered value is {}".format(threshold))
+        
+        #That will need to be checked and tested
+        if gain == 'autog':
+            yield from bps.mv(self.gain, 1)
+        elif gain == 'uhighg':
+            yield from bps.mv(self.gain, 3)
+        else:
+            raise ValueError("The gain used is unknown. It shoul be either autog or uhighg")
+        yield from bps.mv(self.apply, 1)
+
+
+    def read_threshold(self):
+        return self.energy_read, self.threshold_read, self.gain_read
+
 
 
 def det_exposure_time(exp_t, meas_t=1):
@@ -131,7 +168,7 @@ pil1M.set_primary_roi(1)
 
 #pil1M.tiff.write_path_template = '/ramdisk/1M/images/%Y/%m/%d/'
 pil1M.tiff.write_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
-
+#pil1M.tiff.read_path_template = '/ramdisk/1M/images/%Y/%m/%d/'
 pil1M.tiff.read_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
 
 pil1mroi1 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats1:Total_RBV', name='pil1mroi1')
