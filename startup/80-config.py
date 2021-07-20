@@ -48,13 +48,21 @@ def proposal_id(cycle_id, proposal_id):
     except FileNotFoundError:
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
+    
     newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
     try:
         os.stat(newDir)
     except FileNotFoundError:
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
-        
+         
+    newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/900KW"
+    try:
+        os.stat(newDir)
+    except FileNotFoundError:
+        os.makedirs(newDir)
+        os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
+
     newDir = "/nsls2/xf12id2/analysis/" + str(cycle_id) + "/" + str(proposal_id)
     try:
         os.stat(newDir)
@@ -62,8 +70,9 @@ def proposal_id(cycle_id, proposal_id):
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     
-    #pil1M.cam.file_path.put(f"/ramdisk/images/users/{cycle_id}/{proposal_id}/1M")
-    pil1M.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/1M")
+    pil1M.cam.file_path.put(f"/ramdisk/images/users/{cycle_id}/{proposal_id}/1M")
+    #pil1M.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/1M")
+    pil900KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/900KW")
     pil300KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/300KW")
     rayonix.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/MAXS")
 
