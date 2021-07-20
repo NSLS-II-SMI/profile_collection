@@ -217,13 +217,30 @@ pil300KW.stats1.total.kind = 'hinted'
 pil300KW.cam.num_images.kind = 'config'
 pil300KW.cam.ensure_nonblocking()
 
+
+#####################################################
+#Pilatus 900KW definition
+
+pil900KW = Pilatus("XF:12IDC-ES:2{Det:900KW}", name="pil900KW") )
+pil900KW.set_primary_roi(1)
+
+pil900KW.tiff.write_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
+pil900KW.tiff.read_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
+
+pil900kwroi1 = EpicsSignal('XF:12IDC-ES:2{Det:900KW}Stats1:Total_RBV', name='pil900kwroi1')
+pil900kwroi1 = EpicsSignal('XF:12IDC-ES:2{Det:900KW}Stats2:Total_RBV', name='pil900kwroi2')
+pil900kwroi1 = EpicsSignal('XF:12IDC-ES:2{Det:900KW}Stats3:Total_RBV', name='pil900kwroi3')
+pil900kwroi1 = EpicsSignal('XF:12IDC-ES:2{Det:900KW}Stats4:Total_RBV', name='pil900kwroi4')
+
+pil900KW.stats1.kind = 'hinted'
+pil900KW.stats1.total.kind = 'hinted'
+pil900KW.cam.num_images.kind = 'config'
+pil900KW.cam.ensure_nonblocking()
+
+
+
 #"multi_count" plan is dedicated to the time resolved Pilatus runs when the number of images in area detector is more than 1
 def multi_count(detectors, *args, **kwargs): 
     delay = detectors[0].cam.num_images.get() * detectors[0].cam.acquire_time.get() + 1 
     yield from bp.count(detectors, *args, delay=delay, **kwargs)
-
-
-
-
-
 
