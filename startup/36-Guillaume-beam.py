@@ -47,7 +47,6 @@ class SMIBeam(object):
         return current_state    
 
     def _determineFoils(self):
-        print(self.dcm.bragg.position)
                 
         if self.dcm.energy.position < 2000:
             target_state = [att1_12]
@@ -202,8 +201,8 @@ class SMI_Beamline(Beamline):
         self.setDirectBeamROI()
         
         # Move the waxs detector out of the way
-        if waxs.arc.position < 7:
-            yield from bps.mv(waxs, 13)
+        if waxs.arc.position < 18:
+            yield from bps.mv(waxs, 18)
 
     def modeMeasurement(self):
         """
