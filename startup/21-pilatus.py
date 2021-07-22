@@ -125,6 +125,9 @@ def det_exposure_time(exp_t, meas_t=1):
     pil300KW.cam.acquire_time.put(exp_t)
     pil300KW.cam.acquire_period.put(exp_t+0.001)
     pil300KW.cam.num_images.put(int(meas_t/exp_t))
+    pil900KW.cam.acquire_time.put(exp_t)
+    pil900KW.cam.acquire_period.put(exp_t+0.001)
+    pil900KW.cam.num_images.put(int(meas_t/exp_t))
     rayonix.cam.acquire_time.put(exp_t)
     rayonix.cam.acquire_period.put(exp_t+0.01)
     rayonix.cam.num_images.put(int(meas_t/exp_t))
@@ -221,7 +224,7 @@ pil300KW.cam.ensure_nonblocking()
 #####################################################
 #Pilatus 900KW definition
 
-pil900KW = Pilatus("XF:12IDC-ES:2{Det:900KW}", name="pil900KW") )
+pil900KW = Pilatus("XF:12IDC-ES:2{Det:900KW}", name="pil900KW")
 pil900KW.set_primary_roi(1)
 
 pil900KW.tiff.write_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
