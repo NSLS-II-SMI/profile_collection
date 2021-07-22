@@ -173,3 +173,120 @@ def gordon_saxswaxs_2021_2(t=1):
                 sample_id(user_name='GF', sample_name=sample_name)
                 print(f'\n\t=== Sample: {sample_name} ===\n')
                 yield from bp.count(dets, num=1)
+
+
+
+
+def gisaxs1_gordon_2021_2(t=1): 
+    
+    # names = ['sample02', 'sample03', 'sample06', 'sample07', 'sample10', 'sample12', 'sample14', 'sample15','sample18']
+    # x_piezo = [55000, 40000, 25000, 12000, -3000,-18000,-33000,-45000,-55000]
+    # y_piezo = [ 6800,  6800,  6800,  6800,  6800,  6800,  6800,  6800,  6800]
+    # z_piezo = [    0,     0,     0,     0,     0,     0,     0,     0,     0]
+    # x_hexa =  [    0,     0,     0,     0,     0,     0,     0,     0,    -4]
+
+    names = ['sample20', 'sample21', 'sample23', 'sample24', 'sample27', 'sample28']
+    x_piezo = [55000, 47000, 33000, 18000,  3000,-12000]
+    y_piezo = [ 6800,  6800,  6800,  6800,  6800,  6800]
+    z_piezo = [    0,     0,     0,     0,     0,     0]
+    x_hexa =  [    5,     0,     0,     0,     0,     0]
+
+    assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
+    assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
+    assert len(x_piezo) == len(z_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})'
+    assert len(x_piezo) == len(x_hexa), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})'
+
+    waxs_arc = [0, 2, 19.5, 21.5, 39, 41]
+    angle = [0.1, 0.15, 0.2]
+
+    dets = [pil1M, pil900KW, pil300KW]
+    det_exposure_time(t,t)
+
+    for name, xs, zs, ys, xs_hexa in zip(names, x_piezo, z_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, 0)
+        
+        yield from alignement_gisaxs(angle = 0.15)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t,t)
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)  
+
+            for an in angle:
+                yield from bps.mv(piezo.th, ai0 + an)                
+                name_fmt = '{sample}_sdd1.6m_14keV_ai{angl}deg_wa{waxs}'
+                sample_name = name_fmt.format(sample=name, angl='%3.2f'%an, waxs='%2.1f'%wa)
+                sample_id(user_name='PT', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+            
+            
+            yield from bps.mv(piezo.th, ai0)
+
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
+
+
+def gisaxs2_gordon_2021_2(t=1): 
+
+    names = ['pedot_EHE_neat', 'pedot_EHE_FeCl3', 'pedot_EHE_rosy', 'pedot_OH_neat', 'pedot_OH_FeCl3', 'pedot_OH_rosy']
+    x_piezo = [-23000, -31000, -40000, -48000, -53000, -12000]
+    y_piezo = [  6800,   6800,   6800,   6800,   6800,   6800]
+    z_piezo = [     0,      0,      0,      0,      0,      0]
+    x_hexa =  [     0,      0,      0,      0,     -5,    -10]
+
+    assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
+    assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
+    assert len(x_piezo) == len(z_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})'
+    assert len(x_piezo) == len(x_hexa), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})'
+
+    waxs_arc = [0, 2, 19.5, 21.5, 39, 41]
+    angle = [0.1, 0.15, 0.2]
+
+    dets = [pil1M, pil900KW, pil300KW]
+    det_exposure_time(t,t)
+
+    for name, xs, zs, ys, xs_hexa in zip(names, x_piezo, z_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, 0)
+        
+        yield from alignement_gisaxs(angle = 0.15)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t,t)
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)  
+
+            for an in angle:
+                yield from bps.mv(piezo.th, ai0 + an)                
+                name_fmt = '{sample}_sdd1.6m_14keV_ai{angl}deg_wa{waxs}'
+                sample_name = name_fmt.format(sample=name, angl='%3.2f'%an, waxs='%2.1f'%wa)
+                sample_id(user_name='PT', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+            
+            
+            yield from bps.mv(piezo.th, ai0)
+
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
+
+def giwaxs_several(t=1):
+    yield from gisaxs1_gordon_2021_2(t=t)
+
+    yield from bps.sleep(5)
+    proposal_id('2021_2', '307830_Su6')
+    yield from gisaxs2_gordon_2021_2(t=t)
