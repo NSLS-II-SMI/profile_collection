@@ -73,15 +73,20 @@ class WAXS(Device):
     def set(self, arc_value):
         st_arc = self.arc.set(arc_value)
 
-        if self.arc.limits[0] <= arc_value <= 3.5:
+        if self.arc.limits[0] <= arc_value <= 5.7:
             calc_value = self.calc_waxs_bsx(arc_value)
+        
+        elif 5.7 <= arc_value <=15:
+            raise ValueError("The waxs detector cannot be moved to {} deg until the new beamstop is mounted".format(arc_value))
         else:
-            calc_value = 2
+            calc_value = 2.3
         st_x = self.x.set(calc_value)
         return st_arc & st_x
         
     def calc_waxs_bsx(self, arc_value):
-        bsx_pos =-20.92 + 264 * np.tan(np.deg2rad(arc_value))
+        # bsx_pos =-20.92 + 264 * np.tan(np.deg2rad(arc_value))
+        bsx_pos =-20.432 + 230 * np.tan(np.deg2rad(arc_value))
+
         return bsx_pos
 
 
