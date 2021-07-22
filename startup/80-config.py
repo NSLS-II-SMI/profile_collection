@@ -20,6 +20,8 @@ def sample_id(*, user_name, sample_name, tray_number=None):
     pil1M.cam.file_number.put(1)
     pil300KW.cam.file_name.put(fname)
     pil300KW.cam.file_number.put(1)
+    pil900KW.cam.file_name.put(fname)
+    pil900KW.cam.file_number.put(1)
     rayonix.cam.file_name.put(fname)
     rayonix.cam.file_number.put(1)
 
@@ -71,7 +73,7 @@ def proposal_id(cycle_id, proposal_id):
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     
     pil1M.cam.file_path.put(f"/ramdisk/images/users/{cycle_id}/{proposal_id}/1M")
-    #pil1M.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/1M")
+    # pil1M.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/1M")
     pil900KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/900KW")
     pil300KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/300KW")
     rayonix.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/MAXS")
