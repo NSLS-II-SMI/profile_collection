@@ -92,6 +92,53 @@ def giwaxs_collins_2021_1(t=1):
 
 
 
+def giwaxs_collins_2021_2(t=1):
+    # samples = [ 'PM7', 'ITIC',  'PBDB-T2']
+    # x_piezo = [-42000, -53000,     -55000]
+    # x_hexa =  [     0,      0,        -13]
+
+    # samples = [ 'PCBM', 'PBbin1', 'PBbin2', 'PBbin3', 'PBMbin1', 'PBMbin2', 'PBMbin3',  'H2',  'H10',  'H12',  'H14',   'H8',   'H6',   'H4']
+    # x_piezo = [  59000,    59000,    54000,    47000,     37000,     25000,     10000, -2000, -13000, -23000, -33000, -45000, -56000, -56000]
+    # x_hexa =  [     14,        4,        0,        0,         0,         0,         0,     0,      0,      0,      0,      0,     -1,    -10]
+
+    samples = [ 'PBDB-T', 'AS60', 'C71', 'AS10', 'AS15', 'AS30', 'A45',  'AS0']
+    x_piezo = [    55000,  49000, 37000,  24000,  13000,  2000, -12000, -22000]
+    x_hexa =  [       10,      0,     0,      0,      0,      0,     0,      0]
+
+    waxs_arc = [0, 2, 19.5, 21.5, 39, 41]
+    angle = [0.08, 0.15, 0.20]
+
+  # Detectors, motors:
+    dets = [pil300KW, pil900KW, pil1M]
+    
+    assert len(x_piezo) == len(samples), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(samples)})'
+    assert len(x_piezo) == len(x_hexa), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})'
+
+    for xs_piezo, xs_hexa, sample in zip(x_piezo, x_hexa, samples):
+        yield from bps.mv(piezo.x, xs_piezo)
+        yield from bps.mv(stage.x, xs_hexa)
+
+        yield from alignement_gisaxs(angle = 0.15)
+
+        ai0 = piezo.th.position
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            det_exposure_time(t, t) 
+            name_fmt = '{sample}_16.1keV__ai{angle}deg_wa{wax}'
+        
+            for an in angle:
+                yield from bps.mv(piezo.th, ai0 + an)
+                sample_name = name_fmt.format(sample=sample, angle='%3.3f'%an, wax = '%2.1f'%wa)
+                sample_id(user_name='BC', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+                    
+        yield from bps.mv(piezo.th, ai0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
 
 
 def giwaxs_collins(t=1):
@@ -656,3 +703,438 @@ def NEXAFS_S_edge_2020_3(t=0.5):
     yield from bps.sleep(1)
     yield from bps.mv(GV7.open_cmd, 1 )
 
+
+
+
+
+def NEXAFS_S_edge_2021_2(t=0.5):
+    yield from bps.mv(waxs, 59)
+    dets = [pil300KW, pil900KW]
+    
+    energies = np.arange(2450, 2470, 5).tolist() + np.arange(2470, 2475.5, 0.25).tolist() + np.arange(2475.5, 2478.5, 0.1).tolist() + np.arange(2478.5, 2482, 0.25).tolist() + np.arange(2482, 2500, 1).tolist() + np.arange(2500, 2535, 5).tolist()
+
+    # names = ['PM7_1',  'PM7_2',   'PCD_1',   'PCD_2',    'PB_1',    'PB_2', 'PCP_1', 'PCP_2', 'PM6_1', 'PM6_2',  'FT_1',
+    #         'P3HT_1', 'P3HT_2', 'PTQ10_1', 'PTQ10_2', 'D18Cl_1', 'D18Cl_2',  'HT_1',  'HT_2',  'P7_1',  'P7_2',  'FT_2',
+    #           'Y6_1',   'Y6_2',    'IT_1',    'IT_2', 'PBTTT_1', 'PBTTT_2', 'Y11_1', 'Y11_2', 'D18_1', 'D18_2', 'SiN_1']
+    # x = [      32100,    25200,     18200,     11200,      4200,     -3200,  -10300,  -16600,  -22800,  -29500,  -36100,
+    #            32000,    25200,     17900,     11200,      4200,     -3200,  -10300,  -16600,  -22500,  -29300,  -36100,
+    #            32700,    25000,     17300,     11200,      4400,     -3400,  -10300,  -16600,  -22800,  -29300,  -36300]
+    # y = [      -6600,    -6700,     -6800,     -6800,     -6900,     -6900,   -6900,   -6900,   -6900,   -6900,   -6900, 
+    #            -1300,     -900,      -900,      -900,      -900,      -900,   -1000,    -900,   -1000,    -700,    -300, 
+    #             4800,     4600,      4200,      4500,      4700,      4900,    4700,     4700,    4900,    4800,   5000]
+
+    names = [ 'Y11_2', 'D18_1', 'D18_2', 'SiN_1']
+    x = [      -16600,  -22800,  -29300,  -36300]
+    y = [        4700,    4900,    4800,    5000]
+
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1000, 95)
+        xss = [xs]
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        det_exposure_time(t,t) 
+        name_fmt = 'nexafs_90deg_wa59deg_{sample}_{energy}eV_xbpm{xbpm}'
+        for e, xsss, ysss in zip(energies, xss, yss): 
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(1)
+
+            yield from bps.mv(piezo.y, ysss)
+            yield from bps.mv(piezo.x, xsss)
+
+            sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%3.1f'%xbpm3.sumY.value)
+            RE.md['filename'] = sample_name
+            sample_id(user_name='BC', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+        yield from bps.mv(energy, 2510)
+        yield from bps.sleep(1)
+        yield from bps.mv(energy, 2490)        
+        yield from bps.sleep(1)
+        yield from bps.mv(energy, 2470)
+        yield from bps.sleep(1)
+        yield from bps.mv(energy, 2450)
+
+        sample_id(user_name='test', sample_name='test')
+
+
+
+
+
+
+def NEXAFS_S_edge_2021_2_set1(t=0.5):
+    yield from bps.mv(waxs, 59)
+    dets = [pil300KW, pil900KW]
+    
+    energies = np.arange(2450, 2470, 5).tolist() + np.arange(2470, 2475.5, 0.25).tolist() + np.arange(2475.5, 2478.5, 0.1).tolist() + np.arange(2478.5, 2482, 0.25).tolist() + np.arange(2482, 2500, 1).tolist() + np.arange(2500, 2535, 5).tolist()
+
+    # # # names = ['Y11_1',   'D18_1',   'SiN_1']
+    # # # x = [     -10700,    -23500,    -37400]
+    # # # y = [       4700,      4900,      5000]
+
+    # # assert len(names) == len(x), f'Number of X coordinates ({len(x)}) is different from number of samples ({len(names)})'
+    # # assert len(names) == len(y), f'Number of X coordinates ({len(y)}) is different from number of samples ({len(names)})'
+
+
+    # # yield from bps.mv(prs, -60)
+
+    # # for name, xs, ys in zip(names, x, y):
+    # #     yield from bps.mv(piezo.x, xs)
+    # #     yield from bps.mv(piezo.y, ys)
+
+    # #     yss = np.linspace(ys, ys + 1000, 95)
+    # #     xss = [xs]
+
+    # #     yss, xss = np.meshgrid(yss, xss)
+    # #     yss = yss.ravel()
+    # #     xss = xss.ravel()
+
+    #     det_exposure_time(t,t) 
+    #     name_fmt = 'nexafs_30deg_wa59deg_{sample}_{energy}eV_xbpm{xbpm}'
+    #     for e, xsss, ysss in zip(energies, xss, yss): 
+    #         yield from bps.mv(energy, e)
+    #         yield from bps.sleep(2)
+
+    #         yield from bps.mv(piezo.y, ysss)
+    #         yield from bps.mv(piezo.x, xsss)
+
+    #         sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%3.1f'%xbpm3.sumY.value)
+    #         RE.md['filename'] = sample_name
+    #         sample_id(user_name='BC', sample_name=sample_name)
+    #         print(f'\n\t=== Sample: {sample_name} ===\n')
+    #         yield from bp.count(dets, num=1)
+
+        # yield from bps.mv(energy, 2510)
+        # yield from bps.sleep(2)
+        # yield from bps.mv(energy, 2490)        
+        # yield from bps.sleep(2)
+        # yield from bps.mv(energy, 2470)
+        # yield from bps.sleep(2)
+        # yield from bps.mv(energy, 2450)
+
+        # sample_id(user_name='test', sample_name='test')
+
+    names = [   'FT_1', 'P3HT_1', 'Y6_1']
+    x = [       -37700,    31200,  31800]
+    y = [        -6900,    -1300,   4800]
+    
+    yield from bps.mv(prs, -20)
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1000, 95)
+        xss = [xs]
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        det_exposure_time(t,t) 
+        name_fmt = 'nexafs_70deg_wa59deg_{sample}_{energy}eV_xbpm{xbpm}'
+        for e, xsss, ysss in zip(energies, xss, yss): 
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+
+            yield from bps.mv(piezo.y, ysss)
+            yield from bps.mv(piezo.x, xsss)
+
+            sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%3.1f'%xbpm3.sumY.value)
+            RE.md['filename'] = sample_name
+            sample_id(user_name='BC', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+        yield from bps.mv(energy, 2510)
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2490)        
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2470)
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2450)
+
+        sample_id(user_name='test', sample_name='test')
+
+
+    # names = ['PM7_1',  'PCD_1',    'PB_1',   'PCP_1',   'PM6_1',    'FT_1',
+    #         'P3HT_1','PTQ10_1', 'D18Cl_1',    'HT_1',    'P7_1',
+    #           'Y6_1',   'IT_1', 'PBTTT_1',   'Y11_1',   'D18_1',   'SiN_1']
+    # x = [      31100,    17000,      3000,    -11800,    -24900,    -38300,
+    #            32000,    17200,      3400,    -11400,    -23800,
+    #            32700,    17300,      4200,    -10700,    -23500,    -37400]
+    # y = [      -6600,    -6800,     -6900,     -6900,     -6900,     -6900, 
+    #            -1300,     -900,      -900,     -1000,     -1000, 
+    #             4800,     4200,      4700,      4700,      4900,      5000]
+    
+    
+    # yield from bps.mv(prs, -35)
+    # for name, xs, ys in zip(names, x, y):
+    #     yield from bps.mv(piezo.x, xs)
+    #     yield from bps.mv(piezo.y, ys)
+
+    #     yss = np.linspace(ys, ys + 1000, 95)
+    #     xss = [xs]
+
+    #     yss, xss = np.meshgrid(yss, xss)
+    #     yss = yss.ravel()
+    #     xss = xss.ravel()
+
+    #     det_exposure_time(t,t) 
+    #     name_fmt = 'nexafs_55deg_wa59deg_{sample}_{energy}eV_xbpm{xbpm}'
+    #     for e, xsss, ysss in zip(energies, xss, yss): 
+    #         yield from bps.mv(energy, e)
+    #         yield from bps.sleep(2)
+
+    #         yield from bps.mv(piezo.y, ysss)
+    #         yield from bps.mv(piezo.x, xsss)
+
+    #         sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%3.1f'%xbpm3.sumY.value)
+    #         RE.md['filename'] = sample_name
+    #         sample_id(user_name='BC', sample_name=sample_name)
+    #         print(f'\n\t=== Sample: {sample_name} ===\n')
+    #         yield from bp.count(dets, num=1)
+
+    #     yield from bps.mv(energy, 2510)
+    #     yield from bps.sleep(2)
+    #     yield from bps.mv(energy, 2490)        
+    #     yield from bps.sleep(2)
+    #     yield from bps.mv(energy, 2470)
+    #     yield from bps.sleep(2)
+    #     yield from bps.mv(energy, 2450)
+
+    #     sample_id(user_name='test', sample_name='test')
+
+
+    # names = ['D18Cl_1',    'HT_1',    'P7_1',
+    #           'Y6_1',   'IT_1', 'PBTTT_1',   'Y11_1',   'D18_1']
+    # x = [       3400,    -11400,    -23800,
+    #            32100,    16900,      3800,    -11000,    -23900,    -37600]
+    # y = [       -900,     -1000,     -1000, 
+    #             4800,     4200,      4700,      4700,      4900]
+
+    # yield from bps.mv(prs, -50)
+    # for name, xs, ys in zip(names, x, y):
+    #     yield from bps.mv(piezo.x, xs)
+    #     yield from bps.mv(piezo.y, ys)
+
+    #     yss = np.linspace(ys, ys + 1000, 95)
+    #     xss = [xs]
+
+    #     yss, xss = np.meshgrid(yss, xss)
+    #     yss = yss.ravel()
+    #     xss = xss.ravel()
+
+    #     det_exposure_time(t,t) 
+    #     name_fmt = 'nexafs_40deg_wa59deg_{sample}_{energy}eV_xbpm{xbpm}'
+    #     for e, xsss, ysss in zip(energies, xss, yss): 
+    #         yield from bps.mv(energy, e)
+    #         yield from bps.sleep(1)
+
+    #         yield from bps.mv(piezo.y, ysss)
+    #         yield from bps.mv(piezo.x, xsss)
+
+    #         sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%3.1f'%xbpm3.sumY.value)
+    #         RE.md['filename'] = sample_name
+    #         sample_id(user_name='BC', sample_name=sample_name)
+    #         print(f'\n\t=== Sample: {sample_name} ===\n')
+    #         yield from bp.count(dets, num=1)
+
+    #     yield from bps.mv(energy, 2510)
+    #     yield from bps.sleep(2)
+    #     yield from bps.mv(energy, 2490)        
+    #     yield from bps.sleep(2)
+    #     yield from bps.mv(energy, 2470)
+    #     yield from bps.sleep(2)
+    #     yield from bps.mv(energy, 2450)
+
+    #     sample_id(user_name='test', sample_name='test')
+
+
+
+
+def NEXAFS_S_edge_2021_2_set2(t=0.5):
+    yield from bps.mv(waxs, 59)
+    dets = [pil300KW, pil900KW]
+    
+    energies = np.arange(2450, 2470, 5).tolist() + np.arange(2470, 2475.5, 0.25).tolist() + np.arange(2475.5, 2478.5, 0.1).tolist() + np.arange(2478.5, 2482, 0.25).tolist() + np.arange(2482, 2500, 1).tolist() + np.arange(2500, 2535, 5).tolist()
+
+    names = ['PM7_2',  'PCD_2',    'PB_2',   'PCP_2',   'PM6_2',
+            'P3HT_2','PTQ10_2', 'D18Cl_2',    'HT_2',    'P7_2',   'FT_2',
+              'Y6_2',   'IT_2', 'PBTTT_2',   'Y11_2',   'D18_2']
+    x = [      24100,    10000,     -4500,    -18300,    -31800,  
+               24800,    10600,     -4200,    -17800,    -30800,   -37600,
+               25400,    11100,     -3800,    -17100,    -30300]
+    y = [      -6700,    -6800,     -6900,     -6900,     -6900,
+                -900,     -900,      -900,      -900,      -700,     -300, 
+                4600,     4500,      4900,      4700,      4800]
+
+    assert len(names) == len(x), f'Number of X coordinates ({len(x)}) is different from number of samples ({len(names)})'
+    assert len(names) == len(y), f'Number of X coordinates ({len(y)}) is different from number of samples ({len(names)})'
+
+    yield from bps.mv(prs, -60)
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1000, 95)
+        xss = [xs]
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        det_exposure_time(t,t) 
+        name_fmt = 'nexafs_30deg_wa59deg_{sample}_{energy}eV_xbpm{xbpm}'
+        for e, xsss, ysss in zip(energies, xss, yss): 
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+
+            yield from bps.mv(piezo.y, ysss)
+            yield from bps.mv(piezo.x, xsss)
+
+            sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%3.1f'%xbpm3.sumY.value)
+            RE.md['filename'] = sample_name
+            sample_id(user_name='BC', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+        yield from bps.mv(energy, 2510)
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2490)        
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2470)
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2450)
+
+        sample_id(user_name='test', sample_name='test')
+
+
+    
+    yield from bps.mv(prs, -20)
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1000, 95)
+        xss = [xs]
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        det_exposure_time(t,t) 
+        name_fmt = 'nexafs_70deg_wa59deg_{sample}_{energy}eV_xbpm{xbpm}'
+        for e, xsss, ysss in zip(energies, xss, yss): 
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+
+            yield from bps.mv(piezo.y, ysss)
+            yield from bps.mv(piezo.x, xsss)
+
+            sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%3.1f'%xbpm3.sumY.value)
+            RE.md['filename'] = sample_name
+            sample_id(user_name='BC', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+        yield from bps.mv(energy, 2510)
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2490)        
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2470)
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2450)
+
+        sample_id(user_name='test', sample_name='test')
+
+    
+    yield from bps.mv(prs, -35)
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1000, 95)
+        xss = [xs]
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        det_exposure_time(t,t) 
+        name_fmt = 'nexafs_55deg_wa59deg_{sample}_{energy}eV_xbpm{xbpm}'
+        for e, xsss, ysss in zip(energies, xss, yss): 
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+
+            yield from bps.mv(piezo.y, ysss)
+            yield from bps.mv(piezo.x, xsss)
+
+            sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%3.1f'%xbpm3.sumY.value)
+            RE.md['filename'] = sample_name
+            sample_id(user_name='BC', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+        yield from bps.mv(energy, 2510)
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2490)        
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2470)
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2450)
+
+        sample_id(user_name='test', sample_name='test')
+
+
+    yield from bps.mv(prs, -50)
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1000, 95)
+        xss = [xs]
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        det_exposure_time(t,t) 
+        name_fmt = 'nexafs_40deg_wa59deg_{sample}_{energy}eV_xbpm{xbpm}'
+        for e, xsss, ysss in zip(energies, xss, yss): 
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+
+            yield from bps.mv(piezo.y, ysss)
+            yield from bps.mv(piezo.x, xsss)
+
+            sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%3.1f'%xbpm3.sumY.value)
+            RE.md['filename'] = sample_name
+            sample_id(user_name='BC', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+        yield from bps.mv(energy, 2510)
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2490)        
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2470)
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 2450)
+
+        sample_id(user_name='test', sample_name='test')
+
+
+def NEXAFS_collins_night(t=0.5):
+    proposal_id('2021_2', '307835_Collins4')
+    yield from NEXAFS_S_edge_2021_2_set1(t=t)
+
+    proposal_id('2021_2', '307835_Collins5')
+    yield from NEXAFS_S_edge_2021_2_set2(t=t)

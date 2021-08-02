@@ -386,3 +386,39 @@ def ex_situ_xscan_hegmann1(meas_t = 1):
     
 
         
+
+def saxs_hegmann_grid_2021_2(t=1): 
+    
+    names = ['alpha_6arms_L_lac_microtomed', 'gama_Br_PEG_doublelayer_microtomed']
+    xlocs = [       -22160,         24540] 
+    ylocs = [         6940,          6880]
+    zlocs = [        -1200,         -1200]
+    x_range=[ [0, 600, 21],  [0, 600, 21]]
+    y_range=[[0, 342, 115], [0, 381, 128]]
+
+    user = 'MP'    
+    det_exposure_time(t,t)     
+    
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(ylocs)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(zlocs)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(x_range)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(y_range)})'
+    
+    
+    # Detectors, motors:
+    dets = [pil1M]
+    
+    for x, y, sample, x_r, y_r in zip(xlocs, ylocs, names, x_range, y_range):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        name_fmt = '{sam}_1.6m_16.1keV'
+        sample_name = name_fmt.format(sam=sample)
+        sample_id(user_name=user, sample_name=sample_name) 
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+            
+        yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 0) #1 = snake, 0 = not-snake
+        
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+

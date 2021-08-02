@@ -179,17 +179,17 @@ def gordon_saxswaxs_2021_2(t=1):
 
 def gisaxs1_gordon_2021_2(t=1): 
     
-    # names = ['sample02', 'sample03', 'sample06', 'sample07', 'sample10', 'sample12', 'sample14', 'sample15','sample18']
-    # x_piezo = [55000, 40000, 25000, 12000, -3000,-18000,-33000,-45000,-55000]
-    # y_piezo = [ 6800,  6800,  6800,  6800,  6800,  6800,  6800,  6800,  6800]
-    # z_piezo = [    0,     0,     0,     0,     0,     0,     0,     0,     0]
-    # x_hexa =  [    0,     0,     0,     0,     0,     0,     0,     0,    -4]
+    names = ['sample02', 'sample03', 'sample06', 'sample07', 'sample10', 'sample12', 'sample14', 'sample15', 'sample18']
+    x_piezo = [   59000,      58000,      45000,      32000,      19000,       5000,      -7000,     -19000,     -30000]
+    y_piezo = [    6800,       6800,       6800,       6800,       6800,       6800,       6800,       6800,       6800]
+    z_piezo = [       0,          0,          0,          0,          0,          0,          0,          0,          0]
+    x_hexa =  [      12,          0,          0,          0,          0,          0,          0,          0,          0]
 
-    names = ['sample20', 'sample21', 'sample23', 'sample24', 'sample27', 'sample28']
-    x_piezo = [55000, 47000, 33000, 18000,  3000,-12000]
-    y_piezo = [ 6800,  6800,  6800,  6800,  6800,  6800]
-    z_piezo = [    0,     0,     0,     0,     0,     0]
-    x_hexa =  [    5,     0,     0,     0,     0,     0]
+    # names = ['sample20', 'sample21', 'sample23', 'sample24', 'sample27', 'sample28']
+    # x_piezo = [   58000,      55000,      42000,      29000,      14000,          0]
+    # y_piezo = [    6800,       6800,       6800,       6800,       6800,       6800]
+    # z_piezo = [       0,          0,          0,          0,          0,          0]
+    # x_hexa =  [      10,          0,          0,          0,          0,          0]
 
     assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
     assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
@@ -237,10 +237,11 @@ def gisaxs1_gordon_2021_2(t=1):
 def gisaxs2_gordon_2021_2(t=1): 
 
     names = ['pedot_EHE_neat', 'pedot_EHE_FeCl3', 'pedot_EHE_rosy', 'pedot_OH_neat', 'pedot_OH_FeCl3', 'pedot_OH_rosy']
-    x_piezo = [-23000, -31000, -40000, -48000, -53000, -12000]
+    x_piezo = [-13000, -22000, -30000, -38000, -48000, -55000]
     y_piezo = [  6800,   6800,   6800,   6800,   6800,   6800]
     z_piezo = [     0,      0,      0,      0,      0,      0]
-    x_hexa =  [     0,      0,      0,      0,     -5,    -10]
+    x_hexa =  [     0,      0,      0,      0,      0,     -2]
+
 
     assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
     assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'

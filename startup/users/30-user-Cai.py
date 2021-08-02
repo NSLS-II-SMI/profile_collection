@@ -359,6 +359,44 @@ def run_trans_cai(t=1):
 
 
 
+def run_saxs_cai_2021_2(t=1): 
+    #run with WAXS
+    dets = [pil300KW, pil900KW, pil1M]
+    waxs_arc = [0, 2, 19.5, 21.5, 39, 41]
+    
+    # x_list  = [    46000,   45700,   40800,   33800,   26900,   21500,   14800,    8000,    2100,   -4500]
+    # y_list =  [    -7500,    2000,    2000,    2000,    1900,    1900,    1900,    2300,    1600,    1600]
+    # z_list =  [    -5500,   -5200,   -5000,   -4800,   -4600,   -4500,   -4300,   -4000,   -3800,   -3500]
+    # samples = ['cap_bkg', 'old_1', 'old_2', 'old_3', 'old_4', 'new_1', 'new_2', 'new_3', 'new_4', 'new_5']
+    
+    x_list  = [    2100]
+    y_list =  [    -9800]
+    z_list =  [    -3500]
+    samples = ['cap_bkg2']
+
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+        
+    for wa in waxs_arc[::-1]:
+        yield from bps.mv(waxs, wa)
+
+        for x, y, z, s in zip(x_list, y_list, z_list, samples):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            yield from bps.sleep(2)
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_8.3m_14keV_wa{wax}'
+            sample_name = name_fmt.format(sample=s, wax = '%2.2d'%wa) 
+            sample_id(user_name='LC', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+            sample_id(user_name='test', sample_name='test')
+            det_exposure_time(0.3,0.3)
+
+
 def run_giwaxs_cai_temp(t=1): 
     dets = [pil300KW, pil1M]
     xlocs1 = [2800,-8600]
@@ -462,30 +500,6 @@ def gisaxsCaiTempOLD(meas_t=1):
         det_exposure_time(0.5)
 
 
-
-
-
-def Cai_saxs_tensile_hard(t=0.2):
-    dets = [pil1M, pil300KW]
-
-    names = 'LhBBL_insitu_0.85_new2'
-
-    t0 = time.time()
-    for i in range(2000):
-
-        det_exposure_time(t,t) 
-        name_fmt = '{sample}_14000eV_sdd8p3_waxs8.0_{time}_{i}'
-        t1 = time.time()
-        sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i)
-        sample_id(user_name='SN', sample_name=sample_name)
-        print(f'\n\t=== Sample: {sample_name} ===\n')
-        yield from bp.count(dets, num=1)
-
-        time.sleep(20)
-
-
-
-
 def saxs_cai_2021_2(t=1): 
  
     # xlocs = [45800, 42800, 35500, 29000, 17500, 12900,  1400, -7300, -13400, -17700, -24200, -30500, -35500, -40500]
@@ -531,3 +545,23 @@ def saxs_cai_2021_2(t=1):
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3, 0.3) 
+
+
+
+
+def Cai_saxs_tensile_hard(t=0.2):
+    dets = [pil1M]
+
+    names = 'H5_3_insitu_loop1'
+
+    t0 = time.time()
+    for i in range(5000):
+        det_exposure_time(t,t)
+        name_fmt = '{sample}_14000eV_sdd8p3_waxs19.0_{time}s_{i}'
+        t1 = time.time()
+        sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i)
+        sample_id(user_name='SN', sample_name=sample_name)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.count(dets, num=1)
+
+        time.sleep(50)
