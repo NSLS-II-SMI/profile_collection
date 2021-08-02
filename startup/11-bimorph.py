@@ -34,10 +34,11 @@ class HFM_voltage(Device):
     ch14_trg = Cpt(EpicsSignal, 'SET-VTRGT14')
     ch15 = Cpt(EpicsSignal, 'GET-VOUT15')
     ch15_trg = Cpt(EpicsSignal, 'SET-VTRGT15')
-    shift_rel = Cpt(EpicsSignal, 'ALLSHIFT')
+    shift_rel = Cpt(EpicsSignal, 'SET-ALLSHIFT')
+    set_tar = Cpt(EpicsSignal, 'SET-ALLTRGT')
 
     #This is the default hfm mirror voltage for smi swaxs hutch
-    default_hfm_v2 = [-151, 261, 250, 293, 175, 236, 168, 231, 242, 200, 291, 222, 215, 157, 311, 36]
+    default_hfm_v2 = np.asarray([-151, 261, 250, 293, 175, 236, 168, 231, 242, 200, 291, 222, 215, 157, 311, 36])
 
     def set_target(self, mode='SWAXS'):
         ch_pattern = re.compile("ch(?P<number>\d{1,2})")
@@ -101,7 +102,7 @@ class VFM_voltage(Device):
 
     #This is the default vfm mirror voltage for smi swaxs hutch
     # default_vfm_v2 = [39, -102, 277, 234, 325, 163, 392, 280, 365, 273, 196, 400, 219, 304, 51, -327]
-    # default_vfm_v2 = [  39,   85, 311, 310,  -15, 485,   68, 447, 291,  130, 606,  170, 272, 437,  192, -308] #Ca edge
+    # default_vfm_v2 = -430 + np.asarray([  39,   85, 311, 310,  -15, 485,   68, 447, 291,  130, 606,  170, 272, 437,  192, -308]) #Ca edge
     
     default_vfm_v2 =  [-281, -235,  -9, -10, -335, 165, -252, 127, -29, -190, 286, -150, -48, 117, -128, -628] #S edge
 
