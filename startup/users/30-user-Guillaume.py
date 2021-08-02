@@ -108,21 +108,9 @@ def align_gui():
         yield from align_y(250, 30, der=True)
 
                   
-def align_gisaxs_height(  rang = 0.3, point = 31 ,der=False  ):     
-        yield from bp.rel_scan([pil1M], piezo.y, -rang, rang, point )
-        ps(der=der)
-        yield from bps.mv(piezo.y, ps.cen)
-
-def align_gisaxs_th(  rang = 0.3, point = 31   ):             
-        yield from bp.rel_scan([pil1M], piezo.th, -rang, rang, point )
-        ps()
-        yield  from bps.mv(piezo.th, ps.peak)  
-        
 def test_test(angle = 0.15):      
         yield from remove_suspender( susp_xbpm2_sum )
 
-        
-        
 ## SMI config file
 import pandas as pds
 
@@ -1170,3 +1158,38 @@ def loop_att(i=1):
         yield from bps.sleep(1)
         yield from att_out()
         yield from bps.sleep(1)
+
+
+
+
+
+
+
+def test_pilatus900kw(t=1):
+    
+    dets = [pil300KW, pil900KW, pil1M]
+
+    names = ['AgBh_5']
+    x = [-9000]
+    y = [107.620]
+    z = [6000]
+
+    waxs_arc = [0, 2, 19.5, 21.5, 39, 41]
+    for name, xs, ys, zs in zip(names, x, y, z):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_wa{wax}' 
+
+            sample_name = name_fmt.format(sample=name, wax = wa)
+            sample_id(user_name='WZ', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+
+
