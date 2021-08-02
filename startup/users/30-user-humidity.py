@@ -5,7 +5,7 @@ from ophyd import Device
 
 def readHumidity(temperature=25, voltage_supply=5, verbosity=3):        
 
-    voltage_out = moxa_out.ch8_read.value
+    voltage_out = moxa_out.ch1_read.value
     corr_voltage_out = voltage_out * (5.0 / voltage_supply)
 
     coeff_offset = 0.816887
