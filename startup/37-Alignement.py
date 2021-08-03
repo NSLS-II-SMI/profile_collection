@@ -9,6 +9,12 @@ def align_gisaxs_height(rang=0.3, point=31, der=False):
         yield from bps.mv(piezo.y, ps.cen)
 
 
+def align_gisaxs_height_lee(rang=0.3, point=31, der=False):
+        yield from bp.rel_scan([pil1M], piezo.y, -rang, rang, point)
+        ps(der=der, plot = False)
+        yield from bps.mv(piezo.y, ps.peak)
+
+
 def align_gisaxs_th(rang=0.3, point=31):
         yield from bp.rel_scan([pil1M], piezo.th, -rang, rang, point)
         ps(plot = False)
@@ -110,7 +116,7 @@ def alignement_gisaxs(angle=0.15):
         
         # Scan theta and height
         yield from align_gisaxs_th(0.2, 31)
-        yield from align_gisaxs_height(150, 21)
+        yield from align_gisaxs_height(250, 21)
         yield from align_gisaxs_th(0.025, 21)
         
         # Close all the matplotlib windows
@@ -145,7 +151,7 @@ def alignement_gisaxs_quickLee(angle=0.15):
         
         # Scan theta and height
         yield from align_gisaxs_th(0.2, 31)
-        yield from align_gisaxs_height(150, 21)
+        yield from align_gisaxs_height_lee(150, 21)
         # yield from align_gisaxs_th(0.025, 21)
         
         # Close all the matplotlib windows
@@ -489,7 +495,7 @@ def alignement_gisaxs_hex(angle=0.1):
         # Scan theta and height
         yield from align_gisaxs_height_hex(0.700, 16, der=True)
         # yield from align_gisaxs_th_hex(1, 11)
-        yield from align_gisaxs_height_hex(0.300, 11, der=True)
+        # yield from align_gisaxs_height_hex(0.300, 11, der=True)
         # yield from align_gisaxs_th_hex(0.4, 16)
         
         # move to theta 0 + value
@@ -501,7 +507,7 @@ def alignement_gisaxs_hex(angle=0.1):
         # Scan theta and height
         yield from align_gisaxs_th_hex(0.5, 31)
         yield from align_gisaxs_height_hex(0.200, 21)
-        yield from align_gisaxs_th_hex(0.1, 31)
+        yield from align_gisaxs_th_hex(0.1, 21)
         
         # Close all the matplotlib windows
         plt.close('all')
