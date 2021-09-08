@@ -389,12 +389,34 @@ def ex_situ_xscan_hegmann1(meas_t = 1):
 
 def saxs_hegmann_grid_2021_2(t=1): 
     
-    names = ['alpha_6arms_L_lac_microtomed', 'gama_Br_PEG_doublelayer_microtomed']
-    xlocs = [       -22160,         24540] 
-    ylocs = [         6940,          6880]
-    zlocs = [        -1200,         -1200]
-    x_range=[ [0, 600, 21],  [0, 600, 21]]
-    y_range=[[0, 342, 115], [0, 381, 128]]
+    # names = ['alpha_6arms_L_lac_microtomed', 'gama_Br_PEG_doublelayer_microtomed']
+    # xlocs = [       -22160,         24540] 
+    # ylocs = [         6940,          6880]
+    # zlocs = [        -1200,         -1200]
+    # x_range=[ [0, 600, 21],  [0, 600, 21]]
+    # y_range=[[0, 342, 115], [0, 381, 128]]
+
+
+    # names = ['HP_mod_hori',  'HP_mod_vert',  'HP_mod_faceon']
+    # xlocs = [        10400,          9850,             3600] 
+    # ylocs = [         -747,          -9400,            -5800]
+    # zlocs = [        2500,            2500,             2500]
+    # x_range=[ [0, 600, 21],  [0, 1350, 46],     [0, 450, 16]]
+    # y_range=[[0,  800, 81],  [0,  120, 41],    [0, 700, 141]]
+
+    # names = ['olymp_grid']
+    # xlocs = [       35400] 
+    # ylocs = [        -3600]
+    # zlocs = [        2500]
+    # x_range=[ [0, 600, 21]]
+    # y_range=[[0,  400, 41]]
+
+    names = ['olymp_model_cross_sec']
+    xlocs = [       -14500] 
+    ylocs = [        -3220]
+    zlocs = [        2500]
+    x_range=[ [0, 600, 21]]
+    y_range=[[0,  600, 201]]
 
     user = 'MP'    
     det_exposure_time(t,t)     

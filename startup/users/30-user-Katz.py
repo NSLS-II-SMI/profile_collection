@@ -37,7 +37,7 @@ def alignement_katz_2021_1():
 
 
 def nexafs_Sedge_Katz(t=1):
-    dets = [pil300KW]
+    dets = [pil300KW, pil900KW]
 
 
     names =   ['sample1', 'sample2', 'sample3', 'sample4', 'sample5', 'sample6', 'sample7']
@@ -62,7 +62,7 @@ def nexafs_Sedge_Katz(t=1):
 
         yield from bps.mv(waxs, waxs_arc[0])    
         det_exposure_time(t,t) 
-        name_fmt = 'nexafs_{sample}_{energy}eV_wa52.5_bpm{xbpm}'
+        name_fmt = 'nexafs_{sample}_{energy}eV_wa60.0_bpm{xbpm}'
         for e in energies: 
             yield from bps.mv(energy, e)
             yield from bps.sleep(1)
@@ -230,3 +230,186 @@ def nexafs_Sedge_Katz_2021_2(t=1):
         yield from bps.mv(energy, 2500)
         yield from bps.mv(energy, 2480)
         yield from bps.mv(energy, 2450)
+
+
+
+
+
+
+def nexafs_Sedge_Katz_2021_2(t=1):
+    dets = [pil900KW]
+
+    # names =   ['sample1', 'sample2', 'sample3', 'sample4', 'sample5']
+    # x_piezo = [    54000,     38000,     18000,      3000,    -17000]
+    # inc_angl = [ -0.6074,   -0.4144,     0.185,   -0.1982,   -2.4638]
+    # y_piezo = [  4647.88,   5180.45,   4970.04,    4909.86,  5090.90]
+
+    names =   [ 'sample4_redo']
+    x_piezo = [    3200]
+    inc_angl = [   -0.1982]
+    y_piezo = [  4890.86]
+
+    energies = 7 + np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist())
+    waxs_arc = 60
+
+    angle_mes = [0.1]
+
+    for name, xs, ys, aiss in zip(names, x_piezo, y_piezo, inc_angl):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.th, aiss)
+
+        yield from bps.mv(waxs, 59)    
+        det_exposure_time(t,t) 
+        
+        for angle_me in angle_mes:
+            yield from bps.mv(piezo.th, aiss + angle_me)
+
+            name_fmt = 'nexafs_{sample}_{energy}eV_wa60_bpm{xbpm}_ai{ai}'
+            for e in energies: 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%4.3f'%bpm, ai='%1.2f'%angle_me)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2490)
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+
+
+def nexafs_Caedge_David(t=1):
+    dets = [pil900KW]
+
+    # names =   ['sample1', 'sample2', 'sample3', 'sample4', 'sample5']
+    # x_piezo = [    54000,     38000,     18000,      3000,    -17000]
+    # inc_angl = [ -0.6074,   -0.4144,     0.185,   -0.1982,   -2.4638]
+    # y_piezo = 40 + np.asarray([  4647.88,   5180.45,   4970.04,    4909.86,  5090.90])
+    names =   ['sample3', 'sample4', 'sample5']
+    x_piezo = [      18000,      3000,    -17000]
+    inc_angl = [      0.185,   -0.1982,   -2.4638]
+    y_piezo = 40 + np.asarray([  4970.04,    4909.86,  5090.90])
+
+    # names =   [ 'sample2', 'sample3', 'sample4', 'sample5']
+    # x_piezo = [         38000,     18000,      3000,    -17000]
+    # inc_angl = [    -0.4144,     0.185,   -0.1982,   -2.4638]
+    # y_piezo = 40 + np.asarray([     5180.45,   4970.04,    4909.86,  5090.90])
+
+
+    # energies = np.linspace(4030, 4110, 81)
+    energies = np.asarray(np.arange(4020, 4035, 5).tolist() + np.arange(4035, 4042, 2).tolist() + np.arange(4042, 4070, 0.5).tolist() + np.arange(4070, 4080, 2).tolist() + np.arange(4080, 4130, 5).tolist())
+
+    for name, xs, ys, aiss in zip(names, x_piezo, y_piezo, inc_angl):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.th, aiss)
+
+        yield from bps.mv(waxs, 59)    
+        det_exposure_time(t,t) 
+        
+        angle_mes = [0.1]
+
+        for angle_me in angle_mes:
+            yield from bps.mv(piezo.th, aiss + angle_me)
+
+            name_fmt = 'nexafs_{sample}_{energy}eV_wa60_ai{ai}_bpm{xbpm}'
+            for e in energies: 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, ai='%1.2f'%angle_me , xbpm = '%4.3f'%bpm)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 4100)
+            yield from bps.mv(energy, 4080)
+            yield from bps.mv(energy, 4050)
+
+
+
+
+def nexafs_Caedge_Matt(t=0.5, name='test'):
+    yield from bps.mv(waxs, 59)
+    dets = [pil900KW]
+
+    energies = np.asarray(np.arange(4020, 4035, 5).tolist() + np.arange(4035, 4042, 2).tolist() + np.arange(4042, 4070, 0.5).tolist() + np.arange(4070, 4080, 2).tolist() + np.arange(4080, 4140, 5).tolist())
+
+    samples = ['mwet_01', 'mwet_02', 'mwet_03', 'mwet_04', 'mwet_05', 'mwet_06', 'mwet_07', 'mwet_08', 'mwet_09', 'mwet_10', 'mwet_11']
+    x_list  = [    46000,     35000,     22500,     11000,         0,    -12000,    -24000,    -35000,     24000,     12000,         0]
+    y_list =  [    -8500,     -8500,     -8500,     -8500,     -8500,     -8500,     -8500,     -8500,      4500,      4500,      4500]
+    
+
+    for name, x, y in zip(samples, x_list, y_list):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+
+        det_exposure_time(t,t) 
+        name_fmt = 'nexafs_{sample}_{energy}eV_wa60_bpm{xbpm}'
+        for e in energies:                              
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+
+            bpm = xbpm2.sumX.value
+            sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, xbpm = '%4.3f'%bpm)
+            sample_id(user_name='GS', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+        yield from bps.mv(energy, 4110)
+        yield from bps.sleep(2)
+        yield from bps.mv(energy, 4070) 
+        yield from bps.sleep(2)       
+        yield from bps.mv(energy, 4030)
+        yield from bps.sleep(2)
+
+
+        sample_id(user_name='test', sample_name='test')
+
+
+def saxs_prep_multisample(t=1):
+    dets = [pil900KW, pil1M]
+
+    energies = [4030, 4040, 4050, 4055, 4075]
+    det_exposure_time(t,t)     
+    waxs_range = [0, 2, 19.5, 21.5, 39, 41]
+
+    det_exposure_time(t,t)
+
+    xpos = [-500, 500, 3]
+
+    for wa in waxs_range[::-1]:
+        yield from bps.mv(waxs, wa)
+
+        samples = ['mwet_01', 'mwet_02', 'mwet_03', 'mwet_04', 'mwet_05', 'mwet_06', 'mwet_07', 'mwet_08', 'mwet_09', 'mwet_10', 'mwet_11']
+        x_list  = [    46000,     35000,     22500,     11000,         0,    -12000,    -24000,    -35000,     24000,     12000,         0]
+        y_list =  100+ np.asarray([    -8500,     -8500,     -8500,     -8500,     -8500,     -8500,     -8500,     -8500,      4500,      4500,      4500])
+
+        for name, x, y in zip(samples, x_list, y_list):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+
+            for k, e in enumerate(energies):                              
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                yield from bps.mv(piezo.y, y + k * 100)
+
+                name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name,energy='%6.2f'%e, xbpm = '%3.1f'%bpm, wa='%2.1f'%wa)
+                sample_id(user_name='OS', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.rel_scan(dets, piezo.x, *xpos)
+                        
+            yield from bps.mv(energy, 4050)
+            yield from bps.mv(energy, 4030)
