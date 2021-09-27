@@ -150,3 +150,75 @@ def mesh_UCI_2021_2(t=1):
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3,0.3)
+
+
+def mesh_UCI_2021_3(t=1): 
+    waxs_range = [0,20]
+    
+    name = 'WY'
+    dets = [pil300KW, pil900KW, pil1M]
+    det_exposure_time(t,t)
+    
+    #these samples are done.
+    #samples = ['SS_BPS', 'SS_HSLD', 'SS_FVST',  'SS_TCSS',  'SS_SVSTt', 'SS_SVSTb',   'SS_BOSV','SS_BOFV',  'RS_FVSAMT','RS_SVSAMTt','RS_SVSAMTb', 'RS_FVS']
+    #x_list = [   42900,   40580,      41550,       38550,     35700,      34940,         36250,    33000,    21340,       15340,       14890,       10140]
+    #y_list = [    -300,   -1500,      3300,         400,       3600,       4600,        -1700,   -1500,       3100,        1100,        2200,       1500]
+    #z_list = [   3100,     3100,       3100,        3100,      3100,       3100,          3100,     3100,     3100,        3100,        3100,       3700]
+    #hexa_y = [    6,        6,          6,           6,         6,          6,              6,        6,        6,           6,          6,          6]
+    #x_range=[[0,300,11], [0,300,11], [0,390,14],  [0,390,14], [0,330,12],[0,900,31], [0,250,11],[0,390,14],[0,390,14],[0,540,19],   [0,600,21], [0,420,15]]
+    #y_range=[[0,720,181],[0,600,151],[0,1200,301],[0,400,101],[0,900,226],[0,340,86],[0,300,76],[0,200,51],[0,740,186],[0,1080,271],[0,740,186],[0,1600,401]]
+
+    #these samples are very large areas and 3rd priority (lowest) except for the 1st teeth12.
+    samples = ['12teeth_all', 'RS_RWS',   'RS_R', 'FS_FRWSTD', 'FS_FPRWS_PL3'    ]
+    x_list = [ -27880,        -12400,    -19000,     2220,         -6000   ]
+    y_list = [ -6620,          1600,     1900,      -4220,         -5820  ]
+    z_list = [  -100,          5300,      6700,     1900,           -700   ]
+    hexa_y = [   -7,             6,         6,      -6,            -6     ]
+    chi_list = [5,              0,          0,       0,             0     ]
+    x_range=[ [0,5700,115], [0,900,31], [0,900,31],[0,720,25], [0,720,25]     ]
+    y_range=[ [0,1300,66], [0,860,216],[0,900,226],[0,600,151],[0,800,201]      ]
+
+
+    #14 hours -- samples done.
+    #samples = ['RS_SVSt',  'RS_SVSb', 'RS_BO',   'TBS_TBOLD',  'TBS_TBOTD','TBS_TS',  'TBS_TRWSLD','TBS_TRWSTD' ]
+    #x_list = [   5250,       5600,     -4950,     -25250,      -28900,     -33050,     -38660,     -41740  ]
+    #y_list = [   1200,       2250,      1800,       1150,        550,        1900,       -400,       1100 ]
+    #z_list = [   3700,       3700,      3700,       3700,       3700,       3700,        6900,      4500 ]
+    #hexa_y = [    6,          6,         6,          6,           6,           6,         6,          6   ]
+    #x_range=[[0,360,13],  [0,540,19],[0,690,24],  [0,270,10], [0,300,11], [0,450,16],  [0,360,13], [0,330,12] ]
+    #y_range=[[0,1300,326],[0,420,106],[0,600,151],[0,500,126],[0,500,126],[0,1200,301],[0,700,176],[0,400,101]]
+
+    #samples done
+    #samples = ['FS_FOBTD','FS_FSp2t','FS_FSp2b', 'FS_FSp1',   'FS_FR',  'FS_FRWS',    'BS',     'IT_tooth0','IT_tooth1', 'FS_FPRWS'    ]
+    #x_list = [   40750,       36500,     36800,     31880,     26150,     21850,    -15350,     -33300,      -38130,     7240        ]
+    #y_list = [   -4400,       -4750,     -4350,     -5250,     -4950,     -4050,     -4400,     -4540,       -4520,     -4920        ]
+    #z_list = [   -1500,      -1100,      -1100,     -1100,     -500,       -1100,    -1100,      -1100,      -1100,     -700         ]
+    #hexa_y = [    -6,          -6,       -6,         -6,         -6,       -6,         -6,        -6,         -6,        -6            ]
+    #x_range=[[0,300,11],  [0,510,18],[0,450,16],  [0,450,16],[0,720,25], [0,720,25], [0,960,33], [0,420,15], [0,510,18], [0,1800,61]       ]
+    #y_range=[[0,500,126],[0,400,101],[0,760,191],[0,700,176],[0,700,176],[0,800,201],[0,400,101],[0,459,154],[0,510,171],[0,900,91]     ]
+
+
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(y_list)})'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(x_range), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(x_range)})'
+    assert len(x_list) == len(y_range), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(y_range)})'
+
+    for x, y, z, chi, hy, sample, x_r, y_r in zip(x_list, y_list, z_list, chi_list, hexa_y, samples, x_range, y_range):
+        #proposal_id('2021_3', 'Wang%s'%num)
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.z, z)
+        yield from bps.mv(piezo.ch, chi)
+        yield from bps.mv(stage.y, hy)
+
+        for wa in waxs_range:
+            yield from bps.mv(waxs, wa)
+            name_fmt = '{sam}_wa{waxs}_16.1keV_2m'
+            proposal_id('2021_3', '308498_Yang/%s'%sample)
+            sample_name = name_fmt.format(sam=sample, waxs='%2.1f'%wa)
+            sample_id(user_name=name, sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)

@@ -298,10 +298,304 @@ def NEXAFS_Ca_edge_multi_sintu(t=0.5, name='test'):
 #     sample_id(user_name='test', sample_name='test')
 
 
+def ex_situ_hardxray_micro(t=1):
+    
+    yield from bps.mv(stage.y, 6)
+    yield from bps.mv(stage.th, 0)
 
+    samples = ['On5_vert_micro_1_s1', 'On5_vert_micro_1_s2', 'On5_vert_micro_1_s3', 'On5_horiz_micro_1_s1', 'On5_horiz_micro_1_s2', 
+               'On5_horiz_micro_1_s3', 'On5_horiz_micro_2_s1', 'On5_horiz_micro_2_s2', 'On5_horiz_micro_2_s3', 'On5_horiz_micro_3_s1', 
+               'On5_horiz_micro_3_s2', 'On5_horiz_micro_3_s3', 'On5_vert_micro_2_s1', 'On5_vert_micro_2_s2', 'On5_vert_micro_2_s3', 
+               'On5_vert_micro_3_s1', 'On5_vert_micro_3_s2', 'On5_vert_micro_3_s3', 'SHD_4_00_vert_micro_s1', 'SHD_4_00_vert_micro_s2',
+               'SHD_4_00_vert_micro_s3']
+              
+    x_list  = [43390, 43715, 43650,-1600, -600, 
+               400, -15600, -14600, -13600, -30100,
+               -29100, -28100, 27700, 28700, 29000,
+               13300, 13450, 14350, -43090, -42570,
+               -42670]
+    y_list =  [7600, 7650, 7450, 7500, 7500, 
+               7500, 7500, 7500, 7500, 7500,
+               7500, 7500, 7500, 7500, 7500,
+               7500, 6850, 6850, 6850, 6850,
+               7800]
+    z_list =  [3600, 3600, 3600, 3600, 3600, 
+               3600, 3600, 3600, 3600, 3600,
+               3600, 3600, 3600, 3600, 3600,
+               3600, 3600, 3600, 3600, 3600,
+               3600]
 
+    x_range = [[0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1],
+               [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1],
+               [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1],
+               [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], 
+               [0,0,1]]
+               
+    y_range = [[0,200,51], [0,200,51], [0,200,51], [0,200,51], [0,200,51],
+               [0,200,51], [0,200,51], [0,200,51], [0,200,51], [0,200,51],
+               [0,200,51], [0,200,51], [0,200,51], [0,200,51], [0,200,51], 
+               [0,200,51], [0,200,51], [0,200,51], [0,200,51], [0,200,51],
+               [0,200,51]]
 
+    # Detectors, motors:
+    dets = [pil1M, pil900KW, pil300KW]
+    waxs_range = [22, 20, 0]
+    
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(x_range), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(y_range), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
 
+    det_exposure_time(t,t)
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z, x_ran, y_ran in zip(samples, x_list, y_list, z_list, x_range, y_range):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            if wa != 22:
+                yield from bps.mv(pil1m_pos.y, -60.0)
+                name_fmt = '{sam}_wa{waxs}_sdd5m_16.1keV_up'
+            elif wa == 22:
+                yield from bps.mv(pil1m_pos.y, -55.7)
+                name_fmt = '{sam}_wa{waxs}_sdd5m_16.1keV_do'
+
+            sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
+            sample_id(user_name='SR', sample_name=sample_name) 
+            yield from bp.rel_grid_scan(dets, piezo.x, *x_ran, piezo.y, *y_ran, 0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+def ex_situ_hardxray_micro_2(t=1):
+    
+    yield from bps.mv(stage.y, -6)
+    yield from bps.mv(stage.th, 0)
+
+    samples = ['SHD_6_00_horiz_micro_s1','SHD_6_00_horiz_micro_s2','SHD_6_00_horiz_micro_s3',
+               'SHD_6_20_horiz_micro_s1','SHD_6_20_horiz_micro_s2','SHD_6_20_horiz_micro_s3',
+               'SHD_6_35_horiz_micro_s1','SHD_6_35_horiz_micro_s2','SHD_6_35_horiz_micro_s3',
+               'SHD_6_45_horiz_micro_s1','SHD_6_45_horiz_micro_s2','SHD_6_45_horiz_micro_s3',
+               'SHD_6_45_horiz_micro_s4','SHD_6_45_horiz_micro_s5','SHD_6_45_horiz_micro_s6']
+              
+    x_list  = [40020, 41100, 41880,
+               27880, 28900, 30440,
+               16000, 17000, 17500,
+               42500, 4750, 5250,
+               5750, 6250, 6750]
+    y_list =  [-2610, -2570, -2610,
+               -3270, -3270, -3270,
+               -3500, -3500, -3100,
+               -3400, -3400, -3400, 
+               -3400, -3400, -3400]
+    z_list =  [3600, 3600, 3600,
+               3600, 3600, 3600,
+               3600, 3600, 3600,
+               3600, 3600, 3600, 
+               3600, 3600, 3600]
+
+    x_range = [
+    [0,0,1], [0,0,1], [0,0,1],
+    [0,0,1], [0,0,1], [0,0,1], 
+    [0,0,1], [0,0,1], [0,0,1], 
+    [0,0,1], [0,0,1], [0,0,1], 
+    [0,0,1], [0,0,1], [0,0,1]]
+               
+    y_range = [
+    [0,200,51], [0,200,51], [0,200,51], 
+    [0,200,51], [0,200,51], [0,200,51], 
+    [0,200,51], [0,200,51], [0,200,51], 
+    [0,200,51], [0,200,51], [0,200,51], 
+    [0,200,51],[0,200,51], [0,200,51]]
+
+    # Detectors, motors:
+    dets = [pil1M, pil900KW, pil300KW]
+    waxs_range = [22, 20, 0]
+    
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(x_range), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(y_range), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+
+    det_exposure_time(t,t)
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z, x_ran, y_ran in zip(samples, x_list, y_list, z_list, x_range, y_range):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            if wa != 22:
+                yield from bps.mv(pil1m_pos.y, -60.0)
+                name_fmt = '{sam}_wa{waxs}_sdd5m_16.1keV_up'
+            elif wa == 22:
+                yield from bps.mv(pil1m_pos.y, -55.7)
+                name_fmt = '{sam}_wa{waxs}_sdd5m_16.1keV_do'
+
+            sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
+            sample_id(user_name='SR', sample_name=sample_name) 
+            yield from bp.rel_grid_scan(dets, piezo.x, *x_ran, piezo.y, *y_ran, 0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+def ex_situ_hardxray_micro_4(t=1):
+    
+    yield from bps.mv(stage.th, 0)
+
+    samples = ['SHD_4_00_vert_micro_s1', 'SHD_4_00_vert_micro_s2', 'SHD_4_00_vert_micro_s3', 
+               'SHD_4_05_vert_micro_s1', 'SHD_4_05_vert_micro_s2', 'SHD_4_05_vert_micro_s3', 
+               'SHD_4_20_vert_micro_s1', 'SHD_4_20_vert_micro_s2', 'SHD_4_20_vert_micro_s3', 
+               'SHD_4_35_vert_micro_s1', 'SHD_4_35_vert_micro_s2', 'SHD_4_35_vert_micro_s3', 
+               'SHD_4_45_vert_micro_s1', 'SHD_4_45_vert_micro_s2', 'SHD_4_45_vert_micro_s3',
+               'SHD_5_00_vert_micro_s1', 'SHD_5_00_vert_micro_s2', 'SHD_5_00_vert_micro_s3', 
+               'SHD_5_05_vert_micro_s1', 'SHD_5_05_vert_micro_s2', 'SHD_5_05_vert_micro_s3', 
+               'SHD_5_20_vert_micro_s1', 'SHD_5_20_vert_micro_s2', 'SHD_5_20_vert_micro_s3', 
+               'SHD_5_35_vert_micro_s1', 'SHD_5_35_vert_micro_s2', 'SHD_5_35_vert_micro_s3', 
+               'SHD_5_45_vert_micro_s1', 'SHD_5_45_vert_micro_s2', 'SHD_5_45_vert_micro_s3',
+               'SHD_6_00_vert_micro_s1', 'SHD_6_00_vert_micro_s2', 'SHD_6_00_vert_micro_s3', 
+               'SHD_6_05_vert_micro_s1', 'SHD_6_05_vert_micro_s2', 'SHD_6_05_vert_micro_s3', 
+               'SHD_6_20_vert_micro_s1', 'SHD_6_20_vert_micro_s2', 'SHD_6_20_vert_micro_s3', 
+               'SHD_6_35_vert_micro_s1', 'SHD_6_35_vert_micro_s2', 'SHD_6_35_vert_micro_s3', 
+               'SHD_6_45_vert_micro_s1', 'SHD_6_45_vert_micro_s2', 'SHD_6_45_vert_micro_s3',
+               'On5_vert_micro_4_s1',       'On5_vert_micro_4_s2h',    'On5_vert_micro_4_s3']
+              
+    x_list  = [44100, 44540, 43550,
+               31950, 32150, 32750,
+               20250, 20650, 20800,
+               8700, 9100, 9500,
+               -3100, -2900, -2700,
+               -14650, -14550, -15360,
+               -26250, -25960, -25890,
+               -38100, -37600, -37100,
+                40800, 41200, 41500,
+                29100, 29400, 29600,
+                17300, 17240, 16900,
+                5960, 6120, 6260,
+                -6300, -6300, -5800,
+                -17800, -17400, -17200,
+                -29700, -29500, -29500,
+                -43500, -41000, -43020]
+    y_list =  [-3610, -2460, -1920,
+               -2620, -2620, -2620,
+               -2620, -2620, -2620,
+               -2600, -2600, -2600,
+               -2600, -2600, -2600,
+               -3100, -2490, -2530,
+               -2900, -2900, -2800,
+               -3300, -3300, -3300,
+                7600, 7600, 7600, 
+                7600, 7600, 7600,
+                7710, 8090, 8070,
+                8100, 8040, 7400,
+                7400, 8300, 8300,
+                7600, 7600, 7600,
+                7600, 7600, 7900,
+                7900, 7900, 8100]
+    z_list =  [3600,  3600, 3600,
+               3600, 3600, 3600,
+               3600,  3600, 3600,
+               3600, 3600, 3600,
+               3600,  3600, 3600,
+               3600, 3600, 3600,
+               3600,  3600, 3600,
+               3600, 3600, 3600,
+               3600,  3600, 3600,
+               3600, 3600, 3600,
+               3600,  3600, 3600,
+               3600,  3600, 3600,
+               3600, 3600, 3600,
+               3600,  3600, 3600,
+               3600, 3600, 3600,
+               3600,  3600, 3600]
+    hexa_y =  [ -6, -6, -6,
+                -6, -6, -6,
+                -6, -6, -6,
+                -6, -6, -6,
+                -6, -6, -6,
+                -6, -6, -6,
+                -6, -6, -6,
+                -6, -6, -6,
+                6, 6, 6,
+                6, 6, 6,
+                6, 6, 6,
+                6, 6, 6,
+                6, 6, 6,
+                6, 6, 6,
+                6, 6, 6,
+                6, 6, 6]
+    x_range = [[0,0,1], [0,0,1],[0,0,1], 
+               [0,0,1], [0,0,1],[0,0,1],
+               [0,0,1],[0,0,1], [0,0,1],
+               [0,0,1], [0,0,1],[0,0,1], 
+               [0,0,1], [0,0,1],[0,0,1],
+               [0,0,1],[0,0,1], [0,0,1],
+               [0,0,1], [0,0,1],[0,0,1], 
+               [0,0,1], [0,0,1],[0,0,1], 
+               [0,0,1], [0,0,1],[0,0,1],
+               [0,0,1],[0,0,1], [0,0,1],
+               [0,0,1], [0,0,1],[0,0,1], 
+               [0,0,1], [0,0,1],[0,0,1],
+               [0,0,1],[0,0,1], [0,0,1],
+               [0,0,1], [0,0,1],[0,0,1], 
+               [0,0,1], [0,0,1],[0,0,1],
+               [0,0,1],[0,0,1], [0,0,1]]
+               
+    y_range = [[0,200,51], [0,200,51], [0,200,51], 
+               [0,200,51], [0,200,51], [0,200,51], 
+               [0,200,51], [0,200,51], [0,200,51],
+               [0,200,51], [0,200,51], [0,200,51], 
+               [0,200,51], [0,200,51], [0,200,51], 
+               [0,200,51], [0,200,51], [0,200,51],
+               [0,200,51], [0,200,51], [0,200,51], 
+               [0,200,51], [0,200,51], [0,200,51],
+               [0,200,51], [0,200,51], [0,200,51], 
+               [0,200,51], [0,200,51], [0,200,51],
+               [0,200,51], [0,200,51], [0,200,51], 
+               [0,200,51], [0,200,51], [0,200,51], 
+               [0,200,51], [0,200,51], [0,200,51],
+               [0,200,51], [0,200,51], [0,200,51], 
+               [0,200,51], [0,200,51], [0,200,51], 
+               [0,200,51], [0,200,51], [0,200,51]]
+
+    # Detectors, motors:
+    dets = [pil1M, pil900KW, pil300KW]
+    waxs_range = [22, 20, 0]
+    
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(x_range), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(y_range), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+
+    det_exposure_time(t,t)
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z, hy, x_ran, y_ran in zip(samples, x_list, y_list, z_list, hexa_y, x_range, y_range):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+            yield from bps.mv(stage.y, hy)
+
+            if wa != 22:
+                yield from bps.mv(pil1m_pos.y, -60.0)
+                name_fmt = '{sam}_wa{waxs}_sdd5m_16.1keV_up'
+            elif wa == 22:
+                yield from bps.mv(pil1m_pos.y, -55.7)
+                name_fmt = '{sam}_wa{waxs}_sdd5m_16.1keV_do'
+
+            sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
+            sample_id(user_name='SR', sample_name=sample_name) 
+            yield from bp.rel_grid_scan(dets, piezo.x, *x_ran, piezo.y, *y_ran, 0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
 
 
 
@@ -388,10 +682,187 @@ def ex_situ_hardxray_sintu(t=1):
     det_exposure_time(0.3,0.3)
 
 
+def ex_situ_hardxray_JDM(t=1):
+    
+    yield from bps.mv(stage.th, 1)
+
+    samples = [
+               'PEG-On_20_600_3', 'PEG-On_40_600_3', 'PEG-On_20_8k_3', 'PEG-On_40_8k_3', 'PEG-On_20_35k_3', 'PEG-On_40_35k_3', 'On5_vert_bb_6',
+               'PEG-On_20_600_2', 'PEG-On_40_600_2', 'PEG-On_40_8k_2', 'PEG-On_20_35k_2', 'PEG-On_40_35k_2', 'DB'
+               ]
+              
+    x_list  = [
+                42900, 28400, 14300, -400, -14300, -28800,-42800,
+                42600, 28200, 0, -14500, -28700, -42700
+              ]
+
+    y_list =  [
+               -2000, -2000, -2000, -2000, -2000, -2000, -2000,
+               6000, 6000, 6000, 6000, 6000, 6000
+              ]
+    z_list =  [
+               3600,  3600, 3600,  3600,  3600, 3600, 3600,
+               3600,  3600, 3600,  3600,  3600, 3600
+               ]
+    hexa_y =  [ -6, -6, -6, -6, -6, -6, -6,
+                8, 8, 8, 8, 8, 8
+              ]
+    x_range = [
+               [0,1000,3], [0,1000,3], [0,1000,3], [0,600,3], [0,1000,3], [0,600,3], [0,1000,3],
+               [0,1000,3], [0,1000,3], [0,1000,3], [0,1000,3], [0,600,3], [0,1000,3]
+            ]
+               
+    y_range = [
+                [0,1000,3],[0,1000,3], [0,1000,3], [0,1000,3], [0,1000,3], [0,1000,3], [0,1000,3],
+                [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1], [0,0,1]
+              ]
+
+    # Detectors, motors:
+    dets = [pil1M, pil900KW, pil300KW]
+    waxs_range = [22, 20, 0]
+    
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(x_range), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(y_range), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+
+    det_exposure_time(t,t)
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z, hy, x_ran, y_ran in zip(samples, x_list, y_list, z_list, hexa_y, x_range, y_range):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+            yield from bps.mv(stage.y, hy)
+
+            if wa != 22:
+                yield from bps.mv(pil1m_pos.y, -60.0)
+                name_fmt = '{sam}_wa{waxs}_sdd5m_16.1keV_up'
+            elif wa == 22:
+                yield from bps.mv(pil1m_pos.y, -55.7)
+                name_fmt = '{sam}_wa{waxs}_sdd5m_16.1keV_do'
+
+            sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
+            sample_id(user_name='SR', sample_name=sample_name) 
+            yield from bp.rel_grid_scan(dets, piezo.x, *x_ran, piezo.y, *y_ran, 0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
 
 
 
+def ex_situ_hardxray_JDM_3(t=1):
+    
+    yield from bps.mv(stage.th, 1)
 
+    samples = [
+               'Atstem_WTchl_05_1', 'Atstem_WTchl_05_2', 'Atstem_WTchl_05_3',
+               'Atstem_WTchl_08_1', 'Atstem_WTchl_08_2', 'Atstem_WTchl_08_3',
+               'Atstem_WTchl_12_1', 'Atstem_WTchl_12_2', 'Atstem_WTchl_12_3',
+               'Atstem_WTchl_16_1', 'Atstem_WTchl_16_2', 'Atstem_WTchl_16_3',
+               'Atstem_WTchl_22_1', 'Atstem_WTchl_22_2', 'Atstem_WTchl_22_3',
+               'Atstem_WTchl_34_1', 'Atstem_WTchl_34_2', 'Atstem_WTchl_34_3',
+               'LERM_sample_control', 'LERM_sample_3', 'LERM_sample_7', 'LERM_sample_9', 'LERM_sample_11', 
+               'LERM_NF', 'LERM_A1', 'LERM_A11', 'LERM_N1','LERM_N11', 'LERM_S1', 'LERM_S11'
+               ]
+              
+    x_list  = [
+               43700, 41600, 39800, 
+               36500, 34800, 32700,
+               30000, 28200, 26400,
+               23700, 22000, 20200,
+               17200, 15400, 13300,
+               9600,   7400,  5000,
+               -14000, -23000, -33000, -41000, -47000,
+               40000, 26000, 13000, -1000, -15000, -28000, -42000
+               ]
+    y_list =  [
+               -3300, -3300, -3300,
+               -3300, -3300, -3300,
+               -3300, -3300, -3300,
+               -3300, -3300, -3300,
+               -3300, -3300, -3300,
+               -3300, -3300, -3300,
+               -2300, -2300, -2300,-2300, -2300,
+               5500, 5500, 5500, 5500, 5500, 5500, 5500
+               ]
+    z_list =  [
+               3600, 3600, 3600, 
+               3600, 3600, 3600,
+               3600, 3600, 3600, 
+               3600, 3600, 3600, 
+               3600, 3600, 3600,
+               3600, 3600, 3600,
+               3600, 3600, 3600, 3600, 3600,
+               3600, 3600, 3600,3600, 3600, 3600, 3600
+               ]
+    hexa_y =  [ 
+                -6, -6, -6,
+                -6, -6, -6,
+                -6, -6, -6,
+                -6, -6, -6,
+                -6, -6, -6,
+                -6, -6, -6,
+                -6, -6, -6, -6, -6, 
+                8, 8, 8, 8, 8, 8, 8]
+
+    x_range = [
+               [0,0,1],[0,0,1],[0,0,1],
+               [0,0,1],[0,0,1],[0,0,1],
+               [0,0,1],[0,0,1],[0,0,1],
+               [0,0,1],[0,0,1],[0,0,1], 
+               [0,0,1],[0,0,1],[0,0,1],
+               [0,0,1],[0,0,1],[0,0,1],
+               [0,2000,3],[0,2000,3],[0,2000,3],[0,2000,3],[0,2000,3],
+               [0,2000,3],[0,2000,3],[0,2000,3],[0,2000,3],[0,2000,3],[0,2000,3],[0,2000,3],
+              ]
+               
+    y_range = [
+              [0,1000,4],[0,1500,4],[0,1500,4],
+              [0,1500,4],[0,1500,4],[0,1500,4],
+              [0,1500,4],[0,1500,4],[0,1500,4],
+              [0,1500,4],[0,1500,4],[0,1500,4],
+              [0,1500,4],[0,1500,4],[0,1500,4],
+              [0,1500,4],[0,1500,4],[0,1500,4],
+               [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1],
+               [0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1],
+              ]
+
+    # Detectors, motors:
+    dets = [pil1M, pil900KW, pil300KW]
+    waxs_range = [22, 20, 0]
+    
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(x_range), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(y_range), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+
+    det_exposure_time(t,t)
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z, hy, x_ran, y_ran in zip(samples, x_list, y_list, z_list, hexa_y, x_range, y_range):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+            yield from bps.mv(stage.y, hy)
+
+            if wa != 22:
+                yield from bps.mv(pil1m_pos.y, -60.0)
+                name_fmt = '{sam}_wa{waxs}_sdd5m_16.1keV_up'
+            elif wa == 22:
+                yield from bps.mv(pil1m_pos.y, -55.7)
+                name_fmt = '{sam}_wa{waxs}_sdd5m_16.1keV_do'
+
+            sample_name = name_fmt.format(sam=sam, waxs='%2.1f'%wa)
+            sample_id(user_name='SR', sample_name=sample_name) 
+            yield from bp.rel_grid_scan(dets, piezo.x, *x_ran, piezo.y, *y_ran, 0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
 
 
 def ex_situ_hardxray_sintu_2021_2(t=1):
@@ -538,8 +1009,77 @@ def ex_situ_caedge_humidity_2021_2(t=1):
     y_list =  [ -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2,  -1.2]
     # x_list  = [29.75, 10.7]
     # y_list =  [ -1.2, -1.2]
+
+    assert len(x_list) == len(samples), f'Number of X coordidef ex_situ_nexafscaedge_2021_2(t=1):'
+    yield from bps.mv(GV7.close_cmd, 1)
+    yield from bps.sleep(2)
+    yield from bps.mv(GV7.close_cmd, 1)
+
+    # Detectors, motors:
+    dets = [pil300KW]
+    waxs_range = [50]
+
+    energies = np.linspace(4030, 4150, 121)
+
+    # samples = ['R1_1', 'R2_1', 'R3_1', 'R4_1', 'R5_1', 'R6_1', 'R7_1']
+    # x_list  = [46400,  34500, 21400,  7950, -6750, -22200, -35800]
+    # y_list =  [ 6000,   6000,  6000,  6000, 6000,    6000,   6000]
+    # z_list =  [ 4700,   4700,   4700, 4500,  4000,   3700,   3500]
+
+    # samples = ['P1_1', 'P2_1', 'P3_1', 'P4_1', 'P5_1']
+    # x_list  = [44900, 21100,  3600, -15300, -33600]
+    # y_list =  [-6000, -6000,- 6000,  -6000,  -6000]
+    # z_list =  [ 4700,  4500,  4200,   3900,   3700]
+
+
+
+    samples = ['GoSAMT_Bu_1', 'GoSAMT_Ca_1', 'GoSAMT_PL_1', ]
+
+    x_list  = [46400, 29500, 7200]
+    y_list =  [ 6000,  6000, 6000]
+    z_list =  [ 4700,  4500, 4300]
+
+    yield from bps.mv(stage.x, 0)
+    yield from bps.mv(stage.y, 0.4)
+    yield from bps.mv(stage.th, 2.5)
+
+
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
     assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+
+    det_exposure_time(t,t)
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z in zip(samples, x_list, y_list, z_list):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.z, z)
+
+            for k, e in enumerate(energies):                              
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(0.5)
+                
+                name_fmt = 'nexafs_{sam}_{energy}eV_wa{waxs}_bpm{bpm}'
+
+                bpm1 = xbpm3.sumX.value
+                sample_name = name_fmt.format(sam=sam, energy=e, waxs='%2.1f'%wa, bpm = '%1.3f'%bpm1)
+                sample_id(user_name='SR', sample_name=sample_name)
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 4110)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 4080)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 4050)
+            yield from bps.sleep(2)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+    yield from bps.mv(GV7.open_cmd, 1)
+    yield from bps.sleep(2)
+    yield from bps.mv(GV7.open_cmd, 1)
+
 
     det_exposure_time(t,t)
 
@@ -637,7 +1177,155 @@ def ex_situ_nexafscaedge_humidity_2021_2(t=1):
     yield from bps.mv(GV7.open_cmd, 1)
 
 
+def ex_situ_caedge_2021_3(t=1):
 
+    # Detectors, motors:
+    dets = [pil1M, pil900KW]
+    waxs_range = [40]
+    ypos = [0, 0, 1]
+
+    energies = [4030, 4040, 4050, 4055, 4075, 4105]
+
+    yield from bps.mv(stage.y, 8)
+    yield from bps.mv(stage.th, 1)
+
+    samples = [
+        'WT_su_1', 'WT_su_2','WT_su_3','WT_su_4',
+        'GoSAMT_su_1', 'GoSAMT_su_2','GoSAMT_su_3','GoSAMT_su_4',
+        'cgr_su_1', 'cgr_su_2','cgr_su_3','cgr_su_4',
+        'WT_nosu_1', 'WT_nosu_2','WT_nosu_3','WT_nosu_4',
+        'GoSAMT_nosu_1', 'GoSAMT_nosu_2','GoSAMT_nosu_3','GoSAMT_nosu_4',
+        'cgr_nosu_1', 'cgr_nosu_2','cgr_nosu_3','cgr_nosu_4', 
+        'DB'
+        ]
+
+    x_list  = [
+        45100, 42000, 39400, 36900,
+        32000, 28900, 26300, 23400,
+        18100, 15500, 12800, 9800, 
+        4600, 1400, -1700, -4700,
+        -12200, -14700, -17500, -20200,
+        -24700, -27800, -30700, -33900,
+        43500
+        ]
+   
+    y_list =  [ 
+        6100, 6100, 6100, 6100,
+        6100, 6100, 6100, 6100,
+        6100, 6100, 6100, 6100,
+        6100, 6100, 6100, 6100,
+        6100, 6100, 6100, 6100,
+        6100, 6100, 6100, 6100,
+        6100
+        ]
+
+    z_list =  [ 
+        7200,7200, 7200, 7200,
+        7200,7200, 7200, 7200,
+        7200,7200, 7200, 7200,
+        7200,7200, 7200, 7200,
+        7200,7200, 7200, 7200,
+        7200,7200, 7200, 7200,
+        7200
+        ]
+
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+    assert len(x_list) == len(z_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(z_list)})'
+
+    det_exposure_time(t,t)
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z in zip(samples, x_list, y_list, z_list):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            if wa != 40:
+                yield from bps.mv(pil1m_pos.y, -60.0)
+                name_fmt = '{sam}_{energy}eV_wa{waxs}_sdd5m_up_3s_bpm{bpm}'
+            
+            elif wa == 40:
+                yield from bps.mv(pil1m_pos.y, -55.7)
+                name_fmt = '{sam}_{energy}eV_wa{waxs}_sdd5m_do_3s_bpm{bpm}'
+
+            for k, e in enumerate(energies):                              
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                bpm1 = xbpm2.sumX.value
+                sample_name = name_fmt.format(sam=sam, energy=e, waxs='%2.1f'%wa, bpm = '%1.3f'%bpm1)
+                sample_id(user_name='SR', sample_name=sample_name)
+                yield from bp.rel_list_scan(dets, piezo.y, ypos)
+                # yield from bp.count(dets)
+
+            yield from bps.mv(energy, 4080)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 4050)
+            yield from bps.sleep(2)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+
+def ex_situ_nexafscaedge_2021_3(t=1):
+    yield from bps.mv(GV7.close_cmd, 1)
+    yield from bps.sleep(2)
+    yield from bps.mv(GV7.close_cmd, 1)
+
+    # Detectors, motors:
+    dets = [pil300KW, pil900KW]
+    waxs_range = [50]
+
+    energies = np.linspace(4030, 4150, 121)
+
+    samples = ['DB']
+
+    x_list  = [43500]
+    y_list =  [6000]
+    z_list =  [7200]
+
+    yield from bps.mv(stage.y, 8)
+    yield from bps.mv(stage.th, 1)
+
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coord ({len(y_list)})'
+
+    det_exposure_time(t,t)
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z in zip(samples, x_list, y_list, z_list):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.z, z)
+
+            for k, e in enumerate(energies):                              
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                
+                name_fmt = 'nexafs_{sam}_{energy}eV_wa{waxs}_bpm{bpm}'
+
+                bpm1 = xbpm3.sumX.value
+                sample_name = name_fmt.format(sam=sam, energy=e, waxs='%2.1f'%wa, bpm = '%1.3f'%bpm1)
+                sample_id(user_name='SR', sample_name=sample_name)
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 4110)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 4080)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 4050)
+            yield from bps.sleep(2)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+    yield from bps.mv(GV7.open_cmd, 1)
+    yield from bps.sleep(2)
+    yield from bps.mv(GV7.open_cmd, 1)
 
 
 def ex_situ_caedge_2021_2(t=1):
@@ -1195,3 +1883,53 @@ def ex_situ_laedge_2021_2(t=1):
             yield from bps.sleep(2)
             yield from bps.mv(energy, 5470)
             yield from bps.sleep(2)
+
+
+
+def giwaxs_Ryan(t=1): 
+
+
+    names = ['RF1-114_s2',    'RF1-115_s2', 'RF1-116_s2',    'RF1-117_s2']
+    x_piezo = [35700, 15200, -2500,  -19500]
+    y_piezo = [7000,  7000, 7000, 7000]
+    z_piezo = [2300,  2300, 2300, 2300]
+    x_hexa =  [0, 0, 0, 0]
+
+    assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
+    assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
+    assert len(x_piezo) == len(z_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})'
+    assert len(x_piezo) == len(x_hexa), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})'
+
+    waxs_arc = [0, 20, 40]
+    angle = [0.11, 0.14]
+
+    dets = [pil900KW, pil300KW]
+    det_exposure_time(t,t)
+
+    for name, xs, zs, ys, xs_hexa in zip(names, x_piezo, z_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, 0)
+        
+        yield from bps.mv(GV7.open_cmd, 1)
+        yield from alignement_gisaxs(angle = 0.11)
+        yield from bps.mv(GV7.close_cmd, 1)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t,t)
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)  
+
+            for i, an in enumerate(angle):
+                yield from bps.mv(piezo.x, xs + 200)
+                yield from bps.mv(piezo.th, ai0 + an)                
+                name_fmt = '{sample}_14keV_ai{angl}deg_wa{waxs}'
+                sample_name = name_fmt.format(sample=name, angl='%3.2f'%an, waxs='%2.1f'%wa)
+                sample_id(user_name='PT', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+            
+            yield from bps.mv(piezo.th, ai0)
