@@ -249,7 +249,7 @@ class SMI_Beamline(Beamline):
             # Calculate the y position of the reflected beam        
             y_offset_mm = np.tan(np.radians(2*total_angle))*d
             y_offset_pix = y_offset_mm/pixel_size
-            y_pos = int(y0 - size[0]/2 - y_offset_pix)
+            y_pos = int(y0 - size[1]/2 - y_offset_pix)
 
             # Define the reflected beam ROI on the pilatus 1M detector  
             yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x0-size[0]/2))
@@ -261,7 +261,7 @@ class SMI_Beamline(Beamline):
             # Calculate the x position of the reflected beam        
             x_offset_mm = np.tan(np.radians(2*total_angle))*d
             x_offset_pix = x_offset_mm/pixel_size
-            x_pos = int( x0 - size[0]/2 - x_offset_pix )
+            x_pos = int( x0 - size[1]/2 - x_offset_pix )
 
             # Define the reflected beam ROI on the pilatus 1M detector  
             yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x_pos))
