@@ -230,7 +230,6 @@ def saxs_well_Thed_2021(t=1):
     #      4500,  4400,   4400,   4400,   4400,   4400, 
     #      9500,  9500,   9500,   9500,   9500,   9500]
 
-
     samples = [
     'bkg33',      'PT10E_033A', 'PT10E_033B', 'PT10E_033C', 'PT10E_033D', 'PT10E_033E',
     'PT10E_031F', 'PT10E_033G', 'PT10E_033H', 'PT10E_033I', 'PT10E_033J', 'PT10E_033K',
@@ -245,6 +244,7 @@ def saxs_well_Thed_2021(t=1):
        -6800,  -6800,  -6800,  -6800,  -6800,  -6800, 
        -1500,  -1500,  -1500,  -2000,  -1000,  -1000,
         4000,   4000,   4000,   4000,   4000,   4000]
+
 
 
     waxs_arc = np.linspace(13, 13, 1)
@@ -276,6 +276,164 @@ def saxs_well_Thed_2021(t=1):
 
             yield from bp.count(dets, num=1)
                 
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
+
+
+def saxs_well_Thed_2021_3(t=1): 
+    # samples = [
+    # 'bkg43',      'PT10E_043A', 'PT10E_043B', 'PT10E_043C', 'PT10E_043D', 'PT10E_043E',
+    # 'PT10E_043F', 'PT10E_043G', 'PT10E_043H', 'PT10E_043I', 'PT10E_043J', 'PT10E_043K',
+    # 'PT10E_043L', 'PT10E_043M', 'PT10E_043N', 'PT10E_043O', 'PT10E_043P', 'PT10E_043Q',
+    # 'PT10E_043R', 'PT10E_043S', 'PT10E_043T', 'PT10E_043U', 'PT10E_043V', 'PT10E_043W',
+
+    # 'bkg46',      'PT10E_044A', 'PT10E_044B', 'PT10E_044C', 'PT10E_044D', 'PT10E_044E',
+    # 'PT10E_044F', 'PT10E_044G', 'PT10E_044H', 'PT10E_044I', 'PT10E_044J', 'PT10E_044K',
+    # 'PT10E_044L', 'PT10E_044M', 'PT10E_044N', 'PT10E_044O', 'PT10E_044P', 'PT10E_044Q',
+    # 'PT10E_044R', 'PT10E_044S', 'PT10E_044T', 'PT10E_044U', 'PT10E_044V', 'PT10E_044W']
+
+    # samples = [
+    # 'bkg45',      'PT10E_045A', 'PT10E_045B', 'PT10E_045C', 'PT10E_045D', 'PT10E_045E',
+    # 'PT10E_045F', 'PT10E_045G', 'PT10E_045H', 'PT10E_045I', 'PT10E_045J', 'PT10E_045K',
+    # 'PT10E_045L', 'PT10E_045M', 'PT10E_045N', 'PT10E_045O', 'PT10E_045P', 'PT10E_045Q',
+    # 'PT10E_045R', 'PT10E_045S', 'PT10E_045T', 'PT10E_045U', 'PT10E_045V', 'PT10E_045W',
+    
+    # 'bkg46',      'PT10E_046A', 'PT10E_046B', 'PT10E_046C', 'PT10E_046D', 'PT10E_046E',
+    # 'PT10E_046F', 'PT10E_046G', 'PT10E_046H', 'PT10E_046I', 'PT10E_046J', 'PT10E_046K',
+    # 'PT10E_046L', 'PT10E_046M', 'PT10E_046N', 'PT10E_046O', 'PT10E_046P', 'PT10E_046Q',
+    # 'PT10E_046R', 'PT10E_046S', 'PT10E_046T']
+    
+    # samples = [
+    # 'bkg42',      'PT10E_042A', 'PT10E_042B', 'PT10E_042C', 'PT10E_042D', 'PT10E_042E',
+    # 'PT10E_042F', 'PT10E_042G', 'PT10E_042H', 'PT10E_042I', 'PT10E_042J', 'PT10E_042K',
+    # 'PT10E_042L', 'PT10E_042M', 'PT10E_042N', 'PT10E_042O', 'PT10E_042P', 'PT10E_042Q',
+    # 'PT10E_042R', 'PT10E_042S', 'PT10E_042T', 'PT10E_042U', 'PT10E_042V', 'PT10E_042W',
+    
+    # 'bkg47',      'PT10E_047A', 'PT10E_047B', 'PT10E_047C', 'PT10E_047D', 'PT10E_047E',
+    # 'PT10E_047F', 'PT10E_047G', 'PT10E_047H', 'PT10E_047I', 'PT10E_047J', 'PT10E_047K',
+    # 'PT10E_047L', 'PT10E_047M', 'PT10E_047N', 'PT10E_047O', 'PT10E_047P', 'PT10E_047Q',
+    # 'PT10E_047R', 'PT10E_047S', 'PT10E_047T', 'PT10E_047U', 'PT10E_047V', 'PT10E_047W']
+    
+    # samples = [
+    # 'bkg48',      'PT10E_048A', 'PT10E_048B', 'PT10E_048C', 'PT10E_048D', 'PT10E_048E',
+    # 'PT10E_048F', 'PT10E_048G', 'PT10E_048H', 'PT10E_048I', 'PT10E_048J', 'PT10E_048K',
+    # 'PT10E_048L', 'PT10E_048M', 'PT10E_048N', 'PT10E_048O', 'PT10E_048P', 'PT10E_048Q',
+    # 'PT10E_048R', 'PT10E_048S', 'PT10E_048T', 'PT10E_048U', 'PT10E_048V', 'PT10E_048W',
+    
+    # 'bkg49',      'PT10E_049A', 'PT10E_049B', 'PT10E_049C', 'PT10E_049D', 'PT10E_049E',
+    # 'PT10E_049F', 'PT10E_049G', 'PT10E_049H', 'PT10E_049I', 'PT10E_049J', 'PT10E_049K',
+    # 'PT10E_049L', 'PT10E_049M']
+
+    samples = [
+    'bkg50',      'PT10E_050A', 'PT10E_050B', 'PT10E_050C', 'PT10E_050D', 'PT10E_050E',
+    'PT10E_050F', 'PT10E_050G', 'PT10E_050H', 'PT10E_050I', 'PT10E_050J', 'PT10E_050K',
+    'PT10E_050L', 'PT10E_050M', 'PT10E_050N',
+    'PT10E_050R', 'PT10E_050S', 'PT10E_050T']
+
+    x_list = [
+
+        19900,  10900,   1900,  -7100, -16100, -25000,
+        19900,  10900,   1900,  -7100, -16100, -25100,
+        19600,  10600,   1900,
+        19600,  10600,   1600]
+
+    y_list = [
+ 
+        -6900,  -6900,  -6900,  -7200,  -7500,  -7400, 
+        -2000,  -2000,  -2000,  -2100,  -2000,  -2000,
+         3100,   3100,  3100,
+         8500,   8500,  8500]
+    
+
+
+    waxs_arc = [0, 20]
+
+    # Detectors, motors:
+    dets = [pil1M, pil900KW]
+    det_exposure_time(t,t)
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(y_list)})'
+
+    for j, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+    
+        for x, y, sample in zip(x_list, y_list, samples):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+
+            sample_id(user_name='PT', sample_name=sample) 
+            
+            det_exposure_time(t, t) 
+            name_fmt = '{sample}_sdd5m_14.0keV_wa{waxs}'
+
+            sample_name = name_fmt.format(sample=sample, waxs='%2.1f'%wa)
+            sample_id(user_name='PT', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+
+            yield from bp.count(dets, num=1)
+                
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
+
+
+def saxs_well_rot_Thed_2021_3(t=1): 
+    
+    # samples = [
+    # 'PT10E_049F', 'PT10E_049G', 'PT10E_049H', 'PT10E_049I', 'PT10E_049J', 'PT10E_049K',
+    # 'PT10E_049L', 'PT10E_049M']
+
+    # x_list = [
+    #      2600,  -6400, -15200, -24000, -32800, -41800,
+    #      2500,  -6400]
+
+    # y_list = [
+    #     -2000,  -1800,  -1800,  -2100,  -1700,  -2100,
+    #      3100,   3200]
+    
+
+    samples = ['PT10E_050R', 'PT10E_050S', 'PT10E_050T']
+
+    x_list = [1600,  10600, 19600]
+    y_list = [[8500,   8500,  8500]]
+
+
+    waxs_arc = [20]
+
+    # Detectors, motors:
+    dets = [pil1M] #[pil1M, pil900KW]
+
+    det_exposure_time(t,t)
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(y_list)})'
+
+    for j, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+    
+        for x, y, sample in zip(x_list, y_list, samples):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            
+            # for prs_an in np.linspace(-2.5, 2.5, 51):
+            for prs_an in np.linspace(-45, 45, 19):
+                yield from bps.mv(prs, prs_an)
+
+                sample_id(user_name='PT', sample_name=sample) 
+                
+                det_exposure_time(t, t) 
+                name_fmt = '{sample}_sdd5m_14.0keV_prs{prs}_wa{waxs}'
+
+                sample_name = name_fmt.format(sample=sample, prs='%2.1f'%prs_an, waxs='%2.1f'%wa)
+                sample_id(user_name='PT', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+                    
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.1,0.1)
@@ -467,6 +625,47 @@ def gisaxs_Thed_2021_1(t=1):
 
 
 
+def capillaries_saxs_Thed_2021_3(t=1): 
+    # samples = ['LT1',  'LT2',  'LT3',  'LT4',  'LT5',  'LT6',  'LT7',  'LT8',  'LT9', 'LT10', 'LT11', 'LT12', 'LT13', 'LT14', 
+    #           'LT15', 'LT16', 'LT17', 'LT18', 'LT19', 'LT20', 'LT21', 'LT22', 'LT23', 'LT24', 'LT25', 'LT26', 'LT27']
+    
+    # x_list = [ 45700,  39300,  33050,  26800,  20500,  13800,   7450,   1200,  -5200, -11800, -18000, -24200, -30850, -36900, 
+    #            42800,  36350,  29650,  23700,  16900,  10600,   4600,  -2150,  -8450, -14850, -21150, -27600, -33450]
+    # y_list = [  2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,
+    #             2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000]
+    # z_list = [  4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000, 
+    #            -5000,  -5000,  -5000,  -5000,  -5000,  -5000,  -5000,  -5000,  -5000,  -5000,  -5000,  -5000,  -5000]
+
+
+    samples = ['FY2',  'FY4',  'FY6',  'FY8',  'FY9', 'FY10', 'FY11', 'FY12', 'FY13', 'FY14', 'FY15', 'FY16', 'FY17', 'FY18',
+              'FY19', 'FY20', 'FY25', 'FY26', 'FY27', 'FY28', 'FY29', 'FY30', 'FY31', 'FY32', 'FY33', 'FY34', 'FY35', 'FY25_abovecloud']
+    x_list = [ 45800,  39300,  32950,  26500,  20300,  13900,   7250,   1250,  -5300, -11850, -18100, -24450, -30800, -37100, 
+               42650,  36200,  29900,  23650,  17300,  10900,   4200,  -1950,  -8450, -14850, -21100, -27600, -33700,  29900]
+    y_list = [  2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,
+                1900,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,   2000,    0]
+    z_list = [  4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000, 
+               -6100,  -6100,  -6100,  -6100,  -6100,  -6100,  -6100,  -6100,  -6100,  -6100,  -6100,  -6100,  -6100,  -6100]
+
+
+  # Detectors, motors:
+    dets = [pil1M]
+    det_exposure_time(t,t)
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(y_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(z_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+
+    for x, y, z, sample in zip(x_list, y_list, z_list, samples):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.z, z)
+
+        sample_id(user_name='PT_5.0m_14.0keV', sample_name=sample) 
+        yield from bp.count(dets, num=10)
+   
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
 
 
 def capillaries_saxs_Thed_2021_1(t=1): 
@@ -617,6 +816,148 @@ def gisaxs_Thed_2021_2(t=1):
     det_exposure_time(0.1,0.1)
 
 
+
+
+def gisaxs_Thed_2021_3(t=1): 
+
+#     samples = ['FY37', 'FY38', 'FY39', 'FY40']
+#     x_list = [  57000,  57000,  55000,  45000]
+#     x_hexa = [     13,      7,      0,      0]
+
+#     waxs_arc = [2, 22, 42]
+#     angle = np.linspace(0.05, 0.2, 16)
+
+#   # Detectors, motors:
+#     dets = [pil1M, pil900KW]
+#     det_exposure_time(t,t)
+
+#     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+#     assert len(x_list) == len(x_hexa), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(x_hexa)})'
+
+#     for x, sample, x_hex in zip(x_list,samples, x_hexa):
+#         yield from bps.mv(piezo.x, x)
+#         yield from bps.mv(stage.x, x_hex)
+
+#         sample_id(user_name='PT', sample_name=sample) 
+
+#         yield from alignement_gisaxs(0.08)
+#         yield from bps.mv(att1_5.open_cmd, 1)
+
+#         ai0 = piezo.th.position
+        
+#         det_exposure_time(t, t) 
+#         name_fmt = '{sample}_8.3m_16.1keV_ai{angle}deg_wa{waxs}'
+#         for j, wa in enumerate(waxs_arc):
+#             yield from bps.mv(waxs, wa)
+            
+#             for an in angle:
+#                 yield from bps.mv(piezo.th, ai0+an)
+#                 yield from bps.sleep(1)
+#                 sample_name = name_fmt.format(sample=sample, angle='%3.2f'%an, waxs='%2.1f'%wa)
+#                 sample_id(user_name='PT', sample_name=sample_name)
+#                 print(f'\n\t=== Sample: {sample_name} ===\n')
+
+#                 yield from bp.count(dets, num=1)
+                
+#         yield from bps.mv(piezo.th, ai0)
+
+#     sample_id(user_name='test', sample_name='test')
+#     det_exposure_time(0.1,0.1)
+
+
+    # samples = ['FY41', 'FY42', 'FY43', 'FY44', 'FY45']
+    # x_list = [  35000,  25000,  17000,   9000, - 1000]
+    # x_hexa = [      0,      0,      0,      0,      0]
+    samples = ['DVC1751A', 'DVC1751B', 'DVC1751C', 'DVC1752A', 'DVC1752B',  'DVC1752C']
+    x_list = [  -3000,      -16000,      -32000,     -43000,    -57000,      -58000 ]
+    x_hexa = [      0,      0,            0,             0,       0,      -12]
+
+    waxs_arc = [2, 22, 42]
+    angle = [0.05, 0.10, 0.15]
+
+  # Detectors, motors:
+    dets = [pil1M, pil900KW]
+    det_exposure_time(t,t)
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(x_hexa), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(x_hexa)})'
+
+    for x, sample, x_hex in zip(x_list,samples, x_hexa):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(stage.x, x_hex)
+
+        sample_id(user_name='PT', sample_name=sample) 
+
+        yield from alignement_gisaxs(0.08)
+        yield from bps.mv(att1_5.open_cmd, 1)
+
+        ai0 = piezo.th.position
+        
+        det_exposure_time(t, t) 
+        name_fmt = '{sample}_8.3m_16.1keV_ai{angle}deg_wa{waxs}'
+        for j, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            
+            for an in angle:
+                yield from bps.mv(piezo.th, ai0+an)
+                yield from bps.sleep(1)
+                sample_name = name_fmt.format(sample=sample, angle='%3.2f'%an, waxs='%2.1f'%wa)
+                sample_id(user_name='PT', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+                
+        yield from bps.mv(piezo.th, ai0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
+    # samples = ['FY46', 'FY47', 'FY48', 'FY49', 'FY50']
+    # x_list = [ -11000, -24000, -37000, -50000, -53000]
+    # x_hexa = [      0,      0,      0,      0,    -10]
+    samples = ['FY51', 'FY52', 'FY53', 'FY54', 'FY55',  'FY56',  'FY57',  'FY58']
+    x_list = [  58000,  58000,  49500,  45500, 42000,  38000,    29000,   17000]
+    x_hexa = [    13,     0,      0,      0,      0,     0,       0,      0]
+
+    waxs_arc = [40]
+    angle = [0.05, 0.10, 0.15]
+
+  # Detectors, motors:
+    dets = [pil1M]
+    det_exposure_time(t,t)
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(x_hexa), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(x_hexa)})'
+
+    for x, sample, x_hex in zip(x_list,samples, x_hexa):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(stage.x, x_hex)
+
+        sample_id(user_name='PT', sample_name=sample) 
+
+        yield from alignement_gisaxs(0.08)
+        #yield from bps.mv(att1_5.open_cmd, 1)
+
+        ai0 = piezo.th.position
+        
+        det_exposure_time(t, t) 
+        name_fmt = '{sample}_8.3m_16.1keV_ai{angle}deg_wa{waxs}'
+        for j, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            
+            for an in angle:
+                yield from bps.mv(piezo.th, ai0+an)
+                yield from bps.sleep(1)
+                sample_name = name_fmt.format(sample=sample, angle='%3.2f'%an, waxs='%2.1f'%wa)
+                sample_id(user_name='PT', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+                
+        yield from bps.mv(piezo.th, ai0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
 
 
 def gisaxs_2021_2(t=1): 
