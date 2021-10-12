@@ -32,8 +32,8 @@ def energy_to_gap(target_energy, undulator_harmonic=1):
     b6 = 2.64385e-18 #-7.633003e-18
     b7 = -1.70455e-22 #5.14881e-22
     gap_mm = a + b1*f + b2*f**2 + b3 * f**3 + b4 * f**4 + b5 * f**5 + b6 * f**6 + b7 * f**7
-    gap = gap_mm*1000 - 20 #-30 for 12.62; -33 for 14 keV; -21 for 16.1 keV; -50 for 9540eV; -20 for 2450eV; -45 for 4050eV
-    #-35 for 9700 keV -- 11.150 keV
+    gap = gap_mm*1000 - 21 #-30 for 12.62; -33 for 14 keV; -21 for 16.1 keV; -50 for 9540eV; -20 for 2450eV; -45 for 4050eV
+    #-50 for 9700 keV -- 11.150 keV, -55 for 6.55 keV, -35 for 7.7 keV
     return gap
 
 
@@ -125,6 +125,19 @@ class Energy(PseudoPositioner):
     def forward(self, p_pos):
         energy = p_pos.energy
         self.harmonic.put(self.target_harmonic.get())
+
+        #Needs to refine the default target_harmonic for each energy range
+        # if 13500 < energy < 24000: self.harmonic.put(15)
+        # elif 13000 < energy < 13500: self.harmonic.put(13)
+        # elif 10000 < energy < 13000: self.harmonic.put(11) #Selenium edge
+        # elif 9000 < energy < 10000: self.harmonic.put(7) #OPLS energy
+        # elif 6000 < energy < 9000: self.harmonic.put(5)
+        # elif 5000 < energy < 6000: self.harmonic.put(3) #This needs to be verified but from my notes La edge was reach with harm 3 
+        # elif 3000 < energy < 5000: self.harmonic.put(3)
+        # elif 2050 < energy < 3000: self.harmonic.put(1)
+        # else: raise ValueError("The energy you entered is not in an accessible energy range ({} eV). "
+        #                         "2050 - 24000 eV".format(energy))
+
         if not self.harmonic.get() % 2:
             raise RuntimeError('harmonic must be odd')
 
