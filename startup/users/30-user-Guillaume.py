@@ -1,3 +1,23 @@
+def agbh(t=1):
+    waxs_arc = [0, 2, 10, 20, 30, 40, 50]
+    dets = [pil900KW, pil1M]
+    det_exposure_time(t, t) 
+
+    for wa in waxs_arc:
+        if wa != 20:
+            dets = [pil900KW]
+        else:
+            dets = [pil900KW, pil1M]
+
+        yield from bps.mv(waxs, wa)
+
+        name_fmt = 'AgBh_16.1keV_exptime_1s_wa{wa}'
+        sample_name = name_fmt.format(wa='%2.1f'%wa)
+        sample_id(user_name='ED', sample_name=sample_name) 
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.count(dets, num=1)
+
+
 def gradient_sample(exp_time):
     dets = [pil300KW, pil1M]
     sam = ['ZnTi_gradient']

@@ -383,29 +383,29 @@ def saxs_well_Thed_2021_3(t=1):
 
 def saxs_well_rot_Thed_2021_3(t=1): 
     
-    # samples = [
-    # 'PT10E_049F', 'PT10E_049G', 'PT10E_049H', 'PT10E_049I', 'PT10E_049J', 'PT10E_049K',
-    # 'PT10E_049L', 'PT10E_049M']
+    samples = [
+    'PT10E_049F', 'PT10E_049G', 'PT10E_049H', 'PT10E_049I', 'PT10E_049J', 'PT10E_049K',
+    'PT10E_049L', 'PT10E_049M']
 
-    # x_list = [
-    #      2600,  -6400, -15200, -24000, -32800, -41800,
-    #      2500,  -6400]
+    x_list = [
+         2600,  -6400, -15200, -24000, -32800, -41800,
+         2500,  -6400]
 
-    # y_list = [
-    #     -2000,  -1800,  -1800,  -2100,  -1700,  -2100,
-    #      3100,   3200]
+    y_list = [
+        -2000,  -1800,  -1800,  -2100,  -1700,  -2100,
+         3100,   3200]
     
 
-    samples = ['PT10E_050R', 'PT10E_050S', 'PT10E_050T']
+    # samples = ['PT10E_050R', 'PT10E_050S', 'PT10E_050T']
 
-    x_list = [1600,  10600, 19600]
-    y_list = [[8500,   8500,  8500]]
+    # x_list = [1600,  10600, 19600]
+    # y_list = [[8500,   8500,  8500]]
 
 
-    waxs_arc = [20]
+    waxs_arc = [20, 0]
 
     # Detectors, motors:
-    dets = [pil1M] #[pil1M, pil900KW]
+    dets = [pil1M, pil900KW]
 
     det_exposure_time(t,t)
 
@@ -419,8 +419,8 @@ def saxs_well_rot_Thed_2021_3(t=1):
             yield from bps.mv(piezo.x, x)
             yield from bps.mv(piezo.y, y)
             
-            # for prs_an in np.linspace(-2.5, 2.5, 51):
-            for prs_an in np.linspace(-45, 45, 19):
+            for prs_an in np.linspace(-2.5, 2.5, 51):
+            # for prs_an in np.linspace(-45, 45, 19):
                 yield from bps.mv(prs, prs_an)
 
                 sample_id(user_name='PT', sample_name=sample) 

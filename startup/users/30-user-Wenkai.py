@@ -329,7 +329,7 @@ def wenkai_saxs_waxs_tensile_hard(t=1):
 
 
 def wenkai_waxs_tensile_2021_3(t=0.5):
-    names = 'LSC_105C_loop1'
+    names = 'LSC_RT_loop1'
 
     dets = [pil900KW, pil300KW]
     wa = [0]
@@ -339,6 +339,28 @@ def wenkai_waxs_tensile_2021_3(t=0.5):
         det_exposure_time(t,t) 
         
         name_fmt = '{sample}_14keV_{time}s_{i}_wa{wa}'
+        t1 = time.time()
+        for wax in wa:
+            yield from bps.mv(waxs, wax)
+            sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
+            sample_id(user_name='GF', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+            yield from bps.mvr(stage.y, 0.01)
+            # yield from bps.sleep(2)
+
+
+def wenkai_saxs_tensile_2021_3(t=0.5):
+    names = 'LSC_RT_loop6_samesample'
+
+    dets = [pil1M]
+    wa = [20]
+    yield from bps.mv(stage.y, -0.3)
+    t0 = time.time()
+    for i in range(2000):
+        det_exposure_time(t,t) 
+        
+        name_fmt = '{sample}_2484.24keV_{time}s_{i}_wa{wa}'
         t1 = time.time()
         for wax in wa:
             yield from bps.mv(waxs, wax)
