@@ -38,7 +38,7 @@ class SAXSPindiode(Device):
     x = Cpt(EpicsMotor, 'OBB}Mtr')
     y = Cpt(EpicsMotor, 'OBM}Mtr') 
 
-    def mv_in(self, x_pos=-197.5):
+    def mv_in(self, x_pos=-199.5):
         if self.x.position < -180:
             print('pindiode already in')
         else:
