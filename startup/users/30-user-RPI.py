@@ -305,13 +305,13 @@ def run_saxs_linkamRPI(t=1):
 
 def run_waxs_fastRPIy(t=1):
 
-    xlocs = [13000,6700,400,-5950,-12400,-18700,-25200,-31600]
-    ylocs = [0,0,0,0,0,0,0,0]
-    names = ['O134A-1-N','O134A-2-N','O134A-3-N','O134A-4-N','O133A-1-N','O133A-2-N','O133A-3-N','O133A-4-N']
+    xlocs = [39000, 19000,  3000]
+    ylocs = [-6000, -6000,  -6000]
+    names = ['CW-mTPNI-3','CW-mTPNI-4','CW-mTPNI-5']
 
     
     y_off = [8000,7000,6000,5000,4000,3000,2000] 
-    user = 'LC'    
+    user = 'SL'    
     det_exposure_time(t,t)     
     
     assert len(xlocs) == len(names), f'Number of X coordinates ({len(x_locs)}) is different from number of samples ({len(samples)})'
@@ -492,4 +492,144 @@ def acq_bd(t = 0.2):
 
 #ylocs =        [8400,8400,8400,8400,8400,8400,8400,8400,8400,8400,8400,8400,8400,8400,8400,8400,8400,8400] 
    #xlocs = [44000,39800,34800,31500,25800,21800,16800,13000,6800,4000,-2200,-5200,-12200,-14400,-21200,-23400,-31200,-33400]
+
+
+
+
+def gisaxs_rpi_2021_3(t=1): 
+
+    samples = ['PR_Silica', 'PR_Silica_Br', 'PR_C2_2', 'PR_C2_15', 'PR_C18_2',  'PR_C18_8']
+    x_list = [  39000,      30000,      14000,     3000,    -13000,      -26000 ]
+    x_hexa = [      0,      0,            0,             0,       0,      0]
+
+    waxs_arc = [20, 0]
+    angle = [0.10, 0.12, 0.15]
+
+  # Detectors, motors:
+    dets = [pil1M, pil900KW]
+    det_exposure_time(t,t)
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(x_hexa), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(x_hexa)})'
+
+    for x, sample, x_hex in zip(x_list,samples, x_hexa):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(stage.x, x_hex)
+
+        sample_id(user_name='SL', sample_name=sample) 
+
+        yield from alignement_gisaxs(0.08)
+        yield from bps.mv(att1_5.open_cmd, 1)
+
+        ai0 = piezo.th.position
+        
+        det_exposure_time(t, t) 
+        name_fmt = '{sample}_8.3m_14.0keV_ai{angle}deg_wa{waxs}_25C'
+        for j, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            
+            for i, an in enumerate(angle):
+                yield from bps.mv(piezo.x, x - i * 500)
+                yield from bps.mv(piezo.th, ai0+an)
+                yield from bps.sleep(1)
+                sample_name = name_fmt.format(sample=sample, angle='%3.2f'%an, waxs='%2.1f'%wa)
+                sample_id(user_name='SL', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+                
+        yield from bps.mv(piezo.th, ai0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
+
+
+
+
+def run_waxs_fastRPI_2021_3(t=1):
+
+    xlocs = [39000, 19000,  3000]
+    ylocs = [-6000, -6000,  -6000]
+    names = ['CW-mTPNI-3','CW-mTPNI-4','CW-mTPNI-5']
+
+    x_off = [-1000, 0, 1000]
+    y_off = [-500, 500] 
+
+    user = 'SL'    
+    det_exposure_time(t,t)     
+    
+
+    #Check if the length of xlocs, ylocs and names are the same 
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})'
+    assert len(xlocs) == len(ylocs), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(ylocs)})'
+
+    # Detectors, motors:
+    dets = [pil1M, pil900KW]
+    waxs_range = [40, 20, 0]
+    
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y in zip(names, xlocs, ylocs):
+            yield from bps.mv(piezo.x, x)            
+            yield from bps.mv(piezo.y, y)
+            for yy, y_of in enumerate(y_off):        
+                yield from bps.mv(piezo.y, y+y_of)
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x+x_of)
+                    xxa = xx+1
+                    yya = yy+1 
+                    name_fmt = '{sam}_wa{waxs}_loc{xx}{yy}'
+                    sample_name = name_fmt.format(sam=sam, xx='%1.1d'%xxa, yy='%1.1d'%yya, waxs='%2.1f'%wa)
+                    sample_id(user_name=user, sample_name=sample_name) 
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    yield from bp.count(dets, num=1)
+    
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3)
+
+
+
+def run_waxs_capRPI_2021_3(t=1):
+
+    names = ['JA_S62_SP_PI_1k_2-04_-40C']
+    user = 'SL'    
+    det_exposure_time(t,t)     
+
+    # Detectors, motors:
+    dets = [pil1M, pil900KW]
+    waxs_range = [40, 20, 0]
+    
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        name_fmt = '{sam}_wa{waxs}'
+        sample_name = name_fmt.format(sam=names[0], waxs='%2.1f'%wa)
+        sample_id(user_name=user, sample_name=sample_name) 
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.count(dets, num=1)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3)
+    yield from bps.mv(waxs, 40)
+
+
+
+def run_waxs_linkamRPI_2021_3(t=1):
+
+    names = ['JA_S14_B5O2-185wt_2-04-25C2m']
+    user = 'SL'    
+    det_exposure_time(t,t)     
+
+    # Detectors, motors:
+    dets = [pil1M]
+    
+    name_fmt = '{sam}'
+    sample_name = name_fmt.format(sam=names[0])
+    sample_id(user_name=user, sample_name=sample_name) 
+    print(f'\n\t=== Sample: {sample_name} ===\n')
+#    yield from bp.scan(dets, stage.y, -3.725, -3.725, 1)
+    yield from bp.scan(dets, stage.y, -4.85, -3.5, 6)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3)
 
