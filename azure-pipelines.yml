@@ -10,7 +10,7 @@ jobs:
   - template: collection-2021-1.0.yml@templates
     parameters:
       beamline_acronym: SMI
-  - template: nsls2-collection-2021-3.0-py39.yml@templates
+  - template: nsls2-collection-2021-3.0-py37.yml@templates
     parameters:
       beamline_acronym: SMI
   - template: nsls2-collection-2021-3.0-py39.yml@templates
