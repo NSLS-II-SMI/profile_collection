@@ -21,7 +21,7 @@ def run_giwaxs_Fak(t=1):
             yield from bps.mv(piezo.x, (x+j*500))
             real_ang = angle_offset[j]
             yield from bps.mv(piezo.th, ang)
-            sample_name = name_fmt.format(sample=name, angle=np.float('%.3f'%real_ang))
+            sample_name = name_fmt.format(sample=name, angle=float('%.3f'%real_ang))
             sample_id(user_name='YJ', sample_name=sample_name)
             print(f'\n\t=== Sample: {sample_name} ===\n')
             yield from bp.scan(dets, waxs, *waxs_range)

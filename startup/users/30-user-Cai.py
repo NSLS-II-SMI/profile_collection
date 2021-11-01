@@ -314,7 +314,7 @@ def run_giwaxs_cai(t=1):
             yield from bps.mv(piezo.x, (x+j*400))
             real_ang = angle_offset[j]
             yield from bps.mv(piezo.th, ang)
-            sample_name = name_fmt.format(sample=name, angle=np.float('%.3f'%real_ang))
+            sample_name = name_fmt.format(sample=name, angle=float('%.3f'%real_ang))
             sample_id(user_name='LC', sample_name=sample_name)
             print(f'\n\t=== Sample: {sample_name} ===\n')
             #yield from bp.count(dets, num=1)
@@ -430,8 +430,8 @@ def run_giwaxs_cai_temp(t=1):
                 yield from bps.mv(piezo.x, (x+j*200))
                 real_ang = angle_offset[j]
                 yield from bps.mv(piezo.th, ang)
-                sample_name = name_fmt.format(sample=name, temp = '%5.2f'%temper, angle=np.float('%.3f'%real_ang), wax = '%2.2d'%wa)
-                #sample_name = name_fmt.format(sample=name, angle=np.float('%.3f'%real_ang), wax = '%2.2d'%wa)
+                sample_name = name_fmt.format(sample=name, temp = '%5.2f'%temper, angle=float('%.3f'%real_ang), wax = '%2.2d'%wa)
+                #sample_name = name_fmt.format(sample=name, angle=float('%.3f'%real_ang), wax = '%2.2d'%wa)
 
                 sample_id(user_name='LC', sample_name=sample_name)
                 print(f'\n\t=== Sample: {sample_name} ===\n')

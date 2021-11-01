@@ -16,8 +16,8 @@ def get_chamber_pressure(signal):
         return float(value)
     except:
         if isinstance(value, str) and value.startswith('LO'):
-            print(np.float('1E-03'))
-            return np.float('1E-03')
+            print(float('1E-03'))
+            return float('1E-03')
         raise
 
 

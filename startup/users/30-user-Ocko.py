@@ -23,7 +23,7 @@ def gocko(meas_t=1):
                     yield from bps.mv(piezo.x, (x+j*0))
                     real_ang = 0.1 + angle_offset[j]
                     yield from bps.mv(piezo.th, ang)
-                    sample_name = name_fmt.format(sample=name, angle=np.float('%.3f'%real_ang))
+                    sample_name = name_fmt.format(sample=name, angle=float('%.3f'%real_ang))
                     sample_id(user_name='BO_13.47keV', sample_name=sample_name)
                     print(f'\n\t=== Sample: {sample_name} ===\n')
                     yield from bp.scan(dets, waxs, *waxs_arc)
@@ -66,7 +66,7 @@ def gocko_res(meas_t = 1):
                 i=0
                 for energies in ener:
                     energy.move(energies)
-                    sample_name = name_fmt.format(sample=name, angle=np.float('%.3f'%(ang+0.25)), energy = energies, num =i)
+                    sample_name = name_fmt.format(sample=name, angle=float('%.3f'%(ang+0.25)), energy = energies, num =i)
                     sample_id(user_name='BO', sample_name=sample_name)
                     print(f'\n\t=== Sample: {sample_name} ===\n')
                     yield from bp.scan(det2, waxs, *waxs_arc)
@@ -97,7 +97,7 @@ def gocko_res(meas_t = 1):
                     i = 0
                     for energies in ener:
                         energy.move(energies)
-                        sample_name = name_fmt.format(sample=name, angle=np.float('%.3f'%(ang+0.25)), energy = energies, num =i )
+                        sample_name = name_fmt.format(sample=name, angle=float('%.3f'%(ang+0.25)), energy = energies, num =i )
                         sample_id(user_name='BO', sample_name=sample_name)
                         print(f'\n\t=== Sample: {sample_name} ===\n')
                         yield from bp.count(det1, num = 1)

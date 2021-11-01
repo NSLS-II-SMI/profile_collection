@@ -19,7 +19,7 @@ def aaron_rot(t=8):
 def custo_scan(username, sample_na, meas_t):
     det_exposure_time(meas_t)
     name_fmt = '{sample}_x_{x_pos}_y_{y_pos}_{expo}s'
-    sample_name = name_fmt.format(sample= sample_na, x_pos=np.float('%.3f'%piezo.x.position), y_pos=np.float('%.3f'%piezo.y.position), expo=meas_t)
+    sample_name = name_fmt.format(sample= sample_na, x_pos=float('%.3f'%piezo.x.position), y_pos=float('%.3f'%piezo.y.position), expo=meas_t)
     sample_id(user_name=username, sample_name=sample_name)
     yield from bp.count([pil1M], num = 1)
     

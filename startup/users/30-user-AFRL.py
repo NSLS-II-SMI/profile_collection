@@ -23,7 +23,7 @@ def saxsafrl( t = 2):
             #print(pin)
             #yield from bps.sleep(0.25)
             #fs.close()
-            #sample_name = name_fmt.format(temperature=temp, pinread = np.float('%.1f'%pin), i = '%4.4d'%i)
+            #sample_name = name_fmt.format(temperature=temp, pinread = float('%.1f'%pin), i = '%4.4d'%i)
             sample_name = name_fmt.format(temperature=temp, i = '%4.4d'%(i))
             print(f'\n\t=== Sample: {sample_name} ===\n')
             sample_id(user_name=sample, sample_name=sample_name) 
