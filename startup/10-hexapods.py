@@ -85,7 +85,7 @@ class WAXS(Device):
         
     def calc_waxs_bsx(self, arc_value):
         # bsx_pos =-20.92 + 264 * np.tan(np.deg2rad(arc_value))
-        bsx_pos = 13.6 + 252*np.tan(np.deg2rad(arc_value))
+        bsx_pos = 13.8 + 252*np.tan(np.deg2rad(arc_value))
 
         return bsx_pos
 
