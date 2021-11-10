@@ -455,3 +455,81 @@ def hard_xray_greg(t=0.5):
         sample_id(user_name='GS', sample_name=sample_name) 
         # yield from bp.rel_scan(dets, piezo.y, *ypos)
         yield from bp.count(dets)
+
+
+
+
+
+
+def instec_insitu_hard_xray_2021_3(t=0.4):
+    dets = [pil900KW, pil1M]
+    det_exposure_time(t,t) 
+
+    name = '7-N_'
+    waxs_arc = [0, 20]
+
+    yss = np.linspace(-1.55, -1.4, 26)
+    xss = np.linspace(-3.0, -2.8, 15)
+
+    yss, xss = np.meshgrid(yss, xss)
+
+    yss = yss.ravel()
+    xss = xss.ravel()
+
+    num = 0
+    cur_temp = 400
+
+    t0 = time.time()
+
+    while num < 200 and cur_temp > 300:
+        yield from bps.mv(stage.y, yss[num])
+        yield from bps.mv(stage.x, xss[num])
+        
+        num=num+1
+
+        t_kelvin = t + 273.15
+        cur_temp = ls.input_A.value
+
+        while cur_temp < 100:
+            yield from bps.sleep(2)
+            cur_temp = ls.input_A.value
+
+        # yield from bps.sleep(60)
+
+        if waxs.arc.position > 10:
+            wa_arc = waxs_arc[::-1]
+        else:
+            wa_arc = waxs_arc
+        yield from bps.sleep(2)
+
+        t1 = time.time()
+
+
+        for j, wa in enumerate(wa_arc):
+            yield from bps.mv(waxs, wa)
+            name_fmt = '{sample}_{temperature}C_t{time}_wa{waxs}_sdd2.0m_16.1keV'
+            sample_name = name_fmt.format(sample=name, temperature='%3.1f'%(cur_temp-273.15), time = '%4.1f'%(3940+t1-t0), waxs='%2.1f'%wa)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            sample_id(user_name='NC', sample_name=sample_name) 
+            yield from bp.count(dets, num=1)
+
+
+def instec_oneshot_hard_xray_2021_3(t=0.4):
+    dets = [pil900KW, pil1M]
+    det_exposure_time(t,t) 
+
+    name = '7-N_RT_120deg'
+    waxs_arc = [0, 20]
+
+    if waxs.arc.position > 10:
+        wa_arc = waxs_arc[::-1]
+    else:
+        wa_arc = waxs_arc
+
+    for j, wa in enumerate(wa_arc):
+        yield from bps.mv(waxs, wa)
+        name_fmt = '{sample}_wa{waxs}_sdd2.0m_16.1keV'
+        sample_name = name_fmt.format(sample=name, waxs='%2.1f'%wa)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        sample_id(user_name='NC', sample_name=sample_name) 
+        yield from bp.count(dets, num=1)

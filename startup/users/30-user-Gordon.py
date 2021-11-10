@@ -291,3 +291,135 @@ def giwaxs_several(t=1):
     yield from bps.sleep(5)
     proposal_id('2021_2', '307830_Su6')
     yield from gisaxs2_gordon_2021_2(t=t)
+
+
+
+
+
+
+
+def gisaxs_gordon_2021_3(t=1): 
+
+    # names = ['PBOE-D', 'POH-D', 'PMDE-E', 'POH-E', 'PODE-E2', 'POH-E2', 'PEDOT-EHE', 'PEDOT-OH', 'PBOE-D_FeTos', 'POH-D_FeTos', 'PHDE-E_FeTos', 'POH-E_FeTos', 'PODE-E2_FeTos', 'POH-E2_FeTos', 
+    # 'PEDOT-EHE_FeTos']
+    # x_piezo = [ 56500, 56500, 49000, 39000, 29000, 19000, 9000, -3000, -12000, -23000, -31000, -40000, -49000, -53000, -56000]
+    # y_piezo = [  4100,  4100,  4100,  4100,  4100,  4100, 4100,  4100,   4100,   4100,   4100,   4100,   4100,   4100,   4100]
+    # z_piezo = [  1000,  1000,  1000,  1000,  1000,  1000, 1000,  1000,   1000,   1000,   1000,   1000,   1000,   1000,   1000]
+    # x_hexa =  [    12,     2,     0,     0,     0,     0,    0,     0,      0,      0,      0,      0,      0,     -5,    -10]
+
+    names = ['PEDOT-OH_FeTos', 'PBTTT_pristine', 'PBTTT_0.9', 'PBTTT_2.5', 'PBTTT_50', 'PEDOT-OE3_pritine', 'PEDOT-OE3_0.1', 'PEDOT-OE3_0.5', 'PEDOT-OE3_5.0', 'PEDOT-OE3_50', 'Si_wafer']
+    x_piezo = [ 56500, 56000, 42000, 30000, 16000,  4000, -8000, -20000, -34000, -46000, -48000]
+    y_piezo = [  4100,  4100,  4100,  4100,  4100,  4100,  4100,   4100,   4100,   4100,   4100]
+    z_piezo = [  1000,  1000,  1000,  1000,  1000,  1000,  1000,   1000,   1000,   1000,   1000]
+    x_hexa =  [    10,     0,     0,     0,     0,     0,     0,      0,      0,      0,    -10]
+
+    assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
+    assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
+    assert len(x_piezo) == len(z_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})'
+    assert len(x_piezo) == len(x_hexa), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})'
+
+    waxs_arc = [0, 2, 20, 22, 40, 42]
+    angle = [0.1, 0.15, 0.2]
+
+    dets = [pil900KW, pil1M]
+    det_exposure_time(t,t)
+
+    for name, xs, zs, ys, xs_hexa in zip(names, x_piezo, z_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, 0)
+        
+        yield from alignement_gisaxs(angle = 0.15)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t,t)
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)  
+
+            for i, an in enumerate(angle):
+                yield from bps.mv(piezo.x, xs + i*200)                
+                yield from bps.mv(piezo.th, ai0 + an)                
+                name_fmt = '{sample}_sdd1.8m_14keV_ai{angl}deg_wa{waxs}'
+                sample_name = name_fmt.format(sample=name, angl='%3.2f'%an, waxs='%2.1f'%wa)
+                sample_id(user_name='PT', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+            
+            
+            yield from bps.mv(piezo.th, ai0)
+
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+
+
+
+
+
+def temp_2021_3(tim=0.5): 
+    temperatures = [30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+
+    name = 'GF'
+
+    samples = ['PBOE-D_FeTos', 'POH-D_FeTos', 'PEDOT-EHE_FeTos', 'PEDOT-OH_FeTos', 'PEDOT-OH_FeCl3']
+    x_list  = [-4000, 9000, 20000, 32000, 47000]
+    y_list =  [ -800, -800,  -800,  -800,  -800]
+
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    #Detectors, motors:
+    dets = [pil1M, pil900KW]
+    angle = [0.1, 0.15, 0.2]
+
+   
+    waxs_arc = [0, 20, 40]
+    name_fmt = '{sample}_14keV_1.8m_{temperature}C_wa{waxs}'
+
+    det_exposure_time(tim, tim)
+    for i_t, t in enumerate(temperatures):
+        t_kelvin = t + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+        temp = ls.input_A.get()
+
+        while abs(temp - t_kelvin) > 2:
+            print(abs(temp - t_kelvin))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+
+            
+        # yield from bps.sleep(300)
+        t_celsius = temp - 273.15
+
+        for name, xs, ys in zip(samples, x_list, y_list):
+            yield from bps.mv(piezo.x, xs + i_t * 200)
+            # yield from bps.mv(piezo.y, ys)
+            # yield from bps.mv(piezo.th, 0)
+            
+            yield from alignement_gisaxs_refbeam(angle = 0.15)
+
+            ai0 = piezo.th.position
+            for wa in waxs_arc:
+                yield from bps.mv(waxs, wa)  
+
+                for i, an in enumerate(angle):
+                    yield from bps.mv(piezo.x, xs)                
+                    yield from bps.mv(piezo.th, ai0 + an)                
+                    name_fmt = '{sample}_{temp}C_sdd1.8m_14keV_ai{angl}deg_wa{waxs}'
+                    sample_name = name_fmt.format(sample=name, temp ='%3.3d'%t, angl='%3.2f'%an, waxs='%2.1f'%wa)
+                    sample_id(user_name='PT', sample_name=sample_name)
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                    yield from bp.count(dets, num=1)
+                
+                yield from bps.mv(piezo.th, ai0)
+
+    
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
+    
+    t_kelvin = 25 + 273.15
+    yield from ls.output1.mv_temp(t_kelvin)
