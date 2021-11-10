@@ -59,7 +59,7 @@ class SMIBeam(object):
         elif 3200 < self.dcm.energy.position < 3600:
             target_state = [att2_5, att2_6, att2_8, att2_9]
         elif 3600 < self.dcm.energy.position < 3900:
-            target_state = [att2_5, att2_11]
+            target_state = [att2_5, att2_6, att2_7, att2_8]
         elif 3900 < self.dcm.energy.position < 4500:
             target_state = [att2_8]
         elif 4500 < self.dcm.energy.position < 5500:
