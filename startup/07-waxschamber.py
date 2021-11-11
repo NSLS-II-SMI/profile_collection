@@ -12,11 +12,9 @@ class sample_chamber_pressure(Device):
 def get_chamber_pressure(signal):
     value = signal.get()
     try:
-        print(float(value))
         return float(value)
     except:
         if isinstance(value, str) and value.startswith('LO'):
-            print(float('1E-03'))
             return float('1E-03')
         raise
 
