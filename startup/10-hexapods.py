@@ -68,7 +68,8 @@ for pr in [prs]:
 
 class WAXS(Device):
     arc = Cpt(EpicsMotor, 'WAXS:1-Ax:Arc}Mtr')
-    x = Cpt(EpicsMotor, 'MCS:1-Ax:5}Mtr')
+    bs_x = Cpt(EpicsMotor, 'MCS:1-Ax:5}Mtr')
+    bs_y = Cpt(EpicsMotor, 'BS:WAXS-Ax:y}Mtr')
 
     def set(self, arc_value):
         st_arc = self.arc.set(arc_value)
@@ -80,7 +81,7 @@ class WAXS(Device):
             raise ValueError("The waxs detector cannot be moved to {} deg until the new beamstop is mounted".format(arc_value))
         else:
             calc_value = -40
-        st_x = self.x.set(calc_value)
+        st_x = self.bs_x.set(calc_value)
         return st_arc & st_x
         
     def calc_waxs_bsx(self, arc_value):
