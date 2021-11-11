@@ -19,24 +19,6 @@ class SMIBeam(object):
    
         self.dcm = Energy(prefix='', name='energy', read_attrs=['energy', 'ivugap', 'bragg'], configuration_attrs=['enableivu', 'enabledcmgap', 'target_harmonic'])
 
-    def energyState(self):
-        self.dcm = Energy(prefix='', name='energy', read_attrs=['energy', 'ivugap', 'bragg'], configuration_attrs=['enableivu', 'enabledcmgap', 'target_harmonic'])
-        print('The current energy is {:.1f} keV deg'.format(self.dcm.energy.position))
-
-    def setEnergy(self, energy_eV):
-        """
-        Set the x-ray beam to the specified energy (by changing the monochromator angle.
-        """
-        print('energy will move to {:.5f} keV deg'. format(energy_eV))
-        response = input('    Are you sure? (y/[n]) ')
-        
-        if response is 'y' or response is 'Y':
-            print('energy moved from {:.4f} deg to {:.4f} deg'.format(self.energy.energy, energy_eV))
-            energy.move(energy_eV)
-
-        else:
-            print('No move was made.')  
-
     def _foilState(self):
         current_state = []
         for foil_num in [att1_1, att1_2, att1_3, att1_4, att1_5, att1_6, att1_7, att1_8, att1_9, att1_10, att1_11, att1_12,
@@ -141,6 +123,13 @@ class SMIBeam(object):
             itry += 1
             yield from bps.sleep(wait_time)
             foil_st = yield from bps.read(foil)
+    
+    def calc_bswaxs_posy(self):
+        #Move the waxs beamstop up for safety. If tender, covers up to 1deg ai, if hard, covers up to 0.4deg ai
+        if self.dcm.energy.position < 6000:
+            yield from bps.mv(waxs.bs_y, -14)
+        else:
+            yield from bps.mv(waxs.bs_y, -19)
 
 
 # End class SMIBeam(object)
@@ -196,6 +185,9 @@ class SMI_Beamline(Beamline):
         
         # Move beamstop
         yield from pil1m_bs_rod.mv_in(x_pos=bsx_pos + 5)
+        
+        #Move the waxs beamstop up for safety. If tender, covers up to 1deg ai, if hard, covers up to 0.4deg ai
+        yield from SMIBeam().calc_bswaxs_posy()
 
         self.setReflectedBeamROI(technique=technique)
         self.setDirectBeamROI()
