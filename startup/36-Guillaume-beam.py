@@ -208,7 +208,7 @@ class SMI_Beamline(Beamline):
         # Remove attenuators
         yield from SMIBeam().insertFoils('Measurement')       
 
-    def setDirectBeamROI(self, size=[48, 12]):
+    def setDirectBeamROI(self, size=[48, 12], technique='gisaxs'):
         """
         Update the ROI (pil1m.roi1) for the direct beam on the SAXS detector.
         size: tuple argument: size in pixels) of the ROI [width, height]).
@@ -218,11 +218,20 @@ class SMI_Beamline(Beamline):
         x0 = self.SAXS.direct_beam[0]
         y0 = self.SAXS.direct_beam[1]
 
-        # Define the direct beam ROI on the pilatus 1M detector  
-        yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x0-size[0]/2))
-        yield from bps.mv(pil1M.roi1.size.x, int(size[0]))
-        yield from bps.mv(pil1M.roi1.min_xyz.min_y, int(y0-size[1]/2))
-        yield from bps.mv(pil1M.roi1.size.y, int(size[1]))
+        if technique == 'gisaxs':
+            # Define the direct beam ROI on the pilatus 1M detector  
+            yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x0-size[0]/2))
+            yield from bps.mv(pil1M.roi1.size.x, int(size[0]))
+            yield from bps.mv(pil1M.roi1.min_xyz.min_y, int(y0-size[1]/2))
+            yield from bps.mv(pil1M.roi1.size.y, int(size[1]))
+        
+        elif technique == 'xrr':
+            # Define the direct beam ROI on the pilatus 1M detector  
+            yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x0-size[1]/2))
+            yield from bps.mv(pil1M.roi1.size.x, int(size[1]))
+            yield from bps.mv(pil1M.roi1.min_xyz.min_y, int(y0-size[0]/2))
+            yield from bps.mv(pil1M.roi1.size.y, int(size[0]))
+
 
     def setReflectedBeamROI(self, total_angle=0.16, technique='gisaxs', size=[48, 8]):
         """
@@ -253,7 +262,7 @@ class SMI_Beamline(Beamline):
             # Calculate the x position of the reflected beam        
             x_offset_mm = np.tan(np.radians(2*total_angle))*d
             x_offset_pix = x_offset_mm/pixel_size
-            x_pos = int( x0 - size[1]/2 - x_offset_pix )
+            x_pos = int( x0 - size[1]/2 - x_offset_pix)
 
             # Define the reflected beam ROI on the pilatus 1M detector  
             yield from bps.mv(pil1M.roi1.min_xyz.min_x, int(x_pos))
