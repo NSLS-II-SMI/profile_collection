@@ -877,3 +877,24 @@ def Sedge_testflatfield(t=1):
 
             yield from bps.mv(energy, 2470)
             yield from bps.mv(energy, 2450)
+
+
+
+def test_gi_align():
+    # t0 = time.time()
+    # yield from bp.rel_scan([pil1M], piezo.y, 0, 0, 5)
+    # ps(der=True)
+    # print(ps.min)
+    # t1 = time.time()
+    # print('time for ps is', t1-t0)
+
+    t0 = time.time()
+    yield from bp.rel_scan([pil1M], piezo.y, 0, 0, 5)
+    t1 = time.time()
+    uid = list(bec._peak_stats)[0]
+    stats = list(bec._peak_stats[uid])[0]
+    print(bec._peak_stats[uid][stats].x[0])
+    t2 = time.time()
+    print('time for scan is', t1-t0)
+    print('time for new ps is', t2-t1)
+

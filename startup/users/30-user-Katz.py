@@ -818,3 +818,44 @@ def nexafs_Sedge_SVA_Katz_2021_3(t=1):
 
     setDryFlow(0)
     setWetFlow(0)
+
+
+
+
+
+def saxs_2021_3(t=1): 
+
+    
+    xlocs = [39500, 28000, 16000,  6000, -6000, -18000, -29000, -41000, 42000, 30000]
+    ylocs = [-5200, -5200, -5200, -5200, -5200,  -5200,  -5200,  -5200,  7200,  7200]
+    zlocs = [ 2700,  2700,  2700,  2700,  2700,   2700,   2700,   2700,  2700,  2700]
+    names = ['sample_01', 'sample_02', 'sample_03', 'sample_04', 'sample_05', 'sample_06', 'sample_07', 'sample_08', 'sample_09', 'sample_10']
+
+
+    user = 'ML'    
+    det_exposure_time(t,t)     
+    
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})'
+    
+    # Detectors, motors:
+    dets = [pil1M]
+    waxs_range = [30]
+
+    ypos = [-200, 200, 3]
+
+    for wa in waxs_range[::-1]:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z in zip(names, xlocs, ylocs, zlocs):
+            yield from bps.mv(piezo.x, x)            
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            name_fmt = '{sam}_16.1keV_sdd8.3m_wa{waxs}'
+            sample_name = name_fmt.format(sam=sam,  waxs='%2.1f'%wa)
+            sample_id(user_name=user, sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.rel_scan(dets, piezo.y, *ypos)
+            yield from bps.sleep(2)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3) 

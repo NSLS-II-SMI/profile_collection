@@ -548,20 +548,64 @@ def saxs_cai_2021_2(t=1):
 
 
 
+def saxs_cai_2021_3(t=1): 
+ 
+    xlocs = [42000, 25000, 10000, -5000, -17000, -34000, 44000, 29500, 13500, -3500, -21500]
+    ylocs = [-9000, -9000, -9000, -9000,  -9000,  -9000,  2000,  2000,  2000,  2000,   2000]
+    zlocs = [ 2700,  2700,  2700,  2700,   2700,   2700,  2700,  2700,  2700,  2700,   2700]
+    ystage = [-2.0,  -2.0,  -2.0,  -2.0,   -2.0,   -2.0,   0.0,   0.0,   0.0,   0.0,    0.0]
+    names = ['TR1', 'TR2', 'TR3', 'TV1',  'TV2',  'TV3', 'sample1', 'sample2', 'sample3', 'sample4', 'sample5']
+  
+  
+  
+    user = 'LC'    
+    det_exposure_time(t,t)     
+    
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})'
+    assert len(xlocs) == len(ylocs), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(ylocs)})'
+    assert len(xlocs) == len(zlocs), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(zlocs)})'
+    assert len(xlocs) == len(ystage), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(ystage)})'
+    assert len(xlocs) == len(names), f'Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})'
+
+    # Detectors, motors:
+    dets = [pil1M, pil900KW]
+    waxs_range = [40, 20, 0]
+
+    ypos = [-200, 200, 3]
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z, y_sta in zip(names, xlocs, ylocs, zlocs, ystage):
+            yield from bps.mv(piezo.x, x)            
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+            yield from bps.mv(stage.y, y_sta)
+
+            name_fmt = '{sam}_14.0keV_sdd8.3m_wa{waxs}'
+            sample_name = name_fmt.format(sam=sam,  waxs='%2.1f'%wa)
+            sample_id(user_name=user, sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.rel_scan(dets, piezo.y, *ypos)
+            yield from bps.sleep(2)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3) 
+
+
+
 
 def Cai_saxs_tensile_hard(t=0.2):
     dets = [pil1M]
-
-    names = 'H5_3_insitu_loop1'
+    names = 'sample142_3'
 
     t0 = time.time()
     for i in range(5000):
         det_exposure_time(t,t)
-        name_fmt = '{sample}_14000eV_sdd8p3_waxs19.0_{time}s_{i}'
+        name_fmt = '{sample}_14keV_sdd8p3_waxs30.0_{time}s_{i}'
         t1 = time.time()
         sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), i = '%3.3d'%i)
         sample_id(user_name='SN', sample_name=sample_name)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bp.count(dets, num=1)
 
-        time.sleep(50)
+        yield from bps.sleep(20)

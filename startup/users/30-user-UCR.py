@@ -4,21 +4,21 @@ import numpy as np
 
     
 def run_mesh_fastUCR(t=0.5): 
-    samples = ['stel_styl_m_s5_D2-cut5_']
-    x_list = [-15740]
-    y_list = [-5654]
+    samples = ['sample1_real_watertest_4um_step_']
+    x_list = [-34889]
+    y_list = [-7610]
         
-    name = 'TW'
+    name = 'DK'
     
-    x_range=[ [-280, 280, 17]]
-    y_range=[ [-225, 225, 101]]
+    x_range=[ [0, 0, 1]]
+    y_range=[ [0, 600, 151]]
     
     
     # Detectors, motors:
-    dets = [pil300KW]# dets = [pil1M,pil300KW]
+    dets = [pil900KW]# dets = [pil1M,pil300KW]
     det_exposure_time(t,t)
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    waxs_range = np.linspace(0, 26, 5)
+    waxs_range = [0,20]
     
     for wa in waxs_range:
         yield from bps.mv(waxs, wa)
@@ -30,10 +30,12 @@ def run_mesh_fastUCR(t=0.5):
             sample_id(user_name=name, sample_name=sample_name) 
             print(f'\n\t=== Sample: {sample_name} ===\n')
              
-            yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 1) #1 = snake, 0 = not-snake
+            yield from bp.rel_grid_scan(dets, piezo.x, *x_r, piezo.y, *y_r, 0) #1 = snake, 0 = not-snake
         
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.3,0.3)
+    yield from bps.mv(waxs, 0)
+
 
 
 def run_mesh_fastUCI(t=1): 

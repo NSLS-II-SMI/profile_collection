@@ -437,3 +437,22 @@ def NEXAFS_P_edge(t=0.5):
         yield from bps.sleep(2)           
         yield from bps.mv(energy, 2140)
         yield from bps.sleep(2)            
+
+
+
+
+def cd_saxs_new(th_ini, th_fin, th_st, exp_t=1):
+    sample = 'bkg_sample7'
+    det = [pil1M]
+
+    det_exposure_time(exp_t, exp_t)
+
+    for num, theta in enumerate(np.linspace(th_ini, th_fin, th_st)):
+        yield from bps.mv(prs, theta)
+        name_fmt = '{sample}_8.3m_16.1keV_num{num}_{th}deg'
+
+        sample_name = name_fmt.format(sample=sample, num = '%2.2d'%num, th='%2.2d'%theta)
+        sample_id(user_name='PG', sample_name=sample_name)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        
+        yield from bp.count(det, num=5)
