@@ -11,6 +11,20 @@ logger = logging.getLogger('bluesky')
 logger.setLevel('INFO')
 
 
+
+def export_scan( sid, filename='', path='/home/xf12id/users/',verbose=True ):
+    """
+    Export table by giving a scan id
+    """
+    hdr = db[sid]
+    d = hdr.table()
+    output = path + 'sid=%s.csv'%(filename)
+    d.to_csv( output )
+    if verbose:
+        print( 'The table of sid=%s is saved as %s.'%(sid, output) )
+
+
+
 def export_spectra_to_csv(run, *, dir, common_column, columns):
     """Export spectra to a CSV file based on databroker.v2 run.
 
