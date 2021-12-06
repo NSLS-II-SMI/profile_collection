@@ -169,10 +169,10 @@ fd = FakeDetector(name='fd')
 pil1M = Pilatus("XF:12IDC-ES:2{Det:1M}", name="pil1M") #, detector_id="SAXS")
 pil1M.set_primary_roi(1)
 
-#pil1M.tiff.write_path_template = '/ramdisk/1M/images/%Y/%m/%d/'
-pil1M.tiff.write_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
-#pil1M.tiff.read_path_template = '/ramdisk/1M/images/%Y/%m/%d/'
-pil1M.tiff.read_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
+# pil1M.tiff.write_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
+# pil1M.tiff.read_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
+pil1M.tiff.write_path_template = '/nsls2/data/smi/assets/default/%Y/%m/%d/'
+pil1M.tiff.read_path_template = '/nsls2/data/smi/assets/default/%Y/%m/%d/'
 
 pil1mroi1 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats1:Total_RBV', name='pil1mroi1')
 pil1mroi2 = EpicsSignal('XF:12IDC-ES:2{Det:1M}Stats2:Total_RBV', name='pil1mroi2')
@@ -206,9 +206,10 @@ pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW") #, detector_id="
 pil300KW.set_primary_roi(1)
 
 
-#pil300KW.tiff.write_path_template = '/ramdisk/300KW/images/%Y/%m/%d/'
-pil300KW.tiff.write_path_template = '/nsls2/xf12id2/data/300KW/images/%Y/%m/%d/'
-pil300KW.tiff.read_path_template = '/nsls2/xf12id2/data/300KW/images/%Y/%m/%d/'
+# pil300KW.tiff.write_path_template = '/nsls2/xf12id2/data/300KW/images/%Y/%m/%d/'
+# pil300KW.tiff.read_path_template = '/nsls2/xf12id2/data/300KW/images/%Y/%m/%d/'
+pil300KW.tiff.write_path_template = '/nsls2/data/smi/assets/default/%Y/%m/%d/'
+pil300KW.tiff.read_path_template = '/nsls2/data/smi/assets/default/%Y/%m/%d/'
 
 pil300kwroi1 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats1:Total_RBV', name='pil300kwroi1')
 pil300kwroi2 = EpicsSignal('XF:12IDC-ES:2{Det:300KW}Stats2:Total_RBV', name='pil300kwroi2')
@@ -227,8 +228,10 @@ pil300KW.cam.ensure_nonblocking()
 pil900KW = Pilatus("XF:12IDC-ES:2{Det:900KW}", name="pil900KW")
 pil900KW.set_primary_roi(1)
 
-pil900KW.tiff.write_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
-pil900KW.tiff.read_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
+# pil900KW.tiff.write_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
+# pil900KW.tiff.read_path_template = '/nsls2/xf12id2/data/1M/images/%Y/%m/%d/'
+pil900KW.tiff.write_path_template = '/nsls2/data/smi/assets/default/%Y/%m/%d/'
+pil900KW.tiff.read_path_template = '/nsls2/data/smi/assets/default/%Y/%m/%d/'
 
 pil900kwroi1 = EpicsSignal('XF:12IDC-ES:2{Det:900KW}Stats1:Total_RBV', name='pil900kwroi1')
 pil900kwroi1 = EpicsSignal('XF:12IDC-ES:2{Det:900KW}Stats2:Total_RBV', name='pil900kwroi2')
