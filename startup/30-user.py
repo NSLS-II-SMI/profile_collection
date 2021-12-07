@@ -1,17 +1,5 @@
 print(f'Loading {__file__}')
 
-def export_scan( sid, filename='', path='/home/xf12id/users/',verbose=True ):
-    """
-    Export table by giving a scan id
-    """
-    hdr = db[sid]
-    d = hdr.table()
-    output = path + 'sid=%s.csv'%(filename)
-    d.to_csv( output )
-    if verbose:
-        print( 'The table of sid=%s is saved as %s.'%(sid, output) )
-
-
 def find_peaks( x, y, thres= 0.5e7 ):
     x= np.array(x)
     xi = np.arange( len(y) )
