@@ -153,3 +153,13 @@ class SMIAmptek(AmptekSoftTrigger, Amptek):
 
 amptek = SMIAmptek("XF:12IDC-ES:2{Det-Amptek:1}", name="amptek")
 amptek.energy_channels.kind = 'normal'
+
+
+# ToDO: make sure the file_path and file_name properly shipped
+def activate_amptek():
+    newDir = os.path.join("/nsls2/xf12id2/data/images/users/", RE.md['cycle'], RE.md['proposal_number']+ '_' + RE.md['main_proposer'], "Amptek")
+    try:
+        os.stat(newDir)
+    except FileNotFoundError:
+        os.makedirs(newDir)
+        os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
