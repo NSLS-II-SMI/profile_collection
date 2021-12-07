@@ -1,5 +1,4 @@
 import time
-from ophyd import Device
 
 
 
@@ -41,7 +40,6 @@ def setWetFlow(voltage=0):
 
 humidity list
 
-
 humidity,    wet,     dry         2nd day, recheck
 48           3         3
 
@@ -57,29 +55,4 @@ humidity,    wet,     dry         2nd day, recheck
 
 20       2.5/2.4       3             ### 
 
-humidity_list=[100, 80, 60,   40,  20, 0,100,0]
-wetFlow_list= [ 5,  3,   3,   3,  2.5, 0, 5, 0]
-dryFlow_list= [ 0, 2.35, 2.7, 3.6, 3,  5, 0, 5]
-hol.alignSamples()
-for ii in range(8):    
-    hol1.setDryFlow(dryFlow_list[ii])
-    hol1.setWetFlow(wetFlow_list[ii])
-    post_to_slack('set to humidity  {}'.format(humidity_list[ii]))
-    time.sleep(30*60)
-    post_to_slack('start the measurement at humidity {}'.format(hol1.humidity(verbosity=0)))
-    hol1.measureSamples()
 '''
-'''
-
-
-humidity_list=[100,  75,   50,  25,   0,   100,0]
-wetFlow_list= [ 5,   3,    3,   2.5,  0,    5, 0]
-dryFlow_list= [ 0,  2.47,  3,    3,   5,    0, 5]
-hol.alignSamples()
-for ii in range(8):    
-    hol1.setDryFlow(dryFlow_list[ii])
-    hol1.setWetFlow(wetFlow_list[ii])
-    post_to_slack('set to humidity  {}'.format(humidity_list[ii]))
-    time.sleep(30*60)
-    post_to_slack('start the measurement at humidity {}'.format(hol1.humidity(verbosity=0)))
-    hol1.measureSamples()'''
