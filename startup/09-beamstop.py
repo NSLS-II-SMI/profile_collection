@@ -52,7 +52,6 @@ class SAXSPindiode(Device):
         yield from bps.mv(self.x, 0)
         
         
-
 pil1m_bs_pd = SAXSPindiode( 'XF:12IDC-ES:2{BS:SAXS-Ax:', name = 'detector_saxs_bs_pindiode' )
 
 
