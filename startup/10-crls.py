@@ -25,5 +25,3 @@ class CRL(Device):
 crl = CRL('XF:12IDC-OP:2{Lens:CRL-Ax:', name='crl')
 
 # aperture motors, see 10-slits.py
-
-# Note: focus related code is in CSS only at this time
