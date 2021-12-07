@@ -12,8 +12,3 @@ vfm = MIR('XF:12IDA-OP:2{Mir:VF-Ax:', name='vfm')
 vdm = MIR('XF:12IDA-OP:2{Mir:VD-Ax:', name='vdm')
 
 # The associated slits are coded in 10-slits.py
-
-# See also 11-bimorphs.py (to be developed)
-
-# Does the bounce-down mirror (attocube ctrl) have EPICS implementation yet?
-
