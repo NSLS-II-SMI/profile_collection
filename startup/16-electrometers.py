@@ -1,43 +1,9 @@
 print(f'Loading {__file__}')
 
-from ophyd import EpicsMotor, EpicsSignal, Device, Component as Cpt
-from ophyd import (ProsilicaDetector, SingleTrigger, TIFFPlugin,
-                   ImagePlugin, DetectorBase, HDF5Plugin,
-                   AreaDetector, EpicsSignal, EpicsSignalRO, ROIPlugin,
-                   TransformPlugin, ProcessPlugin)
-from ophyd import Component as Cpt, Signal
+from ophyd import EpicsSignal, Device, Component as Cpt
+from ophyd import (EpicsSignal, EpicsSignalRO)
+from ophyd import Component as Cpt
 from nslsii.ad33 import QuadEMV33
-
-# quick edit just to get the crrent PVs into BS, ED11mar17
-# file should eventually have currents and other PVs for all electrometers,
-# with indication of their permanent name assignments
-
-#Prototype new electrometer, currently looking at XBPM2.
-#ch1,2,3,4 = pads 2,3,5,4 respectively; thick active area
-
-
-# class LakeShore(Device):
-#     """
-#     Lakeshore is the device reading the temperature from the heating stage for SAXS and GISAXS.
-#     This class define the PVs to read and write to control lakeshore
-#     :param Device: ophyd device
-#     """
-#     ch1_read = Cpt(EpicsSignal, 'TC1:IN1')
-#     ch1_sp = Cpt(EpicsSignal, 'TC1:OUT1:SP')
-#     ch2_read = Cpt(EpicsSignal, 'TC1:IN2')
-#     ch2_sp = Cpt(EpicsSignal, 'TC1:OUT2:SP')
-#     ch2_out_mode = Cpt(EpicsSignal, 'TC1:OUT2:Mode')
-#     ch3_out_mode = Cpt(EpicsSignal, 'TC1:OUT3:Mode')
-#     p1 = Cpt(EpicsSignal, 'TC1:P1')
-#     p3 = Cpt(EpicsSignal, 'TC1:P3')
-
-
-
-# ls = LakeShore('XF:12IDC:LS336:', name='ls')
-# ls.ch1_read.kind = 'hinted'
-# ls.ch1_sp.kind = 'hinted'
-# ls.ch2_read.kind = 'hinted'
-# ls.ch2_sp.kind = 'hinted'
 
 
 class output_lakeshore(Device):
