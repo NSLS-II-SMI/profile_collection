@@ -2,21 +2,17 @@
 
 print(f'Loading {__file__}')
 
-from bluesky.plan_stubs import one_1d_step, abs_set, wait, sleep
-import time
+from bluesky.plan_stubs import one_1d_step
 from collections import ChainMap
 import bluesky.plans as bp
-import matplotlib.ticker as mtick
+
+#only use in old ps
 get_fields = db.get_fields
 get_images = db.get_images
 get_table = db.get_table
-
-
 from lmfit import  Model
-from lmfit import minimize, Parameters, Parameter, report_fit
 from scipy.special import erf
 
-# TODO: create a conda package for it and include to collection profiles
 import peakutils
 
 
@@ -65,6 +61,7 @@ from Maksim
     return x, y, t
 
 
+
 def ps_new(der=False, plot=True):
     uid = list(bec._peak_stats)[0]
     stats = list(bec._peak_stats[uid])[0]
@@ -94,6 +91,43 @@ def ps_new(der=False, plot=True):
         plt.legend()
         plt.title('uid: ' + str(uid) + '\n PEAK: ' + str(ps.peak)[:8] + str(ps.peak)[:8] + ' COM ' + str(ps.com)[:8] + '\n FWHM: '+str(ps.fwhm)[:8] + ' CEN: ' + str(ps.cen)[:8],size=9)
         plt.show()
+
+
+
+
+def ps_new_post(uid = -1, der=False, plot=True):
+    for name, doc in db[uid].documents():
+        bec(name, doc)
+
+    uid = list(bec._peak_stats)[0]
+    stats = list(bec._peak_stats[uid])[0]
+    pss = bec._peak_stats[uid][stats]
+
+    if der:
+        x = pss.derivative_stats.x
+        y = pss.derivative_stats.y
+        ps.cen = pss.derivative_stats.cen
+        ps.fwhm = pss.derivative_stats.fwhm
+        ps.peak = pss.derivative_stats.max[0]
+        ps.com = pss.derivative_stats.com
+    else:
+        x = pss.x_data
+        y = pss.x_data
+        ps.cen = pss.stats.cen
+        ps.fwhm = pss.stats.fwhm
+        ps.peak = pss.stats.max[0]
+        ps.com = pss.stats.com
+
+    if plot:
+        plt.figure()
+        plt.plot([ps.peak, ps.peak], [np.min(y), np.max(y)], 'k--', label='PEAK')
+        plt.plot([ps.cen, ps.cen], [np.min(y), np.max(y)], 'r-.', label='CEN')
+        plt.plot([ps.com, ps.com], [np.min(y), np.max(y)], 'g.-.', label='COM')
+        plt.plot(x, y, 'bo-')       
+        plt.legend()
+        plt.title('uid: ' + str(uid) + '\n PEAK: ' + str(ps.peak)[:8] + str(ps.peak)[:8] + ' COM ' + str(ps.com)[:8] + '\n FWHM: '+str(ps.fwhm)[:8] + ' CEN: ' + str(ps.cen)[:8],size=9)
+        plt.show()
+
 
 
 def ps(uid='-1',det='default',suffix='default',shift=.5, logplot='off', der  = False, plot = True ):
