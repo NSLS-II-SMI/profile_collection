@@ -1,6 +1,56 @@
 ####line scab
 
 
+def run_gi_sweden_SAXS(tim=0.5, sample='Test', ti_sl = 60): 
+    # Slowest cycle:
+    name = 'TP'
+    num = 2
+    x_interface  = [piezo.x.position]
+    
+    x_surface = x_interface[0]-1500
+    piezo_y_range = [-20, 20, 41]
+    samples = [sample  +  '_interface']
+    
+    surface_sample = sample  + '_surface'
+    angle = 0.1
+    
+    #Detectors, motors:
+    dets = [pil1M, pil1mroi2] # WAXS detector ALONE
+    x_offset = 10
+    t0=time.time()
+    
+    yield from bps.mv(piezo.x, x_surface)
+    yield from alignement_gisaxs(angle)
+    yield from bps.mvr(piezo.th, angle)
+    
+    det_exposure_time(tim, tim)
+    sample_id(user_name=name, sample_name=surface_sample)
+    yield from bp.rel_scan(dets, piezo.y, *piezo_y_range) 
+    
+    name_fmt = '{sample}_{angle}deg_{ti}sec'
+    #    param   = '16.1keV'
+    assert len(x_interface) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    for x, s in zip(x_interface, samples):
+        yield from bps.mv(piezo.x, x)
+        #yield from alignement_gisaxs_shorter(angle)
+        #yield from bps.mvr(piezo.th, angle) 
+        for i in range (num):
+            yield from bps.mv(piezo.x, x+x_offset*i)
+            t1=time.time()
+            t_min = np.round((t1-t0))
+            sample_name = name_fmt.format(sample=s, angle=angle, ti = '%5.5d'%t_min)
+            sample_id(user_name=name, sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.rel_scan(dets, piezo.y, *piezo_y_range)
+            
+            
+            
+            yield from bps.sleep(ti_sl)
+    
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(1,1)
+
+
 
 def gisaxs_KTH_2021_1(t=1): 
     
@@ -54,41 +104,6 @@ def gisaxs_KTH_2021_1(t=1):
     yield from smi.modeMeasurement()
     print(incident_angles)
     print(y_piezo_aligned)
-
-
-    # angle = [0.1]
-
-    # dets = [pil1M]
-    # det_exposure_time(0.2,0.2)
-
-    # yield from bps.mv(stage.x, x_hexa[0])
-    # yield from bps.mv(piezo.x, x_piezo[0])
-    # yield from bps.mv(piezo.y, y_piezo_aligned[0])
-    # yield from bps.mv(piezo.z, z_piezo[0])
-    # yield from bps.mv(piezo.th, incident_angles[0])
-    
-    # for an in angle:
-    #     yield from bps.mv(piezo.th, incident_angles[0] + 0.1)                
-    #     name_fmt = '{sample}_beamdam_sdd6.2m_16.1keV_ai{angl}deg'
-    #     sample_name = name_fmt.format(sample=names[0], angl='%3.2f'%an)
-    #     sample_id(user_name='PT', sample_name=sample_name)
-    #     print(f'\n\t=== Sample: {sample_name} ===\n')
-    #     yield from bp.count(dets, num=300)
-
-
-    # yield from bps.mv(stage.x, x_hexa[2])
-    # yield from bps.mv(piezo.x, x_piezo[2])
-    # yield from bps.mv(piezo.y, y_piezo_aligned[2])
-    # yield from bps.mv(piezo.z, z_piezo[2])
-    # yield from bps.mv(piezo.th, incident_angles[2])
-    
-    # for an in angle:
-    #     yield from bps.mv(piezo.th, incident_angles[2] + 0.1)                
-    #     name_fmt = '{sample}_beamdam_sdd6.2m_16.1keV_ai{angl}deg'
-    #     sample_name = name_fmt.format(sample=names[2], angl='%3.2f'%an)
-    #     sample_id(user_name='PT', sample_name=sample_name)
-    #     print(f'\n\t=== Sample: {sample_name} ===\n')
-    #     yield from bp.count(dets, num=300)      
 
 
     angle = [0.1]

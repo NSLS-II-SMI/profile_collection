@@ -157,8 +157,6 @@ def SAXS_Br_edge(t=1):
 
 
 
-
-
 def SAXS_s_edge(t=1):
     dets = [pil300KW]
     name = '17_Phil_pk61_buffer_saxs'
@@ -198,33 +196,5 @@ def SAXS_s_edge(t=1):
         sample_id(user_name='OS', sample_name=sample_name)
         print(f'\n\t=== Sample: {sample_name} ===\n')
         yield from bp.count(dets, num=1)
-    
-    sample_id(user_name='test', sample_name='test')
-
-def SAXS_s_edge_1ENER(t=1):
-    dets = [pil300KW]
-    name = '17_Phil_pk61_buffer_saxs'
-    energies = [2470, 2477, 2480, 2482, 2484, 2500]
-    #energies = [2470]
-
-    det_exposure_time(t,t) 
-    name_fmt = '{sample}_{energy}eV_xbpm{xbpm}_wa{wa}'
-    wa = [0.0, 6.5, 13.0, 19.5]
-
-    yield from bps.mv(GV7.close_cmd, 1 )
-    yield from bps.sleep(1)
-    yield from bps.mv(GV7.close_cmd, 1 )
-    
-    for wax in wa:
-        yield from bps.mv(waxs, wax)
-        for k, e in enumerate(energies):                              
-            yield from bps.mv(energy, e)
-
-            sample_name = name_fmt.format(sample=name, energy=e, xbpm = '%3.1f'%xbpm3.sumY.value, wa='%2.1f'%wax)
-            sample_id(user_name='OS', sample_name=sample_name)
-            print(f'\n\t=== Sample: {sample_name} ===\n')
-            yield from bp.count(dets, num=1)
-                        
-        yield from bps.mv(energy, 2470)
     
     sample_id(user_name='test', sample_name='test')
