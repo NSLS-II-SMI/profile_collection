@@ -306,7 +306,7 @@ class SMI_Beamline(Beamline):
         elif get_chamber_pressure(chamber_pressure.waxs) > 1E-02 and get_chamber_pressure(chamber_pressure.maxs) < 1E-02:
             self.pressure_state = 'in-air'
         else:
-            self.pressure_state = 'Not read'
+            self.pressure_state = 'low pressure on both GVs'
 
     def update_md(self, prefix='beamline_', **md):
         md_beamline = self.md.copy()

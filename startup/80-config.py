@@ -5,10 +5,7 @@ import os
 
 # things to read at begining and end of every scan
 sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring.current]
-#sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring_current]
 
-# this is the default list for %ct
-# BlueskyMagics.detectors = [FS]
 
 def sample_id(*, user_name, sample_name, tray_number=None):
     RE.md['user_name'] = user_name

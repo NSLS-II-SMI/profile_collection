@@ -9,6 +9,8 @@ import pandas as pds
 import os
 import time
 
+#Code to send email if bluesky crash
+
 '''
 def send_notice(email,subject,msg):
     os.system('echo '+msg+' | mail -s "'+subject+'" '+email)
