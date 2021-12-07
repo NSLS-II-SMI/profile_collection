@@ -63,32 +63,3 @@ prs = EpicsMotor('XF:12IDC-OP:2{HEX:PRS-Ax:Rot}Mtr', name='prs', labels=['prs'])
 
 for pr in [prs]:
     pr.configuration_attrs = pr.read_attrs
-
-
-
-class WAXS(Device):
-    arc = Cpt(EpicsMotor, 'WAXS:1-Ax:Arc}Mtr')
-    bs_x = Cpt(EpicsMotor, 'MCS:1-Ax:5}Mtr')
-    bs_y = Cpt(EpicsMotor, 'BS:WAXS-Ax:y}Mtr')
-
-    def set(self, arc_value):
-        st_arc = self.arc.set(arc_value)
-
-        if self.arc.limits[0] <= arc_value <= 10.61:
-            calc_value = self.calc_waxs_bsx(arc_value)
-        
-        elif 10.61 <= arc_value <=13:
-            raise ValueError("The waxs detector cannot be moved to {} deg until the new beamstop is mounted".format(arc_value))
-        else:
-            calc_value = -40
-        st_x = self.bs_x.set(calc_value)
-        return st_arc & st_x
-        
-    def calc_waxs_bsx(self, arc_value):
-        # bsx_pos =-20.92 + 264 * np.tan(np.deg2rad(arc_value))
-        bsx_pos = 13.8 + 252*np.tan(np.deg2rad(arc_value))
-
-        return bsx_pos
-
-
-waxs = WAXS('XF:12IDC-ES:2{', name='waxs')
