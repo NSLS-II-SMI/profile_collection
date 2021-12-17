@@ -5,43 +5,43 @@ print(f'Loading {__file__}')
 
 def align_gisaxs_height(rang=0.3, point=31, der=False):
         yield from bp.rel_scan([pil1M], piezo.y, -rang, rang, point)
-        ps_new(der=der, plot = False)
+        ps(der=der, plot = False)
         yield from bps.mv(piezo.y, ps.cen)
 
 
 def align_gisaxs_height_rb(rang=0.3, point=31, der=False):
         yield from bp.rel_scan([pil1M], piezo.y, -rang, rang, point)
-        ps_new(der=der, plot = False)
+        ps(der=der, plot = False)
         yield from bps.mv(piezo.y, ps.peak)
 
 
 def align_gisaxs_th(rang=0.3, point=31):
         yield from bp.rel_scan([pil1M], piezo.th, -rang, rang, point)
-        ps_new(plot = False)
+        ps(plot = False)
         yield from bps.mv(piezo.th, ps.peak)
 
 
 def align_xrr_prs(rang=0.3, point=31):
         yield from bp.rel_scan([pil1M], prs, -rang, rang, point)
-        ps_new(plot = False)
+        ps(plot = False)
         yield from bps.mv(prs, ps.peak)
 
 
 def align_xrr_height(rang=0.3, point=31, der=False):
         yield from bp.rel_scan([pil1M], piezo.x, -rang, rang, point)
-        ps_new(der=der, plot = False)
+        ps(der=der, plot = False)
         yield from bps.mv(piezo.x, ps.peak)
 
 
 def align_gisaxs_height_hex(rang=0.3, point=31, der=False):
         yield from bp.rel_scan([pil1M], stage.y, -rang, rang, point)
-        ps_new(der=der,plot = False)
+        ps(der=der,plot = False)
         yield from bps.mv(stage.y, ps.cen)
 
 
 def align_gisaxs_th_hex(rang=0.3, point=31):
         yield from bp.rel_scan([pil1M], stage.th, -rang, rang, point)
-        ps_new(plot = False)
+        ps(plot = False)
         yield from bps.mv(stage.th, ps.peak)
 
 
@@ -352,14 +352,14 @@ def alignement_xrr(angle=0.15):
 
         yield from smi.setReflectedBeamROI(total_angle=-0.15, technique='xrr')
         yield from align_xrr_prs(0.5, 21)
-        yield from bps.mv(prs, ps.peak + 0.15)
-
+        
+        yield from bps.mv(prs, ps.peak + 0.0725)
 
         # move to theta 0 + value
         yield from bps.mv(prs, ps.peak - angle)
 
         # Set reflected ROI
-        yield from smi.setReflectedBeamROI(total_angle=-angle, technique='xrr')
+        yield from smi.setReflectedBeamROI(total_angle=-2*angle, technique='xrr')
         
         # Scan theta and height
         yield from align_xrr_prs(0.2, 31)
