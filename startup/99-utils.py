@@ -63,26 +63,29 @@ from Maksim
 
 
 def ps_new(der=False, plot=True):
+    yield from bps.sleep(0.5)
     uid = list(bec._peak_stats)[0]
     stats = list(bec._peak_stats[uid])[0]
     pss = bec._peak_stats[uid][stats]
 
     if der:
-        x = pss.derivative_stats.x
-        y = pss.derivative_stats.y
         ps.cen = pss.derivative_stats.cen
         ps.fwhm = pss.derivative_stats.fwhm
         ps.peak = pss.derivative_stats.max[0]
         ps.com = pss.derivative_stats.com
     else:
-        x = pss.x_data
-        y = pss.x_data
         ps.cen = pss.stats.cen
         ps.fwhm = pss.stats.fwhm
         ps.peak = pss.stats.max[0]
         ps.com = pss.stats.com
 
     if plot:
+        if der:
+            x = pss.derivative_stats.x
+            y = pss.derivative_stats.y
+        else:
+            x = pss.x_data
+            y = pss.x_data
         plt.figure()
         plt.plot([ps.peak, ps.peak], [np.min(y), np.max(y)], 'k--', label='PEAK')
         plt.plot([ps.cen, ps.cen], [np.min(y), np.max(y)], 'r-.', label='CEN')
