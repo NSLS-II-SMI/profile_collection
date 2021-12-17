@@ -11,7 +11,6 @@ class Linkam(PVPositioner):
     readback = Cpt(EpicsSignalRO, 'TEMP')
     setpoint = Cpt(EpicsSignal, 'SETPOINT:SET')
     status_code = Cpt(EpicsSignal, 'STATUS')
-    done = Cpt(AtSetpoint, parent_attr = 'status_code')
 
     ## all the rest of the Linkam signals
     init = Cpt(EpicsSignal, 'INIT')
