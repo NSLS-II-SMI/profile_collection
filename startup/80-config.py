@@ -27,42 +27,53 @@ def proposal_id(cycle_id, proposal_id):
     RE.md['cycle'] = cycle_id
     RE.md['proposal_number'] = proposal_id.split('_')[0]
     RE.md['main_proposer'] = proposal_id.split('_')[1]
-    RE.md['path'] = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id)
+    # RE.md['path'] = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id)
+    RE.md['path'] = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id)
+
 
     # 2018-04-10: Maksim asked Tom about why this 'put' does not create the folder,
     # Tom suggested to ask PoC to update AD installation.
     import stat
     
-    newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
-    #newDir = "/nsls2/xf12id2/data/images/users/{proposal_id}/MAXS"
+    # newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
+    newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
+
     try:
         os.stat(newDir)
     except FileNotFoundError:
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     
-    newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/1M"
+    # newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/1M"
+    newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/1M"
+
     try:
         os.stat(newDir)
     except FileNotFoundError:
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     
-    newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
+    # newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
+    newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
+
     try:
         os.stat(newDir)
     except FileNotFoundError:
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
          
-    newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/900KW"
+    # newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/900KW"
+    newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/900KW"
+
     try:
         os.stat(newDir)
     except FileNotFoundError:
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-    newDir = "/nsls2/xf12id2/analysis/" + str(cycle_id) + "/" + str(proposal_id)
+    # newDir = "/nsls2/xf12id2/analysis/" + str(cycle_id) + "/" + str(proposal_id)
+    newDir = "/nsls2/data/smi/legacy/results/analysis/" + str(cycle_id) + "/" + str(proposal_id)
+
     try:
         os.stat(newDir)
     except FileNotFoundError:
@@ -74,10 +85,11 @@ def proposal_id(cycle_id, proposal_id):
     # pil300KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/300KW")
     # rayonix.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/MAXS")
 
-    pil1M.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/1M")
-    pil900KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/900KW")
-    pil300KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/300KW")
-    rayonix.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/MAXS")
+    pil1M.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/1M")
+    pil900KW.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/900KW")
+    pil300KW.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/300KW")
+    rayonix.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/MAXS")
+
 
 def beamline_mode(mode=None):
     allowed_modes = ['sulfur', 'hard']
