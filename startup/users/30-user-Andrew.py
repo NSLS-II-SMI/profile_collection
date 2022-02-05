@@ -66,6 +66,82 @@ def giwaxs_andrew(t=1):
                 yield from bp.count(dets, num=1)
 
 
+def giwaxs_andrew_2022_1(t=0.5): 
+    
+    names = ['sample01', 'sample02', 'sample03', 'sample04', 'sample05', 'sample52', 'sample53', 'sample54', 'sample06', 'sample07', 'sample08']
+    # names = ['sample09', 'sample10', 'sample11', 'sample12', 'sample13', 'sample14', 'sample15', 'sample16', 'sample17', 'sample18', 'sample19']
+    # names = ['sample20', 'sample21', 'sample22', 'sample23', 'sample24', 'sample25', 'sample26', 'sample27', 'sample28', 'sample29', 'sample30']
+    # names = ['sample31', 'sample32', 'sample33', 'sample34', 'sample35', 'sample36', 'sample37', 'sample38', 'sample39', 'sample40', 'sample41']
+    # names = ['sample42', 'sample43', 'sample44', 'sample45', 'sample46', 'sample47', 'sample48', 'sample49', 'sample50', 'sample51']
+
+
+
+    x_piezo = [    55000,   55000,   43000,   30000,  15000,    2000,  -11000,  -24000,  -37000,  -51000, -55000]
+    y_piezo = [     5500,    5500,    5500,    5500,   5500,    5500,    5500,    5500,    5500,    5500,   5500]
+    z_piezo = [        0,       0,       0,       0,      0,       0,       0,       0,       0,       0,      0]
+    x_hexa =  [      13,        0,       0,       0,      0,       0,       0,       0,       0,       0,    -10]
+
+    assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
+    assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
+    assert len(x_piezo) == len(z_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})'
+    assert len(x_piezo) == len(x_hexa), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})'
+
+    waxs_arc = [0, 2, 20]
+    angle = [0.11, 0.15, 0.2]
+
+    dets = [pil900KW]
+    det_exposure_time(t,t)
+
+    for name, xs, zs, ys, xs_hexa in zip(names, x_piezo, z_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, 0)
+        yield from bps.mv(GV7.open_cmd, 1 )
+        yield from alignement_gisaxs(angle = 0.11)
+        yield from bps.mv(GV7.close_cmd, 1)
+        yield from bps.sleep(2)
+        yield from bps.mv(GV7.close_cmd, 1)
+        ai0 = piezo.th.position
+        det_exposure_time(t,t)
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)  
+
+            for i, an in enumerate(angle):
+                yield from bps.mv(piezo.x, xs + i * 500)
+                yield from bps.mv(piezo.th, ai0 + an)
+                ener = 0.001 * energy.energy.position                 
+                name_fmt = '{sample}_{en}keV_ai{angl}deg_wa{waxs}'
+                sample_name = name_fmt.format(sample=name, en='%2.1f'%ener, angl='%3.2f'%an, waxs='%2.1f'%wa)
+                sample_id(user_name='PT', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+            
+            yield from bps.mv(piezo.th, ai0)
+
+
+
+
+def waxs_andrew_2022_1(t=0.5): 
+    names = ['agbh']
+    waxs_arc = [0, 2, 20, 22, 40, 42]
+
+    dets = [pil900KW]
+    det_exposure_time(t,t)
+
+    for name in names:
+        det_exposure_time(t,t)
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)                  
+            name_fmt = '{sample}_16.1keV_wa{waxs}'
+            sample_name = name_fmt.format(sample=name, waxs='%2.1f'%wa)
+            sample_id(user_name='PT', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+
+            yield from bp.count(dets, num=1)
+            
 
 
 def Andrew_temp_2021_1(tim=0.5): 

@@ -54,10 +54,110 @@ def run_BD(t=0.2):
 
 
 
-def giwaxs_insitu_heating(tim=0.5): 
-    #samples = ['PHBTBTC10_vapor_sam3_run2_cooldown_25C']
-    samples = ['PHBTBTC10_solution_post_70C_sam1']
 
+def giwaxs_insitu_heating(tim=0.5): 
+    # samples = ['PHBTBTC10_vapor_sam3_run2_cooldown_25C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_25C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_40C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_50C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_60C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_70C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_80C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_90C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_100C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_110C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_120C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_130C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_140C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_150C']
+
+    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_140C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_130C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_120C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_110C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_100C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_90C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_80C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_70C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_60C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_50C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_40C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_25C']
+
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_25C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_40C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_50C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_60C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_70C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_80C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_90C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_100C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_110C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_1min']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_6min']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_11min']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_16min']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_21min']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_26min']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_31min']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_36min']
+    
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_110C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_100C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_90C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_80C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_70C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_60C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_50C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_40C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_25C']
+
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_25C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_40C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_50C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_60C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_70C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_80C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_90C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_100C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_110C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_120C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_130C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_140C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_150C']
+
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_140C']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_130C']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_120C']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_110C']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_100C']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_90C']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_80C']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_70C']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_60C']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_50C']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_40C']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_25C']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_25C_check']
+    # samples = ['PHBTBTC10_quenched_sam1_cool_down_25C_check_2']
+
+    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_25C']
+    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_40C']
+    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_60C']
+    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_80C']
+    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_100C']
+    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_120C_1min']
+    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_120C_6min']
+    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_120C_11min']
+    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_120C_16min']
+
+    # samples = ['PHBTBTC10_quenched_sam1_run2_cool_down_100C']
+    # samples = ['PHBTBTC10_quenched_sam1_run2_cool_down_80C']
+    # samples = ['PHBTBTC10_quenched_sam1_run2_cool_down_60C']
+    # samples = ['PHBTBTC10_quenched_sam1_run2_cool_down_40C']
+    samples = ['PHBTBTC10_quenched_sam1_run2_cool_down_25C']
+    
+    
     x_list  = [0]
     incident_angle = 0.1
 
@@ -72,7 +172,7 @@ def giwaxs_insitu_heating(tim=0.5):
     det_exposure_time(tim, tim)
 
     for s in samples:
-        yield from bps.mvr(piezo.x, 60)
+        # yield from bps.mvr(piezo.x, 60)
         
         yield from alignement_gisaxs(0.1)
         ai0 = piezo.th.position
@@ -95,9 +195,15 @@ def giwaxs_insitu_heating(tim=0.5):
 
 
 def giwaxs_insitu_heating_norealignement(tim=0.5): 
-    samples = ['PHBTBTC10_vapor_sam2_25C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_25C']
+    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_25C']
+    # samples = ['PHBTBTC10_quenched_sam1_heat_up_25C']
+    samples = ['Chad_sample']
+
+
     x_list  = [0]
     incident_angle = 0.1
+    # incident_angle = 0.2
 
     name = 'RH'
     assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
@@ -110,7 +216,7 @@ def giwaxs_insitu_heating_norealignement(tim=0.5):
     det_exposure_time(tim, tim)
 
     for x, s in zip(x_list, samples):
-        yield from bps.mv(piezo.x, 60)
+        # yield from bps.mv(piezo.x, 60)
         
         ai0 = piezo.th.position
         yield from bps.mv(piezo.th, ai0 + incident_angle)
@@ -181,14 +287,15 @@ def giwaxs_insitu_single(t=0.5, tim=0.5):
     det_exposure_time(0.5,0.5)
 
 
-def giwaxs_headrick_2021_3(t=0.5): 
+def giwaxs_headrick_2022_1(t=0.5): 
     
     
-    names = [   'S1_CHX_again']
-    x_piezo = [    59200  ]
-    y_piezo = [     8500    ]
-    z_piezo = [     2000   ]
-    x_hexa =  [      7    ]
+
+    names = [   'Chad_S1_1', 'Chad_S1_2', 'Chad_S2_1', 'Chad_S2_2', 'Chad_S3_1', 'Chad_S3_2',]
+    x_piezo = [    57000,  45000, 10000, -4000, -39000, -51000]
+    y_piezo = [     5500,   5500, 5500, 5500, 5500, 5500]
+    z_piezo = [     1100,   1100, 1100, 1100, 1100, 1100]
+    x_hexa =  [      0,    0, 0, 0, 0, 0]
 
     assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
     assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
@@ -197,8 +304,9 @@ def giwaxs_headrick_2021_3(t=0.5):
 
     waxs_arc = [0, 20]
     angle = [0.1]
+    # angle = [5]
 
-    dets = [pil900KW]
+    dets = [pil900KW, pil1M]
     det_exposure_time(t,t)
 
     for name, xs, zs, ys, xs_hexa in zip(names, x_piezo, z_piezo, y_piezo, x_hexa):
@@ -206,7 +314,7 @@ def giwaxs_headrick_2021_3(t=0.5):
         yield from bps.mv(piezo.x, xs)
         yield from bps.mv(piezo.y, ys)
         yield from bps.mv(piezo.z, zs)
-        yield from bps.mv(piezo.th, 0)
+        yield from bps.mv(piezo.th, 0.6)
         
         yield from alignement_gisaxs(angle = 0.1)
 
@@ -217,9 +325,9 @@ def giwaxs_headrick_2021_3(t=0.5):
             for i, an in enumerate(angle):
                 yield from bps.mv(piezo.x, xs)
                 yield from bps.mv(piezo.th, ai0 + an)                
-                name_fmt = '{sample}_16.1keV_ai{angl}deg_wa{waxs}'
+                name_fmt = '{sample}_16.1keV_ai{angl}deg_wa{waxs}_5m'
                 sample_name = name_fmt.format(sample=name, angl='%3.2f'%an, waxs='%2.1f'%wa)
-                sample_id(user_name='PT', sample_name=sample_name)
+                sample_id(user_name='RH', sample_name=sample_name)
                 print(f'\n\t=== Sample: {sample_name} ===\n')
 
                 yield from bp.count(dets, num=1)

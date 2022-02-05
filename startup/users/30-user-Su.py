@@ -799,7 +799,7 @@ def Su_nafion_swaxs_S_edge_SVA_2021_3(t=1):
     setWetFlow(5)
     yield from bps.sleep(600)
 
-   names = ['bkg','NCo0','NCo14','NCo33','NCo70','NCo114','MP_5', 'MP_6', 'MP_7', 'MP_7']
+    names = ['bkg','NCo0','NCo14','NCo33','NCo70','NCo114','MP_5', 'MP_6', 'MP_7', 'MP_7']
     x =     [ 30.5,  24.0,   17.5,   11.5,    5.0,    -1.5,  -8.0,  -14.0,  -20.5,  -26.5]
     y =     [ -1.5,  -1.5,   -1.5,   -1.5,   -1.5,    -1.5,  -1.5,   -1.5,   -1.5,   -1.5]
 
@@ -896,3 +896,141 @@ def Su_nafion_swaxs_S_edge_SVA_2021_3(t=1):
 
     setDryFlow(0)
     setWetFlow(0)
+
+def waxs_S_edge_greg_2022_1(t=1):
+    """
+    307830_Su Feb 2, 2022
+    """
+
+    dets = [pil900KW, pil1M]
+
+    # names = ['M725', 'M825', 'M1000', 'TF725T', 'TF825T', 'TF1000T', 'TF30T', 'TF50T', 'TF70T', 'TF90T', 'TF725', 'TF825', 'TF1000',
+    #          'TF30', 'TF50',  'TF70',   'TF90',   'DT20',    'DT35',  'DT50', 'BLANK',   'M30',   'M50',   'M70',   'M90']
+
+    # x =     [ 43000,  37000,   31000,    24500,    18500,     13000,    7500,    2000,   -3000,   -8500,  -14500,  -19500,  -25000,
+    #           42000,  36500,   31000,    26000,    20500,     15000,    9500,    4200,   -3800,  -10000,  -18000,  -26000]
+    
+    # y =     [ -8500,  -8500,   -8500,    -8500,    -8700,     -8700,   -8700,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,
+    #            4000,   4000,    4000,     4000,     4000,      4000,    4000,    4200,    4200,    4200,    4200,    4200]
+
+    names = [  'M725',  'M825', 'M1000',  'TF50T', 'TF70T', 'TF90T', 'TF725', 'TF825', 'TF1000',
+               'TF30',  'TF50',  'TF70',  'TF90',  'DT20',   'DT35',  'DT50', 'BLANK',   'M30',   'M50',   'M70',   'M90']
+
+    x =     [   43000,   37700,   30000,    2000,   -3000,   -8500,  -14500,  -19500,  -25000,
+                42000,   36500,   31000,   26000,   20500,   15000,    9500,    4200,   -3800,  -10000,  -18000,  -26000]
+    
+    y =     [   -8500,   -8700,   -8700,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,
+                 4000,    4000,    4000,    4000,    4000,    4000,    4000,    4200,    4200,    4200,    4200,    4200]
+
+    #energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.5).tolist() + np.arange(2480, 2490, 2).tolist()+ np.arange(2490, 2501, 5).tolist()
+    energies = 7 + np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist())
+    waxs_arc = [0, 20, 40, 60]
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        ys = ys - 200
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 500, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t, t)
+
+            name_fmt = '{sample}_1.6m_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='AB', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+
+
+def saxs_S_edge_greg_2022_1(t=1):
+    """
+    307830_Su Feb 2, 2022
+    """
+    proposal_id('2022_1', '307830_Su2')
+
+    dets = [pil1M]
+
+    # names = ['M725', 'M825', 'M1000', 'TF725T', 'TF825T', 'TF1000T', 'TF30T', 'TF50T', 'TF70T', 'TF90T', 'TF725', 'TF825', 'TF1000',
+    #          'TF30', 'TF50',  'TF70',   'TF90',   'DT20',    'DT35',  'DT50', 'BLANK',   'M30',   'M50',   'M70',   'M90']
+
+    # x =     [ 43000,  37000,   31000,    24500,    18500,     13000,    7500,    2000,   -3000,   -8500,  -14500,  -19500,  -25000,
+    #           42000,  36500,   31000,    26000,    20500,     15000,    9500,    4200,   -3800,  -10000,  -18000,  -26000]
+    
+    # y =     [ -8500,  -8500,   -8500,    -8500,    -8700,     -8700,   -8700,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,
+    #            4000,   4000,    4000,     4000,     4000,      4000,    4000,    4200,    4200,    4200,    4200,    4200]
+
+    names = [  'M725',  'M825', 'M1000',  'TF50T', 'TF70T', 'TF90T', 'TF725', 'TF825', 'TF1000',
+               'TF30',  'TF50',  'TF70',  'TF90',  'DT20',   'DT35',  'DT50', 'BLANK',   'M30',   'M50',   'M70',   'M90']
+
+    x =     [   43000,   37700,   30000,    2000,   -3000,   -8500,  -14500,  -19500,  -25000,
+                42000,   36500,   31000,   26000,   20500,   15000,    9500,    4200,   -3800,  -10000,  -18000,  -26000]
+    
+    y =     [   -8500,   -8700,   -8700,   -8500,   -8500,   -8500,   -8500,   -8500,   -8500,
+                 4000,    4000,    4000,    4000,    4000,    4000,    4000,    4200,    4200,    4200,    4200,    4200]
+
+    #energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.5).tolist() + np.arange(2480, 2490, 2).tolist()+ np.arange(2490, 2501, 5).tolist()
+    energies = 7 + np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist())
+    waxs_arc = [60]
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        ys = ys - 200
+        xs = xs - 400
+
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 500, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t, t)
+
+            name_fmt = '{sample}_3.2m_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm2.sumX.value
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='AB', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
