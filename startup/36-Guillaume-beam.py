@@ -17,7 +17,8 @@ class SMIBeam(object):
         self.hc_over_e = 1.23984197e-6  # eV*m
         self.D_Si111 = 3.1293           # Angstroms
    
-        self.dcm = Energy(prefix='', name='energy', read_attrs=['energy', 'ivugap', 'bragg'], configuration_attrs=['enableivu', 'enabledcmgap', 'target_harmonic'])
+        # self.dcm = Energy(prefix='', name='energy', read_attrs=['energy', 'ivugap', 'bragg'], configuration_attrs=['enableivu', 'enabledcmgap', 'target_harmonic'])
+        self.dcm = energy
 
     def _foilState(self):
         current_state = []
@@ -129,7 +130,7 @@ class SMIBeam(object):
         if self.dcm.energy.position < 6000:
             yield from bps.mv(waxs.bs_y, -14)
         else:
-            yield from bps.mv(waxs.bs_y, -19)
+            yield from bps.mv(waxs.bs_y, -17)
 
 
 # End class SMIBeam(object)
