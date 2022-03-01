@@ -299,7 +299,7 @@ def quickalign_gisaxs(angle = 0.15):
         yield from smi.modeAlignment()
         
         # move to theta 0 + value
-        yield from bps.mv(piezo.th, ps.peak + angle)
+        yield from bps.mvr(piezo.th, angle)
 
         # Set reflected ROI
         yield from smi.setReflectedBeamROI(total_angle=angle)
