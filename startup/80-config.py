@@ -35,8 +35,8 @@ def proposal_id(cycle_id, proposal_id):
     # Tom suggested to ask PoC to update AD installation.
     import stat
     
-    # newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
-    newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
+    newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
+    # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
 
     try:
         os.stat(newDir)
@@ -44,8 +44,8 @@ def proposal_id(cycle_id, proposal_id):
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     
-    # newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/1M"
-    newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/1M"
+    newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/1M"
+    # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/1M"
 
     try:
         os.stat(newDir)
@@ -53,8 +53,8 @@ def proposal_id(cycle_id, proposal_id):
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
     
-    # newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
-    newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
+    newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
+    # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
 
     try:
         os.stat(newDir)
@@ -62,8 +62,8 @@ def proposal_id(cycle_id, proposal_id):
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
          
-    # newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/900KW"
-    newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/900KW"
+    newDir = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id) + "/900KW"
+    # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/900KW"
 
     try:
         os.stat(newDir)
@@ -71,8 +71,8 @@ def proposal_id(cycle_id, proposal_id):
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-    # newDir = "/nsls2/xf12id2/analysis/" + str(cycle_id) + "/" + str(proposal_id)
-    newDir = "/nsls2/data/smi/legacy/results/analysis/" + str(cycle_id) + "/" + str(proposal_id)
+    newDir = "/nsls2/xf12id2/analysis/" + str(cycle_id) + "/" + str(proposal_id)
+    # newDir = "/nsls2/data/smi/legacy/results/analysis/" + str(cycle_id) + "/" + str(proposal_id)
 
     try:
         os.stat(newDir)
@@ -80,15 +80,15 @@ def proposal_id(cycle_id, proposal_id):
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-    # pil1M.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/1M")
-    # pil900KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/900KW")
-    # pil300KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/300KW")
-    # rayonix.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/MAXS")
+    pil1M.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/1M")
+    pil900KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/900KW")
+    pil300KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/300KW")
+    rayonix.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/MAXS")
 
-    pil1M.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/1M")
-    pil900KW.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/900KW")
-    pil300KW.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/300KW")
-    rayonix.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/MAXS")
+    # pil1M.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/1M")
+    # pil900KW.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/900KW")
+    # pil300KW.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/300KW")
+    # rayonix.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/MAXS")
 
 
 def beamline_mode(mode=None):
