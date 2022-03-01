@@ -205,3 +205,41 @@ def gu_saxs_S_2022_1(t=1):
 
             yield from bps.mv(energy, 2470)
             yield from bps.mv(energy, 2450)
+
+
+
+
+def gu_saxs_hardxray_2022_1(t=1):
+    dets = [pil1M]
+
+    energies = [16100]
+    waxs_arc = [20]
+
+
+    names=['Trimethyl_benzene', 'PCE10', 'PTB7', 'Pff4TBT', 'P3DT']
+    x = [                31800,   19200,  14100,      5100, -27000]
+    y = [                -3300,   -3800,  -3900,     -4000,  -4200]
+
+
+    assert len(names) == len(x), f'Number of X coordinates ({len(names)}) is different from number of samples ({len(x)})'
+    assert len(y) == len(x), f'Number of X coordinates ({len(y)}) is different from number of samples ({len(x)})'
+
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_4.0m_{energy}eV_wa{wax}_exp5s'
+            for i, e in enumerate(energies): 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(5)
+                # yield from bps.mv(piezo.y, ys + i * 50)
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa)
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)

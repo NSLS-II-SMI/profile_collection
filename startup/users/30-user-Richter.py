@@ -721,6 +721,7 @@ def S_edge_measurments_2021_3(t=1):
         yield from bps.mv(piezo.th, ai0)
         yield from alignement_gisaxs(0.40)   
 
+        #insert attenuator, factor 10
         yield from bps.mv(att2_9.open_cmd, 1)
         yield from bps.sleep(1)
         yield from bps.mv(att2_9.open_cmd, 1)
@@ -850,3 +851,113 @@ def Cl_edge_measurments_2021_3_hex(t=1):
 
             yield from bps.mv(stage.th, ai0)
 
+
+
+def run_waxs_waitwater_2022_1(t=1):
+    names = ['KClO4_flow_on_AuNps_2450eV']    
+    user = 'LR'    
+    det_exposure_time(t,t)     
+
+    # Detectors, motors:
+    dets = [pil900KW]
+
+    t0 = time.time()
+    
+    for t in np.linspace(0, 299, 300):
+
+        name_fmt = '{sample}_{time}s'
+        sample_name = name_fmt.format(sample=names[0], time='%.1f'%(time.time()-t0))
+        sample_id(user_name=user, sample_name=sample_name) 
+        
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.count(dets, num=1)
+        yield from bps.sleep(50)
+
+    sample_id(user_name=user, sample_name=sample_name) 
+    print(f'\n\t=== Sample: {sample_name} ===\n')
+
+    det_exposure_time(0.3, 0.3)
+
+
+
+
+
+def Cl_edge_measurments_liquid_cell(t=1):
+    dets = [pil900KW]
+    det_exposure_time(t,t)     
+
+    name = 'KClO4_2ndload_flowing_300ssleep'
+
+    energies = [2800.0, 2810.0, 2820.0, 2825.0, 2830.0, 2832.0, 2834.0, 2834.5, 2835.0, 2835.5, 2836.0, 2836.5, 2837.0, 2837.5, 2838.0, 2838.5, 2839.0, 2839.5, 
+    2840.0, 2840.5, 2841.0, 2841.5, 2845.0, 2850.0, 2855.0, 2860.0, 2865.0, 2870.0, 2875.0, 2880.0, 2890.0]
+
+    waxs_arc = [23]
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        counter = 0
+
+        name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+        for e in energies:
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(300)
+            # yield from bps.mvr(stage.y, -0.02)
+            # if xbpm2.sumX.get() < 120:
+            #     yield from bps.sleep(5)
+            #     yield from bps.mv(energy, e)
+            #     yield from bps.sleep(2)
+
+            bpm = xbpm3.sumX.get()
+            sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+            sample_id(user_name='LR', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+        
+    yield from bps.mv(energy, 2860)
+    yield from bps.sleep(2)
+    yield from bps.mv(energy, 2830)
+    yield from bps.sleep(2)
+    yield from bps.mv(energy, 2810)
+    yield from bps.sleep(2)
+
+
+    yield from bps.sleep(300)
+
+    
+    dets = [pil900KW]
+    det_exposure_time(t,t)     
+
+    # names = ['KClO4']
+    # name = 'KClO4_2ndload_flowing_300ssleep'
+
+    energies = 0.25 + np.asarray([2800.0, 2810.0, 2820.0, 2825.0, 2830.0, 2832.0, 2834.0, 2834.5, 2835.0, 2835.5, 2836.0, 2836.5, 2837.0, 2837.5, 2838.0, 2838.5, 2839.0, 2839.5, 
+    2840.0, 2840.5, 2841.0, 2841.5, 2845.0, 2850.0, 2855.0, 2860.0, 2865.0, 2870.0, 2875.0, 2880.0, 2890.0])
+
+    waxs_arc = [23]
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        counter = 0
+
+        name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+        for e in energies:
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(300)
+            # yield from bps.mvr(stage.y, -0.02)
+            # if xbpm2.sumX.get() < 120:
+            #     yield from bps.sleep(5)
+            #     yield from bps.mv(energy, e)
+            #     yield from bps.sleep(2)
+
+            bpm = xbpm3.sumX.get()
+            sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+            sample_id(user_name='LR', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+        
+    yield from bps.mv(energy, 2860)
+    yield from bps.sleep(2)
+    yield from bps.mv(energy, 2830)
+    yield from bps.sleep(2)
+    yield from bps.mv(energy, 2810)
+    yield from bps.sleep(2)

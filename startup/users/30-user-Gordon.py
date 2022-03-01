@@ -423,3 +423,191 @@ def temp_2021_3(tim=0.5):
     
     t_kelvin = 25 + 273.15
     yield from ls.output1.mv_temp(t_kelvin)
+
+
+
+
+def gisaxs_gordon_2022_1(t=1): 
+
+    # # sample names starting from the bottom of the sample stage
+    # names = ['Si_wafer', 'P3RX_copoly_400', 'P3RX_copoly_100', 'P3RX_copoly_25', 'P3RX_copoly_6', 'P3RX_copoly_3',
+    #          'P3RX_copoly_1p5', 'P3RX_copoly_pris', 'P3RX_hb_400', 'P3RX_hb_25', 'P3RX_hb_6', 'P3RX_hb_3',
+    #          'P3RX_hb_1p5', 'P3RX_hb_pris', 'P3RX_mb_400', 'P3RX_mb_25', 'P3RX_mb_6', 'P3RX_mb_3', 'P3RX_mb_1p5',
+    #          'P3RX_mb_pris', 'P3RX_hPT_400', 'P3RX_hPT_100', 'P3RX_hPT_25', 'P3RX_hPT_12', 'P3RX_hPT_6']
+    
+    # # bottom samples positions
+    # x_piezo_btm = [ 55000, 52000, 42000, 30000, 18000,  2000, -7000, -17000, -29000, -41000, -50000, -49000 ]
+    # y_piezo_btm = [  6000,  6000,  6000,  6000,  6000,  6000,  6000,   6000,   6000,   6000,   6000,   6000 ]
+    # z_piezo_btm = [     0,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0 ]
+    # x_hexa_btm =  [    10,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,    -10 ]
+
+    # # top samples positions
+    # x_piezo_top = [ 55000, 53000, 47000, 36000, 27000, 17000,  7000,  -4000, -17000, -28000, -39000, -52000, -53000 ]
+    # y_piezo_top = [ -2600, -2600, -2600, -2600, -2600, -2600, -2600,  -2600,  -2600,  -2600,  -2600,  -2600,  -2600 ]
+    # z_piezo_top = [  4000,  4000,  4000,  4000,  4000,  4000,  4000,   4000,   4000,   4000,   4000,   4000,   4000 ] 
+    # x_hexa_top =  [    10,     5,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,    -10 ]
+
+    # # sample names starting from the bottom of the sample stage
+    # names = ['P3RX_hPT_pris', 'P3RX_mPT_400', 'P3RX_mPT_100', 'P3RX_mPT_25', 'P3RX_mPT_12', 'P3RX_mPT_6',
+    #          'P3RX_mPT_pris', 'P3RX_hPTe_400', 'P3RX_hPTe_25', 'P3RX_hPTe_6', 'P3RX_hPTe_3', 'P3RX_hPTe_1p5', 
+    #          'P3RX_hPTe_pris', 'P3RX_mPTe_400', 'P3RX_mPTe_25', 'P3RX_mPTe_6', 'P3RX_mPTe_3', 'P3RX_mPTe_1p5', 
+    #          'P3RX_mPTe_pris', 'DPP_16', 'DPP_8', 'DPP_4', 'DPP_2', 'DPP_1', 'DPP_0p75', 'DPP_0p50', 'DPP_0p25']
+    
+    # # bottom samples positions
+    # x_piezo_btm = [ 55000, 54000, 44000, 34000, 25000, 17000,  9000,  -3000, -15000, -28000, -42000, -50000 ]
+    # y_piezo_btm = [  6000,  6000,  6000,  6000,  6000,  6000,  6000,   6000,   6000,   6000,   6000,   6000 ]
+    # z_piezo_btm = [     0,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0 ]
+    # x_hexa_btm =  [    10,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,     -6 ]
+
+    # # top samples positions
+    # x_piezo_top = [ 54000, 54000, 43000, 35000, 23000, 15000,  7000,  -2000, -12000, -21000, -31000, -39000, -48000, -48000, -55000]
+    # y_piezo_top = [ -2600, -2600, -2600, -2600, -2600, -2600, -2600,  -2600,  -2600,  -2600,  -2600,  -2600,  -2600,  -2600,  -2600]
+    # z_piezo_top = [  4000,  4000,  4000,  4000,  4000,  4000,  4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000] 
+    # x_hexa_top =  [    10,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,      0,     -8,    -10]
+
+    # # sample names starting from the bottom of the sample stage
+    # names = ['DPP_0', 'PE2_1', 'PE2_2', 'PE2_3', 'PE2_4', 'PEDOT_OH_1', 'PEDOT_OH_5', 'PEDOT_OH_10', 'PEDOT_OH_10IL',
+    #          'PEDOT_OE3_5', 'PEDOT_OE3_10', 'PEDOT_OE3_10IL', 'PE_16k_1', 'PE_16k_2', 'PE_16k_3', 'PE_16k_4',
+    #          'PE_30k_1', 'PE_30k_2', 'PE_30k_3', 'PE_30k_4', 'PE_35p9k_1', 'PE_35p9k_2', 'PE_35p9k_3', 'PE_35p9k_4',
+    #          'PE_55k_1', 'PE_55k_2', 'PE_55k_3', 'PE_55k_4', 'PE_24k_1', 'PE_24k_2']
+    
+    # # bottom samples positions
+    # x_piezo_btm = [ 55000, 55000, 51000, 43000, 36000, 27000, 16000,   5000,  -5000, -14000, -23000, -32000, -42000, -51000, -55000 ]
+    # y_piezo_btm = [  6000,  6000,  6000,  6000,  6000,  6000,  6000,   6000,   6000,   6000,   6000,   6000,   6000,   6000,   6000 ]
+    # z_piezo_btm = [     0,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,      0,      0,      0 ]
+    # x_hexa_btm =  [    10,     3,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,      0,      0,     -6 ]
+
+    # # top samples positions
+    # x_piezo_top = [ 55000, 55000, 48000, 37000, 27000, 16000,  6000,  -4000, -13000, -21000, -29000, -37000, -45000, -54000, -55000]
+    # y_piezo_top = [ -2600, -2600, -2600, -2600, -2600, -2600, -2600,  -2600,  -2600,  -2600,  -2600,  -2600,  -2600,  -2600,  -2600]
+    # z_piezo_top = [  4000,  4000,  4000,  4000,  4000,  4000,  4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000] 
+    # x_hexa_top =  [    10,     1,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,      0,      0,     -9]
+
+    # # sample names starting from the bottom of the sample stage
+    # names = ['PE_24k_3', 'PE_24k_4', 'PE_21k_1', 'PE_21k_2', 'PE_21k_3', 'PE_21k_4', 'PE_13k_1', 'PE_13k_2', 'PE_13k_3', 'PE_13k_4',
+    #          'PE_12p8k_1', 'PE_12p8k_2', 'PE_12p8k_3', 'PE_12p8k_4', 'PE_9p4k_1', 'PE_9p4k_2', 'PE_9p4k_3', 'PE_9p4k_4',
+    #          'PE_60k_1', 'PE_60k_2', 'PE_60k_3', 'PE_60k_4', 'PVA_TiO_10', 'PVA_TiO_20', 'PVA_TiO_30', 'PVA_TiO_40',
+    #          'PVA_TiO_50', 'PVA_TiO_60']
+    
+    # # bottom samples positions
+    # x_piezo_btm = [ 55000, 55000, 50000, 41000, 33000, 24000, 15000,   7000,      0,  -8000, -18000, -30000, -40000, -49000, -55000, -55000 ]
+    # y_piezo_btm = [  6000,  6000,  6000,  6000,  6000,  6000,  6000,   6000,   6000,   6000,   6000,   6000,   6000,   6000,   6000,   6000 ]
+    # z_piezo_btm = [     0,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,      0,      0,      0,      0 ]
+    # x_hexa_btm =  [    11,     3,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,      0,      0,     -2,    -10 ]
+
+    # # top samples positions
+    # x_piezo_top = [ 55000, 55000, 50000, 43000, 34000, 24000, 13000,  -2000, -18000, -31000, -43000, -55000]
+    # y_piezo_top = [ -2600, -2600, -2600, -2600, -2600, -2600, -2600,  -2600,  -2600,  -2600,  -2600,  -2600]
+    # z_piezo_top = [  4000,  4000,  4000,  4000,  4000,  4000,  4000,   4000,   4000,   4000,   4000,   4000] 
+    # x_hexa_top =  [    11,     4,     0,     0,     0,     0,     0,      0,      0,      0,      0,     -1]
+
+#    # sample names starting from the bottom of the sample stage
+#     names = ['PVA_TiO_80', 'PVA_TiO_PVA', 'E71', 'B81', 'E66', 'E72', 'B82', 'E68', 'E74', 'E51', 'E67', 'E73',
+#              'E52', 'E64', 'E75', 'E53', 'E65', 'E76', 'E54', 'B96', 'Bare_Si', 'P3HT_untreated', 'P3HT_0p5hr',
+#              'P3HT_1hr']
+    
+#     # bottom samples positions
+#     x_piezo_btm = [ 52500, 48000, 35000, 24000, 13000,  3000, -7000, -20000, -29000, -38000, -49000, -51000]
+#     y_piezo_btm = [  6000,  6000,  6000,  6000,  6000,  6000,  5800,   5800,   5900,   5900,   6000,   6000]
+#     z_piezo_btm = [     0,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0]
+#     x_hexa_btm =  [    10,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,    -10]
+
+#     # top samples positions
+#     x_piezo_top = [ 54000, 51000, 39000, 26000, 14000,  2000, -10000, -21000, -33000, -45000, -54000, -54000]
+#     y_piezo_top = [ -3000, -2800, -2800, -2800, -2800, -2800,  -2800,  -2600,  -2600,  -2600,  -2600,  -2600]
+#     z_piezo_top = [  4000,  4000,  4000,  4000,  4000,  4000,   4000,   4000,   4000,   4000,   4000,   4000] 
+#     x_hexa_top =  [    10,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,    -10]
+
+
+#    # sample names starting from the bottom of the sample stage
+#     names = ['P3HT_2hr', 'P3HT_3hr', 'DPP_16', 'DPP_8', 'DPP_4', 'DPP_2', 'DPP_1', 'DPP_0p75', 'DPP_0p50', 'DPP_0p25', 'DPP_0',
+#              'P3RX_hPT_400', 'P3RX_hPT_100', 'P3RX_hPT_25', 'P3RX_hPT_12', 'P3RX_hPT_6', 'P3RX_hPT_pris', 'P3RX_mPT_400', 
+#              'P3RX_mPT_100', 'P3RX_mPT_25', 'P3RX_mPT_12', 'P3RX_mPT_6', 'P3RX_mPT_pris', 'P3RX_mPTe_400', 'P3RX_mPTe_25', 
+#              'P3RX_mPTe_6', 'P3RX_mPTe_3', 'P3RX_mPTe_1p5', 'P3RX_mPTe_pris'
+#              #'P3RX_hPTe_pris', 'P3RX_mB_pris', 'P3RX_hB_pris', 'P3RX_copoly_pris',
+#              ]
+    
+#     # bottom samples positions
+#     x_piezo_btm = [ 55000, 54000, 41000, 31000, 21000, 12000,  3000,  -3500, -12000, -20000, -29000, -39000, -50000, -52000]
+#     y_piezo_btm = [  6000,  6000,  6000,  6000,  6000,  6000,  6000,   6000,   6000,   6000,   6000,   6000,   6000,   6000]
+#     z_piezo_btm = [     0,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,      0,      0]
+#     x_hexa_btm =  [    10,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,      0,    -10]
+
+#     # top samples positions
+#     x_piezo_top = [ 54000, 53000, 42000, 30000, 20000, 12000,  4000,  -6000, -11000, -21000, -30000, -40000, -49000, -52000,  -56000]
+#     y_piezo_top = [ -2800, -2800, -2800, -2800, -2800, -2800, -2800,  -2800,  -2800,  -2800,  -2800,  -2800,  -2800,  -2600,   -2600]
+#     z_piezo_top = [  4000,  4000,  4000,  4000,  4000,  4000,  4000,   4000,   4000,   4000,   4000,   4000,   4000,   4000,    4000] 
+#     x_hexa_top =  [    10,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,      0,      0,     -5,     -10]
+
+
+   # sample names starting from the bottom of the sample stage
+    names = ['P3RX_mB_pris', 'P3RX_copoly_pris', 'P3RX_copoly_400', 'P3RX_hPTe_pris', 'PE_9p4k_3', 'PE_13k_4', 'PE_16k_2', 
+             'PE_16k_3', 'PE_24k_2']
+    
+    # bottom samples positions
+    x_piezo_btm = [ 54000, 53000, 36000, 22000,  8000, -2000,-12000, -23000, -32000]
+    y_piezo_btm = [  6000,  6000,  6000,  6000,  6000,  6000,  6000,   6000,   6000]
+    z_piezo_btm = [     0,     0,     0,     0,     0,     0,     0,      0,      0]
+    x_hexa_btm =  [    10,     0,     0,     0,     0,     0,     0,      0,      0]
+
+    # combine position lists
+    x_piezo = x_piezo_btm #+ x_piezo_top
+    y_piezo = y_piezo_btm #+ y_piezo_top
+    z_piezo = z_piezo_btm #+ z_piezo_top
+    x_hexa = x_hexa_btm #+ x_hexa_top
+
+
+    assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
+    assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
+    assert len(x_piezo) == len(z_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})'
+    assert len(x_piezo) == len(x_hexa), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})'
+
+    waxs_arc = [0, 2, 20, 22]
+    angle = [0.1, 0.15, 0.2]
+
+    dets = [pil900KW, pil1M]
+    det_exposure_time(t,t)
+
+    for name, xs, zs, ys, xs_hexa in zip(names, x_piezo, z_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        while abs(piezo.y.position - ys) > 100:
+            yield from bps.mv(piezo.y, ys)
+            yield from bps.sleep(10)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, 0)
+        
+        if ys<0:
+            yield from alignement_gisaxs_doblestack(angle = 0.15)
+        else:
+            yield from bps.mv(piezo.th, 0.5)
+            yield from alignement_gisaxs(angle = 0.15)
+
+
+        yield from bps.mv(att1_9.open_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(att1_9.open_cmd, 1)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t,t)
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)  
+
+            for i, an in enumerate(angle):
+                yield from bps.mv(piezo.x, xs + i * 200)                
+                yield from bps.mv(piezo.th, ai0 + an)
+
+                e = energy.energy.position / 1000 # in keV
+                sdd = pil1m_pos.z.position / 1000 # in m
+
+                name_fmt = '{sample}_{sdd}m_{energy}keV_ai{angl}deg_wa{waxs}'
+                sample_name = name_fmt.format(sample=name, sdd='%.1f'%sdd, energy='%.1f'%e, angl='%3.2f'%an, waxs='%2.1f'%wa)
+                sample_id(user_name='PT', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+            yield from bps.mv(piezo.th, ai0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.1,0.1)
+

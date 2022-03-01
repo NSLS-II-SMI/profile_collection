@@ -616,8 +616,8 @@ def run_waxs_capRPI_2021_3(t=1):
 
 def run_waxs_linkamRPI_2021_3(t=1):
 
-    names = ['JA_S14_B5O2-185wt_2-04-25C2m']
-    user = 'SL'    
+    names = ['Air']
+    user = 'JA'    
     det_exposure_time(t,t)     
 
     # Detectors, motors:
@@ -627,9 +627,51 @@ def run_waxs_linkamRPI_2021_3(t=1):
     sample_name = name_fmt.format(sam=names[0])
     sample_id(user_name=user, sample_name=sample_name) 
     print(f'\n\t=== Sample: {sample_name} ===\n')
-#    yield from bp.scan(dets, stage.y, -3.725, -3.725, 1)
-    yield from bp.scan(dets, stage.y, -4.85, -3.5, 6)
 
-    sample_id(user_name='test', sample_name='test')
+    yield from bp.scan(dets, stage.y, 3.2,1.9,6)
+    #yield from bp.scan(dets, stage.y, 3.27,1.97,6)
+
+    #yield from bp.scan(dets, stage.y, 3.2,3.2,1)
+    #yield from bp.scan(dets, stage.y, 2.94,2.94,1)
+    #yield from bp.scan(dets, stage.y, 2.68,2.68,1)
+    #yield from bp.scan(dets, stage.y, 2.42,2.42,1)
+    #yield from bp.scan(dets, stage.y, 2.16,2.16,1)
+    #yield from bp.scan(dets, stage.y, 1.9,1.9,1)
+
+    #sample_id(user_name='test', sample_name='test')
+    #det_exposure_time(0.3, 0.3)
+
+
+
+
+def run_waxs_linkamRPI_2022_1(t=1):
+    names = ['testtest']
+    time_rec = [0.1, 0.5, 1, 60]
+    waxs_range=[20, 0]
+    
+    user = 'SL'    
+    det_exposure_time(t,t)     
+
+    # Detectors, motors:
+    dets = [pil1M, pil900KW]
+
+    t0 = time.time()
+    
+    for t in time_rec:
+        while (time.time()-t0) < (t * 60):
+            yield from bps.sleep(10)
+
+        for wa in waxs_range:
+            yield from bps.mv(waxs, wa)
+            name_fmt = '{sample}_{time}s'
+            sample_name = name_fmt.format(sample=names[0], time='%.1f'%(time.time()-t0))
+            sample_id(user_name=user, sample_name=sample_name) 
+            
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+
+    sample_id(user_name=user, sample_name=sample_name) 
+    print(f'\n\t=== Sample: {sample_name} ===\n')
+
     det_exposure_time(0.3, 0.3)
 

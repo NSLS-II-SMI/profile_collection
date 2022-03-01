@@ -1034,3 +1034,46 @@ def saxs_S_edge_greg_2022_1(t=1):
 
             yield from bps.mv(energy, 2470)
             yield from bps.mv(energy, 2450)
+
+def waxs_hard_Xray_Su3_2022_1(t=1):
+    """
+    307830_Su3 Feb 16, 2022
+    """
+
+    dets = [pil900KW, pil1M]
+
+    # Included all the samples mounted on the sample bar
+    names = [  'M725',  'M825', 'M1000', 'TF725T', 'TF825T', 'TF1000T', 'TF30T', 'TF50T', 'TF70T', 'TF90T', 'TF725', 'TF825', 'TF1000',
+               'TF30',  'TF50',  'TF70',   'TF90',   'DT20',    'DT35',  'DT50', 'BLANK',   'M30',   'M50',   'M70',   'M90']
+
+    x =     [   43500,   37800,   29000,    24500,    18500,     13000,    7700,    2200,   -2800,   -8300,  -14200,  -19600,  -24800,
+                42000,   36800,   31500,    26000,    20500,     15000,    9700,    4200,   -3800,  -10000,  -18000,  -26000]
+    
+    y =     [   -8500,   -8500,   -8500,    -8500,    -8500,     -8500,   -8500,   -8300,   -8500,   -8500,   -8300,   -8300,   -8500,
+                 4200,    4200,    4200,     4200,     4200,      4200,    4200,    4000,    4000,    4000,    4000,    4000]
+
+    waxs_arc = [0, 20, 40]
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)    
+        det_exposure_time(t, t)
+
+
+        for name, xs, ys in zip(names, x, y):
+            yield from bps.mv(piezo.x, xs)
+            while abs(piezo.y.position - ys) > 100:
+                yield from bps.mv(piezo.y, ys)
+                yield from bps.sleep(10)
+
+
+
+            name_fmt = '{sample}_{sdd}m_{energy}eV_wa{wax}_bpm{xbpm}'
+            bpm = xbpm2.sumX.get()
+            e = energy.energy.position
+            sdd = pil1m_pos.z.position / 1000
+
+            sample_name = name_fmt.format(sample=name, sdd='%.1f'%sdd, energy='%.0f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+            sample_id(user_name='AB', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+
+            yield from bp.count(dets, num=1)
