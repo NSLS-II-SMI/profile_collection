@@ -79,7 +79,7 @@ def alignement_gisaxs(angle=0.15):
         # Scan theta and height
         yield from align_gisaxs_th(0.2, 21)
         yield from align_gisaxs_height_rb(150, 16)
-        yield from align_gisaxs_th(0.025, 21)
+        yield from align_gisaxs_th(0.1, 31) #was .025, 21 changed to .1 31
         
         # Close all the matplotlib windows
         plt.close('all')
@@ -118,7 +118,7 @@ def alignement_gisaxs_doblestack(angle=0.15):
         
         # alignement of incident angle at ai = 0.1 deg so the alignement use the reflected roi not sitting on the db position
         yield from smi.setReflectedBeamROI(total_angle=0.1, technique='gisaxs')
-        yield from align_gisaxs_th(1.5, 27)
+        yield from align_gisaxs_th(2.0, 40) # was 1.5 27
         
         # move to theta 0 + value
         yield from bps.mv(piezo.th, ps.peak + angle)
@@ -129,7 +129,7 @@ def alignement_gisaxs_doblestack(angle=0.15):
         # Scan theta and height
         yield from align_gisaxs_th(0.2, 21)
         yield from align_gisaxs_height_rb(150, 16)
-        yield from align_gisaxs_th(0.025, 21)
+        yield from align_gisaxs_th(0.1, 21) #changed from .025 to .1)
         
         # Close all the matplotlib windows
         plt.close('all')
@@ -177,7 +177,7 @@ def alignement_gisaxs_multisample(angle=0.15):
         # Scan theta and height
         yield from align_gisaxs_th(0.2, 31)
         yield from align_gisaxs_height_rb(150, 21)
-        yield from align_gisaxs_th(0.025, 21)
+        yield from align_gisaxs_th(0.1, 21) # changed from .025 to .1 on 3-38-22
         
         # Close all the matplotlib windows
         plt.close('all')
@@ -235,6 +235,65 @@ def alignement_gisaxs_hex(angle=0.1):
 
         #Deactivate the automated derivative calculation
         bec._calc_derivative_and_stats = False
+
+def alignement_gisaxs_hex_roughsample(angle=0.1):
+        """
+        Regular alignement routine for gisaxs and giwaxs using the hexapod. First, scan of the sample height and incident angle on the direct beam. 
+        Then scan of teh incident angle, height and incident angle again on the reflected beam.
+
+        param angle: np.float. Angle at which the alignement on the reflected beam will be done
+
+        """
+
+        #Activate the automated derivative calculation
+        bec._calc_derivative_and_stats = True
+
+        sample_id(user_name='test', sample_name='test')
+        det_exposure_time(0.5, 0.5)
+        
+        smi = SMI_Beamline()
+        yield from smi.modeAlignment()
+        
+        # Set direct beam ROI
+        yield from smi.setDirectBeamROI()
+
+        # Scan theta and height
+        yield from align_gisaxs_height_hex(0.5, 15, der=True)
+        yield from align_gisaxs_th_hex(0.5, 21)
+        yield from align_gisaxs_height_hex(0.2, 25, der=True)
+        yield from align_gisaxs_th_hex(0.2, 21)
+        # # move to theta 0 + value
+        # yield from bps.mv(stage.th, ps.peak + angle)
+
+        # # Set reflected ROI
+        # yield from smi.setReflectedBeamROI(total_angle=angle, technique='gisaxs')
+                
+        # yield from bps.mv(att2_10.open_cmd, 1)
+        # yield from bps.sleep(1)
+        # yield from bps.mv(att2_10.open_cmd, 1)
+        # yield from bps.sleep(1)
+        # yield from bps.mv(att2_9.open_cmd, 1)
+        # yield from bps.sleep(1)
+        # yield from bps.mv(att2_9.open_cmd, 1)
+        # yield from bps.sleep(1)
+        # yield from bps.mv(att2_11.close_cmd, 1)
+        # yield from bps.sleep(1)
+        # yield from bps.mv(att2_11.close_cmd, 1)
+        # # Scan theta and height
+        # #yield from align_gisaxs_th_hex(0.3, 21)
+        # yield from align_gisaxs_height_hex(0.08, 21)
+        # #yield from align_gisaxs_th_hex(0.05, 21)
+        
+        # Close all the matplotlib windows
+        plt.close('all')
+        
+        # Return angle
+  #      yield from bps.mvr(stage.th, -angle)
+        yield from smi.modeMeasurement()
+
+        #Deactivate the automated derivative calculation
+        bec._calc_derivative_and_stats = False
+
 
 
 def alignement_gisaxs_hex_short(angle = 0.12):

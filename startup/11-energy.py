@@ -3,6 +3,7 @@ print(f'Loading {__file__}')
 import warnings
 import time as ttime
 import os
+import math
 import numpy as np
 from ophyd import (PVPositioner, EpicsSignal, EpicsSignalRO, EpicsMotor,
                    Device, Signal, PseudoPositioner, PseudoSingle)
@@ -24,7 +25,7 @@ def energy_to_gap(target_energy, undulator_harmonic=1):
 
     gap_mm = -533.56314 + (1926.52257) * (0.28544/(1+10**((-10782.55855-f)*1.44995e-4))+(1-0.28544)/(1+10**((7180.06758-f)*6.34167e-4)))
     gap = gap_mm*1000 - 21 #-30 for 12.62; -33 for 14 keV; -21 for 16.1 keV, 18.25keV; -50 for 9540eV; -20 for 2450eV; -45 for 4050eV
-    #-50 for 9700 keV -- 11.150 keV, -55 for 6.55 keV, -35 for 7.7 kev
+    #-50 for 9700 keV -- 11.150 keV, -55 for 6.55 keV, -35 for 7.7 kev;  -11 for 3.6 keV
     
     return gap
 

@@ -38,11 +38,13 @@ class SMIBeam(object):
         elif 2300 < self.dcm.energy.position < 3000:
             # target_state = [att2_12, att2_11, att2_10]
             target_state = [att2_11]
-            # target_state = [att2_12, att2_11] #For humidity cell only
-        elif 3200 < self.dcm.energy.position < 3600:
-            target_state = [att2_5, att2_6, att2_8, att2_9]
-        elif 3600 < self.dcm.energy.position < 3900:
-            target_state = [att2_5, att2_6, att2_7, att2_8]
+            #target_state = [att2_10, att2_9] #For humidity cell only
+        elif 3200 < self.dcm.energy.position <= 3500:
+            target_state = [att2_9, att2_10, att2_11, att2_12]
+        elif 3501 < self.dcm.energy.position <= 3750:
+            target_state = [att2_5, att2_9]
+        elif 3750 < self.dcm.energy.position <= 3900:
+            target_state = [att2_5, att2_7, att2_8]
         elif 3900 < self.dcm.energy.position < 4500:
             target_state = [att2_8]
         elif 4500 < self.dcm.energy.position < 5500:
@@ -128,9 +130,9 @@ class SMIBeam(object):
     def calc_bswaxs_posy(self):
         #Move the waxs beamstop up for safety. If tender, covers up to 1deg ai, if hard, covers up to 0.4deg ai
         if self.dcm.energy.position < 6000:
-            yield from bps.mv(waxs.bs_y, -14)
+            yield from bps.mv(waxs.bs_y, 0.95)
         else:
-            yield from bps.mv(waxs.bs_y, -17)
+            yield from bps.mv(waxs.bs_y, -7)
 
 
 # End class SMIBeam(object)

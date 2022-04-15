@@ -45,7 +45,8 @@ from databroker import Broker
 from ophyd import Signal
 
 nslsii.configure_base(get_ipython().user_ns, 'smi', bec_derivative=True)
-# nslsii.configure_olog(get_ipython().user_ns, subscribe=False)
+# Populating oLog entries with scans, comment out to disable
+# nslsii.configure_olog(get_ipython().user_ns, subscribe=True)
 
 #from bluesky.utils import PersistentDict
 from pathlib import Path
