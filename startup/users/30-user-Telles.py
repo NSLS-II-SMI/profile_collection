@@ -1,4 +1,180 @@
-def sample_bar(meas_t = 1):
+def sample_bar_2022_1(meas_t = 1):
+    
+    # bar_number = 'row_1-6'    
+    
+    # sample_names1=['sample_01', 'sample_02', 'sample_03', 'sample_04', 'sample_05', 'sample_06', 'sample_07', 'sample_08', 'sample_09',
+    #  'sample_10', 'sample_11', 'sample_12', 'sample_13', 'sample_14', 'sample_15']
+    # sample_names2=['sample_16', 'sample_17', 'sample_18', 'sample_19', 'sample_20', 'sample_21', 'sample_22', 'sample_23', 'sample_24', 'sample_25',
+    #  'sample_26', 'sample_27', 'sample_28', 'sample_29', 'sample_30']
+
+    # x_list1 = [          42800,       36800,       30800,       24800,       18800,       12800,       6800,        800,       -5200,
+    #        -11200,     -17100,     -23100,      -29100,      -35100,      -41100]
+    # x_list2 = [          42800,       36800,       30800,       24800,       18800,       12800,       6800,        800,       -5200,
+    #        -11200,     -17100,     -23100,      -29100,      -35100,      -41100]
+    
+    # y_list1 = [         -9080,       -9080,       -8900,       -8900,       -9050,       -9100,       -9100,       -9250,       -9150,
+    #        -9350,       -9300,       -9350,       -8820,       -8820,       -9100]
+    
+    # y_list2 = [         -3950,       -3500,       -4000,       -4050,       -3800,       -4150,       -4050,       -4000,       -4000,
+    #        -4200,       -3800,       -3900,       -3700,       -3750,       -3950]
+    
+    # y_hexa1 = [-8, -8, -8,-8, -8, -8,-8, -8, -8,-8, -8, -8, -8, -8, -8]
+    # y_hexa2 = [-8, -8, -8,-8, -8, -8,-8, -8, -8,-8, -8, -8, -8, -8, -8]
+
+    # y_range1 = [  [0,1050,106],[0,1200,121], [0,1300,131],[0,1050,106],  [0,1150,116],[0,1200,121],[0,1100,111],[0,1150,116],[0,1250,126],
+    #   [0,1100,111], [0,1200,121],[0,1150,116], [0,700,71],  [0,750,76], [ 0,850,86]]
+    # y_range2 = [  [0,650,66],   [0,750,76],  [0,600,61],   [0,700,71],  [0,650,66],  [0,650,66],  [0,600,61],  [0,650,66],  [0,650,66],
+    #     [0,900,91],  [0,700,71],  [0,750,76],  [0,700,71],  [0,650,66],  [0,750,76]]
+
+
+    # # Row 3
+    # sample_names3 = ['sample_31',  'sample_32',  'sample_33',  'sample_34',  'sample_35',  'sample_36',  'sample_37',  'sample_38',  'sample_39',
+    #                  'sample_40',  'sample_41',  'sample_42',  'sample_43',  'sample_44',  'sample_45']
+    
+    # x_list3 =       [      42800,        36800,        30800,        24800,        19200,        12800,         6800,          800,        -5200,
+    #                       -11200,       -17200,       -23200,       -29200,       -35200,       -41200]
+    
+    # y_list3 =       [       1150,         1050,         1100,          950,          500,          900,          700,         1000,          900,
+    #                          600,          900,          900,          950,          950,          550]
+    
+    # y_range3 =      [ [0,700,71],   [0,800,81],   [0,900,91], [0,1100,111], [0,1200,121], [0,1000,101], [0,1050,106], [0,1000,101],   [0,850,86],
+    #                 [0,1000,101], [0,1000,101], [0,1050,106], [0,1100,101],   [0,800,81], [0,1050,106]]
+    
+    # y_hexa3 =       [-8, -8, -8, -8, -8, -8, -8, -8, -8,-8, -8, -8, -8, -8, -8]
+
+
+    # # Row 4
+    # sample_names4 = ['sample_46',  'sample_47',  'sample_48',  'sample_49',  'sample_50',  'sample_51',  'sample_52',  'sample_53',  'sample_54',
+    #                  'sample_55',  'sample_56',  'sample_57',  'sample_58',  'sample_59',  'sample_60']
+    
+    # x_list4 =       [      42800,        36800,        30800,        24800,        18800,        12800,         6800,          800,        -5200,
+    #                       -11200,       -17200,       -23200,       -29200,       -35200,       -41200]
+    
+    # y_list4 =       [       5600,         5900,         5850,         5500,         5800,         5700,         5900,         5700,         6000,
+    #                         6500,         6000,         5700,         5550,         5450,         5350]
+    
+    # y_range4 =     [[0,1600,161],   [0,900,91],   [0,1050,106], [0,1500,151], [0,1100,111], [0,1200,121], [0,750,76],   [0,800,81],   [0,750,76],
+    #                   [0,550,56],   [0,700,71],     [0,750,76], [0,1850,186], [0,2000,201], [0,1750,176]]
+    
+    # y_hexa4 =       [-8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8]
+
+
+    # # Row 5
+    # sample_names5 = ['sample_61',  'sample_62',  'sample_63',  'sample_64',  'sample_65',  'sample_66',  'sample_67',  'sample_68',  'sample_69',
+    #                  'sample_70',  'sample_71',  'sample_72',  'sample_73',  'sample_74',  'sample_75']
+    
+    # x_list5 =       [      42800,        36800,        30800,        24800,        18800,        12800,         6800,          800,        -5200,
+    #                       -11200,       -17200,       -23200,       -29200,       -35100,       -41100]
+    
+    # y_list5 =       [        900,        700,          900,          800,          800,          600,           900,          750,          700,
+    #                          850,         800,          850,          900,          550,         800 ]
+    
+    # y_range5 =     [[0, 900, 91],   [0,1100,111],   [0,1000,101], [0,800,81], [0,1000,101],  [0,950,96],    [0,1000,101],   [0,1000,101], [0,1000,101],
+    #                   [0,900,91],   [0,800,81],     [0,700,71],   [0,700,71],   [0,800,81],   [0,800,81]]
+    
+    # y_hexa5 =       [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+    # # Row 6
+    # sample_names6 = ['sample_76',  'sample_77',  'sample_78',  'sample_79',  'sample_80',  'sample_81',  'sample_82',  'sample_83',  'sample_84',
+    #                  'sample_85',  'sample_86',  'sample_87',  'sample_88',  'sample_89',  'sample_90']
+    
+    # x_list6 =       [      42800,        36800,        30800,        24800,        18800,        12800,         6800,          800,        -5200,
+    #                       -11000,       -17100,       -23100,       -29100,       -35100,       -41100]
+    
+    # y_list6 =       [       6150,        5850,          5800,         5700,        5700,          5650,         5700,         5400,        5550,
+    #                         5350,        5550,          5550,        5650,         5550,         5600 ]
+    
+    # y_range6 =     [[0, 850, 86],   [0,900,91],   [0,900,91],     [0,950,96],   [0,800,81],    [0,750,76],    [0,800,81],   [0,1200,121], [0,1350,136],
+    #                 [0,1450,146],  [0,1050,106],  [0,1100,111],  [0,1100,111],  [0,1000,101],   [0,1100,111]]
+    
+    # y_hexa6 =       [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+
+
+    # sample_names = sample_names1 + sample_names2 + sample_names3 + sample_names4 + sample_names5 + sample_names6
+    # x_list       = x_list1       + x_list2       + x_list3       + x_list4       + x_list5       + x_list6
+    # y_list       = y_list1       + y_list2       + y_list3       + y_list4       + y_list5       + y_list6
+    # y_hexa       = y_hexa1       + y_hexa2       + y_hexa3       + y_hexa4       + y_hexa5       + y_hexa6
+    # y_range      = y_range1      + y_range2      + y_range3      + y_range4      + y_range5      + y_range6
+    
+    
+    bar_number = 'row_7-10'
+
+    # Row 7
+    sample_names7 = [ 'sample_91',   'sample_92',   'sample_93',   'sample_94',   'sample_95',   'sample_96',   'sample_97',   'sample_98',   'sample_99',
+                     'sample_100',  'sample_101',  'sample_102',  'sample_103',  'sample_104',  'sample_105']
+    x_list7 =       [       42400,         36400,         30400,         24400,         18400,         12400,          6400,           400,         -5600,
+                           -11600,        -17600,        -23600,        -29600,        -35600,        -41600]
+    y_list7 =       [       -7650,         -7550,         -7650,         -7750,         -7750,         -7950,         -7850,         -7950,         -7600,
+                            -8000,         -7750,         -7650,         -7650,         -7800,         -7550]
+    y_range7 =      [[0,1100,111],  [0,1100,111],  [0,1100,111],  [0,1200,121],  [0,1000,101],  [0,1100,111],  [0,1050,106],  [0,1050,106],  [0,1100,111],
+                     [0,1000,101],  [0,1050,106],    [0,650,66],    [0,700,71],    [0,700,71],    [0,600,61]]
+    y_hexa7 =       [-8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8]
+    
+    # Row 8
+    sample_names8 = ['sample_106',  'sample_107',  'sample_108',  'sample_109',  'sample_110',  'sample_111',  'sample_112',  'sample_113',  'sample_114',
+                     'sample_115',  'sample_116',  'sample_117',  'sample_118',  'sample_119',  'sample_120']
+    x_list8 =       [       42400,         36400,         30400,         24400,         18400,         12400,          6400,           400,         -5600,
+                           -11600,        -17600,        -23600,        -29600,        -35600,        -41600]
+    y_list8 =       [       -2300,         -2500,         -2200,         -2200,         -2200,         -2250,         -2300,         -2700,         -3200,
+                            -3400,         -3300,         -3100,         -2800,         -3000,         -2900]
+    y_range8 =      [  [0,600,61],    [0,600,61],    [0,650,66],    [0,600,61],    [0,600,61],    [0,600,61],    [0,600,61],    [0,700,71],  [0,2800,281],
+                     [0,2200,221],  [0,1900,191],  [0,1400,141],  [0,1200,121],  [0,1400,141],  [0,1000,101]]
+    y_hexa8 =       [-8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8]
+
+    # Row 9
+    sample_names9 = ['sample_121',  'sample_122',  'sample_123',  'sample_124',  'sample_125',  'sample_126',  'sample_127',  'sample_128',  'sample_129',
+                     'sample_130',  'sample_131',  'sample_132',  'sample_133',  'sample_134',  'sample_135']
+    x_list9 =       [       42400,         36400,         30400,         24400,         18400,         12400,          6400,           400,         -5600,
+                           -11600,        -17600,        -23600,        -29600,        -35600,        -41600]
+    y_list9 =       [        2500,          2200,          2500,          2200,          2300,          2300,          2400,          2100,          1950,
+                             1900,          2000,          1700,          2000,          1800,          1900]
+    y_range9 =      [  [0,950,96],    [0,900,91],    [0,700,71],    [0,900,91],    [0,750,76],    [0,750,76],    [0,800,81],    [0,800,81],  [0,1700,171],
+                     [0,1600,161],  [0,1400,141],  [0,1400,141],  [0,1400,141],  [0,1450,146],  [0,1500,151]]
+    y_hexa9 =       [-8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8]
+
+    # Row 10
+    sample_names10 = ['sample_136',  'sample_137',  'sample_138',  'sample_139',  'sample_140',  'sample_141',  'sample_142',  'sample_143',  'sample_144']
+    x_list10 =       [       42400,         36400,         30400,         24400,         18400,         12400,          6400,           400,         -5600]
+    y_list10 =       [        -600,          -650,          -600,          -650,          -750,          -500,          -500,          -800,          -500]
+    y_range10 =      [  [0,950,96],  [0,1050,106],    [0,750,76],    [0,950,96],    [0,800,81],    [0,650,66],    [0,600,61],    [0,650,66],    [0,500,51]]
+    y_hexa10 =       [0] * len(sample_names10)
+
+    
+    sample_names = sample_names7 + sample_names8 + sample_names9 + sample_names10
+    x_list       = x_list7       + x_list8       + x_list9       + x_list10
+    y_list       = y_list7       + y_list8       + y_list9       + y_list10
+    y_hexa       = y_hexa7       + y_hexa8       + y_hexa9       + y_hexa10
+    y_range      = y_range7      + y_range8      + y_range9      + y_range10
+    
+    waxs_arc = [1, 20]
+    dets = [pil900KW, pil1M]
+    det_exposure_time(meas_t, meas_t) 
+
+    assert len(x_list) == len(sample_names), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
+    assert len(x_list) == len(y_range), f'Number of X coordinates ({len(x_list)}) is different from number of Y ranges ({len(y_range)})'
+    assert len(y_hexa) == len(y_range), f'Number of Y hexap coordinates ({len(y_hexa)}) is different from number of Y ranges ({len(y_range)})'
+    for wa in waxs_arc:
+
+        dets = [pil900KW] if wa < 15 else [pil900KW, pil1M]
+
+        yield from bps.mv(waxs, wa)
+        for x, y, hy, sample, y_r in zip(x_list, y_list, y_hexa, sample_names, y_range):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(stage.y, hy)
+            name_fmt = '{bar}_{sam}_wa{waxs}_dy10um_1s_yscan'
+            sample_name = name_fmt.format(bar=bar_number, sam=sample, waxs='%2.1f'%wa)
+            sample_id(user_name='RT', sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.rel_scan(dets, piezo.y, *y_r)
+    
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5) 
+
+
+def sample_bar(meas_t = 1): #older version
     # bar_number = 'bar_A'    
     # sample_names=['sample_01', 'sample_02', 'sample_03', 'sample_04', 'sample_05', 'sample_06', 'sample_07', 'sample_08', 'sample_09',
     #  'sample_10', 'sample_11', 'sample_12', 'sample_13', 'sample_14', 'sample_15', 'sample_16',

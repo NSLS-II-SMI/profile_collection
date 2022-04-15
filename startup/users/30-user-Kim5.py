@@ -6,6 +6,7 @@
 #  https://www.nsls2.bnl.gov/docs/remote/N2SNUserTools.html
 
 
+#/nsls2/xf12id2/data/images/users/2022_1/308251_Nam
 
 
 # For 1M
@@ -18,18 +19,52 @@
 
 ##Collect data:
 
-#SMI: 2021/9/21 Morning around 12:00 AM
-# SAF: 308070   Standard        Beamline 12-ID   proposal:  308251
-# create proposal: proposal_id( '2021_3', '308251_Kim' ) #create the proposal id and folder
+#SMI: 2022/3/3 Morning around 11:10 AM
+# SAF: 308071   Standard        Beamline 12-ID   proposal:  308251
+# create proposal: proposal_id( '2022_1', '308251_Nam' ) #create the proposal id and folder
+
+
+# Data is saved in 
+#/nsls2/xf12id2/data/images/users/2022_1/308251_Nam
+
 # Load Samples
 # Check locations -X
 # pump down,  Auto Evacuate
 # Open valves
+
+##Old one
 #  go to the second window under,  det@xf12id2-det3:~> camonly
 # change the energy threshold:  setthreshold energy 16100 autog 11000
+## New one
+# ssh -X det@xf12id2-det3 (pwd: Pilatus2)
+# ./start_camserver 
+# setthreshold energy 16100 autog 11000
+
+
+
 # align the gisaxs beam stop
 # then save it:  beamstop_save()
-# for 900kw, move to 7 degree, beam location: [218, 109 ]
+
+# for 900kw, 
+# move_waxs( 0 )  #the beamstop is 15.7
+# put att  14-18keV, Sn 60 um, 7X, move beamstop  -10  
+# for waxs=0 --> find the beam center is [218, 308] on albula
+# for waxs=1 --> find the beam center is [218, 280] on albula
+# for waxs=2 --> find the beam center is [218, 252] on albula
+# for waxs=3 --> find the beam center is [218, 223] on albula
+# for waxs=4 --> find the beam center is [218, 194] on albula, part block by chip
+# for waxs=5 --> find the beam center is [218, 166] on albula
+# for waxs=6 --> find the beam center is [218, 138] on albula
+# for waxs=7 --> find the beam center is [218, 110] on albula
+# for waxs=8 --> find the beam center is [218, 81] on albula 
+# for waxs=9 --> find the beam center is [218, 53] on albula 
+# for waxs=10 --> find the beam center is [218, 25] on albula 
+# for waxs=11 --> find the beam center touch the edge
+# for waxs=12 --> find the beam center is out of the detector
+
+
+
+
 # Y: 4000, Z: 2500  
 # Energy: 16.1 keV, 0.77009 A
 # when finish the one batch, before bleed to air, 
@@ -54,55 +89,103 @@
 # then run this macro, works!!!
 
 
-
 #  RE( shopen() )  # to open the beam and feedback
 #  RE( shclose()) 
-
-
-
-
 
 ## Google doc
 #  
 
-# ## First RUN, 19 samples,  y = 4000, Z= 2500
-# x_list = [      50700,  44200,  38700, 32700,  27200,  21200,     15700,  10200, 
-#                 4700,    -800,  -6300,  -11800, -16300, -21800, -27300,  -32800, 
-#                 -38300, -43800,  -49300     ]
-# sample_list = [ '2021C3_B18', '2021C3_A6',  '2021C2_S2',  '2021C3_S3', '2021C3_S4', '2021C3_S5',  '2021C3_S6',  '2021C3_S7', '2021C3_S8',
-#                    '2021C3_S9',  '2021C3_S10', '2021C3_S11', '2021C3_S12', '2021C3_S13', '2021C3_S14', '2021C3_S15', '2021C3_S16',
-#                    '2021C3S17',  '2021C3_S18',       ]
 
 
-# ## Second RUN, 19 samples,  y = 4000, Z= 2500
-# x_list = np.array( [      52200,  47200,  41700, 36700,   31200,  25200,  19700,  15200,
-#          9700,   4200, -1300,  -5800, -11300, -16800, -22300, -27800,
-#        -33300, -38800, -44300 , -49800 ] )
-# sample_list = [ '2021C3_S19',  '2021C3_S20', '2021C3_S21', '2021C3_S22', '2021C3_S23', '2021C3_S24', '2021C3_S25', '2021C3_S26',
-#                    '2021C3S27',  '2021C3_S28', '2021C3_S29','2021C3_S30','2021C3_S31',  '2021C3_S32', '2021C3_S33', '2021C3_S34',
-#                    '2021C3_S35', '2021C3_S36',   '2021C3S37',  '2021C3_S38' ]
 
-# x_list = np.array( [      -49000 ] )
-# sample_list = [    '2021C3_S38' ]
-
-
-## Third RUN, 19 samples,  y = 4000, Z= 4900
-
-# x_list = np.array( [      52000,  47200,  41700, 35700,   29700,  23200,   16700, 10700,
-#          4700,   -800,  -7300, -12800, -18300,  -23800, -28800, -34300, ] )
-#         # -38800, -44300 , -49800 ] )
-# sample_list = [ '2021C3_S39',  '2021C3_S40', '2021C3_S41', '2021C3_S42', '2021C3_S43', '2021C3_S44', '2021C3_S45', '2021C3_S46',
-#                    '2021C3_S47',  '2021C3_S48', '2021C3_S49','2021C3_S50','2021C3_S51',  '2021C3_S52', '2021C3_S53', '2021C3_S54',]
-#                   # '2021C3_S55', '2021C3_S56',   '2021C3S57',   ]
-
-x_list = np.array( [     -44300 , -49800 ] )
-sample_list = [  '2021C3_S56',   '2021C3S57',   ]
+# # ## First RUN, 18 samples,  y = 1000, Z= 2300  @~12:00 pm, 2:00 finished  # hexY=6
+# #np.array(['2022C1_S%s'%i for i in range(1,19)])
+# sample_list = ['2022C1_S1', '2022C1_S2', '2022C1_S3', '2022C1_S4', '2022C1_S5',
+#        '2022C1_S6', '2022C1_S7', '2022C1_S8', '2022C1_S9', '2022C1_S10',
+#        '2022C1_S11', '2022C1_S12', '2022C1_S13', '2022C1_S14',
+#        '2022C1_S15', '2022C1_S16', '2022C1_S17', '2022C1_S18']
+# pos = np.array([2.7,8.5,13.5,19.1,25.3,30.3,36.7,42.2,48.6,55.9,63.4,70.7,77.3,82.2,88,93.3,98.3,104.5]) - 2.7
+# x_list =   -50300 + pos * 1000
+#RE(run_giwaxs_Kim())
 
 
-## Forth RUN, 6 samples,  y = 4000, Z= 0
+# ## Second RUN, 17 samples,  y = 1000, Z= 2300  @about 2:00 pm start vent, mount samples, then do vacuum, 
+# 2:20 pm start measure
+#np.array(['2022C1_S%s'%i for i in range(19,36)])
+sample_list = ['2022C1_S19', '2022C1_S20', '2022C1_S21', '2022C1_S22',
+       '2022C1_S23', '2022C1_S24', '2022C1_S25', '2022C1_S26',
+       '2022C1_S27', '2022C1_S28', '2022C1_S29', '2022C1_S30',
+       '2022C1_S31', '2022C1_S32', '2022C1_S33', '2022C1_S34',
+       '2022C1_S35']
 
-x_list = np.array( [      49500,  42500,  34000, 27000,    19500,  12000 ] )       
-sample_list = [ '2021C3_S58',  '2021C3_S59', '2021C3_S60', '2021C3_S61', '2021C3_S63', '2021C3_S55',   ]
+pos = np.array(  [2.5,9.3,14,19.9,26.8,32.4,36.6,41.4,46.9,52,56.7,62.1,66.8,73.8,83.4,93.85,101.5]) 
+x_list =   -50300 + (pos-pos[0]) * 1000
+
+
+
+# ## Third RUN, 17 samples,  y = 1000, Z= 2300  @about 2:00 pm start vent, mount samples, then do vacuum, 
+# 6:00 pm start measure
+#np.array(['2022C1_S%s'%i for i in range(36,53)])
+sample_list = ['2022C1_S36', '2022C1_S37', '2022C1_S38', '2022C1_S39',
+       '2022C1_S40', '2022C1_S41', '2022C1_S42', '2022C1_S43',
+       '2022C1_S44', '2022C1_S45', '2022C1_S46', '2022C1_S47',
+       '2022C1_S48', '2022C1_S49', '2022C1_S50', '2022C1_S51',
+       '2022C1_S52']
+
+pos = np.array(  [3.7,9.5,16.6,22.5,27.8,34.7,40.5,46.6,52.3,59.1,66.6,73.8,79.9,86.4,92.5,99.5,105.4]  ) 
+x_list =   -49400 + (pos-pos[0]) * 1000
+
+
+# ## fourth RUN, 7 samples,  y = 1000, Z= 2300  @about 2:00 pm start vent, mount samples, then do vacuum, 
+# 6:00 pm start measure
+#np.array(['2022C1_S%s'%i for i in range(53,61)])
+
+# sample_list =  ['2022C1_S53', '2022C1_S54', '2022C1_S55', '2022C1_S56',
+#        '2022C1_S57', '2022C1_S58', '2022C1_S59', '2022C1_S60']
+# #pos = np.array( [2.7,9.1,16.7,23.8,30.5,37.2,44.4,50.5] ) 
+# #x_list =   -49400 + (pos-pos[0]) * 1000
+# x_list =   [ -49900,  -43900,  -37300,  -31800,   -25800, -20800,  -16300,  -11300 ]
+
+
+
+## For RUN 5, Gao's Sample
+sample_list =  [ '2022C1_1_2', '2022C1_1_3', '2022C1_1_4',
+       '2022C1_1_5',  '2022C1_1_1',][2:]
+x_list =   [   6400, 17700,  31200, 42200,  49200][2:]
+sample_list =  ['2022C1_1_8']
+x_list =   [   -3300]
+
+
+
+
+
+# create proposal: proposal_id( '2022_1', '308251_Kim' ) #create the proposal id and folder
+# the username is wrong, should be Kim, not Gao
+
+### 3/7 Monday, test in air and in vacuum, using large beam
+# ##   y = 1000, Z= 2300  @about 4:300 pm start vent, mount samples, then do vacuum, 
+## For RUN 6,  Kim's 44-47 samples
+## change beam stop from pindiode to regular beamstop
+# RE(pil1m_bs_pd.mv_out())
+# 
+sample_list =  [ '2022C1_S44_LargeBeam_Vacuum', '2022C1_S45_LargeBeam_Vacuum', 
+'2022C1_S46_LargeBeam_Vacuum', '2022C1_S47_LargeBeam_Vacuum']
+x_list =   [   -48100,  -39900, -31900, -24400  ] 
+# beamstop_save()
+# beam center is: [462, 559 ]
+
+ 
+### 3/7 Monday, test in air and in vacuum, using large beam
+# ##   y = 1000, Z= 2300   hex-y =6
+## For RUN 6,  Kim's 44-47 samples
+sample_list =  [ '2022C1_S44_LargeBeam_Air', '2022C1_S45_LargeBeam_Air', 
+'2022C1_S46_LargeBeam_Air', '2022C1_S47_LargeBeam_Air']
+x_list =   [   -48100,  -39900, -31900, -24400  ] 
+# beamstop_save()
+# beam center is: [462, 559 ]
+
+ 
+
 
 
 
@@ -113,7 +196,6 @@ sample_list = [ '2021C3_S58',  '2021C3_S59', '2021C3_S60', '2021C3_S61', '2021C3
 def mov_sam(  i  ):
     px = x_list[i]       
     RE(  bps.mv(piezo.x, px) )
-
     print('Move to pos=%s for sample:%s...'%(i+1, sample_list[i] ))
 
 def check_sample_loc( sleep = 5 ):
@@ -156,9 +238,44 @@ def mov_sam_dict( pos ):
 #Align GiSAXS sample
 import numpy as np
       
+username = 'Kim'
+#username = 'Gao'
+
+#mov_sam( 0 ) 
+def vertical_scan(   t = 10   ):
+    ## for sample   '2022C1_1_8'
+    #hex Y, 4.45
+    # scan pz from -1000 to 3000
+    # plan to do more x position    
+    sample_name = sample_list[ 0 ] #'2022C1_1_8'
+    ys = np.arange( -1000, 4500, 100) 
+    waxs_angle_array = np.array( [ 7, 27, 47 ] ) # 4*3.14/(12.39842/16.1)*np.sin((7*6.5+3.5)*3.14/360) = 6.760 A-1
+    max_waxs_angle = np.max(  waxs_angle_array )  
+    det_exposure_time(t,t) 
+
+    for waxs_angle in waxs_angle_array: # loop through waxs angles
+        yield from bps.mv(waxs, waxs_angle)
+        if waxs_angle == max_waxs_angle:
+            dets = [ pil900KW, pil1M ] # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]                  
+            print( 'Meausre both saxs and waxs here for w-angle=%s'%waxs_angle )
+        else:
+            dets = [pil900KW, pil300KW ]   
+        for (i, yi) in enumerate( ys ):         
+            print( i, yi )
+            yield from bps.mv(piezo.y, yi )     
+            name_fmt = '{sample}_waxsP{waxs_angle:05.2f}_y{y:05.2f}_expt{t}s_sid{scan_id:08d}'   
+            sample_nameX = name_fmt.format(
+                                    sample = sample_name,  waxs_angle=waxs_angle, y=yi, t=t, scan_id=RE.md['scan_id'])  
+            sample_id(user_name=  username , sample_name=sample_nameX)   
+            print( 'The sample name is: %s.' %sample_nameX )
+            print( dets )
+            yield from bp.count( dets, num=1)
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time( 0.1, 0.1) 
 
 
-def manually_measure_one_sample(  i, t=1, username = 'Kim' ):
+
+def manually_measure_one_sample(  i, t=1, username = username ):
     mov_sam( i )
     sample_name = sample_list[i]
 
@@ -205,7 +322,7 @@ def snap_saxs( t=0.1  ):
 
 
 
-def run_giwaxs_Kim(t=1, username = 'Kim'): 
+def run_giwaxs_Kim(t=1, username = username ): 
     # define names of samples on sample bar     
     assert len(x_list) == len(sample_list), f'Sample name/position list is borked'
     angle_arc = np.array([0.05, 0.08, 0.10, 0.15, 0.2, 0.3 ]) # incident angles 
@@ -232,7 +349,7 @@ def run_giwaxs_Kim(t=1, username = 'Kim'):
         for waxs_angle in Waxs_angle_array: # loop through waxs angles
             yield from bps.mv(waxs, waxs_angle)
             if waxs_angle == max_waxs_angle:
-                dets = [ pil900KW, pil300KW ] # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]                  
+                dets = [ pil900KW, pil300KW , pil1M ] # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]                  
                 print( 'Meausre both saxs and waxs here for w-angle=%s'%waxs_angle )
             else:
                 dets = [pil900KW, pil300KW ]              
@@ -258,6 +375,11 @@ def run_giwaxs_Kim(t=1, username = 'Kim'):
         cts += 1
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5)
+
+
+
+
+
 
 
 #### 

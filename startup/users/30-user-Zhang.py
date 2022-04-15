@@ -99,6 +99,50 @@ def song_waxs_S_edge_2022_1(t=1):
             yield from bps.mv(energy, 2470)
             yield from bps.mv(energy, 2450)
 
+def song_waxs_S_edge_2022_1(t=0.5):
+    #single energy scan in tensile stage
+    dets = [pil1M, pil900KW]
+
+    energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()+ np.arange(2490, 2501, 5).tolist()
+    waxs_arc = [0, 20]
+
+    names = ['sample_18l']
+    x = [-0.3]
+    y = [-0.06]
+
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(stage.x, xs)
+        yield from bps.mv(stage.y, ys)
+
+        yss = np.linspace(ys, ys + 1, 58)
+        xss = np.linspace(xs, xs, 1)
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)    
+
+            det_exposure_time(t,t) 
+            name_fmt = '{sample}_{energy}eV_wa{wax}_bpm{xbpm}'
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                yield from bps.mv(stage.y, ysss)
+                yield from bps.mv(stage.x, xsss)
+
+                bpm = xbpm2.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax = wa, xbpm = '%4.3f'%bpm)
+                sample_id(user_name='SZ', sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
 
 
 def song_saxs_tensile_hard(t=1):
@@ -145,18 +189,19 @@ def song_saxs_waxs_tensile_hard(t=1):
 
 
 
-def song_saxs_waxs_tensile_tender(t=1):
-    dets = [pil300KW]
+def song_tensile_tender_loop(t=1):
+    #infinite time loop for contonuous data taking
+    dets = [pil1M, pil900KW]
 
-    names = 'P3HT_loop1_S'
+    names = 'P77_loop1'
     t0 = time.time()
     for i in range(2000):
         det_exposure_time(t,t) 
 
-        if waxs.arc.position > 5:
-            wa = [19.5, 13, 6.5, 0]
+        if waxs.arc.position > 10:
+            wa = [20, 0]
         else:
-            wa = [0, 6.5, 13, 19.5]
+            wa = [0, 20]
         
         t1 = time.time()
         for wax in wa:
@@ -171,9 +216,44 @@ def song_saxs_waxs_tensile_tender(t=1):
 
                 yield from bps.mv(waxs, wax)
                 sample_name = name_fmt.format(sample=names, energy='%6.2f'%ene , time = '%1.1f'%(t1-t0), i = '%3.3d'%i, wa = '%1.1f'%wax)
-                sample_id(user_name='GF', sample_name=sample_name)
+                sample_id(user_name='SZ', sample_name=sample_name)
                 print(f'\n\t=== Sample: {sample_name} ===\n')
                 yield from bp.count(dets, num=1)
+
+def song_tensile_tender(t=0.4):
+    #infinite time loop for contonuous data taking
+    #dets = [pil1M, pil900KW]
+
+    names = 'P75_7_3_thickSEBS_50strain_cycle100_2'
+    det_exposure_time(t,t)
+    energies = [2470, 2476, 2478]
+
+    if waxs.arc.position > 10:
+        wa = [20, 0]
+    else:
+        wa = [0, 20]
+    
+    for wax in wa:
+        dets = [pil900KW] if wax < 10 else [pil1M, pil900KW]
+        
+        if energy.energy.position > 2475:
+            ener = energies[::-1]
+        else:
+            ener = energies
+
+        for ene in ener:
+            name_fmt = '{sample}_{energy}eV_{sdd}m_wa{wa}'
+            yield from bps.mv(energy, ene)
+
+            yield from bps.mv(waxs, wax)
+            sdd = pil1m_pos.z.position / 1000
+
+            sample_name = name_fmt.format(sample=names, energy='%6.2f'%ene, sdd='%.1f'%sdd, wa = '%1.1f'%wax)
+            sample_id(user_name='SZ', sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets, num=1)
+    
+    
 
 
 

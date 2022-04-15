@@ -46,9 +46,9 @@ def run_harv_temp(tim=0.5):
 
 
 
-def run_harv_temp_all_2020_3(tim=0.5): 
+def run_harv_temp_all_2022_1(tim=0.5): 
     # Slowest cycle:
-    temperatures = [26, 60, 80, 100, 120, 140, 160]
+    temperatures = [30, 100, 180]
     # temperatures = [30, 100, 150]
 
     name = 'ML'
@@ -200,22 +200,22 @@ def temp_2021_3(tim=0.5):
 
 
 
-def temp_2021_3_rod(tim=0.5): 
+def temp_xscan_2022_1(tim=0.5): 
     # Slowest cycle:
     # temperatures = [27, 45, 70, 100, 120, 150, 170, 30]
-    temperatures = [27, 45, 70, 100, 120, 150, 170]
+    temperatures = [30, 100, 180]
 
-    name = 'MW'
+    name = 'PQ'
 
     # samples = ['set1_sam1', 'set1_sam2', 'set1_sam3', 'set1_sam4', 'set1_sam5', 'set1_sam6', 'set1_sam7', 'set1_sam8', 'set1_sam9', 'set1_sam10',
     #  'set1_sam11', 'set1_sam12','set1_sam13', 'set1_sam14', 'set1_sam15', 'set1_sam16']
     # x_list  = [49600, 45600, 41000, 35800, 29000, 23800, 17800, 7600,  800, -5000, -12500, -18900, -24500, -31300,-37900, -44300]
     # y_list =  [-8700, -8700, -9000, -8700,-8700, -8700, -8700, -8700, -8600, -8500, -8700, -8700,  -8600, -8700, -8450, -8450]
 
-    samples = ['William_Sample3',     'William_Sample2',     'William_Sample1',     'Endon_2.5HDDA_splayaligned_Disk']
-    x_list  = [-28800,                    -7800,            7000,                   33300]
-    y_list =  [ -3700,                    -3100,            -3700,                    -4600]
-    x_range=  [[0, 7000, 35],            [0, 2800, 14],    [0, 12000, 60],          [0, 8500, 85]]
+    samples = ['A-0',           'A-4',          'A-5',        'A-6',          'A-7',       'A-8']
+    x_list  = [-15800,          -34000,        -19000,       -8000,            6000,         19000   ]  
+    y_list =  [ -2200,            3630,          3540,         3510,            3900,         3870  ]
+    y_range=  [[0, 6000, 61], [0, 8000, 81],  [0, 7000, 71], [0, 8000, 81], [0,7500, 76], [0,3500, 36] ]
 
 # -24000 -50000
     assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
@@ -224,9 +224,9 @@ def temp_2021_3_rod(tim=0.5):
 
     #Detectors, motors:
     dets = [pil1M, pil900KW] #ALL detectors
-    
+    det_exposure_time(tim,tim)
     waxs_arc = [0, 20] 
-    name_fmt = '{sample}_18.25keV_1.6m_pos{offset}_{temperature}C_wa{waxs}'
+    name_fmt = '{sample}_16.1keV_1.6m_pos{offset}_{temperature}C_wa{waxs}'
 
     det_exposure_time(tim, tim)
     for i_t, t in enumerate(temperatures):
@@ -258,14 +258,79 @@ def temp_2021_3_rod(tim=0.5):
                     sample_id(user_name=name, sample_name=sample_name) 
                     yield from bp.count(dets, num=1)
 
-                    
+    
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
+    
+    t_kelvin = 25 + 273.15
+    yield from ls.output1.mv_temp(t_kelvi%rn)
+
+def temp_yscan_2022_1(tim=1): 
+    # Slowest cycle:
+    # temperatures = [27, 45, 70, 100, 120, 150, 170, 30]
+    temperatures = [30, 100, 180]
+
+    name = 'PQ'
+
+    # samples = ['set1_sam1', 'set1_sam2', 'set1_sam3', 'set1_sam4', 'set1_sam5', 'set1_sam6', 'set1_sam7', 'set1_sam8', 'set1_sam9', 'set1_sam10',
+    #  'set1_sam11', 'set1_sam12','set1_sam13', 'set1_sam14', 'set1_sam15', 'set1_sam16']
+    # x_list  = [49600, 45600, 41000, 35800, 29000, 23800, 17800, 7600,  800, -5000, -12500, -18900, -24500, -31300,-37900, -44300]
+    # y_list =  [-8700, -8700, -9000, -8700,-8700, -8700, -8700, -8700, -8600, -8500, -8700, -8700,  -8600, -8700, -8450, -8450]
+
+    samples = ['A-0',           'A-1',          'A-2',        'C-1-1',          'C-1-2']
+    x_list  = [-15800,          -4800,        10200,           26030,            36190 ]  
+    y_list =  [ -2200,            -2200,          -2200,         -400,            700 ]
+    chi_list = [0,                 0,              0,             4,               4.2]
+    y_range=  [[0, 2000, 11], [0, 2000, 11],  [0, 2000, 11], [0, 1800, 91], [0,1800, 91] ]
+
+# -24000 -50000
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+
+    #Detectors, motors:
+    dets = [pil1M, pil900KW] #ALL detectors
+    
+    waxs_arc = [0, 20] 
+    name_fmt = '{sample}_16.1keV_1.6m_pos{offset}_{temperature}C_wa{waxs}'
+
+    det_exposure_time(tim, tim)
+    for i_t, t in enumerate(temperatures):
+        t_kelvin = t + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+        temp = ls.input_A.get()
+
+        while abs(temp - t_kelvin) > 2:
+            print(abs(temp - t_kelvin))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+
+        if i_t != 0:
+            yield from bps.sleep(450)
+
+        # temp = ls.input_A.get()
+        t_celsius = temp - 273.15
+
+        for j, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            for x, y, chi, s, y_r in zip(x_list, y_list, chi_list, samples, y_range):
+                yield from bps.mv(piezo.x, x)
+                yield from bps.mv(piezo.y, y)
+                yield from bps.mv(piezo.ch, chi)
+
+                for i_0, yrs in enumerate(np.linspace(y_r[0], y_r[1], y_r[2])):
+                    sample_name = name_fmt.format(sample=s, offset = i_0+1, temperature='%3.1f'%t_celsius, waxs='%2.1f'%wa)
+                    yield from bps.mv(piezo.y, y+yrs)
+                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    sample_id(user_name=name, sample_name=sample_name) 
+                    yield from bp.count(dets, num=1)
+
     
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5,0.5)
     
     t_kelvin = 25 + 273.15
     yield from ls.output1.mv_temp(t_kelvin)
-
 
 
 
@@ -362,7 +427,30 @@ def run_harv_temp_all(tim=0.5):
     det_exposure_time(0.5,0.5)
     yield from bps.mv(ls.ch1_sp, 28)
 
-
+def run_linkam_cooling(t=0.15, tim=0.15): 
+    name = 'PQ'
+    sample = 'insitu_b-7'
+    offset = 300 #microns
+    #Detectors, motors:
+    #dets = [pil900KW, pil1M]
+    waxs_arc = [0, 20]
+    name_fmt = '{sample}_wa{waxs}_time{ctime}s'
+    now = time.time()
+    det_exposure_time(t, tim)
+    for i in range(100):
+        yield from bps.mvr(piezo.x, offset)
+        for j, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+            ctime=time.time()-now
+            sample_name = name_fmt.format(sample=sample, waxs='%2.1f'%wa, ctime='%.0f'%ctime)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            sample_id(user_name=name, sample_name=sample_name) 
+            yield from bp.count(dets, num=1)
+            yield from bps.sleep(120)
+            
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
 
 
 

@@ -1,3 +1,5 @@
+import numpy as np
+
 def saxs_waxs_yuchung(t=1):
     dets = [pil300KW, pil1M]
 
@@ -177,38 +179,68 @@ def saxs_waxs_yuchung_2021_1(t=1):
             # yield from bp.list_scan(dets, piezo.x, xss.tolist() , piezo.y, yss.tolist())
             yield from bp.count(dets)
 
+def timeresolved(name='test', t=0.2, tt=60):
+    """
+    2022_1 cycle: in situ scant
 
+    Args:
+        name (str): name of the sample,
+        t (float): exposure time for single detector frame,
+        tt (float): total detector exposure.
+    """
+    #for 2022_1  cycle
+    det_exposure_time(t,tt)
+    dets = [pil300KW, pil1M, pil900KW]
+    wa = 14.5
+    yield from bps.mv(waxs, wa)
 
+    e = energy.energy.position / 1000
+    sdd = pil1m_pos.z.position / 1000
 
-def saxs_waxs_yuchung_2021_2(name='test', t=0.5):
+    name_fmt = '{sample}_{energy}keV_sdd{sdd}m_wa{wax}'
+    sample_name = name_fmt.format(sample=name, energy='%.1f'%e, sdd='%.1f'%sdd, wax=wa)
+    sample_id(user_name='YC', sample_name=sample_name)
+    print(f'\n\t=== Sample: {sample_name} ===\n')
+    yield from bp.count(dets, num=1)
+    
+    sample_id(user_name='test', sample_name='test')
 
-    det_exposure_time(t,t)
-    dets = [pil300KW, pil1M]
-    waxs_arc = np.linspace(0, 26, 5)
+    
+def postprint_yscan(name='test', t=0.5, ystart=2.8, ystop=5, npoint=111):
+    """
+    022_1 cycle: ex situ vertical scan.
+
+    Args:
+        name (str): name of the sample,
+        t (float): exposure time of the detectors,
+        ystart (float): absolute start position for y hexapod scan in mm,
+        ystop (float): absolute stop position for y hexapod scan in mm,
+        npoint (int): number of scan points in the y hexapod range scan.
+    """
+    y_range = [ystart, ystop, npoint]
+    det_exposure_time(t, t)
+    waxs_arc = np.linspace(0, 20, 2)
 
     for wa in waxs_arc:
         yield from bps.mv(waxs, wa)    
-        
-        name_fmt = '{sample}_full_16.1keV_sdd7m_wa{wax}'
-        sample_name = name_fmt.format(sample=name, wax = wa)
+
+        # remove SAXS detector reading if WAXS is in the way
+        dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+
+        e = energy.energy.position / 1000
+        sdd = pil1m_pos.z.position / 1000
+        name_fmt = '{sample}_full_{energy}eV_sdd{sdd}m_wa{wax}'
+        sample_name = name_fmt.format(sample=name, energy='%.1f'%e, sdd='%.1f'%sdd, wax=wa)
         sample_id(user_name='YC', sample_name=sample_name)
         print(f'\n\t=== Sample: {sample_name} ===\n')
-        yield from bp.count(dets, num=1)
+        yield from bp.scan(dets, stage.y, *y_range)
     
-    det_exposure_time(0.3, 90)
-    yield from bps.mv(waxs, 7)    
+    det_exposure_time(0.2, 60)
+    yield from bps.mv(waxs, 14.5)    
 
 
-def y_scan_yuchung_2021_2(name = 'test', t=0.5):
-
-    det_exposure_time(t,t)
-    dets = [pil300KW, pil1M]
-        
-    name_fmt = '{sample}_scany_16.1keV_sdd7m_wa{wax}'
-    sample_name = name_fmt.format(sample=name, wax = '7')
-    sample_id(user_name='YC', sample_name=sample_name)
-    print(f'\n\t=== Sample: {sample_name} ===\n')
-    yield from bp.scan(dets, stage.y, 7.1, 10, 581)
-
-    det_exposure_time(0.5, 0.5)
-    yield from bps.mv(waxs, 7)
+def trigger_alldet(tt=0.2, t=2):
+    det_exposure_time(tt,t)
+    pil1M.cam.acquire.put(1)
+    pil900KW.cam.acquire.put(1)
+    pil300KW.cam.acquire.put(1)
