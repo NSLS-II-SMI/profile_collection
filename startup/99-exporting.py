@@ -2,9 +2,9 @@ import logging
 import os
 import time as ttime
 
+from bluesky_live.bluesky_run import BlueskyRun, DocumentCache
 import numpy as np
 import pandas as pd
-from databroker.core import SingleRunCache
 from event_model import RunRouter
 
 logger = logging.getLogger('bluesky')
@@ -72,11 +72,14 @@ def export_spectra_to_csv(run, *, dir, common_column, columns):
 
 
 def factory(name, doc):
-    src = SingleRunCache()
+    # We will stream documents into this cache.
+    # When the run is complete, we will build an in-memory BlueskyRun from it.
+    dc = DocumentCache()
 
     def export_on_stop(name, doc):
         if name == "stop":
-            run = src.retrieve()
+            # in-memory BlueskyRun built from DocumentCache
+            run = BlueskyRun(dc)
             if 'amptek' in run.metadata['start']['detectors']:
                 #retreive information from the start document
                 cycle = run.metadata['start']['cycle']
@@ -96,7 +99,7 @@ def factory(name, doc):
                                       common_column='amptek_energy_channels',
                                       columns=['amptek_mca_spectrum'])
 
-    return [src.callback, export_on_stop], []
+    return [dc, export_on_stop], []
 
 
 rr = RunRouter([factory])
