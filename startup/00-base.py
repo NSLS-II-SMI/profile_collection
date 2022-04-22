@@ -44,7 +44,12 @@ import nslsii
 from databroker import Broker
 from ophyd import Signal
 
-nslsii.configure_base(get_ipython().user_ns, 'smi', bec_derivative=True)
+nslsii.configure_base(
+    get_ipython().user_ns,
+    'smi',
+    bec_derivative=True,
+    publish_documents_with_kafka=True
+)
 # Populating oLog entries with scans, comment out to disable
 # nslsii.configure_olog(get_ipython().user_ns, subscribe=True)
 
