@@ -1,4 +1,4 @@
-print(f'Loading {__file__}')
+print(f"Loading {__file__}")
 
 from bluesky.callbacks.broker import LiveTiffExporter
 from bluesky.callbacks.broker import post_run

@@ -100,32 +100,81 @@
 ### Range 3 for high temperature > 120
 ### range 1 up to 50 deg
 def startT():
-    '''
+    """
     Try using range 3 in channel 1
-    '''
+    """
     yield from bps.mv(ls.output1.status, 3)
-    print('Start heating up using output1 using range3.')
+    print("Start heating up using output1 using range3.")
 
 
 def stopT():
-    yield from  ls.output1.turn_off() 
-    #RE( ls.output1.turn_off()    )
-    print('Stop heating up using output1.' )
+    yield from ls.output1.turn_off()
+    # RE( ls.output1.turn_off()    )
+    print("Stop heating up using output1.")
+
 
 def saxs_S_edge_temperature_Hoang_2022_2(t=0.5):
     """
     Cycle 2022_2: heating stage temperature cycle SAXS ssd 8.3 m.
     """
-    user_name = 'JH'
+    user_name = "JH"
 
     # x and y are positions on the sample, a and b are different rows
-    names_a = ['0_6OBA_main',  '10_6OBA_main',  '20_6OBA_main',  '30_6OBA_main',  '40_6OBA_main',   '0.6_20OBA',  '0.7_20OBA',]
-    x_a =     [        45000,           39500,           36500,           31750,           26750,         22250,        18650,] 
-    y_a =     [        -5000,           -5100,           -5500,           -5000,           -4500,         -5000,        -5000,]
-    
-    names_b = ['0.8_20OBA', '0.8_20OBA_R', '0.9_20OBA', 'BP_chol',   'BPI',   'BPII', 'BPIII',]
-    x_b =     [      13500,          9750,        5000,      -750,   -5750,   -11750,  -17750,] 
-    y_b =     [      -5000,         -4000,       -5200,     -5200,   -5200,    -5200,   -5200,]
+    names_a = [
+        "0_6OBA_main",
+        "10_6OBA_main",
+        "20_6OBA_main",
+        "30_6OBA_main",
+        "40_6OBA_main",
+        "0.6_20OBA",
+        "0.7_20OBA",
+    ]
+    x_a = [
+        45000,
+        39500,
+        36500,
+        31750,
+        26750,
+        22250,
+        18650,
+    ]
+    y_a = [
+        -5000,
+        -5100,
+        -5500,
+        -5000,
+        -4500,
+        -5000,
+        -5000,
+    ]
+
+    names_b = [
+        "0.8_20OBA",
+        "0.8_20OBA_R",
+        "0.9_20OBA",
+        "BP_chol",
+        "BPI",
+        "BPII",
+        "BPIII",
+    ]
+    x_b = [
+        13500,
+        9750,
+        5000,
+        -750,
+        -5750,
+        -11750,
+        -17750,
+    ]
+    y_b = [
+        -5000,
+        -4000,
+        -5200,
+        -5200,
+        -5200,
+        -5200,
+        -5200,
+    ]
 
     # Combine sample lists
     names = names_a + names_b
@@ -133,15 +182,21 @@ def saxs_S_edge_temperature_Hoang_2022_2(t=0.5):
     y = y_a + y_b
 
     # Check and correct sample names just in case
-    names = [n.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ '}) for n in names]
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
 
-    assert len(x) == len(names), f'Number of x coordinates ({len(x)}) is different from number of samples ({len(names)})'
-    assert len(x) == len(y),     f'Number of x coordinates ({len(x)}) is different number of y coordinates ({len(y)})'
-    assert len(y) == len(names), f'Number of y coordinates ({len(y)}) is different from number of samples ({len(names)})'
+    assert len(x) == len(
+        names
+    ), f"Number of x coordinates ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(x) == len(
+        y
+    ), f"Number of x coordinates ({len(x)}) is different number of y coordinates ({len(y)})"
+    assert len(y) == len(
+        names
+    ), f"Number of y coordinates ({len(y)}) is different from number of samples ({len(names)})"
 
     # Move all x and y values if needed
-    #x = (np.array(x) + 0).tolist()
-    #y = (np.array(y) + 0).tolist()
+    # x = (np.array(x) + 0).tolist()
+    # y = (np.array(y) + 0).tolist()
 
     # Energies for sulphur K edge
     # energies = np.concatenate((np.arange(2445, 2470, 5),
@@ -150,17 +205,17 @@ def saxs_S_edge_temperature_Hoang_2022_2(t=0.5):
     #                            np.arange(2490, 2501, 5),
     #                            ))
     energies = [2452, 2472, 2476, 2478, 2482, 2500]
-    temperatures = np.arange(30, 201, 5) # in C
+    temperatures = np.arange(30, 201, 5)  # in C
 
     waxs_arc = [0, 2]
 
     for i_t, temperature in enumerate(temperatures):
-            
+
         t_kelvin = temperature + 273.15
         print(t_kelvin)
         yield from ls.output1.mv_temp(t_kelvin)
 
-        print('Equalising temp')
+        print("Equalising temp")
         temp = ls.input_A.get()
         while abs(temp - t_kelvin) > 1:
             print(abs(temp - t_kelvin))
@@ -169,16 +224,15 @@ def saxs_S_edge_temperature_Hoang_2022_2(t=0.5):
 
         t_celsius = temp - 273.15
         if t_celsius > 34:
-            print('Waiting for 300 s...')
+            print("Waiting for 300 s...")
             yield from bps.sleep(300)
-
 
         for name, xs, ys in zip(names, x, y):
             yield from bps.mv(piezo.x, xs, piezo.y, ys)
 
             for i, wa in enumerate(waxs_arc):
                 yield from bps.mv(waxs, wa)
-                #yield from bps.mv(piezo.x, xs + i * 200)
+                # yield from bps.mv(piezo.x, xs + i * 200)
                 # Do not read SAXS if WAXS is in the way
                 dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
                 det_exposure_time(t, t)
@@ -186,7 +240,7 @@ def saxs_S_edge_temperature_Hoang_2022_2(t=0.5):
                 # Cover a range of 1.5 mm in y to avoid damage
                 yss = np.linspace(ys, ys + 180, len(energies))
 
-                name_fmt = '{sample}_temp{temperature}degC_{energy}eV_wa{wax}_sdd{sdd}m_bpm{xbpm}'
+                name_fmt = "{sample}_temp{temperature}degC_{energy}eV_wa{wax}_sdd{sdd}m_bpm{xbpm}"
                 for e, ysss in zip(energies, yss):
                     yield from bps.mv(piezo.y, ysss)
                     yield from bps.mv(energy, e)
@@ -197,10 +251,16 @@ def saxs_S_edge_temperature_Hoang_2022_2(t=0.5):
                     sdd = pil1m_pos.z.position / 1000
                     wa = str(np.round(float(wa), 1)).zfill(4)
 
-                    sample_name = name_fmt.format(sample=name, temperature='%3.1f'%temperature, energy='%6.2f'%e, wax=wa,
-                                                  sdd='%.1f'%sdd, xbpm='%4.3f'%bpm)
+                    sample_name = name_fmt.format(
+                        sample=name,
+                        temperature="%3.1f" % temperature,
+                        energy="%6.2f" % e,
+                        wax=wa,
+                        sdd="%.1f" % sdd,
+                        xbpm="%4.3f" % bpm,
+                    )
                     sample_id(user_name=user_name, sample_name=sample_name)
-                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
 
                     yield from bp.count(dets, num=1)
 
@@ -216,11 +276,11 @@ def saxs_S_edge_temperature_Hoang_2022_2(t=0.5):
                 # Go back gently with energy
                 yield from bps.mv(energy, 2480)
                 yield from bps.mv(energy, 2450)
-    
+
     # End of the scan
-    sample_id(user_name='test', sample_name='test')
-    det_exposure_time(0.5,0.5)
-    yield from ls.output1.mv_temp( 28 + 273.13)
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+    yield from ls.output1.mv_temp(28 + 273.13)
 
 
 ### Linkam MFS tensile stage hard X-rays
@@ -233,15 +293,16 @@ def song_waxs_hard_2022_2(t=1, strain=0):
         strain (float): strain value from Linkam MFS stage for filename metadata
     """
 
-    names = ['p77_cross2_2s']
+    names = ["p77_cross2_2s"]
     x = [-0.6]
     y = [-1.2]
 
-    user_name = 'SZ'
+    user_name = "SZ"
 
     waxs_arc = [0, 20]
-    names = [n.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ =,'}) for n in names]
-
+    names = [
+        n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ =,"}) for n in names
+    ]
 
     for name, xs, ys in zip(names, x, y):
         yield from bps.mv(stage.x, xs)
@@ -251,19 +312,29 @@ def song_waxs_hard_2022_2(t=1, strain=0):
             yield from bps.mv(waxs, wa)
             dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
             yield from bps.mv(stage.y, ys + i * 0.05)
-            det_exposure_time(t, t) 
-            name_fmt = '{sample}_{energy}keV_strain{strain}_wa{wax}_sdd{sdd}m_id{scan_id}'
-            
+            det_exposure_time(t, t)
+            name_fmt = (
+                "{sample}_{energy}keV_strain{strain}_wa{wax}_sdd{sdd}m_id{scan_id}"
+            )
+
             # Metadata
             sdd = pil1m_pos.z.position / 1000
             e = energy.position.energy / 1000
-            scan_id = db[-1].start['scan_id'] + 1
+            scan_id = db[-1].start["scan_id"] + 1
 
-            sample_name = name_fmt.format(sample=name, strain=strain, energy='%2.1f'%e, wax=wa, sdd='%.1f'%sdd, scan_id=scan_id)
+            sample_name = name_fmt.format(
+                sample=name,
+                strain=strain,
+                energy="%2.1f" % e,
+                wax=wa,
+                sdd="%.1f" % sdd,
+                scan_id=scan_id,
+            )
             sample_id(user_name=user_name, sample_name=sample_name)
-            print(f'\n\t=== Sample: {sample_name} ===\n')
+            print(f"\n\t=== Sample: {sample_name} ===\n")
             yield from bp.count(dets)
-            sample_id(user_name='test', sample_name='test')
+            sample_id(user_name="test", sample_name="test")
+
 
 ### Calculate beamstpo on WAXS y postion is in 37-Guillaume beam, line ~130
 

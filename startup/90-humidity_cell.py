@@ -1,54 +1,56 @@
 import time
 
 
-
-def readHumidity(temperature=25, voltage_supply=5, verbosity=3):      
+def readHumidity(temperature=25, voltage_supply=5, verbosity=3):
     voltage_out = moxa_out.ch1_read.get()
     corr_voltage_out = voltage_out * (5.0 / voltage_supply)
     coeff_offset = 0.816887
     coeff_slope = 0.028813
     sensor_RH = (corr_voltage_out - coeff_offset) / coeff_slope
-    true_RH = sensor_RH / (1.0546 - 0.00216 * temperature)      # T in [degC]    
+    true_RH = sensor_RH / (1.0546 - 0.00216 * temperature)  # T in [degC]
     if verbosity >= 3:
-        print('Raw sensor RH = {:.3f} pct.'.format(sensor_RH))
-        print('T-corrected RH = {:.3f} pct at {:.3f} degC.'.format(true_RH, temperature))
+        print("Raw sensor RH = {:.3f} pct.".format(sensor_RH))
+        print(
+            "T-corrected RH = {:.3f} pct at {:.3f} degC.".format(true_RH, temperature)
+        )
     return true_RH
 
 
-def readHumidity2(temperature=25, voltage_supply=5, verbosity=3):      
+def readHumidity2(temperature=25, voltage_supply=5, verbosity=3):
     voltage_out = moxa_out.ch2_read.get()
     corr_voltage_out = voltage_out * (5.0 / voltage_supply)
     coeff_offset = 0.816887
     coeff_slope = 0.028813
     sensor_RH = (corr_voltage_out - coeff_offset) / coeff_slope
-    true_RH = sensor_RH / (1.0546 - 0.00216 * temperature)      # T in [degC]    
+    true_RH = sensor_RH / (1.0546 - 0.00216 * temperature)  # T in [degC]
     if verbosity >= 3:
-        print('Raw sensor RH = {:.3f} pct.'.format(sensor_RH))
-        print('T-corrected RH = {:.3f} pct at {:.3f} degC.'.format(true_RH, temperature))
+        print("Raw sensor RH = {:.3f} pct.".format(sensor_RH))
+        print(
+            "T-corrected RH = {:.3f} pct at {:.3f} degC.".format(true_RH, temperature)
+        )
     return true_RH
 
 
-
-#moxa_in.ch4_sp.put(5)
+# moxa_in.ch4_sp.put(5)
 
 
 def setDryFlow(voltage=None):
-    if voltage==None or voltage>5 or voltage <0:
-        print('Input voltage betwee 0 and 5V')
+    if voltage == None or voltage > 5 or voltage < 0:
+        print("Input voltage betwee 0 and 5V")
     moxa_in.ch1_sp.put(0)
     time.sleep(0.5)
     moxa_in.ch1_sp.put(voltage)
 
+
 def setWetFlow(voltage=0):
-    if voltage==None or voltage>5 or voltage <0:
-        print('Input voltage betwee 0 and 5V')
+    if voltage == None or voltage > 5 or voltage < 0:
+        print("Input voltage betwee 0 and 5V")
     moxa_in.ch2_sp.put(0)
     time.sleep(0.5)
     moxa_in.ch2_sp.put(voltage)
 
 
-
-'''
+"""
 
 humidity list
 
@@ -89,4 +91,4 @@ humidity    wet dry
 
 
 
-'''
+"""
