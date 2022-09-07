@@ -2,9 +2,9 @@
 
 c = get_config()
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # InteractiveShellApp configuration
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # A Mixin for applications that start InteractiveShell instances.
 #
@@ -50,7 +50,7 @@ c = get_config()
 c.StoreMagics.autorestore = True
 
 # A list of dotted module names of IPython extensions to load.
-c.InteractiveShellApp.extensions = ['pyOlog.cli.ipy']
+c.InteractiveShellApp.extensions = ["pyOlog.cli.ipy"]
 
 # Run the module as a script.
 # c.InteractiveShellApp.module_to_run = ''
@@ -68,9 +68,9 @@ c.InteractiveShellApp.extensions = ['pyOlog.cli.ipy']
 # A file to be run
 # c.InteractiveShellApp.file_to_run = ''
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # TerminalIPythonApp configuration
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # TerminalIPythonApp will inherit config from: BaseIPythonApplication,
 # Application, InteractiveShellApp
@@ -91,7 +91,7 @@ c.InteractiveShellApp.extensions = ['pyOlog.cli.ipy']
 # c.TerminalIPythonApp.module_to_run = ''
 
 # The date format used by logging formatters for %(asctime)s
-c.TerminalIPythonApp.log_datefmt = '%Y-%m-%d %H:%M:%S'
+c.TerminalIPythonApp.log_datefmt = "%Y-%m-%d %H:%M:%S"
 
 # Whether to overwrite existing config files when copying
 # c.TerminalIPythonApp.overwrite = False
@@ -170,9 +170,9 @@ c.TerminalIPythonApp.log_datefmt = '%Y-%m-%d %H:%M:%S'
 # The Logging format template
 # c.TerminalIPythonApp.log_format = '[%(name)s]%(highlevel)s %(message)s'
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # TerminalInteractiveShell configuration
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # TerminalInteractiveShell will inherit config from: InteractiveShell
 
@@ -295,7 +295,7 @@ c.TerminalInteractiveShell.autocall = 0
 # c.TerminalInteractiveShell.deep_reload = False
 
 # Start logging to the given file in append mode.
-#c.TerminalInteractiveShell.logappend = '/epics/xf/23id/ophyd/logs/xf23id1_log.py'
+# c.TerminalInteractiveShell.logappend = '/epics/xf/23id/ophyd/logs/xf23id1_log.py'
 
 #
 # c.TerminalInteractiveShell.xmode = 'Context'
@@ -327,9 +327,9 @@ c.TerminalInteractiveShell.autocall = 0
 # Automatically call the pdb debugger after every exception.
 # c.TerminalInteractiveShell.pdb = False
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # PromptManager configuration
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # This is the primary interface for producing IPython's prompts.
 
@@ -348,9 +348,9 @@ c.TerminalInteractiveShell.autocall = 0
 #
 # c.PromptManager.color_scheme = 'Linux'
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # HistoryManager configuration
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # A class to organize all history-related functionality in one place.
 
@@ -389,9 +389,9 @@ c.TerminalInteractiveShell.autocall = 0
 # This may be necessary in some threaded environments where IPython is embedded.
 # c.HistoryManager.enabled = True
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # ProfileDir configuration
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # An object to manage the profile directory and its resources.
 #
@@ -405,9 +405,9 @@ c.TerminalInteractiveShell.autocall = 0
 # `profile` option.
 # c.ProfileDir.location = u''
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # PlainTextFormatter configuration
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # The default pretty-printer.
 #
@@ -457,9 +457,9 @@ c.TerminalInteractiveShell.autocall = 0
 #
 # c.PlainTextFormatter.singleton_printers = {}
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # IPCompleter configuration
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # Extension of the completer class with IPython-specific features
 
@@ -497,9 +497,9 @@ c.TerminalInteractiveShell.autocall = 0
 # etc., but can be unsafe because the code is actually evaluated on TAB.
 # c.IPCompleter.greedy = False
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # ScriptMagics configuration
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # Magics for talking to scripts
 #
@@ -521,9 +521,9 @@ c.TerminalInteractiveShell.autocall = 0
 # the right interpreter.
 # c.ScriptMagics.script_paths = {}
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # StoreMagics configuration
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # Lightweight persistence for python variables.
 #
