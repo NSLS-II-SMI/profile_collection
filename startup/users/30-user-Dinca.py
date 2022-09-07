@@ -185,7 +185,7 @@ def run_saxs_waxs_Dinca(t=.5):
 
 
 def _waxs_mode(   ):
-    RE( bps.mv(piezo.y, 7000 :2{Det:1M-Ax:Y}Mtr.VAL', -61.45  )
+    RE( bps.mv(piezo.y, 7000 ) )  # :2{Det:1M-Ax:Y}Mtr.VAL', -61.45
 
 
 
@@ -378,7 +378,7 @@ def do_twaxs_scanx(meas_t = 1): # 2019_2
 
                 #yield from bp.scan(dets, waxs, *waxs_arc)
                 yield from bp.count(dets, num=1)
-      ) )
+
     epics.caput( 'XF:12IDC-ES:2{Det:1M-Ax:Y}Mtr.VAL', -10 )
 
 def _saxs_mode(   ):
