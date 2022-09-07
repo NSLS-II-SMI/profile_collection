@@ -128,9 +128,9 @@ def det_exposure_time(exp_t, meas_t=1):
     pil900KW.cam.acquire_time.put(exp_t)
     pil900KW.cam.acquire_period.put(exp_t+0.001)
     pil900KW.cam.num_images.put(int(meas_t/exp_t))
-    rayonix.cam.acquire_time.put(exp_t)
-    rayonix.cam.acquire_period.put(exp_t+0.01)
-    rayonix.cam.num_images.put(int(meas_t/exp_t))
+    #rayonix.cam.acquire_time.put(exp_t)
+    #rayonix.cam.acquire_period.put(exp_t+0.01)
+    #rayonix.cam.num_images.put(int(meas_t/exp_t))
 
     #See if amptek is connected
     try:
@@ -141,7 +141,7 @@ def det_exposure_time(exp_t, meas_t=1):
 def det_next_file (n):
     pil1M.cam.file_number.put(n)
     pil300KW.cam.file_number.put(n)    
-    rayonix.cam.file_number.put(n) 
+    #rayonix.cam.file_number.put(n) 
 
 
 class FakeDetector(Device):
@@ -267,7 +267,7 @@ class WAXS(Device):
     def calc_waxs_bsx(self, arc_value):
         # bsx_pos =-20.92 + 264 * np.tan(np.deg2rad(arc_value))
         #bsx_pos = -17.1 - 252*np.tan(np.deg2rad(arc_value)) # until 29-Mar-2022 when the waxs-arc failed , and MZ also raised the BS maually.
-        bsx_pos = -16.4 - 252*np.tan(np.deg2rad(arc_value)) #new zero position
+        bsx_pos = -16.64 - 252*np.tan(np.deg2rad(arc_value)) #new zero position
 
         return bsx_pos
 

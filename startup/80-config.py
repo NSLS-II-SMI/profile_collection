@@ -19,8 +19,8 @@ def sample_id(*, user_name, sample_name, tray_number=None):
     pil300KW.cam.file_number.put(1)
     pil900KW.cam.file_name.put(fname)
     pil900KW.cam.file_number.put(1)
-    rayonix.cam.file_name.put(fname)
-    rayonix.cam.file_number.put(1)
+    #rayonix.cam.file_name.put(fname)
+    #rayonix.cam.file_number.put(1)
 
 
 def proposal_id(cycle_id, proposal_id):
@@ -83,7 +83,7 @@ def proposal_id(cycle_id, proposal_id):
     pil1M.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/1M")
     pil900KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/900KW")
     pil300KW.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/300KW")
-    rayonix.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/MAXS")
+    #rayonix.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/MAXS")
 
     # pil1M.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/1M")
     # pil900KW.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/900KW")

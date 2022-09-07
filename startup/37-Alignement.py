@@ -190,12 +190,15 @@ def alignement_gisaxs_multisample(angle=0.15):
         bec._calc_derivative_and_stats = False
 
 
-def alignement_gisaxs_hex(angle=0.1):
+def alignement_gisaxs_hex(angle=0.1, rough_y=0.5):
         """
-        Regular alignement routine for gisaxs and giwaxs using the hexapod. First, scan of the sample height and incident angle on the direct beam. 
+        Regular alignement routine for gisaxs and giwaxs using the hexapod. First, scan of the sample height
+        and incident angle on the direct beam. 
         Then scan of teh incident angle, height and incident angle again on the reflected beam.
 
-        param angle: np.float. Angle at which the alignement on the reflected beam will be done
+        Params:
+                angle (float): angle at which the alignement on the reflected beam will be done,
+                rough_y (float): range in hexapod stage y for rough alignment.
 
         """
 
@@ -212,7 +215,7 @@ def alignement_gisaxs_hex(angle=0.1):
         yield from smi.setDirectBeamROI()
 
         # Scan theta and height
-        yield from align_gisaxs_height_hex(0.5, 21, der=True)
+        yield from align_gisaxs_height_hex(rough_y, 21, der=True)
         yield from align_gisaxs_th_hex(0.5, 11)
         
         # move to theta 0 + value

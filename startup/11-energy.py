@@ -24,8 +24,8 @@ def energy_to_gap(target_energy, undulator_harmonic=1):
     f = fundamental_energy
 
     gap_mm = -533.56314 + (1926.52257) * (0.28544/(1+10**((-10782.55855-f)*1.44995e-4))+(1-0.28544)/(1+10**((7180.06758-f)*6.34167e-4)))
-    gap = gap_mm*1000 - 21 #-30 for 12.62; -33 for 14 keV; -21 for 16.1 keV, 18.25keV; -50 for 9540eV; -20 for 2450eV; -45 for 4050eV
-    #-50 for 9700 keV -- 11.150 keV, -55 for 6.55 keV, -35 for 7.7 kev;  -11 for 3.6 keV
+    gap = gap_mm*1000 - 16 #-30 for 12.62; -33 for 14 keV; -21 for 16.1 keV, 18.25keV; -50 for 9540eV; -20 for 2450eV; -30 for 4050eV
+    #-29 for 9700 keV -- 11.150 keV, -55 for 6.55 keV, -35 for 7.7 kev;  -29 for 3.6 keV
     
     return gap
 
@@ -93,7 +93,7 @@ class Energy(PseudoPositioner):
     enabledcmgap = Cpt(Signal, value=True)
 
     # this is also the maximum harmonic that will be tried
-    target_harmonic =  Cpt(Signal, value=19)
+    target_harmonic =  Cpt(Signal, value=21)
     harmonic =  Cpt(Signal, kind='hinted')
 
     # TODO make this a derived component

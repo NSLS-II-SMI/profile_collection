@@ -6,7 +6,8 @@ from ophyd import Component as Cpt
 from nslsii.ad33 import QuadEMV33
 
 
-class output_lakeshore(Device):
+class output_lakeshore(Device): 
+
     status = Cpt(EpicsSignal, 'Val:Range-Sel')
     P = Cpt(EpicsSignal, 'Gain:P-SP')
     I = Cpt(EpicsSignal, 'Gain:I-SP')
@@ -40,8 +41,9 @@ class new_LakeShore(Device):
     output2 = output_lakeshore('XF:12ID-ES{Env:01-Out:2}', name='ls_outpu2')
     output3 = output_lakeshore('XF:12ID-ES{Env:01-Out:3}', name='ls_outpu3')
     output4 = output_lakeshore('XF:12ID-ES{Env:01-Out:4}', name='ls_outpu4')
+    #xrange = 
 
-ls = new_LakeShore('XF:12ID-ES', name='ls')
+ls = new_LakeShore('XF:12ID-ES', name='ls') 
 # ls.ch1_read.kind = 'hinted'
 # # ls.ch1_sp.kind = 'hinted'
 # ls.ch2_read.kind = 'hinted'

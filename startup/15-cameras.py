@@ -93,19 +93,19 @@ class StandardRayonix(SingleTrigger, RayonixDetector):
     roi3 = Cpt(ROIPlugin, 'ROI3:')
     roi4 = Cpt(ROIPlugin, 'ROI4:')
 
-rayonix = StandardRayonix('XF:12IDC-ES:2{Det:MAXS}', name='rayonix')
-#rayonix.read_attrs = ['hdf5', 'stats1', 'stats2', 'stats3', 'stats4', 'stats5']
-rayonix.read_attrs = ['tiff', 'stats1', 'stats2', 'stats3', 'stats4', 'stats5']
-rayonix.stats1.read_attrs = ['total']
-rayonix.stats2.read_attrs = ['total']
-rayonix.stats3.read_attrs = ['total']
-rayonix.stats4.read_attrs = ['total']
-rayonix.stats5.read_attrs = ['total']
-rayonix.cam.configuration_attrs.append('num_images')
-rayonix.configuration_attrs.append('roi1')
+#rayonix = StandardRayonix('XF:12IDC-ES:2{Det:MAXS}', name='rayonix')
+##rayonix.read_attrs = ['hdf5', 'stats1', 'stats2', 'stats3', 'stats4', 'stats5']
+#rayonix.read_attrs = ['tiff', 'stats1', 'stats2', 'stats3', 'stats4', 'stats5']
+#rayonix.stats1.read_attrs = ['total']
+#rayonix.stats2.read_attrs = ['total']
+#rayonix.stats3.read_attrs = ['total']
+#rayonix.stats4.read_attrs = ['total']
+#rayonix.stats5.read_attrs = ['total']
+#rayonix.cam.configuration_attrs.append('num_images')
+#rayonix.configuration_attrs.append('roi1')
 
-rayonix.stats1.total.kind = 'hinted'
-rayonix.tiff.write_path_template = '/nsls2/xf12id2/data/MAXS/images/%Y/%m/%d/'
+#rayonix.stats1.total.kind = 'hinted'
+#rayonix.tiff.write_path_template = '/nsls2/xf12id2/data/MAXS/images/%Y/%m/%d/'
 
 class StandardProsilica(SingleTrigger, ProsilicaDetector):
     image = Cpt(ImagePlugin, 'image1:')

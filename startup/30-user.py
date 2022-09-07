@@ -196,7 +196,7 @@ def run_waxs_multi(t=1):
     x_list  = [-0.025, 0, 0.025]
     #y_offset    
     # Detectors, motors:
-    dets = [pil1M, pil300KW,rayonix]
+    dets = [pil1M, pil300KW]  # removed rayonix from this list
     waxs_arc = [7, 31, 5]
     samples = [ 'SP_Air_in_Airmode','SP_CT_New_Vert','SP_Kapton_in_Airmode']
     #    param   = '16.1keV'
