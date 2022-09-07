@@ -1,7 +1,8 @@
-print(f'Loading {__file__}')
+print(f"Loading {__file__}")
 
 import bluesky.plan_stubs as bps
-#from bluesky.suspenders import SuspendBoolHigh, SuspendFloor, SuspendBoolLow
+
+# from bluesky.suspenders import SuspendBoolHigh, SuspendFloor, SuspendBoolLow
 import logging
 import datetime
 import os
@@ -9,9 +10,9 @@ import pandas as pds
 import os
 import time
 
-#Code to send email if bluesky crash
+# Code to send email if bluesky crash
 
-'''
+"""
 def send_notice(email,subject,msg):
     os.system('echo '+msg+' | mail -s "'+subject+'" '+email)
 
@@ -41,4 +42,4 @@ logger = logging.getLogger('bluesky.RE')
 handler = OSEmailHandler()
 handler.setLevel('ERROR')  # Only email for if the level is ERROR or higher (CRITICAL).
 logger.addHandler(handler)
-'''
+"""

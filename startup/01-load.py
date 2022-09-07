@@ -1,4 +1,4 @@
-print(f'Loading {__file__}')
+print(f"Loading {__file__}")
 
 import pandas as pd
 import numpy as np
@@ -6,19 +6,19 @@ import os
 
 
 def interpolate_db_sdds():
-    '''
+    """
     Load the intepolation_db_sdd2.txt from the startup folder containing the direct beam position as well as the sample detector distance measured
     at given encoded sample detctor distance. Then it interpolate the current beam position and sample detctor distance from the current detctor position
-    '''
+    """
 
     startup_dir = get_ipython().profile_dir.startup_dir
-    data = pd.read_csv(os.path.join(startup_dir, 'intepolation_db_sdd2.txt'), sep='\t')
+    data = pd.read_csv(os.path.join(startup_dir, "intepolation_db_sdd2.txt"), sep="\t")
 
-    sdds_encodeded = data['sdd(mm)'].values
-    sdds_calculated = data['sdd_calculated'].values
+    sdds_encodeded = data["sdd(mm)"].values
+    sdds_calculated = data["sdd_calculated"].values
 
-    db_x_pos_registered = data['db_x_pos'].values
-    db_y_pos_registered = data['db_y_pos'].values
+    db_x_pos_registered = data["db_x_pos"].values
+    db_y_pos_registered = data["db_y_pos"].values
 
     det_posx = pil1m_pos.x.position
     det_posy = pil1m_pos.y.position
@@ -33,7 +33,3 @@ def interpolate_db_sdds():
     current_dby = dby_interp_y0 + det_posy / 0.172
 
     return current_sdd, [current_dbx, current_dby]
-
-
-
-

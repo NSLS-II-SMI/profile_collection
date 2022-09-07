@@ -1,4 +1,4 @@
-print(f'Loading {__file__}')
+print(f"Loading {__file__}")
 
 ###############################################################################
 # TODO: remove this block once https://github.com/bluesky/ophyd/pull/959 is
@@ -6,11 +6,13 @@ print(f'Loading {__file__}')
 from datetime import datetime
 from ophyd.signal import EpicsSignalBase, EpicsSignal, DEFAULT_CONNECTION_TIMEOUT
 
+
 def print_now():
-    return datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S.%f')
+    return datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S.%f")
+
 
 def wait_for_connection_base(self, timeout=DEFAULT_CONNECTION_TIMEOUT):
-    '''Wait for the underlying signals to initialize or connect'''
+    """Wait for the underlying signals to initialize or connect"""
     if timeout is DEFAULT_CONNECTION_TIMEOUT:
         timeout = self.connection_timeout
     # print(f'{print_now()}: waiting for {self.name} to connect within {timeout:.4f} s...')
@@ -20,11 +22,12 @@ def wait_for_connection_base(self, timeout=DEFAULT_CONNECTION_TIMEOUT):
         # print(f'{print_now()}: waited for {self.name} to connect for {time.time() - start:.4f} s.')
     except TimeoutError:
         if self._destroyed:
-            raise DestroyedError('Signal has been destroyed')
+            raise DestroyedError("Signal has been destroyed")
         raise
 
+
 def wait_for_connection(self, timeout=DEFAULT_CONNECTION_TIMEOUT):
-    '''Wait for the underlying signals to initialize or connect'''
+    """Wait for the underlying signals to initialize or connect"""
     if timeout is DEFAULT_CONNECTION_TIMEOUT:
         timeout = self.connection_timeout
     # print(f'{print_now()}: waiting for {self.name} to connect within {timeout:.4f} s...')
@@ -32,11 +35,13 @@ def wait_for_connection(self, timeout=DEFAULT_CONNECTION_TIMEOUT):
     self._ensure_connected(self._read_pv, self._write_pv, timeout=timeout)
     # print(f'{print_now()}: waited for {self.name} to connect for {time.time() - start:.4f} s.')
 
+
 EpicsSignalBase.wait_for_connection = wait_for_connection_base
 EpicsSignal.wait_for_connection = wait_for_connection
 ###############################################################################
 
 from ophyd.signal import EpicsSignalBase
+
 EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
 
 import warnings
@@ -45,16 +50,13 @@ from databroker import Broker
 from ophyd import Signal
 
 nslsii.configure_base(
-    get_ipython().user_ns,
-    'smi',
-    bec_derivative=True,
-    publish_documents_with_kafka=True
+    get_ipython().user_ns, "smi", bec_derivative=True, publish_documents_with_kafka=True
 )
 
 # Populating oLog entries with scans, comment out to disable
 nslsii.configure_olog(get_ipython().user_ns, subscribe=True)
 
-#from bluesky.utils import PersistentDict
+# from bluesky.utils import PersistentDict
 from pathlib import Path
 
 import appdirs
@@ -78,6 +80,7 @@ except ImportError:
         but that the full contents are synced to disk when the PersistentDict
         instance is garbage collected.
         """
+
         def __init__(self, directory):
             self._directory = directory
             self._file = zict.File(directory)
@@ -93,8 +96,10 @@ except ImportError:
                 zfile.update((k, dump(v)) for k, v in cache.items())
 
             import weakref
+
             self._finalizer = weakref.finalize(
-                self, finalize, self._file, self._cache, PersistentDict._dump)
+                self, finalize, self._file, self._cache, PersistentDict._dump
+            )
 
         @property
         def directory(self):
@@ -119,17 +124,11 @@ except ImportError:
             "Encode as msgpack using numpy-aware encoder."
             # See https://github.com/msgpack/msgpack-python#string-and-binary-type
             # for more on use_bin_type.
-            return msgpack.packb(
-                obj,
-                default=msgpack_numpy.encode,
-                use_bin_type=True)
+            return msgpack.packb(obj, default=msgpack_numpy.encode, use_bin_type=True)
 
         @staticmethod
         def _load(file):
-            return msgpack.unpackb(
-                file,
-                object_hook=msgpack_numpy.decode,
-                raw=False)
+            return msgpack.unpackb(file, object_hook=msgpack_numpy.decode, raw=False)
 
         def flush(self):
             """Force a write of the current state to disk"""
@@ -140,12 +139,14 @@ except ImportError:
             """Force a reload from disk, overwriting current cache"""
             self._cache = dict(super().items())
 
-runengine_metadata_dir = appdirs.user_data_dir(appname="bluesky") / Path("runengine-metadata")
+
+runengine_metadata_dir = appdirs.user_data_dir(appname="bluesky") / Path(
+    "runengine-metadata"
+)
 
 # PersistentDict will create the directory if it does not exist
 RE.md = PersistentDict(runengine_metadata_dir)
 
-RE.md['beamline_name'] = 'SMI'
-RE.md['facility'] = 'NSLS-II'
-RE.md['optinal_comments'] = '' #Any comment can be added if needed
-
+RE.md["beamline_name"] = "SMI"
+RE.md["facility"] = "NSLS-II"
+RE.md["optinal_comments"] = ""  # Any comment can be added if needed
