@@ -858,4 +858,231 @@ def saxs_2021_3(t=1):
             yield from bps.sleep(2)
 
     sample_id(user_name='test', sample_name='test')
-    det_exposure_time(0.3, 0.3) 
+    det_exposure_time(0.3, 0.3)
+
+
+def waxs_Ca_edge_Katz_2022_2(t=0.2):
+    """
+    Wide WAXS scan including nexafs at 60 deg 2022_2 cycle
+
+    NEXAFS at WAXS 60 deg scanned with higher resolution
+    """
+    
+    user_name = 'ML'
+
+    names =   ['calcium_12_nexafs']
+    piezo_x = [-40000]
+    piezo_y = [-1910]
+
+
+    #waxs_arc = [0, 20, 40, 60]
+    waxs_arc = [60]
+    # to move piezo x slightly for different waxs angles
+    waxs_piezo_x_offset = 100        # um
+    det_exposure_time(t, t)
+
+    assert len(piezo_x) == len(names), f'Number of piezo x coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})'
+    assert len(piezo_x) == len(piezo_y), f'Number of piezo x coordinates ({len(piezo_x)}) is different tan number of piezo y coordinates ({len(piezo_y)})'
+    assert len(piezo_y) == len(names), f'Number of piezo y coordinates ({len(piezo_y)}) is different from number of samples ({len(names)})'
+    
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ '}) for n in names]
+
+    # Energies for calcium K edge, nexafs resolution
+    energies_nexafs = np.concatenate((np.arange(4030, 4035, 5),
+                                      np.arange(4035, 4042, 2),
+                                      np.arange(4042, 4070, 0.5),
+                                      np.arange(4070, 4080, 2),
+                                      np.arange(4080, 4140, 5),
+                                    ))
+    
+    # Energies for calcium K edge, coarse resolution
+    energies_coarse = np.concatenate((np.arange(4030, 4045, 5),
+                                      np.arange(4045, 4060, 1),
+                                      np.arange(4060, 4080, 5),
+                                      np.arange(4080, 4121, 10),
+                                    ))
+
+    # Go over WAXS arc positions as the sloest motor
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+
+        # Do not read SAXS if WAXS is in the way
+        dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+
+        # Change energies
+        energies = energies_coarse if wa < 45 else energies_nexafs
+
+        # Go over samples
+        for name, xs, ys in zip(names, piezo_x, piezo_y):
+
+            yield from bps.mv(piezo.x, xs + i * waxs_piezo_x_offset)
+            yield from bps.mv(piezo.y, ys)
+
+            # Cover a range of 1.0 mm in y to avoid damage
+            yss = np.linspace(ys, ys + 1000, len(energies))
+            
+            # Scan over energies
+            for e, ysss in zip(energies, yss):
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                # Metadata
+                bpm = xbpm3.sumX.get()
+                sdd = pil1m_pos.z.position / 1000
+                wa = str(np.round(float(wa), 1)).zfill(4)
+
+                # Detector file name
+                name_fmt = '{sample}_{energy}eV_wa{wax}_sdd{sdd}m_bpm{xbpm}'
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax=wa,
+                                              sdd='%.1f'%sdd, xbpm='%4.3f'%bpm)
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+
+            # Come back gently with energies
+            energy_steps = [4100, 4080, 4050]
+            for e in energy_steps:
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(3)
+
+
+def nexafs_saxs_Ag_edge_Katz_2022_2(t=0.2):
+    """
+    NEXAFS and SAXS at 40 deg across Ag L3 edge
+    """
+
+    user_name = 'ML'
+
+    # first bar: samples 01_01 to 07_01 on top, 08_02 to 15_01 on bottom
+    #names_top =   ['sample_01_01','sample_02_01', 'sample_03_01', 'sample_04_01', 'sample_05_01', 'sample_06_01','sample_07_01']
+    #names_bot =   ['sample_08_01', 'sample_09_01', 'sample_10_01', 'sample_11_01', 'sample_12_01', 'sample_13_01','sample_14_01', 'sample_15_01']
+    #piezo_x_top = [   43000,30000,18000, 6000,-7000,-19000,-32000]
+    #piezo_y_top = [     -7500,-7900,-7900,-9900,-7900,-7900,-6900 ]
+    #piezo_x_bot = [     43000,29000,16000,6000,-6000,-18000,-30000,-41000 ]
+    #piezo_y_bot = [      4100,4100,5100,5100,5600,5600, 5600,5600]
+
+
+    # second bar: samples 16_01 to 06_02 on top, 07_02 to 14_02 on bottom
+    #names_top =   ['sample_16_01','sample_01_02', 'sample_02_02', 'sample_03_02', 'sample_04_02', 'sample_05_02', 'sample_06_02']
+    #names_bot =   ['sample_07_02','sample_08_02', 'sample_09_02', 'sample_10_02', 'sample_11_02', 'sample_12_02', 'sample_13_02',
+    #               'sample_14_02']
+    #piezo_x_top = [   45100,32100,19100, 7100,-6900,-16900,-30900]
+    #piezo_y_top = [     -8000,-8000,-9000,-8000,-7500,-8500,-8500 ]
+    #piezo_x_bot = [     43000,29000,15000,3000,-7000,-18000,-30000,-42000 ]
+    #piezo_y_bot = [      4500,4500,4500,4000,5500,5500, 5500,5500]
+
+
+    # second and a half bar: rerun second bar for duplicates, samples 16_02 to 06_03 on top, 07_03 to 14_03 on bottom
+    #  added 500 micron in all x positions so we can get triplicates on all samples
+    #names_top =   ['sample_16_02','sample_01_03', 'sample_02_03', 'sample_03_03', 'sample_04_03', 'sample_05_03', 'sample_06_03']
+    #names_bot =   ['sample_07_03','sample_08_03', 'sample_09_03', 'sample_10_03', 'sample_11_03', 'sample_12_03', 'sample_13_03',
+    #               'sample_14_03']
+    #piezo_x_top = [   45600,32600,19600, 7600,-6100,-16400,-30400]
+    #piezo_y_top = [     -8000,-8000,-9000,-8000,-7500,-8500,-8500 ]
+    #piezo_x_bot = [     43500,29500,15500,3500,-6500,-17500,-29500,-41500 ]
+    #piezo_y_bot = [      4500,4500,4500,4000,5500,5500, 5500,5500]
+
+    # third bar: samples 16_02 to 06_03 on top, 07_03 to 14_03 on bottom
+    #  added 500 micron in all x positions so we can get triplicates on all samples
+    #names_top =   ['sample_15_02','sample_15_03', 'sample_16_03', 'sample_MD_17_01','sample_MD_17_02','sample_MD_17_03','sample_MD_17_04','sample_MD_17_05']
+    #names_bot =   ['sample_MD_17_06','sample_MD_17_07','sample_MD_17_08','sample_MD_17_09','sample_MD_17_10','diode']
+    #piezo_x_top = [   42500,42500,28500,17500, 4500,-9500,-23500,-36500]
+    #piezo_y_top = [     -8000,-7000,-7000,-7000,-7000,-7000,-7000,-7000 ]
+    #piezo_x_bot = [     37500,23500,11500,-3500,-18500,-27500]
+    #piezo_y_bot = [      4500,4500,4500,4500,4500,4500]
+
+    # fourth bar: final bar, scattering and some additional scans for other edges
+    names_top =   ['silver_NPs', 'sample_04_window','sample_12_window','sample_13_window','sample_14_window', 'blank_window']
+    names_bot =   ['sample_MD_17_02','sample_MD_17_03','sample_MD_17_05']
+    piezo_x_top = [ 33000,24200,16700,8600, -400,39500]
+    piezo_y_top = [ -8600,-8800, -9000, -8400, -8400,-8800]
+    piezo_x_bot = [  39100, 22100,9100]
+    piezo_y_bot = [ 4000, 4000,4000]
+
+
+    names = names_top + names_bot
+    piezo_x = piezo_x_top +piezo_x_bot
+    piezo_y = piezo_y_top + piezo_y_bot
+
+    waxs_arc = [20,40,60]
+    # to move piezo x slightly for different waxs angles
+    waxs_piezo_x_offset = 200        # um
+    det_exposure_time(t, t)
+
+    assert len(piezo_x) == len(names), f'Number of piezo x coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})'
+    assert len(piezo_x) == len(piezo_y), f'Number of piezo x coordinates ({len(piezo_x)}) is different tan number of piezo y coordinates ({len(piezo_y)})'
+    assert len(piezo_y) == len(names), f'Number of piezo y coordinates ({len(piezo_y)}) is different from number of samples ({len(names)})'
+    
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ '}) for n in names]
+
+    # Energies for silver L3 edge nexafs resolution
+    energies = np.concatenate((np.arange(3300, 3340, 5),
+                               np.arange(3340, 3350, 2),
+                               np.arange(3350, 3390, 1),
+                               np.arange(3390, 3400, 2),
+                               np.arange(3400, 3450, 5),
+                              ))
+
+    # Go over WAXS arc positions as the sloest motor
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+
+        # Do not read SAXS if WAXS is in the way
+        dets = [pil900KW] if wa < 50 else [pil1M, pil900KW]
+
+        # Go over samples
+        for name, xs, ys in zip(names, piezo_x, piezo_y):
+
+            yield from bps.mv(piezo.x, xs + i * waxs_piezo_x_offset)
+            yield from bps.mv(piezo.y, ys)
+
+            # Cover a range of 1.0 mm in y to avoid damage
+            yss = np.linspace(ys, ys + 500, len(energies))
+            
+            # Scan over energies
+            for e, ysss in zip(energies, yss):
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                # Metadata
+                bpm = xbpm3.sumX.get()
+                sdd = pil1m_pos.z.position / 1000
+                wa = str(np.round(float(wa), 1)).zfill(4)
+
+                # Detector file name
+                name_fmt = '{sample}_{energy}eV_wa{wax}_sdd{sdd}m_bpm{xbpm}'
+                sample_name = name_fmt.format(sample=name, energy='%6.2f'%e, wax=wa,
+                                              sdd='%.1f'%sdd, xbpm='%4.3f'%bpm)
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+
+            # Come back gently with energies
+            energy_steps = [3410, 3370, 3320]
+            for e in energy_steps:
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(3)
+
+
+
+def ca_spectroscopy_scan_mrl(t=0.2):
+    """
+    Ca K-edge NEXAFS scan on calcium acetate reference
+    """
+    user_name='ML'
+    sample_name='calcium_acetate_0pt2sec_1eVres_2_'
+
+    sample_id(user_name=user_name, sample_name=sample_name)
+    det_exposure_time(t, t)
+    #yield from bps.mv(waxs, 60)      im already at 60 so dont need this line
+    yield from bp.scan([pil900KW], energy, 4030, 4120, 91)
+    yield from bps.mv(energy, 4100)
+    yield from bps.mv(energy, 4075)
+    yield from bps.mv(energy, 4050)
+    yield from bps.mv(energy, 4030)

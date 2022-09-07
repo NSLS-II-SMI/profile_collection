@@ -592,8 +592,6 @@ def saxs_cai_2021_3(t=1):
     det_exposure_time(0.3, 0.3) 
 
 
-
-
 def Cai_saxs_tensile_hard(t=0.2):
     dets = [pil1M]
     names = 'sample142_3'
@@ -609,3 +607,239 @@ def Cai_saxs_tensile_hard(t=0.2):
         yield from bp.count(dets, num=1)
 
         yield from bps.sleep(20)
+
+
+def cai_tensile_continous_hard_2022_2(t=0.2):
+    """
+    WAXS and SAXS continous measurement on Linkam MFS stage
+
+    setthreshold energy 16100 autog 11000
+
+    Args:
+        t (float): detector exposure time,
+    """
+
+    name = 'MMA0.80-6'
+    
+    # Sampe starting hexapod positions in mm
+    stage_x = -0.8
+    stage_y = 0.6
+
+    # Calculate position pairs for sample offset
+    # np.linspace(start, stop, number of points)
+    yss = np.linspace(stage_y, stage_y + 0.4, 20)
+    xss = np.linspace(stage_x, stage_x + 0.4, 5)
+    yss, xss = np.meshgrid(yss, xss)
+    yss = yss.ravel()
+    xss = xss.ravel()
+
+    # Delay between taking detector images in seconds
+    delay = 0
+
+    waxs_arc = [15, 7]
+    det_exposure_time(t, t)
+    user_name = 'BQ'
+    
+    t0 = time.time()
+    
+    yield from bps.mv(stage.y, stage_y,
+                      stage.x, stage_x,
+                      waxs, waxs_arc[0])
+
+    for i in range(5000):
+
+        yield from bps.mv(stage.y, yss[i % len(yss)],
+                          stage.x, xss[i % len(xss)])
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            # Do not read SAXS if WAXS is in the way
+            dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+            t1 = time.time()
+
+            # Metadata
+            step = str(i).zfill(3)
+            td = str(np.round(t1 - t0, 1)).zfill(6)
+            e = energy.position.energy / 1000
+            sdd = pil1m_pos.z.position / 1000
+            scan_id = db[-1].start['scan_id'] + 1
+
+            # Sample name
+            name_fmt = '{sample}_step{step}_time{td}s_{energy}eV_wa{wax}_sdd{sdd}m_id{scan_id}'
+            sample_name = name_fmt.format(sample=name, step=step, td=td, energy='%.1f'%e, wax=wa,
+                                          sdd='%.1f'%sdd, scan_id=scan_id)
+            sample_name = sample_name.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ =,'})
+            sample_id(user_name=user_name, sample_name=sample_name)
+
+            print(f'\n\t=== Step {i + 1} Sample: {sample_name} ===\n')
+            yield from bp.count(dets)
+        print(f'Sleep for {delay} seconds')
+        yield from bps.sleep(delay)
+
+    # End of the scan
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)
+
+
+def cai_transmission_hard__2022_2(t=1):
+    """
+    """
+
+    # x and y are positions on the sample, a and b are different rows
+    names_a = ['MYO-sample_04-2','MYO-sample_04-1', 'MYO-sample_03', 'MYO-sample_02', 'MYO-sample_01', 'MYO-background']
+    x_a =     [      21500, 15000, 9000, 2000, -4000, -10000] 
+    y_a =     [      100, 100, 100, 100, 100, 100]
+    
+    names_b = []
+    x_b =     [] 
+    y_b =     []
+
+    # Combine sample lists
+    names = names_a + names_b
+    piezo_x = x_a + x_b
+    piezo_y = y_a + y_b
+
+    waxs_arc = [40, 20, 0]
+    det_exposure_time(t, t)
+    user_name = 'BQ'    
+    
+    assert len(piezo_x) == len(names), f'Number of x coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})'
+    assert len(piezo_x) == len(piezo_y), f'Number of x coordinates ({len(piezo_x)}) is different number of y coordinates ({len(piezo_y)})'
+    assert len(piezo_y) == len(names), f'Number of y coordinates ({len(piezo_y)}) is different from number of samples ({len(names)})'
+
+    # Detectors, motors:
+    waxs_range = [40, 20, 0]
+
+    for i, wa in enumerate(waxs_range):
+        yield from bps.mv(waxs, wa,
+                          piezo.x, piezo_x[0],
+                          piezo.y, piezo_y[0])
+        # Do not read SAXS if WAXS is in the way
+        dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+        det_exposure_time(t, t)
+
+        for name, xs, ys in zip(names, piezo_x, piezo_y):
+            yield from bps.mv(piezo.x, xs, piezo.y, ys + i * 50)
+
+            # Metadata
+            e = energy.position.energy / 1000
+            sdd = pil1m_pos.z.position / 1000
+            scan_id = db[-1].start['scan_id'] + 1
+
+            # Sample name
+            name_fmt = '{sample}_{energy}keV_wa{wax}_sdd{sdd}m_id{scan_id}'
+            sample_name = name_fmt.format(sample=name, energy='%.1f'%e, wax=wa,
+                                          sdd='%.1f'%sdd, scan_id=scan_id)
+            sample_name = sample_name.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ =,'})
+            sample_id(user_name=user_name, sample_name=sample_name)
+            print(f'\n\n\n\t=== Sample: {sample_name} ===')
+            yield from bp.count(dets)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3)
+
+
+def cai_giswaxs_temperature_scan_2022_2(t=0.5):
+    """
+    Grazing incidence measurement using Lakeshore controlled heating bar
+    """
+
+    names =   ['BQ-sample-06', 'BQ-sample-05']
+    piezo_x = [ 7500, -5800]
+    piezo_z = 2200
+    
+    temperatures = [50, 55, 60, 80, 100,
+                    105, 110, 115, 120,
+                    210, 215, 220, 225, 350]
+    
+    incident_angles = [0.125, 0.2]
+    waxs_range = [0, 20, 40]
+    step_across_sample = 200
+    user_name = 'BQ'
+
+    assert len(names) == len(piezo_x), f'Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})'
+    
+    yield from bps.mv(piezo.z, piezo_z)
+
+    for temperature in temperatures:
+        t_kelvin = temperature + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+
+        # Activate heating range in Lakeshore
+        #if temperature < 80:
+        #    yield from bps.mv(ls.output1.status, 1)
+        #else:
+        yield from bps.mv(ls.output1.status, 3)
+
+        # Equalise temperature
+        print(f'Equalising temperature to {temperature} deg C')
+        start = time.time()
+        temp = ls.input_A.get()
+        while abs(temp - t_kelvin) >  1:
+            print('Difference: {:.1f} K'.format(abs(temp - t_kelvin)))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+
+            # Escape the loop if too much time passes
+            if time.time() - start > 1800:
+                temp = t_kelvin
+        print('Time needed to equilibrate: {:.1f} min'.format((time.time() - start) / 60))
+
+        # Wait extra time depending on temperature
+        if (35 < temperature) and (temperature < 181):
+            yield from bps.sleep(300)
+        elif 160 <= temperature:
+            yield from bps.sleep(600)
+
+        # Read T and convert to deg C
+        temp_degC = ls.input_A.get() - 273.15
+
+        for name, xs, in zip(names, piezo_x):
+
+            # Move motors to locate the sample
+            yield from bps.mv(piezo.x, xs)
+            
+            # Align the sample
+            yield from bps.mv(pil1m_pos.x, -2.3)
+            try:
+                yield from alignement_gisaxs()
+            except:
+                yield from alignement_gisaxs(0.4)
+            yield from bps.mv(pil1m_pos.x, 0.7)
+            
+            # Sample flat at ai0
+            ai0 = piezo.th.position
+
+            for i, wa in enumerate(waxs_range):
+                yield from bps.mv(waxs, wa)
+                dets = [pil900KW] if wa < 15 else [pil900KW, pil1M]
+                det_exposure_time(t, t)
+                
+                yield from bps.mvr(piezo.x, (i + 1) * step_across_sample)
+
+                for ai in incident_angles:
+                    yield from bps.mv(piezo.th, ai0 + ai)
+
+                    # Metadata
+                    e = energy.position.energy / 1000
+                    sdd = pil1m_pos.z.position / 1000
+                    scan_id = db[-1].start['scan_id'] + 1
+                    temp = str(np.round(float(temp_degC), 1)).zfill(5)
+
+                    # Sample name
+                    name_fmt = '{sample}_{temp}degC_{energy}keV_wa{wax}_sdd{sdd}m_id{scan_id}_ai{ai}'
+                    sample_name = name_fmt.format(sample=name, temp=temp, energy='%.1f'%e, wax=wa,
+                                                sdd='%.1f'%sdd, scan_id=scan_id, ai=ai)
+                    sample_name = sample_name.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ =,'})
+                    sample_id(user_name=user_name, sample_name=sample_name)
+                    print(f'\n\n\n\t=== Sample: {sample_name} ===')
+                    yield from bp.count(dets)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
+    
+    # Turn off the heating and set temperature to 23 deg C
+    t_kelvin = 23 + 273.15
+    yield from ls.output1.mv_temp(t_kelvin)
+    yield from ls.output1.turn_off()

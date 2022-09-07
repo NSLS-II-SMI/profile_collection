@@ -6,6 +6,7 @@
 # Metadata
 """
     # Metadata
+    td = str(np.round(t1 - t0, 1)).zfill(6)         # time difference in seconds from time.time()
     e = energy.position.energy / 1000               # energy keV
     wa = waxs.arc.position + 0.001                  # WAXS arc angle, deg
     wa = str(np.round(float(wa), 1)).zfill(4)
@@ -86,7 +87,7 @@
 # Detectors
 """
     # Do not read SAXS if WAXS is in the way
-    dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+    dets = [pil900KW] if waxs.arc.position < 10 else [pil1M, pil900KW]
 """
 
 # Images as tests and standard exposure
@@ -220,3 +221,81 @@ def saxs_S_edge_temperature_Hoang_2022_2(t=0.5):
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5,0.5)
     yield from ls.output1.mv_temp( 28 + 273.13)
+
+
+### Linkam MFS tensile stage hard X-rays
+def song_waxs_hard_2022_2(t=1, strain=0):
+    """
+    Hard X-ray script for MFS stage manual
+
+    Args:
+        t (float): detector exposure time,
+        strain (float): strain value from Linkam MFS stage for filename metadata
+    """
+
+    names = ['p77_cross2_2s']
+    x = [-0.6]
+    y = [-1.2]
+
+    user_name = 'SZ'
+
+    waxs_arc = [0, 20]
+    names = [n.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ =,'}) for n in names]
+
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(stage.x, xs)
+        yield from bps.mv(stage.y, ys)
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+            yield from bps.mv(stage.y, ys + i * 0.05)
+            det_exposure_time(t, t) 
+            name_fmt = '{sample}_{energy}keV_strain{strain}_wa{wax}_sdd{sdd}m_id{scan_id}'
+            
+            # Metadata
+            sdd = pil1m_pos.z.position / 1000
+            e = energy.position.energy / 1000
+            scan_id = db[-1].start['scan_id'] + 1
+
+            sample_name = name_fmt.format(sample=name, strain=strain, energy='%2.1f'%e, wax=wa, sdd='%.1f'%sdd, scan_id=scan_id)
+            sample_id(user_name=user_name, sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets)
+            sample_id(user_name='test', sample_name='test')
+
+### Calculate beamstpo on WAXS y postion is in 37-Guillaume beam, line ~130
+
+"""
+for temperature in temperatures:
+        t_kelvin = temperature + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+
+        # Activate heating range in Lakeshore
+        if temperature < 50:
+            yield from bps.mv(ls.output1.status, 1)
+        else:
+            yield from bps.mv(ls.output1.status, 3)
+
+        # Equalise temperature
+        print(f'Equalising temperature to {temperature} deg C')
+        start = time.time()
+        temp = ls.input_A.get()
+        while abs(temp - t_kelvin) >  1:
+            print('Difference: {:.1f} K'.format(abs(temp - t_kelvin)))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+            # Escape the loop if too much time passes
+            if time.time() - start > 1800:
+                temp = t_kelvin
+        print('Time needed to equilibrate: {:.1f} min'.format((time.time() - start) / 60))
+
+        # Wait extra time depending on temperature
+        if (35 < temperature) and (temperature < 160):
+            yield from bps.sleep(300)
+        elif 160 <= temperature:
+            yield from bps.sleep(600)
+
+        # Read T and convert to deg C
+        temp_degC = ls.input_A.get() - 273.15"""

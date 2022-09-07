@@ -29,6 +29,7 @@ def run_giwaxs_Kim(t=1):
     dets = [pil300KW, pil1M] # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]
     
     x_shift_array = np.linspace(-500, 500, 3) # measure at a few x positions
+
     
     for x, sample in zip(x_list,sample_list): #loop over samples on bar
 

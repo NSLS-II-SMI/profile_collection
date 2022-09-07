@@ -56,106 +56,9 @@ def run_BD(t=0.2):
 
 
 def giwaxs_insitu_heating(tim=0.5): 
-    # samples = ['PHBTBTC10_vapor_sam3_run2_cooldown_25C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_25C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_40C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_50C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_60C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_70C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_80C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_90C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_100C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_110C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_120C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_130C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_140C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_heat_up_150C']
-
-    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_140C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_130C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_120C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_110C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_100C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_90C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_80C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_70C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_60C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_50C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_40C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_cool_down_25C']
-
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_25C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_40C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_50C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_60C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_70C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_80C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_90C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_100C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_110C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_1min']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_6min']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_11min']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_16min']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_21min']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_26min']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_31min']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_heat_up_120C_36min']
     
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_110C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_100C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_90C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_80C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_70C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_60C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_50C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_40C']
-    # samples = ['PHBTBTC10_slow_cool_sam3_run2_cool_down_25C']
-
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_25C']
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_40C']
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_50C']
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_60C']
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_70C']
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_80C']
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_90C']
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_100C']
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_110C']
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_120C']
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_130C']
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_140C']
-    # samples = ['PHBTBTC10_quenched_sam1_heat_up_150C']
-
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_140C']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_130C']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_120C']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_110C']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_100C']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_90C']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_80C']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_70C']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_60C']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_50C']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_40C']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_25C']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_25C_check']
-    # samples = ['PHBTBTC10_quenched_sam1_cool_down_25C_check_2']
-
-    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_25C']
-    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_40C']
-    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_60C']
-    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_80C']
-    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_100C']
-    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_120C_1min']
-    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_120C_6min']
-    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_120C_11min']
-    # samples = ['PHBTBTC10_quenched_sam1_run2_heat_up_120C_16min']
-
-    # samples = ['PHBTBTC10_quenched_sam1_run2_cool_down_100C']
-    # samples = ['PHBTBTC10_quenched_sam1_run2_cool_down_80C']
-    # samples = ['PHBTBTC10_quenched_sam1_run2_cool_down_60C']
     # samples = ['PHBTBTC10_quenched_sam1_run2_cool_down_40C']
-    samples = ['PHBTBTC10_quenched_sam1_run2_cool_down_25C']
+    samples = ['PHBTBTC10_in_situ_sam2_post1']
     
     
     x_list  = [0]
@@ -174,7 +77,8 @@ def giwaxs_insitu_heating(tim=0.5):
     for s in samples:
         # yield from bps.mvr(piezo.x, 60)
         
-        yield from alignement_gisaxs(0.1)
+        #yield from alignement_gisaxs(0.1)
+        yield from alignement_gisaxs_hex(angle=incident_angle, rough_y=1)
         ai0 = piezo.th.position
         yield from bps.mv(piezo.th, ai0 + incident_angle)
         
@@ -236,12 +140,13 @@ def giwaxs_insitu_heating_norealignement(tim=0.5):
     det_exposure_time(0.5,0.5)
 
 
+
+
+
 def alignement_h(): 
     yield from alignement_gisaxs_hex(0.1)
     yield from bps.mv(waxs, 10)
     yield from bps.mvr(stage.th, 0.1)
-
-
 
 def giwaxs_insitu_roll(t=0.1, tim=180):
     #pil900KW.unstage()
@@ -263,6 +168,28 @@ def giwaxs_insitu_roll(t=0.1, tim=180):
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5,0.5)
+
+def giwaxs_insitu_roll_cooling(t=0.5, tim=600):
+    #pil900KW.unstage()
+    samples = 'PHBTBTC10_solution_sam3_cooling'
+
+    name = 'RH'
+    dets = [pil900KW]
+    name_fmt = '{sample}_16.1keV_ai{ai}_wa{waxs}'
+
+    det_exposure_time(t, tim)
+
+    sample_name = name_fmt.format(sample=samples, ai = '%1.1f'%0.1, waxs='%2.1f'%10.0)
+    print(f'\n\t=== Sample: {sample_name} ===\n')
+    sample_id(user_name=name, sample_name=sample_name) 
+    yield from bp.count(dets)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
+
+
+
+
 
 
 def giwaxs_insitu_single(t=0.5, tim=0.5):
@@ -333,3 +260,168 @@ def giwaxs_headrick_2022_1(t=0.5):
                 yield from bp.count(dets, num=1)
             
             yield from bps.mv(piezo.th, ai0)
+
+
+def giwaxs_headrick_2022_2(t=0.5):
+    """
+    GIWAXS scans duing 2022_2 cycle, GU-308850
+    """
+
+    user_name = 'AD'
+
+    #names =   [ 'ADS_1', 'ADS_2', 'ADS_3', 'ADS_4', 'ADS_5' ]
+    #x_piezo = [   46400, 29500, 9500, -7500, -28500         ]
+    #y_piezo = [    4600, 4600, 4600, 4600, 4600             ]
+    #z_piezo = [       0, 0, 4000, -1000, 1000               ]
+    #x_hexa =  [       0, 0, 0, 0, 0                         ]
+    names =   [ 'ADS_3' ]
+    x_piezo = [ 14400        ]
+    y_piezo = [  4600             ]
+    z_piezo = [  1000              ]
+    x_hexa =  [ 0                        ]
+
+    # Check sample names just in case
+    names = [n.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ '}) for n in names]
+
+    assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
+    assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
+    assert len(x_piezo) == len(z_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})'
+    assert len(x_piezo) == len(x_hexa), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})'
+
+    # Geometry conditions
+    waxs_angles = [0, 20]
+    inc_angles = [0.1]
+    alignment_offset_x = 100 #microns
+    det_exposure_time(t, t)
+
+    # Skip samples
+    skip = 0
+
+    for name, xs, zs, ys, xs_hexa in zip(names[skip:], x_piezo[skip:], z_piezo[skip:], y_piezo[skip:], x_hexa[skip:]):
+
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs - alignment_offset_x)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, -1.5)
+        
+        try:
+            yield from alignement_gisaxs(0.1)
+        except:
+            yield from alignement_gisaxs(0.4)
+        
+        yield from bps.mv(piezo.x, xs)
+
+        ai0 = piezo.th.position
+        for wa in waxs_angles:
+
+
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if wa < 15 else [pil900KW, pil1M]
+
+            for ai in inc_angles:
+                #yield from bps.mv(piezo.x, xs)
+                yield from bps.mv(piezo.th, ai0 + ai)
+                
+                # Metadata
+                name_fmt = '{sample}_{energy}keV_wa{wax}_sdd{sdd}m_bpm{xbpm}_ai{ai}'
+                bpm = xbpm3.sumX.get()
+                e = energy.energy.position / 1000
+                sdd = pil1m_pos.z.position / 1000
+
+                sample_name = name_fmt.format(sample=name, energy='%.1f'%e, sdd='%.1f'%sdd, wax=str(wa).zfill(4),
+                                              xbpm='%4.3f'%bpm, ai='%.1f'%ai)
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+            yield from bps.mv(piezo.th, ai0)
+
+
+def alignement_h_2022_2(wa=10, inc_angle=0.1):
+    """
+    Align sample using hexapod and move to experimental conditions
+
+    Params:
+        wa (float): WAXS arc angle in degrees,
+        inc_angle (float): angle of incidence for the GIWAXS.
+    
+    """
+    yield from alignement_gisaxs_hex(angle=inc_angle, rough_y=1)
+    yield from bps.mv(waxs, wa)
+    yield from bps.mvr(stage.th, inc_angle)
+
+def giwaxs_insitu_roll_cooling_2022_2(t=0.1, tim=180):
+    """
+    In situ GIWAXS at WAXS 10 deg and incident angle 0.1 deg
+
+    Remember to change sample name!
+
+    Params:
+        t (float): exposure time for a single detector frame,
+        tim (float): total exposure time including all frames.
+    """
+    #pil900KW.unstage()
+    user_name = 'AD'
+    sample = 'PHBTBTC10_in_situ_quene_sam1'
+
+    ai = 0.1
+    dets = [pil900KW]
+    det_exposure_time(t, tim)
+
+    # Metadata
+    name_fmt = '{sample}_{energy}keV_wa{wax}_sdd{sdd}m_bpm{xbpm}_ai{ai}'
+    bpm = xbpm3.sumX.get()
+    e = energy.energy.position / 1000
+    sdd = pil1m_pos.z.position / 1000
+    wa = waxs.arc.user_readback.value
+    wa = str(np.round(wa, 1)).zfill(4)
+
+    sample_name = name_fmt.format(sample=name, energy='%.1f'%e, sdd='%.1f'%sdd, wax=wa,
+                                  xbpm='%4.3f'%bpm, ai='%.1f'%ai)
+    sample_id(user_name=user_name, sample_name=sample_name)
+
+    print(f'\n\t=== Sample: {sample_name} ===\n')
+    sample_id(user_name=name, sample_name=sample_name) 
+    yield from bp.count(dets)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)
+
+
+def giwaxs_insitu_roll_2022_2(t=0.1, tim=600):
+    """
+    In situ GIWAXS at WAXS at 10 deg and incident angle of 0.1 deg cooling 30 deg C / min
+
+    Remember to change sample name!
+    
+    Params:
+        t (float): exposure time for a single detector frame,
+        tim (float): total exposure time including all frames.
+    """
+    #pil900KW.unstage()
+    user_name = 'AD'
+    sample = 'PHBTBTC10_in_situ_sam11_post'
+
+    ai = 0.1
+    dets = [pil900KW]
+    det_exposure_time(t, tim)
+
+    # Metadata
+    name_fmt = '{sample}_{energy}keV_wa{wax}_sdd{sdd}m_bpm{xbpm}_ai{ai}'
+    bpm = xbpm3.sumX.get()
+    e = energy.energy.position / 1000
+    sdd = pil1m_pos.z.position / 1000
+    wa = waxs.arc.user_readback.value
+    wa = str(np.round(wa, 1)).zfill(4)
+
+    sample_name = name_fmt.format(sample=sample, energy='%.1f'%e, sdd='%.1f'%sdd, wax=wa,
+                                  xbpm='%4.3f'%bpm, ai='%.1f'%ai)
+    sample_id(user_name=user_name, sample_name=sample_name)
+
+    print(f'\n\t=== Sample: {sample_name} ===\n')
+    sample_id(user_name=user_name, sample_name=sample) 
+    yield from bp.count(dets)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)

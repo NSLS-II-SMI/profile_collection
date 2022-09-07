@@ -1,5 +1,207 @@
   
+# Search hutch and close
+# RE(shopen())
+# Start det3: ctrl+x twice, type: setthreshold energy 16100 autog 11000
+# 
+# # Ctrl+s to save this file
+# %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Thomas.py
+#
+# RE(shclose())
+# To take out sample: wait for sample to go back to RT, bleed to air, open waxs soft vent
+# 
+'''
+8.3m
+  smi_config_update = smi_config.append(current_config_DF, ignore_index=True)
+1.248555 1.248555 -13.000182 0.0 8.649654
+'''
 
+# 2021-Jul-11
+# RE(run_Thomas_temp2(t=0.5, name='VS', samples=['test'], Nmax=1, time_sleep_sec=0))
+
+def run_Thomas_temp2(t=0.5, name = 'VS', samples=['thermal_test'], Nmax=1, time_sleep_sec=120, time_interval_sec=10): 
+    # Slowest cycle:
+    x_list  = [-2.6] #[-3.4] #[-3.5] #HEXAPOD
+    y_list =  [2.3] #[2.3] #[2.25] 
+    #samples = ['thermal1']
+
+    # Detectors, motors:
+    dets = [pil900KW, pil1M]
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    det_exposure_time(t, t)
+
+    t0 = time.time()
+
+    waxs_angles = np.array([0, 15])
+
+    #time.sleep(time_sleep_sec)
+    yield from bps.sleep(time_sleep_sec)
+
+    for waxs_angle in waxs_angles: # loop through waxs angles
+        yield from bps.mv(waxs, waxs_angle)
+        if waxs_angle >=15:
+            dets = [ pil900KW, pil1M, pil300KW  ] 
+        else:
+            dets = [ pil900KW ,   pil300KW  ]              
+        print( 'Meausre saxs and/or waxs here for w-angle=%s'%waxs_angle )
+
+        for i in range(Nmax):
+            t1 = time.time()
+            temp = ls.input_A_celsius.get() #ls.ch1_read.value
+            for x, y, names in zip(x_list, y_list, samples):
+                yield from bps.mv(stage.x, x) #HEXAPOD
+                yield from bps.mv(stage.y, y)
+                
+                
+                name_fmt = '{sample}_16.1keV_8.3m_{time}s_{temperature}C_waxs{waxs_angle:05.2f}_x{x:04.2f}_y{y:04.2f}_{scan_id}'
+                sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), temperature='%1.1f'%temp,waxs_angle=waxs_angle, x=x, y=y, scan_id=RE.md['scan_id'])
+
+                #xss = np.linspace(x - 500, x + 500, 3)
+                #yss = np.linspace(y - 300, y + 300, 3)
+                #yss, xss = np.meshgrid(yss, xss)
+                #yss = yss.ravel()
+                #xss = xss.ravel()
+                
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                sample_id(user_name=name, sample_name=sample_name) 
+                yield from bp.count(dets, num=1)
+
+            yield from bps.sleep(time_interval_sec)
+
+            #time.sleep(time_sleep_sec)
+
+    sample_id(user_name='test', sample_name='test')
+
+# Ex-situ transmission
+# RE(run_tswaxs(t=0.5, name = 'VS', grid=1))
+def run_tswaxs(t=0.5, name = 'VS', grid=1, Nmax=1): 
+    # Slowest cycle:
+    x_list  = [ 45070, 32070,7070,-12430,-27430 ]   
+    y_list =  [-9550,9550,-9550,-9550,-9550]     
+    #z_list =  [7500, 7500,  7500, 7500, 7500,  7500, 7500, 7500, 7500, 7500,    7500, 7500,7500,7500,7500, 7500 ]      
+    samples = ['sam27','sam28','sam29','sam30','sam31']  
+# HEX: -3.41, y 1.67, z-1.4
+# sam6: x-7830, y -10950, z7500
+
+    # Detectors, motors:
+    dets = [pil900KW, pil1M]
+
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    det_exposure_time(t, t)
+
+    t0 = time.time()
+    waxs_angles = np.array([15, 0])
+
+    for waxs_angle in waxs_angles: # loop through waxs angles
+        yield from bps.mv(waxs, waxs_angle)
+        if waxs_angle >=15:
+            dets = [ pil900KW, pil1M, pil300KW  ] 
+        else:
+            dets = [ pil900KW ,   pil300KW  ]              
+        print( 'Meausre saxs and/or waxs here for w-angle=%s'%waxs_angle )
+
+        for i in range(Nmax):
+            t1 = time.time()
+            #temp = ls.input_A_celsius.get() #ls.ch1_read.value
+            for x, y, names in zip(x_list, y_list, samples):
+                yield from bps.mv(piezo.x, x) 
+                yield from bps.mv(piezo.y, y)                
+                
+                name_fmt = '{sample}_16.1keV_8.3m_waxs{waxs_angle:05.2f}_x{x:04.2f}_y{y:04.2f}_{t:05.2f}s_{scan_id}'
+                sample_name = name_fmt.format(sample=names, waxs_angle=waxs_angle, x=x, y=y, t=t,scan_id=RE.md['scan_id'])
+                
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                sample_id(user_name=name, sample_name=sample_name) 
+                
+                if grid==0:
+                    yield from bp.count(dets, num=1)
+                else:
+                    xss = np.linspace(x - 300, x + 300, 3)
+                    yss = np.linspace(y - 300, y + 300, 3)
+                    yss, xss = np.meshgrid(yss, xss)
+                    yss = yss.ravel()
+                    xss = xss.ravel()
+                    yield from bp.list_scan(dets, piezo.x, xss.tolist() , piezo.y, yss.tolist())
+
+    sample_id(user_name='test', sample_name='test')
+
+
+# RE(run_giswaxs(t=0.5))    
+def run_giswaxs(t=0.5, flag_align=1): 
+    # define names of samples on sample bar
+    #sample_list = ['C35_O3_10nm_400C', 'C36_H2O_10nm_400C', 'C37_D2O_10nm_400C', 'C38_H2O2_10nm_400C', 'C39_O3_7nm_400C', 'C40_H2O_7nm_400C', 'C41_D2O_7nm_400C']
+    #x_list = [49400] #, 36400, 24400, 12400, -3600,    -17600, -31600, -43600]
+    #sample_list = ['sam1'] #, 'sam2', 'sam3', 'sam4', 'sam5',    'sam6', 'sam7', 'sam8' ]
+
+    #x_list = [48600, 36000, 20000, 8000,-6000,    -16000, -30000, -44000,]
+    #sample_list = ['sam16', 'sam15', 'sam14', 'sam13','sam12',    'sam11', 'sam10','sam9']
+
+    #x_list = [50000, 40000, 28000, 14000, -4000,    -24000]
+    #sample_list = ['WS1', 'WS2', 'WS3', 'WS4','WS5',    'sam17']
+
+    x_list = [-18500]
+    sample_list = ['sam17']
+
+    yield from bps.mv(piezo.y, 1800)          
+    assert len(x_list) == len(sample_list), f'Sample name/position list is borked'
+
+    #angle_arc = np.array([0.1, 0.15, 0.19]) # incident angles
+    angle_arc = np.array([0.12, 0.16, 0.2]) # incident angles
+    #waxs_angle_array = np.linspace(0, 84, 15)
+
+    waxs_angles = np.array([15, 0])   # q=4*3.14/0.77*np.sin((max angle+3.5)/2*3.14159/180)
+                                               # if 12, 3: up to q=2.199
+                                               # if 18, 4: up to q=3.04
+                                               # if 24, 5: up to q=3.87
+                                               # if 30, 6: up to q=4.70
+                                               # 52/6.5 +1 =8
+    #dets = [pil300KW, pil1M] # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]
+    
+    #x_shift_array = np.linspace(-500, 500, 3) # measure at a few x positions
+
+    for x, sample in zip(x_list,sample_list): #loop over samples on bar
+
+        yield from bps.mv(piezo.x, x) #move to next sample  
+        if flag_align:
+            yield from alignement_gisaxs(0.1) #run alignment routine
+
+        th_meas = angle_arc + piezo.th.position #np.array([0.10 + piezo.th.position, 0.20 + piezo.th.position])
+        th_real = angle_arc	
+
+        det_exposure_time(t,t) 
+        x_pos_array = x #+ x_shift_array
+
+        for waxs_angle in waxs_angles: # loop through waxs angles
+
+            yield from bps.mv(waxs, waxs_angle)
+            if waxs_angle >=15:
+                dets = [ pil900KW, pil1M, pil300KW  ] 
+            else:
+                dets = [ pil900KW ,   pil300KW  ]            
+                
+            for i, th in enumerate(th_meas): #loop over incident angles
+                yield from bps.mv(piezo.th, th)                   
+                                            
+                sample_name = '{sample}_{th:5.4f}deg_waxs{waxs_angle:05.2f}_x{x}_{t}s_{scan_id}'.format(sample = sample, th=th_real[i], waxs_angle=waxs_angle, x=x, t=t, scan_id=RE.md['scan_id'])
+                #name_fmt = '{sample}_16.1keV_8.3m_waxs{waxs_angle:05.2f}_x{x:04.2f}_{t:05.2f}s_{scan_id}'
+                #sample_name = name_fmt.format(sample=sample, waxs_angle=waxs_angle, x=x, t=t, scan_id=RE.md['scan_id'])
+                sample_id(user_name='HE3', sample_name=sample_name) 
+                print(f'\n\t=== Sample: {sample_name} ===\n')                        
+                        
+                #yield from bp.scan(dets, energy, e, e, 1)
+                #yield from bp.scan(dets, waxs, *waxs_arc)
+                yield from bp.count(dets, num=1)
+                    
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5)
+
+
+
+
+
+########################################
+# 2021
 def run_Thomas_temp(t=1,name = 'HarvPoly'): 
     # Slowest cycle:
     x_list  = [13300,  -12100]

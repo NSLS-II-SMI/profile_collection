@@ -96,3 +96,90 @@ def temp_ramp():
         yield from temp_align_waxs(temp)
         
 
+def giwaxs_White_2022_2(t=0.5):
+    """
+    GIWAXS scans duing 2022_2 cycle
+    """
+
+    user_name = 'RT'
+
+    # names =   [ '1-5-SC', '2-5-DC', '3-10-SC', '4-10-DC', '5-15-SC', '6-15-DC' ]
+    # x_piezo = [    24000,    11000,     -4000,    -17000,    -28000,    -41000 ]
+    # y_piezo = [ 3700 for name in names ]
+    # z_piezo = [ 0 for name in names ]
+    # x_hexa =  [ 0 for name in names ]
+    
+    #names =   [ 'K1', 'K9', 'K17', 'K29' ]
+    #names =   [ 'K37', 'K5', 'K41', 'K13', 'K21' ]
+    #names =   [ 'K2', 'K6', 'K10', 'K14', 'K18', 'K22', 'K26a', 'K26b', 'K30', 'K38',  'K42',  'K50',  'K51' ]
+    #names =   [ 'BPA1', 'BPA2', '3FBPA1', '3FBPA2', 'Pure_sapph', '6FBPA1', 'OPPA1' ] #measured at 0.04 and 0.15 degees!!
+    #names =   [ '2PACZ_par','2PACZ_Br2','2PACZ_2Fup','Clean_sapph','26FBPA_TiO2_S1','26FBPA_TiO2_S2','BPA_TiO2_S1','BPA_TiO2_S2','3FBPA_TiO2_S1','3FBPA_TiO2_S1','2PACZ_2Fdo' ]
+    #names =   ['N2200', '01_MeO', '05_MeO', '10_MeO', '20_MeO', '01_FS', '05_FS', '10_FS', '20_FS', '2PACZ_2F_down_measur_01']
+    #names =   [ 'sample_01', 'sample_02', 'sample_03', 'sample_04', 'sample_05', 'sample_06', 'sample_07', 'sample_08', 'sample_09', '2PACZ_2F_down_measur_01', 'sample_10a', 'sample_10b']
+    
+    names =   [ 'sample_11']
+    x_piezo = [       1500 ]
+    y_piezo = [       3600 ]
+    z_piezo = [        500 ]
+    x_hexa =  [          0 ] 
+
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ '}) for n in names]
+
+    assert len(x_piezo) == len(names), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})'
+    assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})'
+    assert len(x_piezo) == len(z_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})'
+    assert len(x_piezo) == len(x_hexa), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})'
+
+    # Geometry conditions
+    waxs_angles = [0, 2, 20, 22]
+    # inc angle handled separatelly for different samples
+    #inc_angles = [0.04, 0.15]
+    alignment_offset_x = 0 #microns
+    det_exposure_time(t, t)
+
+    # Skip samples
+    skip = 0
+
+    for name, xs, zs, ys, xs_hexa in zip(names[skip:], x_piezo[skip:], z_piezo[skip:], y_piezo[skip:], x_hexa[skip:]):
+
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs - alignment_offset_x)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, 0.5)
+        
+        try:
+            yield from alignement_gisaxs(0.1)
+        except:
+            yield from alignement_gisaxs(0.4)
+        
+        yield from bps.mv(piezo.x, xs)
+
+        ai0 = piezo.th.position
+        for wa in waxs_angles:
+
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if wa < 15 else [pil900KW, pil1M]
+
+            inc_angles = [0.11] if name == '2PACZ_2F_down_measur_01' else [0.10, 0.18]
+
+            for xx, ai in enumerate(inc_angles):
+                yield from bps.mv(piezo.x, xs + xx * 400)
+                yield from bps.mv(piezo.th, ai0 + ai)
+                
+                # Metadata
+                name_fmt = '{sample}_ai{ai}_{energy}keV_wa{wax}_sdd{sdd}m_bpm{xbpm}'
+                bpm = xbpm3.sumX.get()
+                e = energy.energy.position / 1000
+                sdd = pil1m_pos.z.position / 1000
+                #wa = waxs.arc.user_readback.value
+                #wa = str(np.round(wa, 1)).zfill(4)
+
+                sample_name = name_fmt.format(sample=name, energy='%.1f'%e, sdd='%.1f'%sdd, wax=str(wa).zfill(4),
+                                              xbpm='%4.3f'%bpm, ai='%.2f'%ai)
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+
+                yield from bp.count(dets, num=1)
+            yield from bps.mv(piezo.th, ai0)

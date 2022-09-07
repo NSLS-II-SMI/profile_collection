@@ -716,3 +716,100 @@ def song_waxs_2021_2(t=1):
                 yield from bp.count(dets, num=1)
 
 
+def song_waxs_S_edge_2022_2(t=1, strain=0):
+    """
+    Tender scans
+    Args:
+        t (float): detector exposure time,
+        strain (float): strain value from Linkam MFS stage for filename metadata
+    """
+
+    names = ['P75_uncross_attempt2_1s']
+    x = [-0.3]
+    y = [0.8]
+
+    user_name = 'SZ'
+    energies = np.concatenate((np.arange(2460, 2471, 5),
+                            np.arange(2475, 2480, 0.5),
+                            np.arange(2480, 2491, 5)
+                            ))
+    waxs_arc = [0, 20]
+    names = [n.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ =,'}) for n in names]
+
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(stage.x, xs)
+        yield from bps.mv(stage.y, ys)
+
+        yss = np.linspace(ys, ys + 0.4, len(energies))
+        xss = np.linspace(xs, xs, 1)
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+            det_exposure_time(t, t) 
+            name_fmt = '{sample}_{energy}eV_strain{strain}_wa{wax}_sdd{sdd}m_id{scan_id}'
+            
+            for e, xsss, ysss in zip(energies, xss, yss): 
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                yield from bps.mv(stage.y, ysss)
+                yield from bps.mv(stage.x, xsss)
+
+                # Metadata
+                sdd = pil1m_pos.z.position / 1000
+                scan_id = db[-1].start['scan_id'] + 1
+
+                sample_name = name_fmt.format(sample=name, strain=strain, energy='%6.2f'%e, wax=wa, sdd='%.1f'%sdd, scan_id=scan_id)
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                yield from bp.count(dets)
+
+            yield from bps.mv(energy, 2475)
+            yield from bps.mv(energy, 2460)
+
+def song_waxs_hard_2022_2(t=1, strain=0):
+    """
+    Hard X-ray script for MFS stage manual
+
+    Args:
+        t (float): detector exposure time,
+        strain (float): strain value from Linkam MFS stage for filename metadata
+    """
+
+    names = ['p77_cross2_2s']
+    x = [-0.6]
+    y = [-1.2]
+
+    user_name = 'SZ'
+
+    waxs_arc = [0, 20]
+    names = [n.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ =,'}) for n in names]
+
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(stage.x, xs)
+        yield from bps.mv(stage.y, ys)
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+            yield from bps.mv(stage.y, ys + i * 0.05)
+            det_exposure_time(t, t) 
+            name_fmt = '{sample}_{energy}keV_strain{strain}_wa{wax}_sdd{sdd}m_id{scan_id}'
+            
+            # Metadata
+            sdd = pil1m_pos.z.position / 1000
+            e = energy.position.energy / 1000
+            scan_id = db[-1].start['scan_id'] + 1
+
+            sample_name = name_fmt.format(sample=name, strain=strain, energy='%2.1f'%e, wax=wa, sdd='%.1f'%sdd, scan_id=scan_id)
+            sample_id(user_name=user_name, sample_name=sample_name)
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.count(dets)
+            sample_id(user_name='test', sample_name='test')

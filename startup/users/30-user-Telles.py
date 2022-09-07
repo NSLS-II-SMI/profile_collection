@@ -307,3 +307,182 @@ def sample_bar(meas_t = 1): #older version
             sample_id(user_name='ED', sample_name=sample_name) 
             print(f'\n\t=== Sample: {sample_name} ===\n')
             yield from bp.rel_scan(dets, piezo.y, *y_r)
+
+
+def rodrigo_yscans_2022_2(t=0.5):
+    """
+    Run Rodrigo's samples y scan
+
+    Note:
+        names: samle names
+        piezo_x: position of piezo x in um for the vertical line scan,
+        piezo_y: starting position (top of the sample) for the vertical line scan in um
+        y_range: [0 as you start from the piezo_y, then relative distance in um to the end of the smple, number
+                  of points to get 10 um step + 1,]
+    """
+    names =   [f'sample_{v}' for v in [1,2,3,4,5,16,17,19,20]]
+    piezo_x = [-41600, -35600, -28900, -23600, -17600,
+               -41600, 35200 , -23400, -16900]
+    piezo_y = [-6800 , -6900 , -6900 , -6500, -6600,
+               4200  , 3300  , 2700  , 3500 , ]
+    y_range = [[0,100,11], [0,900,91], [0,900,91], [0,500,51], [0,400,41],
+               [0,10,2], [0, 900,91], [0,900,91], [0,800,81]]
+
+    assert len(piezo_x) == len(names), f'Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})'
+    assert len(piezo_x) == len(piezo_y), f'Number of X coordinates ({len(piezo_x)}) is different from number of Y coordinates ({len(piezo_y)})'
+    assert len(piezo_x) == len(y_range), f'Number of X coordinates ({len(piezo_x)}) is different from number of Y ranges ({len(piezo_y)})'
+    #assert len(y_hexa) == len(y_range), f'Number of Y hexap coordinates ({len(y_hexa)}) is different from number of Y ranges ({len(y_range)})'
+    
+    waxs_arc = [0, 2, 20, 22]
+    
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        
+        dets = [pil900KW] if wa < 15 else [pil900KW, pil1M]
+        det_exposure_time(t, t)
+        
+        for name, x, y, y_r in zip(names, piezo_x, piezo_y, y_range):
+            yield from bps.mv(piezo.x, x,
+                              piezo.y, y)
+            # Metadata
+            e = energy.position.energy / 1000               # energy keV
+            wa = waxs.arc.position + 0.001                  # WAXS arc angle, deg
+            wa = str(np.round(float(wa), 1)).zfill(4)
+            sdd = pil1m_pos.z.position / 1000               # SAXS detector distance
+            scan_id = db[-1].start['scan_id'] + 1           # transient scan ID
+
+            name_fmt = '{sample}_{energy}keV_wa{wa}_sdd{sdd}m_id{scan_id}_dy10um_{t}s_yscan'
+            sample_name = name_fmt.format(sample=name, energy='%.1f'%e, wa=wa, sdd='%.1f'%sdd,
+                                          scan_id=scan_id, t=t)
+            sample_id(user_name='RT', sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+            yield from bp.rel_scan(dets, piezo.y, *y_r)
+    
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)
+
+
+def alice_grid_scans_2022_2(t=0.5):
+    """
+    Run sample grid scans
+
+    Note:
+        names: sample names
+        piezo_x: position of piezo x in um for the vertical line scan,
+        piezo_y: starting position (top of the sample) for the vertical line scan in um
+        y_range: [0 as you start from the piezo_y, then relative distance in um to the end of the smple, number
+                  of points to get 10 um step + 1,]
+        x_range: [0 as you start from the piezo_x, then relative distance in um to the end of the smple, number
+                  of points to get 10 um step + 1,]
+    """
+    names =   ['DR2AP','DR1.3AP','DR1.3AP','DR2AN']
+    piezo_x = [ -41750, 5500, 5350, 14550]
+    piezo_y = [  -5000, -6700, 3050, 2750]
+
+    # Ranges the same for all samples
+    y_range = [0, 650, 66]
+    x_range = [0, 1250, 51]
+
+    assert len(piezo_x) == len(names), f'Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})'
+    assert len(piezo_x) == len(piezo_y), f'Number of X coordinates ({len(piezo_x)}) is different from number of Y coordinates ({len(piezo_y)})'
+    
+
+    yield from bps.mv(waxs, 20)
+    dets = [pil1M]
+    det_exposure_time(t, t)
+        
+    for name, x, y in zip(names, piezo_x, piezo_y):
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y)
+        
+        # Metadata
+        e = energy.position.energy / 1000               # energy keV
+        sdd = pil1m_pos.z.position / 1000               # SAXS detector distance
+        scan_id = db[-1].start['scan_id'] + 1           # transient scan ID
+
+        name_fmt = '{sample}_{energy}keV_sdd{sdd}m_id{scan_id}_dy10um_dx25um'
+        sample_name = name_fmt.format(sample=name, energy='%.1f'%e, sdd='%.1f'%sdd,
+                                      scan_id=scan_id)
+        sample_id(user_name='RT', sample_name=sample_name) 
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        
+        yield from bp.rel_grid_scan(dets, piezo.y, *y_range, piezo.x, *x_range, 0)
+    
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)
+
+
+def alice_filament_yscans_2022_2(t=0.5):
+    """
+    Samples y scan
+
+    Note:
+        names: samle names
+        piezo_x: position of piezo x in um for the vertical line scan,
+        piezo_y: starting position (top of the sample) for the vertical line scan in um
+        y_range: [0 as you start from the piezo_y, then relative distance in um to the end of the smple, number
+                  of points to get 10 um step + 1,]
+    """
+    names =   [f'sample_{v}' for v in range(37)]
+    piezo_x = [ -12100 ,-11600, -11100 , -6100, -5600, -5100, -100, 400, 900,
+                 -12100, -11600, -11100, -6100, -5600, -5100, -100, 400, 900,
+                 17900, 18400, 18900, 23400, 22900, 22400, 30000, 29500, 29000,
+                 18000, 18500, 19000, 24000, 24500, 25000, 30000, 30500, 31000, 
+                 11550]
+    piezo_y = [  -6650 ,-6650, -6650 , -6650, -6650 , -6650, -6650, -6650,-6650, 
+                3250, 3250, 3250, 3250, 3250, 3250, 3250, 3250, 3250,
+                -6850, -6800, -6750, -6700, -6700, -6650, -7200, -7200, -7200,
+                2400, 2400, 2400, 2500, 2500, 2500, 2500, 2500, 2500, 
+                2750]
+
+    y_range = [ [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 1000, 101], [0, 1000, 101], [0, 1000, 101], 
+                [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 1000, 101], [0, 1000, 101], [0, 1000, 101],
+                [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 1000, 101], [0, 1000, 101], [0, 1000, 101],
+                [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 750, 76], [0, 1000, 101], [0, 1000, 101], [0, 1000, 101],
+                [0, 10, 2]]
+
+    assert len(piezo_x) == len(names), f'Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})'
+    assert len(piezo_x) == len(piezo_y), f'Number of X coordinates ({len(piezo_x)}) is different from number of Y coordinates ({len(piezo_y)})'
+    assert len(piezo_x) == len(y_range), f'Number of X coordinates ({len(piezo_x)}) is different from number of Y ranges ({len(piezo_y)})'
+    #assert len(y_hexa) == len(y_range), f'Number of Y hexap coordinates ({len(y_hexa)}) is different from number of Y ranges ({len(y_range)})'
+    
+    yield from bps.mv(waxs, 20)
+    dets = [pil1M]
+    det_exposure_time(t, t)
+
+        
+    for name, x, y, y_r in zip(names, piezo_x, piezo_y, y_range):
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y)
+        
+        # Metadata
+        e = energy.position.energy / 1000               # energy keV
+        sdd = pil1m_pos.z.position / 1000               # SAXS detector distance
+        scan_id = db[-1].start['scan_id'] + 1           # transient scan ID
+
+        name_fmt = '{sample}_{energy}keV_sdd{sdd}m_id{scan_id}_dy10um'
+        sample_name = name_fmt.format(sample=name, energy='%.1f'%e, sdd='%.1f'%sdd,
+                                        scan_id=scan_id)
+        sample_id(user_name='RT', sample_name=sample_name) 
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bp.rel_scan(dets, piezo.y, *y_r)
+    
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)
+
+
+
+def run_overnight_exsitu_2022_2():
+
+    try:
+        proposal_id('2022_2', '309101_Telles_exsitu')
+        yield from rodrigo_yscans_2022_2(t=0.5)
+    except:
+        pass
+
+    try:
+        proposal_id('2022_2', '309101_Telles_Alice')
+        yield from alice_grid_scans_2022_2(t=0.2)
+    except:
+        pass
+    yield from alice_filament_yscans_2022_2(t=0.2)

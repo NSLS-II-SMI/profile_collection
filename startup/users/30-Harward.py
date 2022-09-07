@@ -740,3 +740,172 @@ def run_harv_pos(tim=5):
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5,0.5)
     yield from bps.mv(ls.ch1_sp, 28)
+
+def mesh_milan_2022_2(t=0.5): 
+    waxs_range = [0, 20]
+    
+    dets = [pil900KW, pil1M]
+    det_exposure_time(t,t)
+ 
+    #these samples are very large areas and 3rd priority (lowest) except for the 1st teeth12.
+    samples = ['20220801MW_C_1', '20220801MW_C_2','20220801MW_C_3', '20220801MW_C_4', '20220801MW_C_5', '20220801MW_C_6', '20220801MW_C_7']
+    x_list = [ 46200,              34900,                18050,            5950,            -24710,              -45660,            -58760]
+    y_list = [ 2940,               3310,                 3840,              3980,             4170,                4320 ,              4370]
+    z_list = [  -2600,           -2600,                 -2600,            -2800,             -2600,              -2400,              -2400]
+    hexa_x = [   16,               0,                   0,                 0,               0,                   0 ,                 0]
+    th_list = [0.7,               0.7,                 0.7,               0.7,              0.7,                 0.7,                0.7]
+    x_range=[ [0,12000,241],   [0,18000,361],       [0,9000,181],       [0,4000,81],     [0,10000,201],    [0,10000,201],      [0,9000,181]]
+    y_range=[ [0,700,3],        [0,700,3],          [0,100,3],          [0,150,3],       [0,200,3],         [0,200,3],           [0,200,3]]
+    
+    #first load room T
+    #samples = ['20220801MW_C_1', '20220801MW_C_2','20220801MW_C_3', '20220801MW_C_4', '20220801MW_C_5', '20220801MW_C_6', '20220801MW_C_7']
+    #x_list = [ 46100,              34800,                18050,            5950,            -24710,              -45660,            -58760]
+    #y_list = [ 2940,               3310,                 3840,              3980,             4170,                4320 ,              4370]
+    #z_list = [  -2600,           -2600,                 -2600,            -2800,             -2600,              -2400,              -2400]
+    #hexa_x = [   16,               0,                   0,                 0,               0,                   0 ,                 0]
+    #th_list = [0.7,               0.7,                 0.7,               0.7,              0.7,                 0.7,                0.7]
+    #x_range=[ [0,12000,241],   [0,18000,361],       [0,9000,181],       [0,4000,81],     [0,10000,201],    [0,10000,201],      [0,9000,181]]
+    #y_range=[ [0,700,3],        [0,700,3],          [0,100,3],          [0,150,3],       [0,200,3],         [0,200,3],           [0,200,3]]
+
+
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(y_list)})'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(x_range), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(x_range)})'
+    assert len(x_list) == len(y_range), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(y_range)})'
+
+    for x, y, z, th, hx, name, x_r, y_r in zip(x_list, y_list, z_list, th_list, hexa_x, samples, x_range, y_range):
+        #proposal_id('2021_3', 'Wang%s'%num)
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.z, z)
+        yield from bps.mv(piezo.th, th)
+        yield from bps.mv(stage.x, hx)
+
+        for wa in waxs_range:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+            
+            e = energy.position.energy / 1000               # energy keV
+            sdd = pil1m_pos.z.position / 1000               # SAXS detector distance
+            scan_id = db[-1].start['scan_id'] + 1           # transient scan ID
+            proposal_id('2022_2', '310149_Wilborn/%s'%name)
+
+            name_fmt = '{sample}_{energy}keV_sdd{sdd}m_wa{wax}_id{scan_id}_dx50um'
+            sample_name = name_fmt.format(sample=name, energy='%.1f'%e, sdd='%.1f'%sdd, wax='%2.1f'%wa,
+                                        scan_id=scan_id)
+            sample_name = sample_name.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ =,'})
+            sample_id(user_name='MW', sample_name=sample_name) 
+            print(f'\n\t=== Sample: {sample_name} ===\n')
+                                  
+            yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+
+def mesh_milan_temp_2022_2(t=0.5): 
+    waxs_range = [0, 20]
+    temperatures = [100, 150]
+    dets = [pil900KW, pil1M]
+    det_exposure_time(t,t)
+
+    #second load, heated stage
+    samples = ['20220801MW_C_8', '20220801MW_C_10', '20220801MW_C_11', '20220801MW_C_12', '20220801MW_C_13', '20220801MW_C_14', '20220801MW_C_15']
+    x_list = [ 37128,                27598,            9798,             -8602,                -23352,            -28352,                   -49752]
+    y_list = [ 3369,                 3329,             3469,             3509,                  3729,              4129,                      3939]
+    z_list = [ -11300,              -11300,            -11300,           -11300,               -11300,            -11300,                   -7300]
+    hexa_x = [  0,                   0,                 0,                0,                    0 ,                 0,                           0]
+    th_list = [0.7,                  0.7,               0.7,              0.7,                  0.7,                0.7,                       0.7]
+    x_range=[ [0,18000,361],       [0,5000,101],       [0,8000,161],    [0,9000,181],       [0,8500,171],     [0,7500,151],          [0,8000,161]]
+    y_range=[ [0,200,3],           [0,100,3],          [0,200,3],       [0,200,3],           [0,250,3],          [0,150,3],             [0,300,3]]
+ 
+    #first load, heated stage
+    #samples = ['20220801MW_C_1', '20220801MW_C_3', '20220801MW_C_4', '20220801MW_C_5', '20220801MW_C_6', '20220801MW_C_7']
+    #x_list = [ 39500,                -1000,            -13500,          -27400,           -40800,            -52400]
+    #y_list = [ 2970,                  3690,              3780,            3960,             4110 ,              4070]
+    #z_list = [ -12100,               -12100,            -12100,          -12100,           -11300,              -11300]
+    #hexa_x = [   0,                   0,                 0,                0,                0 ,                 0]
+    #th_list = [0.7,                  0.7,               0.7,              0.7,              0.7,                0.7]
+    #x_range=[ [0,12000,241],       [0,9000,181],       [0,8000,81],     [0,9000,181],    [0,10000,201],      [0,8000,11]]
+    #y_range=[ [0,500,3],           [0,100,3],          [0,100,3],       [0,100,3],         [0,100,3],           [0,200,3]]
+    
+    #first load room T
+    #samples = ['20220801MW_C_1', '20220801MW_C_2','20220801MW_C_3', '20220801MW_C_4', '20220801MW_C_5', '20220801MW_C_6', '20220801MW_C_7']
+    #x_list = [ 46100,              34800,                18050,            5950,            -24710,              -45660,            -58760]
+    #y_list = [ 2940,               3310,                 3840,              3980,             4170,                4320 ,              4370]
+    #z_list = [  -2600,           -2600,                 -2600,            -2800,             -2600,              -2400,              -2400]
+    #hexa_x = [   16,               0,                   0,                 0,               0,                   0 ,                 0]
+    #th_list = [0.7,               0.7,                 0.7,               0.7,              0.7,                 0.7,                0.7]
+    #x_range=[ [0,12000,241],   [0,18000,361],       [0,9000,181],       [0,4000,81],     [0,10000,201],    [0,10000,201],      [0,9000,181]]
+    #y_range=[ [0,700,3],        [0,700,3],          [0,100,3],          [0,150,3],       [0,200,3],         [0,200,3],           [0,200,3]]
+
+
+    assert len(x_list) == len(y_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(y_list)})'
+    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(x_range), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(x_range)})'
+    assert len(x_list) == len(y_range), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(y_range)})'
+
+    for temperature in temperatures:
+        t_kelvin = temperature + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+
+        # Activate heating range in Lakeshore
+        #if temperature < 80:
+        #    yield from bps.mv(ls.output1.status, 1)
+        #else:
+        yield from bps.mv(ls.output1.status, 3)
+
+        # Equalise temperature
+        print(f'Equalising temperature to {temperature} deg C')
+        start = time.time()
+        temp = ls.input_A.get()
+        while abs(temp - t_kelvin) >  1:
+            print('Difference: {:.1f} K'.format(abs(temp - t_kelvin)))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+
+            # Escape the loop if too much time passes
+            if time.time() - start > 1800:
+                temp = t_kelvin
+        print('Time needed to equilibrate: {:.1f} min'.format((time.time() - start) / 60))
+        # Wait extra time depending on temperature
+        if (35 < temperature) and (temperature < 181):
+            yield from bps.sleep(300)
+
+        # Read T and convert to deg C
+        temp_degC = ls.input_A.get() - 273.15
+
+        for x, y, z, th, hx, name, x_r, y_r in zip(x_list, y_list, z_list, th_list, hexa_x, samples, x_range, y_range):
+            #proposal_id('2021_3', 'Wang%s'%num)
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+            yield from bps.mv(piezo.th, th)
+            yield from bps.mv(stage.x, hx)
+
+            for wa in waxs_range:
+                yield from bps.mv(waxs, wa)
+                dets = [pil900KW] if wa < 15 else [pil900KW, pil1M]
+                
+                e = energy.position.energy / 1000               # energy keV
+                sdd = pil1m_pos.z.position / 1000               # SAXS detector distance
+                scan_id = db[-1].start['scan_id'] + 1           # transient scan ID
+                temp = str(np.round(float(temp_degC), 1)).zfill(5)
+                proposal_id('2022_2', '310149_Wilborn1/%s'%name)
+
+                name_fmt = '{sample}_{temp}degC_{energy}keV_sdd{sdd}m_wa{wax}_id{scan_id}_dx50um'
+                sample_name = name_fmt.format(sample=name, temp=temp, energy='%.1f'%e, sdd='%.1f'%sdd, wax='%2.1f'%wa,
+                                            scan_id=scan_id)
+                sample_name = sample_name.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ =,'})
+                sample_id(user_name='MW', sample_name=sample_name) 
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                                    
+                yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3,0.3)
+    # Turn off the heating and set temperature to 23 deg C
+    t_kelvin = 23 + 273.15
+    yield from ls.output1.mv_temp(t_kelvin)
+    yield from ls.output1.turn_off()
+
+

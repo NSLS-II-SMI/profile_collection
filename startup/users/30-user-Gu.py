@@ -43,10 +43,6 @@ def saxs_gu_2022_1(t=1):
     det_exposure_time(0.3, 0.3) 
 
 
-
-
-
-
 def temp_2021_3(tim=0.5): 
     # Slowest cycle:
     temperatures = [115]
@@ -104,9 +100,6 @@ def temp_2021_3(tim=0.5):
     yield from ls.output1.mv_temp(t_kelvin)
 
 
-
-
-
 def gu_nexafs_S_2021_3(t=1):
     dets = [pil900KW]
 
@@ -156,10 +149,6 @@ def gu_nexafs_S_2021_3(t=1):
             yield from bps.mv(energy, 2450)
 
 
-
-
-
-
 def gu_saxs_S_2022_1(t=1):
     dets = [pil1M]
 
@@ -207,8 +196,6 @@ def gu_saxs_S_2022_1(t=1):
             yield from bps.mv(energy, 2450)
 
 
-
-
 def gu_saxs_hardxray_2022_1(t=1):
     dets = [pil1M]
 
@@ -243,3 +230,213 @@ def gu_saxs_hardxray_2022_1(t=1):
                 sample_id(user_name='GF', sample_name=sample_name)
                 print(f'\n\t=== Sample: {sample_name} ===\n')
                 yield from bp.count(dets, num=1)
+
+
+def wang_temperature_hard_2022_2(t=1):
+    """
+    WAXS and SAXS using heating stage controlled by Lakeshore
+    
+    For reference: 16.1 keV, low divergence, in vacuum, SAXS sdd 8.3 m
+    """
+ 
+    #solid sample position
+    samples = ['PffBT4T_1',  'PffBT4T_2',   'P3OT_1', 'P3OT_2',   'P3DT_1', 'P3DT_2', 'P3DDT_1',   'P3DDT_2', 'PIB_A_DPP_A', 'PIB_Br_DPP_A', 'PIB_A_DPP_Br', 'PIB_Br_DPP_Br', '5%P3HT',   '5%DPP']
+    x_piezo = [      41600,        42200,      34200,    35400,    27600,     27600,      20800,       22000,         12600,           2600,         -6400,           -16400,   -25500,    -36500]
+    y_piezo = [      -3200,        -3700,      -4300,    -4300,    -4100,     -3200,      -3300,       -3300,         -3300,          -4300,         -4300,            -4000,    -3700,     -4100]
+ 
+    # Move all samples 
+    y_piezo = np.asarray(y_piezo) - 50
+
+
+    #solution sample position
+    #samples = ['blank_SiNx', 'TMB1_1', 'TMB1_2', 'TMB2_1', 'TMB2_2', 'PS_TMB_1', 'PS_TMB_2', 'PffBT4T1_TMB_1', 'PffBT4T1_TMB_2', 'PffBT4T2_TMB_1', 'PffBT4T2_TMB_2', 'P3OT1_TMB_1', 'P3OT1_TMB_2', 'P3DT_TMB_1', 'P3DT_TMB_2', 'P3DDT_TMB_1', 'P3DDT_TMB_2']
+    #x_piezo = [       45000,    38900,    37700,    31700,    31700,     25300,      26100,             20600,            21200,            14300,            15100,          8500,          8400,       -1800,         -3100,         -7300,         -8500]
+    #y_piezo = [       -3200,    -3000,    -3000,    -3000,    -3500,     -3900,      -2500,             -3700,            -3700,            -3500,            -2700,         -2500,         -3900,       -4100,         -4100,         -4300,         -3050]
+
+    # Correct sample names just in case
+    samples = [s.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ =,'}) for s in samples]
+    assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_list)}) is different from number of Y coordinates ({len(y_list)})'
+    assert len(x_piezo) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    
+    user_name = 'YW'
+    temperatures = [30]
+    waxs_arc = [0, 20] 
+    name_fmt = '{sample}_{energy}keV_temp{temp}degC_wa{wax}_sdd{sdd}m_id{scan_id}'
+
+    
+    for temperature in temperatures:
+        t_kelvin = temperature + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+
+        # Activate heating range in Lakeshore
+        if temperature < 50:
+            yield from bps.mv(ls.output1.status, 1)
+        else:
+            yield from bps.mv(ls.output1.status, 3)
+
+        # Equalise temperature
+        print('Equalising temperature')
+        start = time.time()
+        temp = ls.input_A.get()
+        while abs(temp - t_kelvin) > 5:
+            print('Difference: {:.1f} K'.format(abs(temp - t_kelvin)))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+            # Escape the loop if too much time passes
+            if time.time() - start > 3600:
+                temp = t_kelvin
+        print('Time needed to equilibrate: {:.1f} min'.format((time.time() - start) / 60))
+
+        # Wait extra time depending on temperature
+        if (56 < temperature) and (temperature < 160):
+            yield from bps.sleep(300)
+        elif 160 <= temperature:
+            yield from bps.sleep(600)
+
+        # Read T and convert to deg C
+        temp_degC = ls.input_A.get() - 273.15
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+            det_exposure_time(t, t)
+
+            for x, y, name in zip(x_piezo, y_piezo, samples):
+                yield from bps.mv(piezo.x, x)
+                yield from bps.mv(piezo.y, y + i * 50)
+
+                # Metadata
+                e = energy.position.energy / 1000
+                temp = str(np.round(float(temp_degC), 1)).zfill(5)
+                wa = str(np.round(float(wa), 1)).zfill(4)
+                sdd = pil1m_pos.z.position / 1000
+                scan_id = db[-1].start['scan_id'] + 1
+                
+                sample_name = name_fmt.format(sample=name, energy='%.1f'%e, temp=temp, wax=wa,
+                                              sdd='%.1f'%sdd, scan_id=scan_id)
+                
+                print(f'\n\t=== Sample: {sample_name} ===\n')
+                sample_id(user_name=user_name, sample_name=sample_name) 
+                yield from bp.count(dets)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
+    
+    # Turn off the heating and set temperature to 23 deg C
+    t_kelvin = 23 + 273.15
+    yield from ls.output1.mv_temp(t_kelvin)
+    yield from ls.output1.turn_off()
+
+
+def wang_temperature_tender_2022_2(t=1):
+    """
+    REMEMBER TO TURN ON HEATING FOR LIQUID RUN
+
+    WAXS and SAXS using heating stage controlled by Lakeshore
+    
+    For reference: 2.470 keV, low divergence, in vacuum, SAXS sdd 8.3 m
+    for fun
+    
+    YWang: I restart it 1:15am 07/21/22. Changed code to skip NEXAFS and 25C. Details can be found in following comments.
+    """
+    print('REMEMBER TO TURN ON HEATING FOR LIQUID RUN')
+    
+    #solution sample position
+    samples = ['blank_SiNx', 'TMB1_1', 'TMB1_2', 'TMB2_1', 'TMB2_2', 'PS_TMB_1', 'PS_TMB_2', 'PffBT4T1_TMB_1', 'PffBT4T1_TMB_2', 'PffBT4T2_TMB_1', 'PffBT4T2_TMB_2', 'P3OT1_TMB_1', 'P3OT1_TMB_2', 'P3DT_TMB_1', 'P3DT_TMB_2', 'P3DDT_TMB_1', 'P3DDT_TMB_2']
+    x_piezo = [       45000,    39100,    38200,    32000,    32900,     26800,      25900,             20800,            21400,            15400,            14800,          9000,          9900,       -2750,         -1300,         -7700,         -6900]
+    y_piezo = [       -2500,    -1900,    -2000,    -2000,    -1700,     -1700,      -1700,             -1700,            -1800,            -1800,            -1800,         -1300,         -1200,       -1200,         -1200,         -1400,         -1400]
+
+    
+
+    # Correct sample names just in case
+    samples = [s.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ =,'}) for s in samples]
+    assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of Y coordinates ({len(y_piezo)})'
+    assert len(x_piezo) == len(samples), f'Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(samples)})'
+    
+    energies_coarse = [2460, 2470, 2472, 2474, 2475, 2476, 2477, 2478, 2480]
+
+    energies_nexafs = np.concatenate((np.arange(2445, 2470, 5),
+                                      np.arange(2470, 2480, 0.25),
+                                      np.arange(2480, 2490, 1),
+                                      np.arange(2490, 2501, 5),
+                                     ))
+
+    user_name = 'YW'
+    temperatures = [ 50, 100, 150, 170, 180, 190, 200, 210, 220, 230, 240, 250]             #YWang: I delete 25 here to skip 25C because I have had the SAXS data and most WAXS DATA  1:16 am 07/21/22
+    waxs_arc = [0, 20, 40]
+    name_fmt = '{sample}_{energy}eV_temp{temp}degC_wa{wax}_sdd{sdd}m_id{scan_id}'
+
+    
+    for temperature in temperatures:
+        t_kelvin = temperature + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+
+        # Activate heating range in Lakeshore
+        if temperature < 50:
+            yield from bps.mv(ls.output1.status, 1)
+        else:
+            yield from bps.mv(ls.output1.status, 3)
+
+        # Equalise temperature
+        print(f'Equalising temperature to {temperature} deg C')
+        start = time.time()
+        temp = ls.input_A.get()
+        while abs(temp - t_kelvin) >  1:
+            print('Difference: {:.1f} K'.format(abs(temp - t_kelvin)))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+            # Escape the loop if too much time passes
+            if time.time() - start > 1800:
+                temp = t_kelvin
+        print('Time needed to equilibrate: {:.1f} min'.format((time.time() - start) / 60))
+
+        # Wait extra time depending on temperature
+        if (35 < temperature) and (temperature < 160):
+            yield from bps.sleep(300)
+        elif 160 <= temperature:
+            yield from bps.sleep(600)
+
+        # Read T and convert to deg C
+        temp_degC = ls.input_A.get() - 273.15
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            
+            #YWang: I changed < 25 to <45 to skip NEXAFS  1:16 am 07/21/22
+            energies = energies_coarse if waxs.arc.position < 45 else energies_nexafs
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+            det_exposure_time(t, t)
+
+            for j, (x, y, name) in enumerate(zip(x_piezo, y_piezo, samples)):
+                yield from bps.mv(piezo.x, x)
+                yield from bps.mv(piezo.y, y)
+
+                for e in energies: 
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+
+                    # Metadata
+                    #e = energy.position.energy / 1000
+                    temp = str(np.round(float(temp_degC), 1)).zfill(5)
+                    wa = str(np.round(float(wa), 1)).zfill(4)
+                    sdd = pil1m_pos.z.position / 1000
+                    scan_id = db[-1].start['scan_id'] + 1
+                    
+                    sample_name = name_fmt.format(sample=name, energy='%.2f'%e, temp=temp, wax=wa,
+                                                  sdd='%.1f'%sdd, scan_id=scan_id)
+                    
+                    print(f'\n\t=== Sample {j + 1}/{len(samples)}: {sample_name} ===\n')
+                    sample_id(user_name=user_name, sample_name=sample_name) 
+                    yield from bp.count(dets)
+
+                yield from bps.mv(energy, 2475)
+                yield from bps.mv(energy, 2460)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5,0.5)
+    
+    # Turn off the heating and set temperature to 23 deg C
+    t_kelvin = 23 + 273.15
+    yield from ls.output1.mv_temp(t_kelvin)
+    yield from ls.output1.turn_off()

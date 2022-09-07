@@ -161,7 +161,7 @@ def nexafs_S_edge_cherun(t=1):
 
 def instec_insitu_hard_xray(t=0.5):
 
-    dets = [pil300KW, pil1M]
+    dets = [pil900KW, pil1M]
     det_exposure_time(t,t) 
 
     
@@ -183,7 +183,7 @@ def instec_insitu_hard_xray(t=0.5):
         if i_t != 0:
             yield from bps.mvr(stage.y, 0.025)
 
-        temp = ls.input_A.value
+        temp = ls.input_C.value
         while abs(temp - t_kelvin) > 0.25:
             print(abs(temp - t_kelvin))
             yield from bps.sleep(10)
@@ -257,3 +257,98 @@ def instec_insitu_tender_xray(t=0.5):
 
     
     yield from ls.output3.mv_temp(303.15)
+
+
+def single_scan_instec_insitu_hard_2022_2(t=0.5):
+    """
+    Instec stage macro for single measurement
+
+    Temperature for the measurement has to be driven from CSS screen,
+    once the temperature equilibrates, run this to measure.
+
+    While changing samples, disengage the heater, click and change
+    Range X to OFF in Lakeshore CSS tab.
+    """
+    user_name = 'user_name'
+    name = 'Silver_Behenate'
+
+    # Correct names just in case
+    name = name.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ '})
+    user_name = user_name.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ '})
+    
+    det_exposure_time(t, t) 
+    waxs_arc = [0, 20]
+
+    # Read T and convert to deg C
+    temp_degC = ls.input_C.get() - 273.15
+
+    # Save time on WAXS arc movement
+    waxs_angles = waxs_arc if waxs.arc.position < 15 else waxs_arc[::-1]
+
+    for wa in waxs_angles:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if wa < 15 else [pil900KW, pil1M]
+
+        # Metadata
+        e = energy.position.energy / 1000
+        temp = str(np.round(float(temp_degC), 1)).zfill(5)
+        wa = str(np.round(float(wa), 1)).zfill(4)
+        sdd = pil1m_pos.z.position / 1000
+        scan_id = db[-1].start['scan_id'] + 1
+        #bpm = xbpm3.sumX.get()
+
+        # Sample name
+        name_fmt = '{sample}_{energy}keV_temp{temp}degC_wa{wax}_sdd{sdd}m_id{scan_id}'
+        sample_name = name_fmt.format(sample=name, energy='%.2f'%e, temp=temp, wax=wa,
+                                      sdd='%.1f'%sdd, scan_id=scan_id)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        sample_id(user_name=name, sample_name=sample_name) 
+        yield from bp.count(dets)
+
+
+def tender_single_scan_instec_insitu_2022_2(t=0.5):
+    """
+    Instec stage macro for single measurement
+
+    Temperature for the measurement has to be driven from CSS screen,
+    once the temperature equilibrates, run this to measure.
+
+    While changing samples, disengage the heater, click and change
+    Range X to OFF in Lakeshore CSS tab.
+    """
+
+    user_name = 'RT12127A'
+    name = 'S_100p'
+
+    # Correct names just in case
+    name = name.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ '})
+    user_name = user_name.translate({ord(c): '_' for c in '!@#$%^&*{}:/<>?\|`~+ '})
+
+    det_exposure_time(t, t) 
+    waxs_arc = [3]
+
+    # Read T and convert to deg C
+    temp_degC = ls.input_C.get() - 273.15
+
+    # Save time on WAXS arc movement
+    waxs_angles = waxs_arc if waxs.arc.position < 15 else waxs_arc[::-1]
+
+    for wa in waxs_angles:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if wa < 15 else [pil900KW, pil1M]
+
+        # Metadata
+        e = energy.position.energy
+        temp = str(np.round(float(temp_degC), 1)).zfill(5)
+        wa = str(np.round(float(wa), 1)).zfill(4)
+        sdd = pil1m_pos.z.position / 1000
+        scan_id = db[-1].start['scan_id'] + 1
+        #bpm = xbpm3.sumX.get()
+
+        # Sample name
+        name_fmt = '{sample}_{energy}eV_temp{temp}degC_wa{wax}_sdd{sdd}m_id{scan_id}'
+        sample_name = name_fmt.format(sample=user_name, energy='%.2f'%e, temp=temp, wax=wa,
+                                      sdd='%.1f'%sdd, scan_id=scan_id)
+        print(f'\n\t=== Sample: {sample_name} ===\n')
+        sample_id(user_name=user_name, sample_name=sample_name) 
+        yield from bp.count(dets)
