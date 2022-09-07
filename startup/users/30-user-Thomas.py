@@ -1,119 +1,145 @@
-  
 # Search hutch and close
 # RE(shopen())
 # Start det3: ctrl+x twice, type: setthreshold energy 16100 autog 11000
-# 
+#
 # # Ctrl+s to save this file
 # %run -i /home/xf12id/.ipython/profile_collection/startup/users/30-user-Thomas.py
 #
 # RE(shclose())
 # To take out sample: wait for sample to go back to RT, bleed to air, open waxs soft vent
-# 
-'''
+#
+"""
 8.3m
   smi_config_update = smi_config.append(current_config_DF, ignore_index=True)
 1.248555 1.248555 -13.000182 0.0 8.649654
-'''
+"""
 
 # 2021-Jul-11
 # RE(run_Thomas_temp2(t=0.5, name='VS', samples=['test'], Nmax=1, time_sleep_sec=0))
 
-def run_Thomas_temp2(t=0.5, name = 'VS', samples=['thermal_test'], Nmax=1, time_sleep_sec=120, time_interval_sec=10): 
+
+def run_Thomas_temp2(
+    t=0.5,
+    name="VS",
+    samples=["thermal_test"],
+    Nmax=1,
+    time_sleep_sec=120,
+    time_interval_sec=10,
+):
     # Slowest cycle:
-    x_list  = [-2.6] #[-3.4] #[-3.5] #HEXAPOD
-    y_list =  [2.3] #[2.3] #[2.25] 
-    #samples = ['thermal1']
+    x_list = [-2.6]  # [-3.4] #[-3.5] #HEXAPOD
+    y_list = [2.3]  # [2.3] #[2.25]
+    # samples = ['thermal1']
 
     # Detectors, motors:
     dets = [pil900KW, pil1M]
 
-    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(
+        samples
+    ), f"Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})"
     det_exposure_time(t, t)
 
     t0 = time.time()
 
     waxs_angles = np.array([0, 15])
 
-    #time.sleep(time_sleep_sec)
+    # time.sleep(time_sleep_sec)
     yield from bps.sleep(time_sleep_sec)
 
-    for waxs_angle in waxs_angles: # loop through waxs angles
+    for waxs_angle in waxs_angles:  # loop through waxs angles
         yield from bps.mv(waxs, waxs_angle)
-        if waxs_angle >=15:
-            dets = [ pil900KW, pil1M, pil300KW  ] 
+        if waxs_angle >= 15:
+            dets = [pil900KW, pil1M, pil300KW]
         else:
-            dets = [ pil900KW ,   pil300KW  ]              
-        print( 'Meausre saxs and/or waxs here for w-angle=%s'%waxs_angle )
+            dets = [pil900KW, pil300KW]
+        print("Meausre saxs and/or waxs here for w-angle=%s" % waxs_angle)
 
         for i in range(Nmax):
             t1 = time.time()
-            temp = ls.input_A_celsius.get() #ls.ch1_read.value
+            temp = ls.input_A_celsius.get()  # ls.ch1_read.value
             for x, y, names in zip(x_list, y_list, samples):
-                yield from bps.mv(stage.x, x) #HEXAPOD
+                yield from bps.mv(stage.x, x)  # HEXAPOD
                 yield from bps.mv(stage.y, y)
-                
-                
-                name_fmt = '{sample}_16.1keV_8.3m_{time}s_{temperature}C_waxs{waxs_angle:05.2f}_x{x:04.2f}_y{y:04.2f}_{scan_id}'
-                sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), temperature='%1.1f'%temp,waxs_angle=waxs_angle, x=x, y=y, scan_id=RE.md['scan_id'])
 
-                #xss = np.linspace(x - 500, x + 500, 3)
-                #yss = np.linspace(y - 300, y + 300, 3)
-                #yss, xss = np.meshgrid(yss, xss)
-                #yss = yss.ravel()
-                #xss = xss.ravel()
-                
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                sample_id(user_name=name, sample_name=sample_name) 
+                name_fmt = "{sample}_16.1keV_8.3m_{time}s_{temperature}C_waxs{waxs_angle:05.2f}_x{x:04.2f}_y{y:04.2f}_{scan_id}"
+                sample_name = name_fmt.format(
+                    sample=names,
+                    time="%1.1f" % (t1 - t0),
+                    temperature="%1.1f" % temp,
+                    waxs_angle=waxs_angle,
+                    x=x,
+                    y=y,
+                    scan_id=RE.md["scan_id"],
+                )
+
+                # xss = np.linspace(x - 500, x + 500, 3)
+                # yss = np.linspace(y - 300, y + 300, 3)
+                # yss, xss = np.meshgrid(yss, xss)
+                # yss = yss.ravel()
+                # xss = xss.ravel()
+
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                sample_id(user_name=name, sample_name=sample_name)
                 yield from bp.count(dets, num=1)
 
             yield from bps.sleep(time_interval_sec)
 
-            #time.sleep(time_sleep_sec)
+            # time.sleep(time_sleep_sec)
 
-    sample_id(user_name='test', sample_name='test')
+    sample_id(user_name="test", sample_name="test")
+
 
 # Ex-situ transmission
 # RE(run_tswaxs(t=0.5, name = 'VS', grid=1))
-def run_tswaxs(t=0.5, name = 'VS', grid=1, Nmax=1): 
+def run_tswaxs(t=0.5, name="VS", grid=1, Nmax=1):
     # Slowest cycle:
-    x_list  = [ 45070, 32070,7070,-12430,-27430 ]   
-    y_list =  [-9550,9550,-9550,-9550,-9550]     
-    #z_list =  [7500, 7500,  7500, 7500, 7500,  7500, 7500, 7500, 7500, 7500,    7500, 7500,7500,7500,7500, 7500 ]      
-    samples = ['sam27','sam28','sam29','sam30','sam31']  
-# HEX: -3.41, y 1.67, z-1.4
-# sam6: x-7830, y -10950, z7500
+    x_list = [45070, 32070, 7070, -12430, -27430]
+    y_list = [-9550, 9550, -9550, -9550, -9550]
+    # z_list =  [7500, 7500,  7500, 7500, 7500,  7500, 7500, 7500, 7500, 7500,    7500, 7500,7500,7500,7500, 7500 ]
+    samples = ["sam27", "sam28", "sam29", "sam30", "sam31"]
+    # HEX: -3.41, y 1.67, z-1.4
+    # sam6: x-7830, y -10950, z7500
 
     # Detectors, motors:
     dets = [pil900KW, pil1M]
 
-    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(
+        samples
+    ), f"Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})"
     det_exposure_time(t, t)
 
     t0 = time.time()
     waxs_angles = np.array([15, 0])
 
-    for waxs_angle in waxs_angles: # loop through waxs angles
+    for waxs_angle in waxs_angles:  # loop through waxs angles
         yield from bps.mv(waxs, waxs_angle)
-        if waxs_angle >=15:
-            dets = [ pil900KW, pil1M, pil300KW  ] 
+        if waxs_angle >= 15:
+            dets = [pil900KW, pil1M, pil300KW]
         else:
-            dets = [ pil900KW ,   pil300KW  ]              
-        print( 'Meausre saxs and/or waxs here for w-angle=%s'%waxs_angle )
+            dets = [pil900KW, pil300KW]
+        print("Meausre saxs and/or waxs here for w-angle=%s" % waxs_angle)
 
         for i in range(Nmax):
             t1 = time.time()
-            #temp = ls.input_A_celsius.get() #ls.ch1_read.value
+            # temp = ls.input_A_celsius.get() #ls.ch1_read.value
             for x, y, names in zip(x_list, y_list, samples):
-                yield from bps.mv(piezo.x, x) 
-                yield from bps.mv(piezo.y, y)                
-                
-                name_fmt = '{sample}_16.1keV_8.3m_waxs{waxs_angle:05.2f}_x{x:04.2f}_y{y:04.2f}_{t:05.2f}s_{scan_id}'
-                sample_name = name_fmt.format(sample=names, waxs_angle=waxs_angle, x=x, y=y, t=t,scan_id=RE.md['scan_id'])
-                
-                print(f'\n\t=== Sample: {sample_name} ===\n')
-                sample_id(user_name=name, sample_name=sample_name) 
-                
-                if grid==0:
+                yield from bps.mv(piezo.x, x)
+                yield from bps.mv(piezo.y, y)
+
+                name_fmt = "{sample}_16.1keV_8.3m_waxs{waxs_angle:05.2f}_x{x:04.2f}_y{y:04.2f}_{t:05.2f}s_{scan_id}"
+                sample_name = name_fmt.format(
+                    sample=names,
+                    waxs_angle=waxs_angle,
+                    x=x,
+                    y=y,
+                    t=t,
+                    scan_id=RE.md["scan_id"],
+                )
+
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                sample_id(user_name=name, sample_name=sample_name)
+
+                if grid == 0:
                     yield from bp.count(dets, num=1)
                 else:
                     xss = np.linspace(x - 300, x + 300, 3)
@@ -121,97 +147,108 @@ def run_tswaxs(t=0.5, name = 'VS', grid=1, Nmax=1):
                     yss, xss = np.meshgrid(yss, xss)
                     yss = yss.ravel()
                     xss = xss.ravel()
-                    yield from bp.list_scan(dets, piezo.x, xss.tolist() , piezo.y, yss.tolist())
+                    yield from bp.list_scan(
+                        dets, piezo.x, xss.tolist(), piezo.y, yss.tolist()
+                    )
 
-    sample_id(user_name='test', sample_name='test')
+    sample_id(user_name="test", sample_name="test")
 
 
-# RE(run_giswaxs(t=0.5))    
-def run_giswaxs(t=0.5, flag_align=1): 
+# RE(run_giswaxs(t=0.5))
+def run_giswaxs(t=0.5, flag_align=1):
     # define names of samples on sample bar
-    #sample_list = ['C35_O3_10nm_400C', 'C36_H2O_10nm_400C', 'C37_D2O_10nm_400C', 'C38_H2O2_10nm_400C', 'C39_O3_7nm_400C', 'C40_H2O_7nm_400C', 'C41_D2O_7nm_400C']
-    #x_list = [49400] #, 36400, 24400, 12400, -3600,    -17600, -31600, -43600]
-    #sample_list = ['sam1'] #, 'sam2', 'sam3', 'sam4', 'sam5',    'sam6', 'sam7', 'sam8' ]
+    # sample_list = ['C35_O3_10nm_400C', 'C36_H2O_10nm_400C', 'C37_D2O_10nm_400C', 'C38_H2O2_10nm_400C', 'C39_O3_7nm_400C', 'C40_H2O_7nm_400C', 'C41_D2O_7nm_400C']
+    # x_list = [49400] #, 36400, 24400, 12400, -3600,    -17600, -31600, -43600]
+    # sample_list = ['sam1'] #, 'sam2', 'sam3', 'sam4', 'sam5',    'sam6', 'sam7', 'sam8' ]
 
-    #x_list = [48600, 36000, 20000, 8000,-6000,    -16000, -30000, -44000,]
-    #sample_list = ['sam16', 'sam15', 'sam14', 'sam13','sam12',    'sam11', 'sam10','sam9']
+    # x_list = [48600, 36000, 20000, 8000,-6000,    -16000, -30000, -44000,]
+    # sample_list = ['sam16', 'sam15', 'sam14', 'sam13','sam12',    'sam11', 'sam10','sam9']
 
-    #x_list = [50000, 40000, 28000, 14000, -4000,    -24000]
-    #sample_list = ['WS1', 'WS2', 'WS3', 'WS4','WS5',    'sam17']
+    # x_list = [50000, 40000, 28000, 14000, -4000,    -24000]
+    # sample_list = ['WS1', 'WS2', 'WS3', 'WS4','WS5',    'sam17']
 
     x_list = [-18500]
-    sample_list = ['sam17']
+    sample_list = ["sam17"]
 
-    yield from bps.mv(piezo.y, 1800)          
-    assert len(x_list) == len(sample_list), f'Sample name/position list is borked'
+    yield from bps.mv(piezo.y, 1800)
+    assert len(x_list) == len(sample_list), f"Sample name/position list is borked"
 
-    #angle_arc = np.array([0.1, 0.15, 0.19]) # incident angles
-    angle_arc = np.array([0.12, 0.16, 0.2]) # incident angles
-    #waxs_angle_array = np.linspace(0, 84, 15)
+    # angle_arc = np.array([0.1, 0.15, 0.19]) # incident angles
+    angle_arc = np.array([0.12, 0.16, 0.2])  # incident angles
+    # waxs_angle_array = np.linspace(0, 84, 15)
 
-    waxs_angles = np.array([15, 0])   # q=4*3.14/0.77*np.sin((max angle+3.5)/2*3.14159/180)
-                                               # if 12, 3: up to q=2.199
-                                               # if 18, 4: up to q=3.04
-                                               # if 24, 5: up to q=3.87
-                                               # if 30, 6: up to q=4.70
-                                               # 52/6.5 +1 =8
-    #dets = [pil300KW, pil1M] # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]
-    
-    #x_shift_array = np.linspace(-500, 500, 3) # measure at a few x positions
+    waxs_angles = np.array(
+        [15, 0]
+    )  # q=4*3.14/0.77*np.sin((max angle+3.5)/2*3.14159/180)
+    # if 12, 3: up to q=2.199
+    # if 18, 4: up to q=3.04
+    # if 24, 5: up to q=3.87
+    # if 30, 6: up to q=4.70
+    # 52/6.5 +1 =8
+    # dets = [pil300KW, pil1M] # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]
 
-    for x, sample in zip(x_list,sample_list): #loop over samples on bar
+    # x_shift_array = np.linspace(-500, 500, 3) # measure at a few x positions
 
-        yield from bps.mv(piezo.x, x) #move to next sample  
+    for x, sample in zip(x_list, sample_list):  # loop over samples on bar
+
+        yield from bps.mv(piezo.x, x)  # move to next sample
         if flag_align:
-            yield from alignement_gisaxs(0.1) #run alignment routine
+            yield from alignement_gisaxs(0.1)  # run alignment routine
 
-        th_meas = angle_arc + piezo.th.position #np.array([0.10 + piezo.th.position, 0.20 + piezo.th.position])
-        th_real = angle_arc	
+        th_meas = (
+            angle_arc + piezo.th.position
+        )  # np.array([0.10 + piezo.th.position, 0.20 + piezo.th.position])
+        th_real = angle_arc
 
-        det_exposure_time(t,t) 
-        x_pos_array = x #+ x_shift_array
+        det_exposure_time(t, t)
+        x_pos_array = x  # + x_shift_array
 
-        for waxs_angle in waxs_angles: # loop through waxs angles
+        for waxs_angle in waxs_angles:  # loop through waxs angles
 
             yield from bps.mv(waxs, waxs_angle)
-            if waxs_angle >=15:
-                dets = [ pil900KW, pil1M, pil300KW  ] 
+            if waxs_angle >= 15:
+                dets = [pil900KW, pil1M, pil300KW]
             else:
-                dets = [ pil900KW ,   pil300KW  ]            
-                
-            for i, th in enumerate(th_meas): #loop over incident angles
-                yield from bps.mv(piezo.th, th)                   
-                                            
-                sample_name = '{sample}_{th:5.4f}deg_waxs{waxs_angle:05.2f}_x{x}_{t}s_{scan_id}'.format(sample = sample, th=th_real[i], waxs_angle=waxs_angle, x=x, t=t, scan_id=RE.md['scan_id'])
-                #name_fmt = '{sample}_16.1keV_8.3m_waxs{waxs_angle:05.2f}_x{x:04.2f}_{t:05.2f}s_{scan_id}'
-                #sample_name = name_fmt.format(sample=sample, waxs_angle=waxs_angle, x=x, t=t, scan_id=RE.md['scan_id'])
-                sample_id(user_name='HE3', sample_name=sample_name) 
-                print(f'\n\t=== Sample: {sample_name} ===\n')                        
-                        
-                #yield from bp.scan(dets, energy, e, e, 1)
-                #yield from bp.scan(dets, waxs, *waxs_arc)
+                dets = [pil900KW, pil300KW]
+
+            for i, th in enumerate(th_meas):  # loop over incident angles
+                yield from bps.mv(piezo.th, th)
+
+                sample_name = "{sample}_{th:5.4f}deg_waxs{waxs_angle:05.2f}_x{x}_{t}s_{scan_id}".format(
+                    sample=sample,
+                    th=th_real[i],
+                    waxs_angle=waxs_angle,
+                    x=x,
+                    t=t,
+                    scan_id=RE.md["scan_id"],
+                )
+                # name_fmt = '{sample}_16.1keV_8.3m_waxs{waxs_angle:05.2f}_x{x:04.2f}_{t:05.2f}s_{scan_id}'
+                # sample_name = name_fmt.format(sample=sample, waxs_angle=waxs_angle, x=x, t=t, scan_id=RE.md['scan_id'])
+                sample_id(user_name="HE3", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                # yield from bp.scan(dets, energy, e, e, 1)
+                # yield from bp.scan(dets, waxs, *waxs_arc)
                 yield from bp.count(dets, num=1)
-                    
 
-    sample_id(user_name='test', sample_name='test')
+    sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.5)
-
-
-
 
 
 ########################################
 # 2021
-def run_Thomas_temp(t=1,name = 'HarvPoly'): 
+def run_Thomas_temp(t=1, name="HarvPoly"):
     # Slowest cycle:
-    x_list  = [13300,  -12100]
-    y_list =  [-3400, -3400]
-    samples = ['thermal1', 'thermal2']
+    x_list = [13300, -12100]
+    y_list = [-3400, -3400]
+    samples = ["thermal1", "thermal2"]
 
     # Detectors, motors:
     dets = [pil1M]
 
-    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
+    assert len(x_list) == len(
+        samples
+    ), f"Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})"
     det_exposure_time(t, t)
 
     t0 = time.time()
@@ -221,137 +258,302 @@ def run_Thomas_temp(t=1,name = 'HarvPoly'):
         for x, y, names in zip(x_list, y_list, samples):
             yield from bps.mv(piezo.x, x)
             yield from bps.mv(piezo.y, y)
-            
-            name_fmt = '{sample}_11.15keV_7.5m_{time}s_{temperature}C_{i}'
-            sample_name = name_fmt.format(sample=names, time = '%1.1f'%(t1-t0), temperature='%1.1f'%temp, i = '%3.3d'%i)
+
+            name_fmt = "{sample}_11.15keV_7.5m_{time}s_{temperature}C_{i}"
+            sample_name = name_fmt.format(
+                sample=names,
+                time="%1.1f" % (t1 - t0),
+                temperature="%1.1f" % temp,
+                i="%3.3d" % i,
+            )
 
             xss = np.linspace(x - 500, x + 500, 3)
             yss = np.linspace(y - 300, y + 300, 3)
             yss, xss = np.meshgrid(yss, xss)
             yss = yss.ravel()
             xss = xss.ravel()
-            
-            print(f'\n\t=== Sample: {sample_name} ===\n')
-            sample_id(user_name=name, sample_name=sample_name) 
-            yield from bp.list_scan(dets, piezo.x, xss.tolist() , piezo.y, yss.tolist())
+
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+            sample_id(user_name=name, sample_name=sample_name)
+            yield from bp.list_scan(dets, piezo.x, xss.tolist(), piezo.y, yss.tolist())
 
         time.sleep(1800)
 
-    sample_id(user_name='test', sample_name='test')
-    
+    sample_id(user_name="test", sample_name="test")
 
 
-
-def saxs_cryo(t=0.5, tem = 25, num_max = 100):
+def saxs_cryo(t=0.5, tem=25, num_max=100):
     global num
     # Slowest cycle:
-    name = 'ET'
+    name = "ET"
     # Detectors, motors:
     dets = [pil300KW, pil1M]
     # sample = 'PDMS_sdd8.3m'
-    sample = 'bkg_sdd8.3m'
+    sample = "bkg_sdd8.3m"
 
     waxs_range = np.linspace(0, 13, 3)
 
+    det_exposure_time(t, t)
 
-    det_exposure_time(t,t)
-
-    
     while num < num_max:
         yield from bps.mvr(stage.y, 0.02)
-        num +=1
+        num += 1
         if waxs.arc.position > 7:
             waxs_ran = waxs_range[::-1]
         else:
             waxs_ran = waxs_range
 
-
         for wa in waxs_ran:
             yield from bps.mv(waxs, wa)
-            name_fmt = 'num{nu}_{temperature}C_wa{wa}'
-            sample_name = name_fmt.format(nu = num, temperature='%4.2f'%tem, wa=wa)
-            print(f'\n\t=== Sample: {sample_name} ===\n')
-            sample_id(user_name=sample, sample_name=sample_name) 
+            name_fmt = "num{nu}_{temperature}C_wa{wa}"
+            sample_name = name_fmt.format(nu=num, temperature="%4.2f" % tem, wa=wa)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+            sample_id(user_name=sample, sample_name=sample_name)
 
             yield from bp.count(dets, num=1)
 
-    sample_id(user_name='test', sample_name='test')
+    sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.3, 0.3)
 
 
-
-
-
-def gisaxs_Thomas(t=1): 
-    samples = ['T1_A', 'T1_B', 'T2_A', 'T2_B']
+def gisaxs_Thomas(t=1):
+    samples = ["T1_A", "T1_B", "T2_A", "T2_B"]
     x_list = [58500, 49000, 39000, 28000]
 
     waxs_arc = np.linspace(0, 13, 3)
     angle = [0.12, 0.16, 0.2]
 
-  # Detectors, motors:
-    dets = [pil1M,pil300KW]
-    det_exposure_time(t,t)
+    # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    det_exposure_time(t, t)
 
-    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    
-    for x, sample in zip(x_list,samples):
+    assert len(x_list) == len(
+        samples
+    ), f"Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})"
+
+    for x, sample in zip(x_list, samples):
         yield from bps.mv(piezo.x, x)
 
-        sample_id(user_name='NT', sample_name=sample) 
+        sample_id(user_name="NT", sample_name=sample)
 
         yield from alignement_gisaxs(0.08)
-        
+
         ai0 = piezo.th.position
-        det_exposure_time(t, t) 
-        name_fmt = '{sample}_ai{angle}deg_wa{waxs}_pos{pos}'
+        det_exposure_time(t, t)
+        name_fmt = "{sample}_ai{angle}deg_wa{waxs}_pos{pos}"
         for j, wa in enumerate(waxs_arc[::-1]):
             yield from bps.mv(waxs, wa)
-            
+
             for nu, num in enumerate([0, 1, 2, 3, 4]):
                 yield from bps.mv(piezo.x, x - nu * 300)
 
                 for an in angle:
                     yield from bps.mv(piezo.th, ai0 + an)
-                    sample_name = name_fmt.format(sample=sample, angle='%3.2f'%an, waxs='%2.1f'%wa, pos = nu)
-                    sample_id(user_name='PT', sample_name=sample_name)
-                    print(f'\n\t=== Sample: {sample_name} ===\n')
+                    sample_name = name_fmt.format(
+                        sample=sample, angle="%3.2f" % an, waxs="%2.1f" % wa, pos=nu
+                    )
+                    sample_id(user_name="PT", sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
 
                     yield from bp.count(dets, num=1)
-                
 
-    sample_id(user_name='test', sample_name='test')
-    det_exposure_time(0.1,0.1)
-
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.1, 0.1)
 
 
+def waxs_Thomas(t=1, x_off=0, user="NT"):
+    samples = [
+        "sample01",
+        "sample02",
+        "sample03",
+        "sample04",
+        "sample05",
+        "sample06",
+        "sample07",
+        "sample08",
+        "sample09",
+        "sample10",
+        "sample11",
+        "sample12",
+        "sample13",
+        "sample14",
+        "sample15",
+        "sample16",
+        "sample17",
+        "sample18",
+        "sample19",
+        "sample20",
+        "sample21",
+        "sample22",
+        "sample23",
+        "sample24",
+        "sample25",
+        "sample26",
+        "sample27",
+        "sample28",
+        "sample29",
+        "sample30",
+        "sample31",
+        "sample32",
+        "sample33",
+        "sample34",
+        "sample35",
+        "sample36",
+        "sample37",
+        "sample38",
+        "sample39",
+        "sample40",
+        "sample41",
+    ]
+    x_list = [
+        44700,
+        41700,
+        37700,
+        32000,
+        28000,
+        21000,
+        15000,
+        10000,
+        5800,
+        2500,
+        -1500,
+        -4500,
+        -6900,
+        -11900,
+        -16500,
+        -19800,
+        -23800,
+        -27800,
+        -33800,
+        -37800,
+        -41800,
+        45000,
+        41000,
+        38000,
+        33000,
+        31000,
+        27000,
+        22500,
+        20000,
+        17500,
+        15000,
+        11000,
+        8000,
+        4500,
+        1500,
+        -1500,
+        -4500,
+        -9500,
+        -13500,
+        -17500,
+        -21500,
+    ]
+    y_list = [
+        -7800,
+        -7800,
+        -7800,
+        -7800,
+        -7800,
+        -7700,
+        -7700,
+        -7600,
+        -7400,
+        -7400,
+        -7400,
+        -7400,
+        -7400,
+        -7400,
+        -7400,
+        -7400,
+        -7400,
+        -7400,
+        -7400,
+        -7400,
+        -7400,
+        3000,
+        3000,
+        3000,
+        3000,
+        3000,
+        3000,
+        3000,
+        3200,
+        3200,
+        3200,
+        3200,
+        3200,
+        3200,
+        3200,
+        3700,
+        3400,
+        3400,
+        3400,
+        3400,
+        3500,
+    ]
+    z_list = [
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+    ]
 
-def waxs_Thomas(t=1, x_off = 0, user = 'NT'): 
-    samples = ['sample01', 'sample02', 'sample03', 'sample04', 'sample05', 'sample06', 'sample07', 'sample08', 'sample09', 'sample10', 'sample11', 'sample12',
-    'sample13', 'sample14', 'sample15', 'sample16', 'sample17', 'sample18', 'sample19', 'sample20', 'sample21', 'sample22', 'sample23', 'sample24', 'sample25', 
-    'sample26', 'sample27', 'sample28', 'sample29', 'sample30', 'sample31', 'sample32', 'sample33', 'sample34', 'sample35', 'sample36', 'sample37', 'sample38', 
-    'sample39', 'sample40', 'sample41']
-    x_list = [44700, 41700, 37700, 32000, 28000, 21000, 15000, 10000,  5800,  2500, -1500, -4500, -6900, -11900, -16500, -19800, -23800, -27800, -33800, -37800,
-    -41800, 45000, 41000, 38000, 33000, 31000, 27000, 22500, 20000, 17500, 15000, 11000, 8000, 4500, 1500, -1500, -4500, -9500, -13500, -17500, -21500]
-    y_list = [-7800, -7800, -7800, -7800, -7800, -7700, -7700, -7600, -7400, -7400, -7400, -7400, -7400,  -7400,  -7400,  -7400,  -7400,  -7400,  -7400,  -7400,
-     -7400,  3000,  3000,  3000,  3000,  3000,  3000,  3000,  3200,  3200,  3200,  3200, 3200, 3200, 3200,  3700,  3400,  3400,   3400,   3400,   3500]
-    z_list = [ 2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,   2700,   2700,   2700,   2700,   2700,   2700,   2700,
-      2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700, 2700, 2700, 2700,  2700,  2700,  2700,   2700,   2700,   2700]
-
-
-    assert len(samples) == len(x_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    assert len(samples) == len(y_list), f'Number of X coordinates ({len(y_list)}) is different from number of samples ({len(samples)})'
-    assert len(samples) == len(z_list), f'Number of X coordinates ({len(z_list)}) is different from number of samples ({len(samples)})'
-
+    assert len(samples) == len(
+        x_list
+    ), f"Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})"
+    assert len(samples) == len(
+        y_list
+    ), f"Number of X coordinates ({len(y_list)}) is different from number of samples ({len(samples)})"
+    assert len(samples) == len(
+        z_list
+    ), f"Number of X coordinates ({len(z_list)}) is different from number of samples ({len(samples)})"
 
     waxs_arc = np.linspace(0, 13, 3)
 
-  # Detectors, motors:
-    dets = [pil1M,pil300KW]
-    det_exposure_time(t,t)
+    # Detectors, motors:
+    dets = [pil1M, pil300KW]
+    det_exposure_time(t, t)
 
-    assert len(x_list) == len(samples), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    
+    assert len(x_list) == len(
+        samples
+    ), f"Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})"
 
     for j, wa in enumerate(waxs_arc[::-1]):
         yield from bps.mv(waxs, wa)
@@ -361,48 +563,43 @@ def waxs_Thomas(t=1, x_off = 0, user = 'NT'):
             yield from bps.mv(piezo.y, y)
             yield from bps.mv(piezo.z, z)
 
-            det_exposure_time(t, t) 
-            name_fmt = '{sample}_wa{waxs}_pos{pos}'
-                
+            det_exposure_time(t, t)
+            name_fmt = "{sample}_wa{waxs}_pos{pos}"
+
             for nu, num in enumerate([0, 1, 2, 3, 4]):
                 yield from bps.mv(piezo.y, y + nu * 50)
 
-                sample_name = name_fmt.format(sample=sample, waxs='%2.1f'%wa, pos = nu)
+                sample_name = name_fmt.format(sample=sample, waxs="%2.1f" % wa, pos=nu)
                 sample_id(user_name=user, sample_name=sample_name)
-                print(f'\n\t=== Sample: {sample_name} ===\n')
+                print(f"\n\t=== Sample: {sample_name} ===\n")
 
                 yield from bp.count(dets, num=1)
-                
-    sample_id(user_name='test', sample_name='test')
-    det_exposure_time(0.1,0.1)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.1, 0.1)
 
 
+def run_Thomas(t=1, x_off=0):
+    yield from waxs_Thomas(t=0.5, x_off=-500, user="NT_pos2_0.5s")
+    yield from waxs_Thomas(t=0.5, x_off=-250, user="NT_pos3_0.5s")
+    yield from waxs_Thomas(t=0.5, x_off=250, user="NT_pos4_0.5s")
 
 
-def run_Thomas(t=1, x_off = 0):
-    yield from waxs_Thomas(t=0.5, x_off = -500, user = 'NT_pos2_0.5s')
-    yield from waxs_Thomas(t=0.5, x_off = -250, user = 'NT_pos3_0.5s')
-    yield from waxs_Thomas(t=0.5, x_off = 250, user = 'NT_pos4_0.5s')
-
-
-
-
-def saxs_cryo_2021_1(t=0.5, tem = 25, num_max = 100):
+def saxs_cryo_2021_1(t=0.5, tem=25, num_max=100):
     global num
     # Slowest cycle:
-    name = 'ET'
-    
+    name = "ET"
+
     # Detectors, motors:
     dets = [pil300KW, pil1M]
-    sample = 'kapton'
+    sample = "kapton"
 
     waxs_range = np.linspace(0, 13, 3)
-    det_exposure_time(t,t)
+    det_exposure_time(t, t)
 
-    
     # while num < num_max:
-        # yield from bps.mvr(stage.y, 0.02)
-    num +=1
+    # yield from bps.mvr(stage.y, 0.02)
+    num += 1
     if waxs.arc.position > 7:
         waxs_ran = waxs_range[::-1]
     else:
@@ -410,30 +607,29 @@ def saxs_cryo_2021_1(t=0.5, tem = 25, num_max = 100):
 
     for wa in waxs_ran:
         yield from bps.mv(waxs, wa)
-        name_fmt = 'num{nu}_{temperature}C_wa{wa}'
-        sample_name = name_fmt.format(nu = num, temperature='%4.2f'%tem, wa=wa)
-        print(f'\n\t=== Sample: {sample_name} ===\n')
-        sample_id(user_name=sample, sample_name=sample_name) 
+        name_fmt = "num{nu}_{temperature}C_wa{wa}"
+        sample_name = name_fmt.format(nu=num, temperature="%4.2f" % tem, wa=wa)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+        sample_id(user_name=sample, sample_name=sample_name)
 
         yield from bp.count(dets, num=1)
 
     yield from bps.mvr(stage.y, 0.02)
-    sample_id(user_name='test', sample_name='test')
+    sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.3, 0.3)
 
 
-
-def saxs_2021_1(t=0.5, tem = 25, num_max = 100):
+def saxs_2021_1(t=0.5, tem=25, num_max=100):
     global num
     # Slowest cycle:
-    name = 'ET'
-    
+    name = "ET"
+
     # Detectors, motors:
     dets = [pil1M]
-    sample = 'PS_PDMS_50.33dg_sdd8.3m_loop2'
+    sample = "PS_PDMS_50.33dg_sdd8.3m_loop2"
 
     waxs_range = np.linspace(0, 13, 3)
-    det_exposure_time(t,t)
+    det_exposure_time(t, t)
 
     yield from bps.mv(waxs, 13.0)
 
@@ -442,31 +638,31 @@ def saxs_2021_1(t=0.5, tem = 25, num_max = 100):
     while num < 500:
         t1 = time.time()
 
-        name_fmt = 'num{nu}_{temperature}C_{time}s'
-        sample_name = name_fmt.format(nu = num, temperature='%4.2f'%tem, time=np.round(t1-t0))
-        print(f'\n\t=== Sample: {sample_name} ===\n')
-        sample_id(user_name=sample, sample_name=sample_name) 
+        name_fmt = "num{nu}_{temperature}C_{time}s"
+        sample_name = name_fmt.format(
+            nu=num, temperature="%4.2f" % tem, time=np.round(t1 - t0)
+        )
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+        sample_id(user_name=sample, sample_name=sample_name)
 
         yield from bp.count(dets, num=1)
         yield from bps.sleep(30)
 
-    sample_id(user_name='test', sample_name='test')
+    sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.3, 0.3)
 
 
-
-
-def waxs_2021_1(t=0.5, tem = 25, num_max = 1000):
+def waxs_2021_1(t=0.5, tem=25, num_max=1000):
     global num
     # Slowest cycle:
-    name = 'ET'
-    
+    name = "ET"
+
     # Detectors, motors:
     dets = [pil1M, pil300KW]
-    sample = 'PS_PDMS_50.33dg_sdd8.3m_isotherm'
+    sample = "PS_PDMS_50.33dg_sdd8.3m_isotherm"
 
     waxs_range = np.linspace(0, 13, 3)
-    det_exposure_time(t,t)
+    det_exposure_time(t, t)
 
     yield from bps.mv(waxs, 6.5)
 
@@ -475,81 +671,208 @@ def waxs_2021_1(t=0.5, tem = 25, num_max = 1000):
     while num < num_max:
         t1 = time.time()
 
-        name_fmt = 'num{nu}_{temperature}C_{time}s'
-        sample_name = name_fmt.format(nu = num, temperature='%4.2f'%tem, time=np.round(t1-t0))
-        print(f'\n\t=== Sample: {sample_name} ===\n')
-        sample_id(user_name=sample, sample_name=sample_name) 
+        name_fmt = "num{nu}_{temperature}C_{time}s"
+        sample_name = name_fmt.format(
+            nu=num, temperature="%4.2f" % tem, time=np.round(t1 - t0)
+        )
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+        sample_id(user_name=sample, sample_name=sample_name)
 
         yield from bp.count(dets, num=1)
         yield from bps.sleep(5)
         yield from bps.mvr(stage.y, 0.02)
 
-    sample_id(user_name='test', sample_name='test')
+    sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.3, 0.3)
 
 
+def saxs_Thomas(t=1, x_off=0, user="NT"):
+    samples = [
+        "sample01",
+        "sample02",
+        "sample03",
+        "sample04",
+        "sample05",
+        "sample06",
+        "sample07",
+        "sample08",
+        "sample09",
+        "sample10",
+        "sample11",
+        "sample12",
+        "sample13",
+        "sample14",
+        "sample16",
+        "sample17",
+        "sample18",
+        "sample19",
+        "sample20",
+        "sample21",
+        "sample22",
+        "sample23",
+        "sample24",
+        "sample25",
+        "sample26",
+        "sample27",
+        "sample28",
+        "sample29",
+        "sample30",
+        "sample31",
+        "kapton_bkg",
+    ]
+    x_list = [
+        46000,
+        42000,
+        38500,
+        35000,
+        31500,
+        27500,
+        23500,
+        21000,
+        16000,
+        11000,
+        5000,
+        -500,
+        -5000,
+        -13000,
+        45700,
+        43700,
+        41000,
+        34000,
+        29800,
+        25800,
+        22800,
+        19800,
+        17200,
+        15200,
+        12200,
+        9000,
+        2000,
+        -4000,
+        -7000,
+        -10300,
+        -13300,
+    ]
+    y_list = [
+        -7600,
+        -7600,
+        -7600,
+        -7600,
+        -7600,
+        -7600,
+        -7600,
+        -7600,
+        -7600,
+        -7600,
+        -7600,
+        -7600,
+        -7600,
+        -7600,
+        5000,
+        4500,
+        5000,
+        5000,
+        5000,
+        5000,
+        5000,
+        5000,
+        5300,
+        5300,
+        5300,
+        5300,
+        4300,
+        5400,
+        5400,
+        3800,
+        3800,
+    ]
+    z_list = [
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+        2700,
+    ]
 
-
-
-
-def saxs_Thomas(t=1, x_off = 0, user = 'NT'): 
-    samples = ['sample01', 'sample02', 'sample03', 'sample04', 'sample05', 'sample06', 'sample07', 'sample08', 'sample09', 'sample10', 'sample11', 'sample12',
-    'sample13', 'sample14', 'sample16', 'sample17', 'sample18', 'sample19', 'sample20', 'sample21', 'sample22', 'sample23', 'sample24', 'sample25', 
-    'sample26', 'sample27', 'sample28', 'sample29', 'sample30', 'sample31', 'kapton_bkg']
-    x_list = [46000, 42000, 38500, 35000, 31500, 27500, 23500, 21000, 16000, 11000,  5000, -500, -5000, -13000,
-              45700, 43700, 41000, 34000, 29800, 25800, 22800, 19800, 17200, 15200, 12200, 9000,  2000,  -4000, -7000, -10300, -13300]
-    y_list = [-7600, -7600, -7600, -7600, -7600, -7600, -7600, -7600, -7600, -7600, -7600,-7600, -7600,  -7600,  
-               5000,  4500,  5000,  5000,  5000,  5000,  5000,  5000,  5300,  5300,  5300, 5300,  4300,   5400,  5400,   3800,   3800]
-    z_list = [ 2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700, 2700,  2700,   2700,
-               2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700,  2700, 2700,   2700,  2700,   2700,   2700]
-
-
-    assert len(samples) == len(x_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    assert len(samples) == len(y_list), f'Number of X coordinates ({len(y_list)}) is different from number of samples ({len(samples)})'
-    assert len(samples) == len(z_list), f'Number of X coordinates ({len(z_list)}) is different from number of samples ({len(samples)})'
+    assert len(samples) == len(
+        x_list
+    ), f"Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})"
+    assert len(samples) == len(
+        y_list
+    ), f"Number of X coordinates ({len(y_list)}) is different from number of samples ({len(samples)})"
+    assert len(samples) == len(
+        z_list
+    ), f"Number of X coordinates ({len(z_list)}) is different from number of samples ({len(samples)})"
 
     xpos = [-500, 500, 5]
 
-
-  # Detectors, motors:
+    # Detectors, motors:
     dets = [pil1M]
-    det_exposure_time(t,t)   
+    det_exposure_time(t, t)
 
     for x, y, z, sample in zip(x_list, y_list, z_list, samples):
         yield from bps.mv(piezo.x, x + x_off)
         yield from bps.mv(piezo.y, y)
         yield from bps.mv(piezo.z, z)
 
-        det_exposure_time(t, t) 
-        name_fmt = '{sample}_8.3m_16.1keV'
-            
+        det_exposure_time(t, t)
+        name_fmt = "{sample}_8.3m_16.1keV"
 
         sample_name = name_fmt.format(sample=sample)
         sample_id(user_name=user, sample_name=sample_name)
-        print(f'\n\t=== Sample: {sample_name} ===\n')
+        print(f"\n\t=== Sample: {sample_name} ===\n")
 
         yield from bp.rel_scan(dets, piezo.x, *xpos)
-                
-    sample_id(user_name='test', sample_name='test')
-    det_exposure_time(0.1,0.1)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.1, 0.1)
 
 
-
-
-def rotscan_Thomas(t=1): 
-    samples = ['sample15_grid']
+def rotscan_Thomas(t=1):
+    samples = ["sample15_grid"]
     x_list = [-30600]
     y_list = [-9400]
-    z_list = [ 1600]
+    z_list = [1600]
 
+    assert len(samples) == len(
+        x_list
+    ), f"Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})"
+    assert len(samples) == len(
+        y_list
+    ), f"Number of X coordinates ({len(y_list)}) is different from number of samples ({len(samples)})"
+    assert len(samples) == len(
+        z_list
+    ), f"Number of X coordinates ({len(z_list)}) is different from number of samples ({len(samples)})"
 
-    assert len(samples) == len(x_list), f'Number of X coordinates ({len(x_list)}) is different from number of samples ({len(samples)})'
-    assert len(samples) == len(y_list), f'Number of X coordinates ({len(y_list)}) is different from number of samples ({len(samples)})'
-    assert len(samples) == len(z_list), f'Number of X coordinates ({len(z_list)}) is different from number of samples ({len(samples)})'
-
-  # Detectors, motors:
+    # Detectors, motors:
     dets = [pil1M]
-    det_exposure_time(t,t)   
+    det_exposure_time(t, t)
 
     for x, y, z, sample in zip(x_list, y_list, z_list, samples):
         yield from bps.mv(piezo.x, x)
@@ -560,16 +883,17 @@ def rotscan_Thomas(t=1):
             yield from bps.mv(prs, prs_pos)
             yield from bps.sleep(2)
 
-            name_fmt = '{sample}_8.3m_16.1keV_num{num}_{prs}deg'
-                
-            sample_name = name_fmt.format(sample=sample, num ='%3.3d'%prs_pos, prs='%3.1f'%prs_pos)
-            sample_id(user_name='NT', sample_name=sample_name)
-            print(f'\n\t=== Sample: {sample_name} ===\n')
-            
+            name_fmt = "{sample}_8.3m_16.1keV_num{num}_{prs}deg"
+
+            sample_name = name_fmt.format(
+                sample=sample, num="%3.3d" % prs_pos, prs="%3.1f" % prs_pos
+            )
+            sample_id(user_name="NT", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+
             y_r = [-200, 200, 3]
             x_r = [-500, 500, 3]
             yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 0)
 
-                
-    sample_id(user_name='test', sample_name='test')
-    det_exposure_time(0.1,0.1)
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.1, 0.1)

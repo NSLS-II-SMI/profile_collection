@@ -1,7 +1,7 @@
 ##Collect data:
 
 
-''' 
+""" 
 #SMI: 2021/2/9
 
 SAF: 307138   Standard        Beamline 12-ID   proposal:  308023 (CFN, 307961)
@@ -54,9 +54,9 @@ Put Att and move bs to check the BC_WAXS, --> [ 87, 96 ]
 
 
 
-'''
+"""
 
-'''
+"""
 Run1 , using the 3-D printed holder wiithout hole (the optical image quality is not good)
 
 sample_dict = {   1: 'FT_01', 2: 'FT_02', 3:'',
@@ -309,193 +309,229 @@ pxy_dict = {
 
 
 
-'''
+"""
 
 
 # Run 9, Cell 4 and cell 8
-#measure no V first, saxs and waxs, three angles, Z=4700, 
+# measure no V first, saxs and waxs, three angles, Z=4700,
 #
 
 
-sample_dict = { 
-    
-#1:  'Dinca_Cell_4_CuHHTT_K2SO4' , 
-2:  'Dinca_Cell_1_NiBH_K2S4' ,  
-
+sample_dict = {
+    # 1:  'Dinca_Cell_4_CuHHTT_K2SO4' ,
+    2: "Dinca_Cell_1_NiBH_K2S4",
 }
 
-pxy_dict = {     
-
-# 1:   ( -29700, 5000), 
-2:   (30500, 5200), 
-  
+pxy_dict = {
+    # 1:   ( -29700, 5000),
+    2: (30500, 5200),
 }
 
 
-
-def _measure_one_potential(   V ='' ):
-    mov_sam ( 2 )
-    RE.md['sample'] += V
-    print( RE.md['sample'])
-    RE( measure_waxs() )
+def _measure_one_potential(V=""):
+    mov_sam(2)
+    RE.md["sample"] += V
+    print(RE.md["sample"])
+    RE(measure_waxs())
     time.sleep(3)
-    RE(measure_saxs(1, move_y= False  ) )
-
-
-
-
-
-
+    RE(measure_saxs(1, move_y=False))
 
 
 ##################################################
 ############ Some convinent functions#################
 #########################################################
 
-def movx( dx ):
-    RE(  bps.mvr(piezo.x, dx) )
-def movy( dy ):
-    RE( bps.mvr(piezo.y, dy) )
-def get_posxy( ):
-    return  round( piezo.x.user_readback.value, 2 ),round( piezo.y.user_readback.value , 2 )
-def move_waxs( waxs_angle=8.0):
-    RE(  bps.mv(waxs, waxs_angle)    )       
-def move_waxs_off( waxs_angle=8.0 ):
-    RE(  bps.mv(waxs, waxs_angle)    )
-def move_waxs_on( waxs_angle=0.0 ):
-    RE(  bps.mv(waxs, waxs_angle)  )
-def mov_sam( pos ):    
-    px,py = pxy_dict[ pos ]
-    RE(  bps.mv(piezo.x, px) )
-    RE(  bps.mv(piezo.y, py) )
-    sample = sample_dict[pos]  
-    print('Move to pos=%s for sample:%s...'%(pos, sample ))
-    RE.md['sample']  = sample       
-def check_saxs_sample_loc( sleep = 5 ):
-    ks = list( sample_dict.keys() )
-    for k in ks:        
-        mov_sam( k )
-        time.sleep( sleep  )
+
+def movx(dx):
+    RE(bps.mvr(piezo.x, dx))
 
 
+def movy(dy):
+    RE(bps.mvr(piezo.y, dy))
 
 
-def measure_saxs( t = .1, att='None', move_y=False, user_name='', sample= None ): 
+def get_posxy():
+    return round(piezo.x.user_readback.value, 2), round(piezo.y.user_readback.value, 2)
+
+
+def move_waxs(waxs_angle=8.0):
+    RE(bps.mv(waxs, waxs_angle))
+
+
+def move_waxs_off(waxs_angle=8.0):
+    RE(bps.mv(waxs, waxs_angle))
+
+
+def move_waxs_on(waxs_angle=0.0):
+    RE(bps.mv(waxs, waxs_angle))
+
+
+def mov_sam(pos):
+    px, py = pxy_dict[pos]
+    RE(bps.mv(piezo.x, px))
+    RE(bps.mv(piezo.y, py))
+    sample = sample_dict[pos]
+    print("Move to pos=%s for sample:%s..." % (pos, sample))
+    RE.md["sample"] = sample
+
+
+def check_saxs_sample_loc(sleep=5):
+    ks = list(sample_dict.keys())
+    for k in ks:
+        mov_sam(k)
+        time.sleep(sleep)
+
+
+def measure_saxs(t=0.1, att="None", move_y=False, user_name="", sample=None):
     if sample is None:
-        sample = RE.md['sample']
-    dets = [ pil1M ]   
-    #att_in( att )    
-    name_fmt = '{sample}_x{x_pos}_y{y_pos}_det{saxs_z}m_expt{expt}s_att{att}_sid{scan_id:08d}'
-    sample_name = name_fmt.format(sample=sample, x_pos=np.round(piezo.x.position,2), y_pos=np.round(piezo.y.position,2),
-                                  saxs_z=np.round(pil1m_pos.z.position,2), expt=t, att=att, scan_id=RE.md['scan_id'])
+        sample = RE.md["sample"]
+    dets = [pil1M]
+    # att_in( att )
+    name_fmt = (
+        "{sample}_x{x_pos}_y{y_pos}_det{saxs_z}m_expt{expt}s_att{att}_sid{scan_id:08d}"
+    )
+    sample_name = name_fmt.format(
+        sample=sample,
+        x_pos=np.round(piezo.x.position, 2),
+        y_pos=np.round(piezo.y.position, 2),
+        saxs_z=np.round(pil1m_pos.z.position, 2),
+        expt=t,
+        att=att,
+        scan_id=RE.md["scan_id"],
+    )
     if move_y:
-        yield from bps.mvr(piezo.y, 30  )
-    det_exposure_time( t, t)  
-    sample_id(user_name=user_name, sample_name=sample_name ) 
-    print(f'\n\t=== Sample: {sample_name} ===\n')
+        yield from bps.mvr(piezo.y, 30)
+    det_exposure_time(t, t)
+    sample_id(user_name=user_name, sample_name=sample_name)
+    print(f"\n\t=== Sample: {sample_name} ===\n")
 
-
-
-    print('Collect data here....')
+    print("Collect data here....")
     yield from bp.count(dets, num=1)
-    #att_out( att ) 
-    
-    sample_id(user_name='test', sample_name='test')
-    det_exposure_time(0.5)    
-    
-    
-def measure_waxs( t = 1.0, att='None', move_y=False, user_name='',  
-                              saxs_on = False,   waxs_angles = [ 0. ,  6.5, 13. ]  , inverse_angle = False   ): 
-    
-    #waxs_angles = np.linspace(0, 65, 11)   #the max range
-     #waxs_angles =   np.linspace(0, 65, 11),
-    #[ 0. ,  6.5, 13. , 19.5]
-     
-    waxs_angle_array = np.array( waxs_angles )
-    dets = [  pil300KW ]  
-    max_waxs_angle = np.max(  waxs_angle_array )  
+    # att_out( att )
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5)
+
+
+def measure_waxs(
+    t=1.0,
+    att="None",
+    move_y=False,
+    user_name="",
+    saxs_on=False,
+    waxs_angles=[0.0, 6.5, 13.0],
+    inverse_angle=False,
+):
+
+    # waxs_angles = np.linspace(0, 65, 11)   #the max range
+    # waxs_angles =   np.linspace(0, 65, 11),
+    # [ 0. ,  6.5, 13. , 19.5]
+
+    waxs_angle_array = np.array(waxs_angles)
+    dets = [pil300KW]
+    max_waxs_angle = np.max(waxs_angle_array)
 
     for waxs_angle in waxs_angle_array:
-        yield from bps.mv(waxs, waxs_angle)             
-        sample = RE.md['sample']
-        name_fmt = '{sample}_x{x_pos:05.2f}_y{y_pos:05.2f}_z{z_pos:05.2f}_waxs{waxs_angle:05.2f}_expt{expt}s_sid{scan_id:08d}'          
-        sample_name = name_fmt.format(sample=sample, x_pos=piezo.x.position, y_pos=piezo.y.position, z_pos=piezo.z.position,
-                                    waxs_angle=waxs_angle, expt= t,  scan_id=RE.md['scan_id'])   
-        print( sample_name )
+        yield from bps.mv(waxs, waxs_angle)
+        sample = RE.md["sample"]
+        name_fmt = "{sample}_x{x_pos:05.2f}_y{y_pos:05.2f}_z{z_pos:05.2f}_waxs{waxs_angle:05.2f}_expt{expt}s_sid{scan_id:08d}"
+        sample_name = name_fmt.format(
+            sample=sample,
+            x_pos=piezo.x.position,
+            y_pos=piezo.y.position,
+            z_pos=piezo.z.position,
+            waxs_angle=waxs_angle,
+            expt=t,
+            scan_id=RE.md["scan_id"],
+        )
+        print(sample_name)
         if saxs_on:
             if waxs_angle == max_waxs_angle:
-                dets = [ pil1M, pil300KW ] # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]                
+                dets = [
+                    pil1M,
+                    pil300KW,
+                ]  # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]
             else:
-                dets=  [  pil300KW ] 
+                dets = [pil300KW]
         if move_y:
-            yield from bps.mvr(piezo.y, 100  )
-        det_exposure_time( t, t )  
-        sample_id(user_name=user_name, sample_name=sample_name ) 
-        print(f'\n\t=== Sample: {sample_name} ===\n')
-        #yield from bp.scan(dets, waxs, *waxs_arc)
-        yield from bp.count(dets, num=1)        
-    sample_id(user_name='test', sample_name='test')
-    det_exposure_time(0.5) 
-    
+            yield from bps.mvr(piezo.y, 100)
+        det_exposure_time(t, t)
+        sample_id(user_name=user_name, sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+        # yield from bp.scan(dets, waxs, *waxs_arc)
+        yield from bp.count(dets, num=1)
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5)
 
 
-
-
-
-def measure_series_saxs(       ):
-    ks = list( sample_dict.keys() )  #[4:]
+def measure_series_saxs():
+    ks = list(sample_dict.keys())  # [4:]
     for k in ks:
-        mov_sam( k )        
-        #movy( 100 )
-        RE( measure_saxs( t = 1, att= 'None',  move_y= False, user_name='' ) )
-        #movy( 100 )
-        #RE( measure_saxs( t = 10, att= 'None',  move_y= False, user_name='' ) )   
+        mov_sam(k)
+        # movy( 100 )
+        RE(measure_saxs(t=1, att="None", move_y=False, user_name=""))
+        # movy( 100 )
+        # RE( measure_saxs( t = 10, att= 'None',  move_y= False, user_name='' ) )
 
 
-def measure_waxs_loop_sample( t = 1.0, att='None', move_y=False, user_name='',  
-                              saxs_on = False,   waxs_angles = [ 0. ,  6.5, 13. ]  , inverse_angle = False   ): 
-    
-    #waxs_angles = np.linspace(0, 65, 11)   #the max range
-     #waxs_angles =   np.linspace(0, 65, 11),
-    #[ 0. ,  6.5, 13. , 19.5]
-    ks = list( sample_dict.keys() )  #[4:]      
-    waxs_angle_array = np.array( waxs_angles )
-    dets = [  pil300KW ]  
-    max_waxs_angle = np.max(  waxs_angle_array )  
+def measure_waxs_loop_sample(
+    t=1.0,
+    att="None",
+    move_y=False,
+    user_name="",
+    saxs_on=False,
+    waxs_angles=[0.0, 6.5, 13.0],
+    inverse_angle=False,
+):
+
+    # waxs_angles = np.linspace(0, 65, 11)   #the max range
+    # waxs_angles =   np.linspace(0, 65, 11),
+    # [ 0. ,  6.5, 13. , 19.5]
+    ks = list(sample_dict.keys())  # [4:]
+    waxs_angle_array = np.array(waxs_angles)
+    dets = [pil300KW]
+    max_waxs_angle = np.max(waxs_angle_array)
 
     for waxs_angle in waxs_angle_array:
-        yield from bps.mv(waxs, waxs_angle)  
+        yield from bps.mv(waxs, waxs_angle)
         for pos in ks:
-            #mov_sam( k )    
-            px,py = pxy_dict[ pos ]
+            # mov_sam( k )
+            px, py = pxy_dict[pos]
 
-            #py += 300
+            # py += 300
 
-
-            print( px, py )
-            yield from  bps.mv(piezo.x, px)  
-            yield from  bps.mv(piezo.y, py) 
-            sample = sample_dict[pos]  
-            print('Move to pos=%s for sample:%s...'%(pos, sample ))
-            RE.md['sample']  = sample             
-            sample = RE.md['sample']
-            name_fmt = '{sample}_x{x_pos:05.2f}_y{y_pos:05.2f}_z{z_pos:05.2f}_waxs{waxs_angle:05.2f}_expt{expt}s_sid{scan_id:08d}'          
-            sample_name = name_fmt.format(sample=sample, x_pos=piezo.x.position, y_pos=piezo.y.position, z_pos=piezo.z.position,
-                                      waxs_angle=waxs_angle, expt= t,  scan_id=RE.md['scan_id'])   
-            print( sample_name )
+            print(px, py)
+            yield from bps.mv(piezo.x, px)
+            yield from bps.mv(piezo.y, py)
+            sample = sample_dict[pos]
+            print("Move to pos=%s for sample:%s..." % (pos, sample))
+            RE.md["sample"] = sample
+            sample = RE.md["sample"]
+            name_fmt = "{sample}_x{x_pos:05.2f}_y{y_pos:05.2f}_z{z_pos:05.2f}_waxs{waxs_angle:05.2f}_expt{expt}s_sid{scan_id:08d}"
+            sample_name = name_fmt.format(
+                sample=sample,
+                x_pos=piezo.x.position,
+                y_pos=piezo.y.position,
+                z_pos=piezo.z.position,
+                waxs_angle=waxs_angle,
+                expt=t,
+                scan_id=RE.md["scan_id"],
+            )
+            print(sample_name)
             if saxs_on:
                 if waxs_angle == max_waxs_angle:
-                    dets = [ pil1M, pil300KW ] # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]                
+                    dets = [
+                        pil1M,
+                        pil300KW,
+                    ]  # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]
                 else:
-                    dets=  [  pil300KW ] 
+                    dets = [pil300KW]
             if move_y:
-                yield from bps.mvr(piezo.y, 100  )
-            det_exposure_time( t, t )  
-            sample_id(user_name=user_name, sample_name=sample_name ) 
-            print(f'\n\t=== Sample: {sample_name} ===\n')
-            #yield from bp.scan(dets, waxs, *waxs_arc)
-            yield from bp.count(dets, num=1)        
-    sample_id(user_name='test', sample_name='test')
-    det_exposure_time(0.5) 
-    
-
+                yield from bps.mvr(piezo.y, 100)
+            det_exposure_time(t, t)
+            sample_id(user_name=user_name, sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+            # yield from bp.scan(dets, waxs, *waxs_arc)
+            yield from bp.count(dets, num=1)
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5)

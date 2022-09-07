@@ -9,15 +9,15 @@ def saxs_waxs_Shejla(t=1):
     # x = [-34500, -15000,  4000, 24000, 43500]
     # y = [ -2000,  -2500, -2500, -1500, -2000]
     # z = [  2700,   2700,  2700,  2700,  2700]
-    
-    names = ['DHH2_rehyd',  'HHH2_rehyd']
+
+    names = ["DHH2_rehyd", "HHH2_rehyd"]
     x = [-33000, 25500]
-    y = [ 0, -1000]
-    z = [  2700,   2700]
+    y = [0, -1000]
+    z = [2700, 2700]
 
     for wa in waxs_arc:
-        yield from bps.mv(waxs, wa)    
-        
+        yield from bps.mv(waxs, wa)
+
         for name, xs, ys, zs in zip(names, x, y, z):
             yield from bps.mv(piezo.x, xs)
             yield from bps.mv(piezo.y, ys)
@@ -29,15 +29,13 @@ def saxs_waxs_Shejla(t=1):
             yss = yss.ravel()
             xss = xss.ravel()
 
-            det_exposure_time(t,t) 
-            name_fmt = '{sample}_16100eV_sdd8.3_wa{wax}'
-            sample_name = name_fmt.format(sample=name, wax = wa)
-            sample_id(user_name='GF', sample_name=sample_name)
-            print(f'\n\t=== Sample: {sample_name} ===\n')
-            yield from bp.list_scan(dets, piezo.x, xss.tolist() , piezo.y, yss.tolist())
+            det_exposure_time(t, t)
+            name_fmt = "{sample}_16100eV_sdd8.3_wa{wax}"
+            sample_name = name_fmt.format(sample=name, wax=wa)
+            sample_id(user_name="GF", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+            yield from bp.list_scan(dets, piezo.x, xss.tolist(), piezo.y, yss.tolist())
 
-
-    
     # yield from bps.mv(stage.th, 1.5)
     # yield from bps.mv(stage.y, -10)
     # names = ['HHH3_2', 'Blank_water_2', 'Bkg_dry_2', 'DHH-Wet_2', 'HHH-Wet_2']
@@ -46,8 +44,8 @@ def saxs_waxs_Shejla(t=1):
     # z = [15800, 15800, 15800,  15800,  15800]
 
     # for wa in waxs_arc:
-    #     yield from bps.mv(waxs, wa)    
-        
+    #     yield from bps.mv(waxs, wa)
+
     #     for name, xs, ys, zs in zip(names, x, y, z):
     #         yield from bps.mv(piezo.x, xs)
     #         yield from bps.mv(piezo.y, ys)
@@ -59,7 +57,7 @@ def saxs_waxs_Shejla(t=1):
     #         yss = yss.ravel()
     #         xss = xss.ravel()
 
-    #         det_exposure_time(t,t) 
+    #         det_exposure_time(t,t)
     #         name_fmt = '{sample}_16100eV_sdd8.3_wa{wax}'
     #         sample_name = name_fmt.format(sample=name, wax = wa)
     #         sample_id(user_name='GF', sample_name=sample_name)
