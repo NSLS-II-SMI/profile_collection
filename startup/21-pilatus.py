@@ -256,7 +256,9 @@ pil900KW.set_primary_roi(1)
 
 pil900KW.tiff.write_path_template = (
     pil900KW.tiff.read_path_template
-) = "/nsls2/xf12id2/data/1M/images/%Y/%m/%d/"
+# ) = "/nsls2/xf12id2/data/900KW/images/%Y/%m/%d/"
+) = "/nsls2/data/smi/legacy/results/raw/900KW/images/%Y/%m/%d/"
+
 # pil900KW.tiff.write_path_template = pil900KW.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/900KW/%Y/%m/%d/'
 
 pil900kwroi1 = EpicsSignal(

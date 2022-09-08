@@ -332,6 +332,8 @@ def symlink_factory_factory(target_path, det_map=None):
 
 
 rr = RunRouter(
-    [factory, symlink_factory_factory("/nsls2/data/smi/legacy/results/data")]
+    [factory, 
+    # symlink_factory_factory("/nsls2/data/smi/legacy/results/data"),
+    ]
 )
 RE.subscribe(rr)  # noqa F821
