@@ -12,16 +12,6 @@ def sample_id(*, user_name, sample_name, tray_number=None):
     RE.md["sample_name"] = sample_name
     fname = f"{user_name}_{sample_name}"
 
-    # DIRTY HACK, do not copy
-    pil1M.cam.file_name.put(fname)
-    pil1M.cam.file_number.put(1)
-    pil300KW.cam.file_name.put(fname)
-    pil300KW.cam.file_number.put(1)
-    pil900KW.cam.file_name.put(fname)
-    pil900KW.cam.file_number.put(1)
-    # rayonix.cam.file_name.put(fname)
-    # rayonix.cam.file_number.put(1)
-
 
 def proposal_id(cycle_id, proposal_id):
     RE.md["cycle"] = cycle_id

@@ -7,6 +7,11 @@ import numpy as np
 import pandas as pd
 from event_model import RunRouter
 
+from pathlib import Path
+import event_model
+import tqdm
+
+
 logger = logging.getLogger("bluesky")
 logger.setLevel("INFO")
 
@@ -111,5 +116,210 @@ def factory(name, doc):
     return [dc, export_on_stop], []
 
 
-rr = RunRouter([factory])
+def get_symlink_pairs(target_path, *, det_map, root_map=None):
+    """
+    Coroutine to sort out what to link to what.
+
+    Parameters
+    ----------
+    target_path : Path
+        The base directory to put the symlinks in.  They will be further nested.
+
+    det_map : dict[str, str]
+        A dictionaly mapping the detector name (1M, 900KW) to the type of measurement (SAXS, WAXS)
+    root_map : dict[str, str], optional
+        A mapping of root in the resource document -> a new path as in databroker
+
+    Sends
+    -----
+    name, doc : str, Document
+        The standard event model input!
+
+    Returns
+    -------
+    list[tuple[str, Path, Path]]
+         A tuple of the start uid, the source path and the destination path.
+    """
+    if root_map is None:
+        root_map = {}
+    links = []
+    target_template: str
+    output_path: str
+    resource_info = {}
+    datum_info = {}
+    target_keys = set()
+    while True:
+        inp = yield
+        if inp is None:
+            break
+        name, doc = inp
+        if name == "start":
+            start_uid = doc["uid"]
+            output_path = Path(*Path(doc["path"]).parts[-2:])
+            target_template = f'{output_path}/{{det_name}}/{doc["user_name"]}_{doc["sample_name"]}_{{N:06d}}_{{det_type}}.tif'
+
+        elif name == "resource":
+            # we only handle AD TIFF
+            if doc["spec"] != "AD_TIFF":
+                continue
+            doc_root = doc["root"]
+            resource_info[doc["uid"]] = {
+                "path": Path(root_map.get(doc_root, doc_root)) / doc["resource_path"],
+                "kwargs": doc["resource_kwargs"],
+            }
+        elif "datum" in name:
+            if name == "datum":
+                doc = event_model.pack_datum_page(doc)
+
+            for datum_uid, point_number in zip(
+                doc["datum_id"], doc["datum_kwargs"]["point_number"]
+            ):
+                datum_info[datum_uid] = (
+                    resource_info[doc["resource"]],
+                    point_number,
+                )
+        elif name == "descriptor":
+            for k, v in doc["data_keys"].items():
+                if "external" in v:
+                    target_keys.add(k)
+        elif "event" in name:
+            if name == "event":
+                doc = event_model.pack_event_page(doc)
+            for key in target_keys:
+                det, _, _ = key.partition("_")
+                det_name = det[3:]
+                det_type = det_map[det_name]
+
+                if key not in doc["data"]:
+                    continue
+                for datum_id in doc["data"][key]:
+                    resource_vals, point_number = datum_info[datum_id]
+                    orig_template = resource_vals["kwargs"]["template"]
+                    assert resource_vals["kwargs"]["frame_per_point"] == 1
+                    base_fname = resource_vals["kwargs"]["filename"]
+                    source_path = Path(
+                        orig_template
+                        % (str(resource_vals["path"]) + "/", base_fname, point_number)
+                    )
+                    dest_path = target_path / target_template.format(
+                        det_name=det_name, N=point_number + 1, det_type=det_type
+                    )
+                    links.append((start_uid, source_path, dest_path))
+        elif name == "stop":
+            break
+
+    return links
+
+
+def get_all_symlinks(headers, target_path, det_map=None):
+    """
+    Get the symlinks for all of the headers in a catalog.
+
+    Parameters
+    ----------
+    headers : Catalog
+        Needs to support ``obj.values_inedxer``
+    target_path : Path
+        The base path for the symlinks
+
+    det_map : dict[str, str], optional
+        A dictionaly mapping the detector name (1M, 900KW) to the type of measurement (SAXS, WAXS)
+
+    Returns
+    -------
+    list[tuple[str, Path, Path]]
+         A tuple of the start uid, the source path and the destination path.
+    """
+    if det_map is None:
+        det_map = {"900KW": "WAXS", "1M": "SAXS"}
+    links = []
+    for h in tqdm.tqdm(headers.values_indexer):
+
+        gen = get_symlink_pairs(Path(target_path), det_map=det_map)
+        gen.send(None)
+        try:
+            for name, doc in h.documents():
+                gen.send((name, doc))
+        except StopIteration as ex:
+            links.extend(ex.value)
+    return links
+
+
+def do_symlinking(
+    links: list[tuple[str, Path, Path]]
+) -> tuple[list[tuple[str, Path, Path]], list[tuple[str, Path, Path]]]:
+    """
+    Create the symlinks, making target directories as needed.
+
+    Paramaters
+    ----------
+    links : list of (uid, src, dest) tuples
+        The uid, source file and destination files
+
+    Returns
+    -------
+    linked, failed : list of (uid, src, dest) tuples
+        The linked (or failed) values.
+    """
+    failed = []
+    linked = []
+    for uid, src, dest in tqdm.tqdm(links, leave=False):
+        if not src.exists():
+            failed.append((uid, src, dest))
+        try:
+            dest.parent.mkdir(exist_ok=True, parents=True)
+            dest.symlink_to(src)
+        except Exception:
+            failed.append((uid, src, dest))
+        else:
+            linked.append((uid, src, dest))
+    return linked, failed
+
+
+def symlink_factory_factory(target_path, det_map=None):
+    """
+    Build a factory to pass to RunRouter bound to the taregt path
+
+    Parameters
+    ----------
+    target_path : Path
+        The base directory to put the symlinks in.  They will be further nested.
+
+    det_map : dict[str, str]
+        A dictionaly mapping the detector name (1M, 900KW) to the type of measurement (SAXS, WAXS)
+
+    Returns
+    -------
+    factory
+        A function that matches the signature for the input to RunRouter
+    """
+    if det_map is None:
+        det_map = {"900KW": "WAXS", "1M": "SAXS"}
+
+    def symlink_factory(name, doc):
+        """
+        Set up a callback per run start.
+        """
+        gen = get_symlink_pairs(Path(target_path), det_map=det_map)
+        gen.send(None)  # Prime the pump
+
+        def symlink_callback(name, doc):
+            """
+            The actual callback that will see the documents
+            """
+            try:
+                gen.send((name, doc))
+            except StopIteration as ex:
+                _, failed = do_symlinking(ex.value)
+                if len(failed):
+                    raise Exception("failed to link some files", failed)
+
+        return [symlink_callback], []
+
+    return symlink_factory
+
+
+rr = RunRouter(
+    [factory, symlink_factory_factory("/nsls2/data/smi/legacy/results/data")]
+)
 RE.subscribe(rr)  # noqa F821
