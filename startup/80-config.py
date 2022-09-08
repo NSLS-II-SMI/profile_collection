@@ -86,30 +86,19 @@ def proposal_id(cycle_id, proposal_id):
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-    newDir = "/nsls2/xf12id2/analysis/" + str(cycle_id) + "/" + str(proposal_id)
-    # newDir = "/nsls2/data/smi/legacy/results/analysis/" + str(cycle_id) + "/" + str(proposal_id)
+    # newDir = "/nsls2/xf12id2/analysis/" + str(cycle_id) + "/" + str(proposal_id)
+    newDir = (
+        "/nsls2/data/smi/legacy/results/analysis/"
+        + str(cycle_id)
+        + "/"
+        + str(proposal_id)
+    )
 
     try:
         os.stat(newDir)
     except FileNotFoundError:
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
-
-    pil1M.cam.file_path.put(
-        f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/1M"
-    )
-    pil900KW.cam.file_path.put(
-        f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/900KW"
-    )
-    pil300KW.cam.file_path.put(
-        f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/300KW"
-    )
-    # rayonix.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/MAXS")
-
-    # pil1M.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/1M")
-    # pil900KW.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/900KW")
-    # pil300KW.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/300KW")
-    # rayonix.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/MAXS")
 
 
 def beamline_mode(mode=None):
