@@ -246,7 +246,8 @@ def get_all_symlinks(headers, target_path, det_map=None):
 
 
 def do_symlinking(
-    links: list[tuple[str, Path, Path]]
+    links: list[tuple[str, Path, Path]],
+    overwrite_dest=False,
 ) -> tuple[list[tuple[str, Path, Path]], list[tuple[str, Path, Path]]]:
     """
     Create the symlinks, making target directories as needed.
@@ -255,6 +256,9 @@ def do_symlinking(
     ----------
     links : list of (uid, src, dest) tuples
         The uid, source file and destination files
+
+    overwrite_dest : bool, optional
+        If an existing destitation should be unlinked and replaced.
 
     Returns
     -------
@@ -266,8 +270,11 @@ def do_symlinking(
     for uid, src, dest in tqdm.tqdm(links, leave=False):
         if not src.exists():
             failed.append((uid, src, dest))
+            continue
         try:
             dest.parent.mkdir(exist_ok=True, parents=True)
+            if overwrite_dest and dest.exists():
+                dest.unlink()
             dest.symlink_to(src)
         except Exception:
             failed.append((uid, src, dest))
@@ -310,7 +317,12 @@ def symlink_factory_factory(target_path, det_map=None):
             try:
                 gen.send((name, doc))
             except StopIteration as ex:
-                _, failed = do_symlinking(ex.value)
+                _, failed = do_symlinking(
+                    # The list of files we need to link
+                    ex.value,
+                    # YOLO
+                    overwrite_dest=True,
+                )
                 if len(failed):
                     raise Exception("failed to link some files", failed)
 
