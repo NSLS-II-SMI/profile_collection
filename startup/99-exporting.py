@@ -212,8 +212,14 @@ def get_symlink_pairs(target_path, *, det_map, root_map=None):
 
 
 def do_single_header_symlinks(
-    header, target_path, *, overwrite_dest=False, det_map=None
+    header,
+    target_path=Path("/nsls2/data/smi/legacy/results/data"),
+    *,
+    overwrite_dest=False,
+    det_map=None,
 ):
+    if det_map is None:
+        det_map = {"900KW": "WAXS", "1M": "SAXS"}
     gen = get_symlink_pairs(Path(target_path), det_map=det_map)
     gen.send(None)
     try:
@@ -345,10 +351,10 @@ def symlink_factory_factory(target_path, det_map=None):
     return symlink_factory
 
 
-rr = RunRouter(
-    [
-        factory,
-        # symlink_factory_factory("/nsls2/data/smi/legacy/results/data"),
-    ]
-)
-RE.subscribe(rr)  # noqa F821
+# rr = RunRouter(
+#    [
+#        factory,
+#        # symlink_factory_factory("/nsls2/data/smi/legacy/results/data"),
+#    ]
+# )
+# RE.subscribe(rr)  # noqa F821
