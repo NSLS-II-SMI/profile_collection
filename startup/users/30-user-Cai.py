@@ -1077,6 +1077,7 @@ def cai_transmission_hard__2022_2(t=1):
             )
             sample_id(user_name=user_name, sample_name=sample_name)
             print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            # yield from bp.count(dets + [energy], md={'smi_md':{'energy': e, 'wax': wa, 'sdd': sdd}})
             yield from bp.count(dets)
 
     sample_id(user_name="test", sample_name="test")
