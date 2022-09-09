@@ -1,10 +1,20 @@
 print(f"Loading {__file__}")
 
+from genericpath import exists
 from ophyd import EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt
 import os
 
 # things to read at begining and end of every scan
 sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring.current]
+
+from pathlib import Path
+
+def manual_mode(target_path, file_name, *, base_path=Path('/nsls2/data/smi/legacy/results/data')):
+    path = base_path / RE.md["cycle"] / f'{RE.md["proposal_number"]}_{RE.md["main_proposer"]}' / target_path
+    (path / '900KW').mkdir(exist_ok=True, parents=True)
+    pil900KW.tiff.file_name.set(file_name).wait()
+    pil900KW.tiff.file_path.set(str(path / '900KW')).wait()
+    pil900KW.tiff.file_number.set(0).wait()
 
 
 def sample_id(*, user_name, sample_name, tray_number=None):
@@ -325,7 +335,7 @@ def move_new_config(mode_name):
         print("Are you sure you really want to move to %s configuration?" % mode_name)
         response = input("    Are you sure? (y/[n]) ")
 
-        if response is "y" or response is "Y":
+        if response == "y" or response == "Y":
 
             feedback("off")
 
