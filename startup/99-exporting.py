@@ -211,6 +211,20 @@ def get_symlink_pairs(target_path, *, det_map, root_map=None):
     return links
 
 
+def do_single_header_symlinks(
+    header, target_path, *, overwrite_dest=False, det_map=None
+):
+    gen = get_symlink_pairs(Path(target_path), det_map=det_map)
+    gen.send(None)
+    try:
+        for name, doc in header.documents():
+            gen.send((name, doc))
+    except StopIteration as ex:
+        links = ex.value
+
+    return do_symlinking(links, overwrite_dest=overwrite_dest)
+
+
 def get_all_symlinks(headers, target_path, det_map=None):
     """
     Get the symlinks for all of the headers in a catalog.
@@ -332,8 +346,9 @@ def symlink_factory_factory(target_path, det_map=None):
 
 
 rr = RunRouter(
-    [factory, 
-    # symlink_factory_factory("/nsls2/data/smi/legacy/results/data"),
+    [
+        factory,
+        # symlink_factory_factory("/nsls2/data/smi/legacy/results/data"),
     ]
 )
 RE.subscribe(rr)  # noqa F821
