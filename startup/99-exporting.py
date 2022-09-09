@@ -156,7 +156,8 @@ def get_symlink_pairs(target_path, *, det_map, root_map=None):
         if name == "start":
             start_uid = doc["uid"]
             output_path = Path(*Path(doc["path"]).parts[-2:])
-            target_template = f'{output_path}/{{det_name}}/{doc["user_name"]}_{doc["sample_name"]}_{{N:06d}}_{{det_type}}.tif'
+
+            target_template = f'{output_path}/{{det_name}}/{doc["user_name"]}_{doc["sample_name"]}_id{doc["scan_id"]}_{{N:06d}}_{{det_type}}.tif'
 
         elif name == "resource":
             # we only handle AD TIFF
@@ -351,10 +352,10 @@ def symlink_factory_factory(target_path, det_map=None):
     return symlink_factory
 
 
-# rr = RunRouter(
-#    [
-#        factory,
-#        # symlink_factory_factory("/nsls2/data/smi/legacy/results/data"),
-#    ]
-# )
-# RE.subscribe(rr)  # noqa F821
+rr = RunRouter(
+   [
+       factory,
+       symlink_factory_factory("/nsls2/data/smi/legacy/results/data"),
+    ]
+)
+export_cid = RE.subscribe(rr)  # noqa F821
