@@ -212,7 +212,7 @@ pil1M.set_primary_roi(1)
 
 pil1M.tiff.write_path_template = (
     pil1M.tiff.read_path_template
-) = "/nsls2/xf12id2/data/1M/images/%Y/%m/%d/"
+) = "/nsls2/data/smi/legacy/results/raw/1M/%Y/%m/%d/"
 # pil1M.tiff.write_path_template = pil1M.tiff.read_path_template = '/nsls2/data/smi/assets/default/%Y/%m/%d/'
 
 # pil1M.tiff.write_path_template = pil1M.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/1M/%Y/%m/%d/'
