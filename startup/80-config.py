@@ -11,13 +11,12 @@ from pathlib import Path
 
 
 def manual_mode(
-    target_path, file_name, *, base_path=Path("/nsls2/data/smi/legacy/results/data")
+     file_name, *, base_path=Path("/nsls2/data/smi/legacy/results/data")
 ):
     path = (
         base_path
         / RE.md["cycle"]
         / f'{RE.md["proposal_number"]}_{RE.md["main_proposer"]}'
-        / target_path
     )
     (path / "900KW").mkdir(exist_ok=True, parents=True)
     pil900KW.tiff.file_name.set(file_name).wait()
