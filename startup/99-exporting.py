@@ -203,7 +203,7 @@ def get_symlink_pairs(target_path, *, det_map, root_map=None):
                         % (str(resource_vals["path"]) + "/", base_fname, point_number)
                     )
                     dest_path = target_path / target_template.format(
-                        det_name=det_name, N=point_number + 1, det_type=det_type
+                        det_name=det_name, N=point_number, det_type=det_type
                     )
                     links.append((start_uid, source_path, dest_path))
         elif name == "stop":
