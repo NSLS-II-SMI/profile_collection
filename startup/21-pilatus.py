@@ -243,6 +243,8 @@ pil1mroi4 = EpicsSignal("XF:12IDC-ES:2{Det:1M}Stats4:Total_RBV", name="pil1mroi4
 pil1M.stats1.kind = "hinted"
 pil1M.stats1.total.kind = "hinted"
 pil1M.cam.num_images.kind = "config"
+pil1M.cam.kind = 'normal'
+pil1M.cam.file_number.kind = 'normal'
 pil1M.cam.ensure_nonblocking()
 
 
@@ -318,6 +320,8 @@ pil900kwroi1 = EpicsSignal(
 pil900KW.stats1.kind = "hinted"
 pil900KW.stats1.total.kind = "hinted"
 pil900KW.cam.num_images.kind = "config"
+pil900KW.cam.kind = 'normal'
+pil900KW.cam.file_number.kind = 'normal'
 pil900KW.cam.ensure_nonblocking()
 
 
