@@ -61,6 +61,10 @@ class PilatusDetector(PilatusDetector):
 
 
 class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__stage_cache = {}
+
     def describe(self):
         ret = super().describe()
         key = self.parent._image_name
@@ -83,6 +87,20 @@ class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
             ret[key].setdefault('dtype_str', type_map[cam_dtype])
 
 
+        return ret
+
+    def stage(self):
+        self.__stage_cache['file_path'] = self.file_path.get()
+        self.__stage_cache['file_name'] = self.file_name.get()
+        self.__stage_cache['next_file_num'] = self.file_number.get()
+        return super().stage()
+
+    def unstage(self):
+
+        ret = super().unstage()
+        self.file_path.set(self.__stage_cache['file_path']).wait()
+        self.file_name.set(self.__stage_cache['file_name']).wait()
+        self.file_number.set(self.__stage_cache['next_file_num']).wait()
         return ret
 
 
