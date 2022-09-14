@@ -243,33 +243,33 @@ for detpos in [pil1m_pos]:
 #####################################################
 # Pilatus 300kw definition
 
-pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW")  # , detector_id="WAXS")
-pil300KW.set_primary_roi(1)
+# pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW")  # , detector_id="WAXS")
+# pil300KW.set_primary_roi(1)
 
 
-pil300KW.tiff.write_path_template = (
-    pil300KW.tiff.read_path_template
-) = "/nsls2/xf12id2/data/300KW/images/%Y/%m/%d/"
-# pil300KW.tiff.write_path_template = pil300KW.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/300KW/%Y/%m/%d/'
+# pil300KW.tiff.write_path_template = (
+#     pil300KW.tiff.read_path_template
+# ) = "/nsls2/xf12id2/data/300KW/images/%Y/%m/%d/"
+# # pil300KW.tiff.write_path_template = pil300KW.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/300KW/%Y/%m/%d/'
 
-pil300kwroi1 = EpicsSignal(
-    "XF:12IDC-ES:2{Det:300KW}Stats1:Total_RBV", name="pil300kwroi1"
-)
-pil300kwroi2 = EpicsSignal(
-    "XF:12IDC-ES:2{Det:300KW}Stats2:Total_RBV", name="pil300kwroi2"
-)
-pil300kwroi3 = EpicsSignal(
-    "XF:12IDC-ES:2{Det:300KW}Stats3:Total_RBV", name="pil300kwroi3"
-)
-pil300kwroi4 = EpicsSignal(
-    "XF:12IDC-ES:2{Det:300KW}Stats4:Total_RBV", name="pil300kwroi4"
-)
+# pil300kwroi1 = EpicsSignal(
+#     "XF:12IDC-ES:2{Det:300KW}Stats1:Total_RBV", name="pil300kwroi1"
+# )
+# pil300kwroi2 = EpicsSignal(
+#     "XF:12IDC-ES:2{Det:300KW}Stats2:Total_RBV", name="pil300kwroi2"
+# )
+# pil300kwroi3 = EpicsSignal(
+#     "XF:12IDC-ES:2{Det:300KW}Stats3:Total_RBV", name="pil300kwroi3"
+# )
+# pil300kwroi4 = EpicsSignal(
+#     "XF:12IDC-ES:2{Det:300KW}Stats4:Total_RBV", name="pil300kwroi4"
+# )
 
-pil300KW.stats1.kind = "hinted"
-pil300KW.stats1.total.kind = "hinted"
-pil300KW.cam.num_images.kind = "config"
-pil300KW.cam.ensure_nonblocking()
-
+# pil300KW.stats1.kind = "hinted"
+# pil300KW.stats1.total.kind = "hinted"
+# pil300KW.cam.num_images.kind = "config"
+# pil300KW.cam.ensure_nonblocking()
+pil300KW = None
 
 #####################################################
 # Pilatus 900KW definition
