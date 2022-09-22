@@ -180,9 +180,10 @@ def det_exposure_time(exp_t, meas_t=1):
     pil1M.cam.acquire_time.put(exp_t)
     pil1M.cam.acquire_period.put(exp_t + 0.001)
     pil1M.cam.num_images.put(int(meas_t / exp_t))
-    pil300KW.cam.acquire_time.put(exp_t)
-    pil300KW.cam.acquire_period.put(exp_t + 0.001)
-    pil300KW.cam.num_images.put(int(meas_t / exp_t))
+    if pil300KW is not None:
+        pil300KW.cam.acquire_time.put(exp_t)
+        pil300KW.cam.acquire_period.put(exp_t + 0.001)
+        pil300KW.cam.num_images.put(int(meas_t / exp_t))
     pil900KW.cam.acquire_time.put(exp_t)
     pil900KW.cam.acquire_period.put(exp_t + 0.001)
     pil900KW.cam.num_images.put(int(meas_t / exp_t))
@@ -199,7 +200,9 @@ def det_exposure_time(exp_t, meas_t=1):
 
 def det_next_file(n):
     pil1M.cam.file_number.put(n)
-    pil300KW.cam.file_number.put(n)
+    pil900KW.cam.file_number.put(n)
+    if pil300KW is not None:
+        pil300KW.cam.file_number.put(n)
     # rayonix.cam.file_number.put(n)
 
 
