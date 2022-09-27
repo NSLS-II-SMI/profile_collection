@@ -698,18 +698,23 @@ def swaxs_S_edge_Gregory_2022_3(t=0.5):
     # x and y are top center position on the sample (b/c we scan down the sample during measurements)
 
     # bar one - gatech samples (all but two of them)
-    names_toprow = ['PS', 'FeCl3', 'hT', 'hT-400', 'hT-25', 'hT-6', 'hTe', 'hTe-400', 'hTe-25', 'hTe-6', 'hTe-1.5', 'hB', 'hB-400', 'hB-25', 'hB-6', 'hB-1.5', 'mT']
-    x_toprow = [ 42550, 37050, 31750, 26450, 20950, 15650, 10550, 5400, 250, -4800, -10150, -15350, -20550, -25850, -31100, -36100, -41600 ]
-    y_toprow = [ -9415, -9114, -9015, -9015, -8865, -8965, -8665, -8565, -8615, -8265, -8165, -8265, -8265, -8115, -8135, -7855, -8455 ]
+    #names_toprow = ['PS', 'FeCl3', 'hT', 'hT-400', 'hT-25', 'hT-6', 'hTe', 'hTe-400', 'hTe-25', 'hTe-6', 'hTe-1.5', 'hB', 'hB-400', 'hB-25', 'hB-6', 'hB-1.5', 'mT']
+    #x_toprow = [ 42550, 37050, 31750, 26450, 20950, 15650, 10550, 5400, 250, -4800, -10150, -15350, -20550, -25850, -31100, -36100, -41600 ]
+    #y_toprow = [ -9415, -9114, -9015, -9015, -8865, -8965, -8665, -8565, -8615, -8265, -8165, -8265, -8265, -8115, -8135, -7855, -8455 ]
+    #names_botrow = ['mT-400', 'mT-25', 'mT-6', 'mTe', 'mTe-400', 'mTe-25', 'mTe-6', 'mTe-1.5', 'mB', 'mB-400', 'mB-25', 'mB-6', 'mB-1.5', 'Co', 'Co-400', 'Co-25']
+    #x_botrow = [ 41950, 36450, 31350, 26100, 21050, 15750, 10500, 5400, 0, -5450, -11350, -16950, -22250, -28050, -33300, -39150 ]
+    #y_botrow = [ 3535, 3585, 3935, 4085, 4035, 4085, 3835, 3885, 3935, 4335, 4185, 4485, 4385, 4185, 4535, 4135 ]
+    #names = names_toprow + names_botrow
+    #x = x_toprow + x_botrow
+    #y = y_toprow + y_botrow
 
-    names_botrow = ['mT-400', 'mT-25', 'mT-6', 'mTe', 'mTe-400', 'mTe-25', 'mTe-6', 'mTe-1.5', 'mB', 'mB-400', 'mB-25', 'mB-6', 'mB-1.5', 'Co', 'Co-400', 'Co-25']
-    x_botrow = [ 41950, 36450, 31350, 26100, 21050, 15750, 10500, 5400, 0, -5450, -11350, -16950, -22250, -28050, -33300, -39150 ]
-    y_botrow = [ 3535, 3585, 3935, 4085, 4035, 4085, 3835, 3885, 3935, 4335, 4185, 4485, 4385, 4185, 4535, 4135 ]
+    # bar two - two gatech samples, five nebraska samples, three gatech_rotated samples
+    names = ['Co-6', 'Co-1.5', 'nafion-unA', 'nafion-A', 'nafion-calix4-unA', 'nafion-calix6-unA', 'nafion-calix8-unA', 'hT-pos2', 'hTe-pos2', 'hB-pos2']
+    x = [ 38750, 33750, 19550, 13750, 8250, 2550, -2650, -14650, -20250, -25650 ]
+    y = [ -2671, -2871, -2971, -3071, -3071, -2971, -2971, -2821, -2921, -3071 ]
 
 
-    names = names_toprow + names_botrow
-    x = x_toprow + x_botrow
-    y = y_toprow + y_botrow
+
 
     # Move all x values by + xxx um to be at the centre in x --> not needed since we set positions to center of sample
     x = (np.array(x) + 0).tolist()
@@ -717,8 +722,9 @@ def swaxs_S_edge_Gregory_2022_3(t=0.5):
 
     # Energies for sulfur edge
     energies = (
-        np.arange(2448, 2478, 5).tolist()
-        + np.arange(2478, 2488, 0.25).tolist()
+        np.arange(2448, 2468, 5).tolist()
+        + np.arange(2468, 2473, 1).tolist()
+        + np.arange(2473, 2488, 0.25).tolist()
         + np.arange(2488, 2498, 1).tolist()
         + np.arange(2498, 2503, 5).tolist()
     )
@@ -728,8 +734,8 @@ def swaxs_S_edge_Gregory_2022_3(t=0.5):
     for name, xs, ys in zip(names, x, y):
         yield from bps.mv(piezo.x, xs, piezo.y, ys)
 
-        # Cover a range of 0.9 mm in y to avoid beam damage
-        yss = np.linspace(ys, ys + 900, len(energies))
+        # Cover a range of 0.8 mm in y to avoid beam damage
+        yss = np.linspace(ys, ys + 800, len(energies))
 
         # Stay at the same x position
         xss = np.array([xs])
