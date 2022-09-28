@@ -679,21 +679,7 @@ def swaxs_S_edge_Gregory_2022_3(t=0.5):
     """
     Based on waxs_S_edge_Gregory_2022_2.
     SAXS ssd 2.0 m.
-
-    names_gatech_35samples = ['PS', 'FeCl3',
-                    'hT', 'hT-400', 'hT-25', 'hT-6',
-                    'hTe', 'hTe-400', 'hTe-25', 'hTe-6', 'hTe-1.5',
-                    'hB', 'hB-400', 'hB-25', 'hB-6', 'hB-1.5',
-                    'mT', 'mT-400', 'mT-25', 'mT-6',
-                    'mTe', 'mTe-400', 'mTe-25', 'mTe-6', 'mTe-1.5',
-                    'mB', 'mB-400', 'mB-25', 'mB-6', 'mB-1.5',
-                    'Co', 'Co-400', 'Co-25', 'Co-6', 'Co-1.5' ]
-
-    names_dishari_11samples = [ 'nafion-unA', 'nafion-A', 'nafion-calix4-unA', 'nafion-calix6-unA', 'nafion-calix8-unA', 'calix4-unA', 'calix6-unA', 'calix8-unA', 'nafion-calix6-A', 'nafion-calix4-A', 'calix6-A' ]
-
     """
-
-
 
     # x and y are top center position on the sample (b/c we scan down the sample during measurements)
 
@@ -781,196 +767,227 @@ def swaxs_S_edge_Gregory_2022_3(t=0.5):
             yield from bps.mv(energy, 2450)
 
 
-def swaxs_Te_edge_Gregory_2022_3(t=0.35):
+def saxs_Ag_edge_Gregory_2022_3(t=0.2):
     """
-    Tellurium L edge TReXS, based on waxs_Te_edge_Gregory_2022_2.
-    SAXS ssd 1.6 m.
-
-
-    names_gatech_35samples = ['PS', 'FeCl3',
-                    'hT', 'hT-400', 'hT-25', 'hT-6',
-                    'hTe', 'hTe-400', 'hTe-25', 'hTe-6', 'hTe-1.5',
-                    'hB', 'hB-400', 'hB-25', 'hB-6', 'hB-1.5',
-                    'mT', 'mT-400', 'mT-25', 'mT-6',
-                    'mTe', 'mTe-400', 'mTe-25', 'mTe-6', 'mTe-1.5',
-                    'mB', 'mB-400', 'mB-25', 'mB-6', 'mB-1.5',
-                    'Co', 'Co-400', 'Co-25', 'Co-6', 'Co-1.5' ]
-
-
+    Based on swaxs_S_edge_Gregory_2022_3.
+    SAXS ssd 2.0 m.
     """
 
     # x and y are top center position on the sample (b/c we scan down the sample during measurements)
-    names_toprow = [ ]
-    x_toprow = [ ]
-    y_toprow = [ ]
+    #names_toprow = [ 'agnp0', 'agnp1', 'agnp2', 'agnp3', 'agnp4', 'agnp5', 'agnp6', 'agnp7', 'agnp8']
+    #x_toprow = [ 42550, 32050, 20550, 10050, -950, -10950, -21950, -32450, -41950 ]
+    #y_toprow = [ -9215, -9215, -9215, -9215, -8615, -8615, -8615, -8615, -8415 ]
 
-    names_botrow = [ ]
-    x_botrow = [ ]
-    y_botrow = [ ]
+    #names_botrow = [ 'agnp9', 'agnp10', 'davenport1', 'davenport2', 'davenport3', 'davenport4', 'cal-AgB']
+    #x_botrow = [ 41550, 31550, 16350, 4350, -8150, -22350, -40850 ]
+    #y_botrow = [ 3400, 3400, 3600, 4000, 3800, 4200, 4200 ]
 
-    names = names_toprow + names_botrow
-    x = x_toprow + x_botrow
-    y = y_toprow + y_botrow
+    #names = names_toprow + names_botrow
+    #x = x_toprow + x_botrow
+    #y = y_toprow + y_botrow
 
-    # Move all x values by + xxx um to be at the centre in x
-    x = (np.array(x) + 0).tolist()
-    y = (np.array(y) + 0).tolist()
+    # Remove the last sample (cal-AgB)
+    #names = names[:-1]
+    #x = x[:-1]
+    #y = y[:-1]
 
-    # Energies for Tellurium
-    energies = (
-        np.arange(4320, 4345, 5).tolist()
-        + np.arange(4345, 4350, 2.5).tolist()
-        + np.arange(4350, 4360, 0.4).tolist()
-        + np.arange(4360, 4380, 2).tolist()
-        + np.arange(4380, 4400, 5).tolist()
-    )
-
-    waxs_arc = np.linspace(7, 67, 4)
-
-    for name, xs, ys in zip(names, x, y):
-        yield from bps.mv(piezo.x, xs, piezo.y, ys)
-
-        # Cover a range of 0.9 mm in y to avoid damage
-        yss = np.linspace(ys, ys + 900, len(energies))
-
-        # Stay at the same x position
-        xss = np.array([xs])
-
-        yss, xss = np.meshgrid(yss, xss)
-        yss = yss.ravel()
-        xss = xss.ravel()
-
-        for wa in waxs_arc:
-            yield from bps.mv(waxs, wa)
-            yield from bps.mvr(piezo.x, 60)
-
-            # Do not read SAXS if WAXS is in the way
-            dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
-
-            det_exposure_time(t, t)
-
-            name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m_bpm{xbpm}"
-            for e, xsss, ysss in zip(energies, xss, yss):
-                yield from bps.mv(energy, e)
-                yield from bps.sleep(2)
-
-                yield from bps.mv(piezo.y, ysss)
-                # yield from bps.mv(piezo.x, xsss)
-
-                bpm = xbpm3.sumX.get()
-                sdd = pil1m_pos.z.position / 1000
-
-                sample_name = name_fmt.format(
-                    sample=name,
-                    energy="%6.2f" % e,
-                    wax=str(wa).zfill(4),
-                    sdd="%.1f" % sdd,
-                    xbpm="%4.3f" % bpm,
-                )
-                sample_id(user_name="ML", sample_name=sample_name)
-                print(f"\n\t=== Sample: {sample_name} ===\n")
-
-                yield from bp.count(dets, num=1)
-
-            # Go back gently with energy
-            yield from bps.mv(energy, 4375)
-            yield from bps.mv(energy, 4350)
-            yield from bps.mv(energy, 4320)
-
-def swaxs_Ag_edge_Katz_2022_3(t=0.2):
-    """
-    Silver L3 edge TReXS, based on waxs_Te_edge_Gregory_2022_2.
-    SAXS ssd 1.6 m.
-
-
-    samples_mostafa_15samples = [ 'agnp1', 'agnp2', 'agnp3', 'agnp4', 'agnp5',
-                                'agnp6', 'agnp7', 'agnp8', 'agnp9', 'agnp10',
-                                'agnp11', 'agnp12', 'agnp13', 'agnp14', 'agnp15' ]
-
-    samples_davenport_6samples = ['s1', 's2', 's3', 's4', 's5', 's6']
-
-    """
-
-
-
-    # x and y are top center position on the sample (b/c we scan down the sample during measurements)
-    names_toprow = [ ]
-    x_toprow = [ ]
-    y_toprow = [ ]
-
-    names_botrow = [ ]
-    x_botrow = [ ]
-    y_botrow = [ ]
-
-    names = names_toprow + names_botrow
-    x = x_toprow + x_botrow
-    y = y_toprow + y_botrow
-
-    # Move all x values by + xxx um to be at the centre in x
-    x = (np.array(x) + 0).tolist()
-    y = (np.array(y) + 0).tolist()
-
-    # Energies for Silver
+    # rerun a few to confirm things are ok (e.g., davenport1 had a wonky post-edge)
+    names = ['agnp2-pos2', 'agnp6-pos2', 'davenport1-pos2']
+    x = [21550, -22950 , 17850]
+    y = [-9215, -8615, 4015]
+    
+    # Energies for silver edge
     energies = (
         np.arange(3300, 3340, 5).tolist()
-        + np.arange(3340, 3350, 2).tolist()
+        + np.arange(3340, 3350, 2.5).tolist()
         + np.arange(3350, 3390, 1).tolist()
-        + np.arange(3390, 3400, 2).tolist()
+        + np.arange(3390, 3400, 2.5).tolist()
         + np.arange(3400, 3450, 5).tolist()
     )
 
-    waxs_arc = np.linspace(7, 67, 4)
+    waxs_arc = [60]
 
     for name, xs, ys in zip(names, x, y):
         yield from bps.mv(piezo.x, xs, piezo.y, ys)
 
-        # Cover a range of 0.9 mm in y to avoid damage
-        yss = np.linspace(ys, ys + 900, len(energies))
+        # Cover a range of 0.8 mm in y to avoid beam damage
+        yss = np.linspace(ys, ys + 800, len(energies))
 
         # Stay at the same x position
         xss = np.array([xs])
 
-        yss, xss = np.meshgrid(yss, xss)
-        yss = yss.ravel()
-        xss = xss.ravel()
-
         for wa in waxs_arc:
             yield from bps.mv(waxs, wa)
-            yield from bps.mvr(piezo.x, 60)
-
             # Do not read SAXS if WAXS is in the way
-            dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
 
             det_exposure_time(t, t)
 
             name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m_bpm{xbpm}"
-            for e, xsss, ysss in zip(energies, xss, yss):
+            for e, ysss in zip(energies, yss):
                 yield from bps.mv(energy, e)
                 yield from bps.sleep(2)
-
                 yield from bps.mv(piezo.y, ysss)
-                # yield from bps.mv(piezo.x, xsss)
 
-                bpm = xbpm3.sumX.get()
+                # Metadata
+                wa = waxs.arc.position + 0.001
+                wa = str(np.round(float(wa), 1)).zfill(4)
                 sdd = pil1m_pos.z.position / 1000
+                scan_id = db[-1].start["scan_id"] + 1
+                xbpm3_readout = xbpm3.sumX.get()
 
+                # Sample name
+                name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m_xbpm{xbpm}"
                 sample_name = name_fmt.format(
                     sample=name,
                     energy="%6.2f" % e,
-                    wax=str(wa).zfill(4),
+                    wax=wa,
                     sdd="%.1f" % sdd,
-                    xbpm="%4.3f" % bpm,
+                    #scan_id=scan_id,
+                    xbpm="%4.3f" % xbpm3_readout,
                 )
+                sample_name.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "})
                 sample_id(user_name="ML", sample_name=sample_name)
-                print(f"\n\t=== Sample: {sample_name} ===\n")
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
 
-                yield from bp.count(dets, num=1)
+                yield from bp.count(dets)
 
             # Come back gently with energies
             energy_steps = [3410, 3370, 3320]
             for e in energy_steps:
                 yield from bps.mv(energy, e)
                 yield from bps.sleep(3)
+
+
+def move_E_slowly(target_E=3300, step_E=20, wait_t=5):
+    """
+    Move between energies relying on feedback
+    """
+
+    current_E = energy.position.energy
+    points = int(abs(current_E - target_E) / step_E)
+    energies = np.linspace(current_E, target_E, points).astype(int)
+
+    print(f'Moving from {current_E:.2f} eV to {target_E:.2f} eV using feedback')
+
+    for e in energies:
+        print(f'--> {e:.2f}')
+        yield from bps.mv(energy, e)
+        yield from bps.sleep(wait_t)
+    print('Done!')
+
+
+def swaxs_Te_edge_Gregory_2022_3(t=0.35):
+    """
+    Based on waxs_S_edge_Gregory_2022_2.
+    SAXS ssd 2.0 m.
+
+    """
+
+    # x and y are top center position on the sample (b/c we scan down the sample during measurements)
+
+    # bar one - gatech samples (all but two of them)
+    #names_toprow = ['PS', 'FeCl3', 'hT', 'hT-400', 'hT-25', 'hT-6', 'hTe', 'hTe-400', 'hTe-25', 'hTe-6', 'hTe-1.5', 'hB', 'hB-400', 'hB-25', 'hB-6', 'hB-1.5', 'mT']
+    #x_toprow = [ 42550, 37050, 31750, 26450, 20950, 15650, 10550, 5400, 250, -4800, -10150, -15350, -20550, -25850, -31100, -36100, -41600 ]
+    #y_toprow = [ -9415, -9114, -9015, -9015, -8865, -8965, -8665, -8565, -8615, -8265, -8165, -8265, -8265, -8115, -8135, -7855, -8455 ]
+    #names_botrow = ['mT-400', 'mT-25', 'mT-6', 'mTe', 'mTe-400', 'mTe-25', 'mTe-6', 'mTe-1.5', 'mB', 'mB-400', 'mB-25', 'mB-6', 'mB-1.5', 'Co', 'Co-400', 'Co-25']
+    #x_botrow = [ 41950, 36450, 31350, 26100, 21050, 15750, 10500, 5400, 0, -5450, -11350, -16950, -22250, -28050, -33300, -39150 ]
+    #y_botrow = [ 3535, 3585, 3935, 4085, 4035, 4085, 3835, 3885, 3935, 4335, 4185, 4485, 4385, 4185, 4535, 4135 ]
+    #names = names_toprow + names_botrow
+    #x = x_toprow + x_botrow
+    #y = y_toprow + y_botrow
+
+    # bar two - two gatech samples, five nebraska samples, three gatech_rotated samples
+    #names = ['Co-6', 'Co-1.5', 'nafion-unA', 'nafion-A', 'nafion-calix4-unA', 'nafion-calix6-unA', 'nafion-calix8-unA', 'hT-pos2', 'hTe-pos2', 'hB-pos2']
+    #x = [ 38750, 33750, 19550, 13750, 8250, 2550, -2650, -14650, -20250, -25650 ]
+    #y = [ -2671, -2871, -2971, -3071, -3071, -2971, -2971, -2821, -2921, -3071 ]
+
+    # bar two, round two for Te edge (removed the Nebraska samples)
+    #names = ['Co-6', 'Co-1.5', 'hT-pos2', 'hTe-pos2', 'hB-pos2']
+    #x = [ 39000, 33950, -14850, -20050, -25450 ]      restarted these at new positions b/c gate valves were closed during initial Te run
+    #y = [ -2671, -2771, -2871, -2971, -2971 ]         restarted these at new positions b/c gate valves were closed during initial Te run
+    #x = [ 38550, 33550, -14450, -20450, -25850  ]
+    #y = [ -2671, -2821, -2871, -2971, -3071]
+
+    #bar one, round two - Te edge gatech samples (all but two of them)
+    names_toprow = ['PS', 'FeCl3', 'hT', 'hT-400', 'hT-25', 'hT-6', 'hTe', 'hTe-400', 'hTe-25', 'hTe-6', 'hTe-1.5', 'hB', 'hB-400', 'hB-25', 'hB-6', 'hB-1.5', 'mT']
+    x_toprow = [ 42000, 36600, 31450, 26150, 20650, 15350, 10200, 5050, -50, -5200, -10400, -15700, -20850, -26100, -31350, -36350, -42000 ]
+    y_toprow = [ -9415, -9115, -9065, -9065, -8850, -8900, -8700, -8500, -8600, -8150, -8100, -8050, -8200, -8100, -8100, -7805, -8355 ]
+    
+    names_botrow = ['mT-400', 'mT-25', 'mT-6', 'mTe', 'mTe-400', 'mTe-25', 'mTe-6', 'mTe-1.5', 'mB', 'mB-400', 'mB-25', 'mB-6', 'mB-1.5', 'Co', 'Co-400', 'Co-25']
+    x_botrow = [ 41600, 36200, 31000, 25800, 20750, 15400, 10250, 5050, -300, -5750, -11550, -17200, -22700, -28350, -33600, -39350 ]
+    y_botrow = [ 3635, 3585, 3985, 4085, 4035, 4135, 3835, 3885, 3935, 4335, 4185, 4485, 4435, 4185, 4585, 4135 ]
+    
+    names = names_toprow + names_botrow
+    x = x_toprow + x_botrow
+    y = y_toprow + y_botrow
+
+    # Energies for Tellurium
+    energies = (
+        np.arange(4320, 4345, 5).tolist()
+        + np.arange(4345, 4360, 0.4).tolist()
+        + np.arange(4360, 4380, 2).tolist()
+        + np.arange(4380, 4401, 5).tolist()
+    )
+
+    waxs_arc = np.linspace(7, 67, 4)
+
+    for name, xs, ys in zip(names, x, y):
+        
+        yield from bps.mv(piezo.x, xs,
+                          piezo.y, ys,
+                          waxs, waxs_arc[0])
+
+        # Cover a range of 0.8 mm in y to avoid beam damage
+        yss = np.linspace(ys, ys + 800, len(energies))
+
+        # Stay at the same x position
+        xss = np.array([xs])
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            # Do not read SAXS if WAXS is in the way
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m_bpm{xbpm}"
+            for e, ysss in zip(energies, yss):
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                yield from bps.mv(piezo.y, ysss)
+
+                # Metadata
+                wa = waxs.arc.position + 0.001
+                wa = str(np.round(float(wa), 1)).zfill(4)
+                sdd = pil1m_pos.z.position / 1000
+                scan_id = db[-1].start["scan_id"] + 1
+                xbpm3_readout = xbpm3.sumX.get()
+
+                # Sample name
+                name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m_xbpm{xbpm}"
+                sample_name = name_fmt.format(
+                    sample=name,
+                    energy="%6.2f" % e,
+                    wax=wa,
+                    sdd="%.1f" % sdd,
+                    #scan_id=scan_id,
+                    xbpm="%4.3f" % xbpm3_readout,
+                )
+                sample_name.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "})
+                sample_id(user_name="ML", sample_name=sample_name)
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+
+                yield from bp.count(dets)
+
+            # Go back gently with energy
+            yield from bps.mv(energy, 4375)
+            yield from bps.mv(energy, 4350)
+            yield from bps.mv(energy, 4320)
+
+
+
+
 
 def swaxs_Cl_edge_Gregory_2022_3(t=0.5):
     """
