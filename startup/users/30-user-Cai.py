@@ -1008,7 +1008,7 @@ def cai_tensile_continous_hard_2022_2(t=0.2):
     det_exposure_time(0.5, 0.5)
 
 
-def cai_transmission_hard__2022_2(t=1):
+def cai_transmission_hard__2022_2(t=1,xoff=0,yoff=0):
     """ """
 
     # x and y are positions on the sample, a and b are different rows
@@ -1022,6 +1022,31 @@ def cai_transmission_hard__2022_2(t=1):
     ]
     x_a = [21500, 15000, 9000, 2000, -4000, -10000]
     y_a = [100, 100, 100, 100, 100, 100]
+
+    # RA-proposal 2022_3: x and y are positions on the sample, a and b are different rows
+    names_a = [
+        "YELLOW_01",
+        "YELLOW_02",
+        "YELLOW_03",
+        "YELLOW_04",
+        "YELLOW_05",
+        "YELLOW_06",
+        "YELLOW_07",
+        "YELLOW_08",
+        "RED_01",
+        "RED_02",
+        "RED_03",
+        "RED_04",
+    ]
+    x_a = [39800, 33560, 27400, 21000, 14220, 7920, 1580, -4320, -11190, -17500, -23740, -30160]
+    y_a = [570, -7430, 2570, 2070, -10050, -8000, -8000, -8000, -8000, -8000, -8000, -8000]
+
+    x_a = (np.array(x_a)+xoff).tolist()
+    y_a = (np.array(y_a)+xoff).tolist()
+    names_a = [n + '_xoff_%s__yoff_%s'%(xoff,yoff) for n in names_a]
+
+
+
 
     names_b = []
     x_b = []
