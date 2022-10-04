@@ -358,4 +358,4 @@ rr = RunRouter(
        symlink_factory_factory("/nsls2/data/smi/legacy/results/data"),
     ]
 )
-export_cid = RE.subscribe(rr)  # noqa F821
+#export_cid = RE.subscribe(rr)  # noqa F821
