@@ -1,7 +1,6 @@
 # Align GiSAXS sample
 import numpy as np
 
-
 def capillaries_saxs_PPG(t=0.2):
     # samples = ['4-1','4-2','4-3','4-4','4-5','4-6','4-7','4-8','4-9','4-10','4-11','4-12','4-13','4-14']
 
@@ -61,39 +60,9 @@ def slide_linkam_PPG(t=0.3):
 def PPG_temp_2022_1(tim=0.2):
     temperatures = [28, 40, 50, 60]
 
-    names = [
-        "s16",
-        "s17",
-        "s18",
-        "s19",
-        "s20",
-        "s6a",
-        "s7a",
-        "e1",
-        "e3",
-        "e4",
-        "e5",
-        "e10",
-        "e7",
-        "e8",
-        "e9",
+    names = ["s16", "s17", "s18", "s19", "s20", "s6a", "s7a", "e1", "e3", "e4", "e5", "e10", "e7", "e8", "e9",
     ]
-    x_piezo = [
-        -44200,
-        -37850,
-        -31650,
-        -25200,
-        -18900,
-        -12600,
-        -6100,
-        300,
-        6650,
-        13000,
-        19350,
-        25700,
-        32050,
-        38400,
-        44750,
+    x_piezo = [ -44200, -37850, -31650, -25200, -18900, -12600, -6100, 300, 6650, 13000, 19350, 25700, 32050, 44750,
     ]
     # y_piezo =  [      7000,       7000,       7000,       7000,       7000,       7000,       7000,       7000]
     # assert len(x_piezo) == len(y_piezo), f'Number of X coordinates ({len(x_piezo)}) is different from number of Y coordinates ({len(y_list)})'
@@ -216,3 +185,153 @@ def capillaries_saxs_ppg_2022_1(t=0.2):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.1, 0.1)
+
+
+def capillaries_saxs_PPG_2022_3(t=0.3):
+    """
+    Capillaries SAXS 8.3 m 6.510 keV low div in vacuum
+    """
+
+    samples = [ 'DT', 'DU', 'DV', 'DW', 'H33']
+    #samples = [ f'{s}-r2' for s in samples]
+    piezo_x = [ 46200, 39500, 33400, 27200, 207500]
+    #piezo_y = [-8000, -8000, -8000, -8000, -8000, -8000, -8000, -8000, -8000, -10000, -8000, -8000, -8000, -8000, -8000]
+    #piezo_z = [ 6600, 6600, 6600, 6600, 6600, 6600, 6600, 6600, 6600, 6600, 6600, 6600, 6600, 6600, 6600]
+
+    # y and z positions the same for all samples
+    piezo_y = [-4500 for s in samples]
+    piezo_z = [ 2100 for s in samples]
+
+    lowest_piezo_y = -5000
+    steps = 2
+
+    assert len(samples) == len(piezo_x), f"Lenght of samples list is different than piezo_x)"
+    assert len(piezo_x) == len(piezo_x), f"Lenght of piezo_x list is different than piezo_y)"
+    assert len(piezo_y) == len(piezo_z), f"Lenght of piezo_y list is different than piezo_z)"
+
+    # Move WAXS out of the way
+    if waxs.arc.position < 19.5:
+        yield from bps.mv(waxs, 20)
+    dets = [pil1M]
+    det_exposure_time(t, t)
+
+    for name, x, y, z in zip(samples, piezo_x, piezo_y, piezo_z):
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y,
+                          piezo.z, z)
+
+        ys = np.linspace(y, lowest_piezo_y , steps).astype(int)
+
+        for yss in ys:
+            yield from bps.mv(piezo.y, yss)
+
+            # Metadata
+            e = energy.position.energy / 1000
+            wa = waxs.arc.position + 0.001
+            wa = str(np.round(float(wa), 1)).zfill(4)
+            sdd = pil1m_pos.z.position / 1000
+
+            # Sample name
+            name_fmt = '{sample}_posy{pos}_{energy}keV_wa{wax}_sdd{sdd}m'
+            sample_name = name_fmt.format(sample=name, pos=yss, energy='%.2f'%e, wax=wa,
+                                        sdd='%.1f'%sdd)
+            sample_name.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "})
+
+            sample_id(user_name="CW", sample_name=sample_name)
+            print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+
+def films_PPG_2022_3(t=0.3):
+    """
+    SAXS 8.3 m 6.510 keV low div in vacuum
+    """
+
+    samples = [ '7G', '24A', '24B', '24C', '7A', '7B', '7C', '7D', '7E', '7F']
+    piezo_x = [ 44900, 38900, 26900, 15900, 4900, -5100, -16100, -26100, -34100, -41100]
+
+    # y and z positions the same for all samples
+    piezo_y = [-4500 for s in samples]
+    piezo_z = [ 2100 for s in samples]
+
+    assert len(samples) == len(piezo_x), f"Lenght of samples list is different than piezo_x)"
+    assert len(piezo_x) == len(piezo_x), f"Lenght of piezo_x list is different than piezo_y)"
+    assert len(piezo_y) == len(piezo_z), f"Lenght of piezo_y list is different than piezo_z)"
+
+    waxs_arc = [0, 20, 40, 60]
+    offset_y = 100  # in um
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        # Do not read SAXS if WAXS is in the way
+        dets = [pil900KW] if waxs.arc.position < 10 else [pil1M, pil900KW]
+        det_exposure_time(t, t)
+
+        for name, x, y, z in zip(samples, piezo_x, piezo_y, piezo_z):
+            yield from bps.mv(piezo.x, x,
+                              piezo.y, y + i * offset_y,
+                              piezo.z, z)
+
+            # Metadata
+            e = energy.position.energy / 1000
+            wa = waxs.arc.position + 0.001
+            wa = str(np.round(float(wa), 1)).zfill(4)
+            sdd = pil1m_pos.z.position / 1000
+
+            # Sample name
+            name_fmt = '{sample}_{energy}keV_wa{wax}_sdd{sdd}m'
+            sample_name = name_fmt.format(sample=name, energy='%.2f'%e, wax=wa,
+                                        sdd='%.1f'%sdd)
+            sample_name.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "})
+
+            sample_id(user_name="CW", sample_name=sample_name)
+            print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+
+def in_situ_waxs_ppg(t=0.3):
+    """
+    In situ loop scan for evaporation films
+    """
+
+    name = "sample01"
+    wait_time = 30  # seconds
+
+    t0 = time.time()
+    
+    # Move WAXS out of the way
+    if waxs.arc.position < 19.5:
+        yield from bps.mv(waxs, 20)
+    dets = [pil1M]
+    det_exposure_time(t, t)
+    
+    for i in range(999):
+
+        # Metadata
+        step = str(i).zfill(3)
+        td = str(np.round(t1 - t0, 1)).zfill(6)
+        e = energy.position.energy / 1000
+        wa = waxs.arc.position + 0.001
+        wa = str(np.round(float(wa), 1)).zfill(4)
+        sdd = pil1m_pos.z.position / 1000
+
+        name_fmt = "{sample}_step{step}_time{td}s_{energy}eV_wa{wax}_sdd{sdd}m"
+        sample_name = name_fmt.format(sample=name, step=step, td=td, energy='%.2f'%e, wax=wa,
+                                      sdd='%.1f'%sdd)
+        sample_name.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "})
+
+        sample_id(user_name="CW", sample_name=sample_name)
+        print(f"\n\n\n\t=== Sample: {sample_name} ===")
+        
+        yield from bp.count(dets)
+        print(f'Waiting for {wait_time} s...')
+        yield from bps.sleep(wait_time)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
