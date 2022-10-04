@@ -51,7 +51,7 @@
                                np.arange(3340, 3350, 2),
                                np.arange(3350, 3390, 1),
                                np.arange(3390, 3400, 2),
-                               np.arange(3400, 3450, 5),
+                               np.arange(3400, 3451, 5),
                               ))
     
     # Energies for Calcium Ca K-edge (ref. 4038.1 eV)
@@ -67,7 +67,7 @@
                                np.arange(4345, 4350, 2.5),
                                np.arange(4350, 4360, 0.4),
                                np.arange(4360, 4380, 2),
-                               np.arange(4380, 4400, 5),
+                               np.arange(4380, 4401, 5),
                                ))
 
     # Energies for platinum Pt L-3 edge (ref. 11.5637 keV)
