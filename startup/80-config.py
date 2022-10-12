@@ -1,26 +1,47 @@
 print(f"Loading {__file__}")
 
+from genericpath import exists
 from ophyd import EpicsMotor, EpicsSignalRO, EpicsSignal, Device, Component as Cpt
 import os
 
 # things to read at begining and end of every scan
 sd.baseline = [energy, pil1m_pos, stage, prs, piezo, ring.current]
 
+from pathlib import Path
+
+
+def manual_mode(
+     file_name, *, base_path=Path("/nsls2/data/smi/legacy/results/data")
+):
+    path = (
+        base_path
+        / RE.md["cycle"]
+        / f'{RE.md["proposal_number"]}_{RE.md["main_proposer"]}'
+    )
+    (path / "900KW").mkdir(exist_ok=True, parents=True)
+    pil900KW.tiff.file_name.set(file_name).wait()
+    pil900KW.tiff.file_path.set(str(path / "900KW")).wait()
+    pil900KW.tiff.file_number.set(0).wait()
+
+    (path / "1M").mkdir(exist_ok=True, parents=True)
+    pil1M.tiff.file_name.set(file_name).wait()
+    pil1M.tiff.file_path.set(str(path / "1M")).wait()
+    pil1M.tiff.file_number.set(0).wait()
+
 
 def sample_id(*, user_name, sample_name, tray_number=None):
     RE.md["user_name"] = user_name
     RE.md["sample_name"] = sample_name
+
     fname = f"{user_name}_{sample_name}"
 
     # DIRTY HACK, do not copy
-    pil1M.cam.file_name.put(fname)
-    pil1M.cam.file_number.put(1)
-    pil300KW.cam.file_name.put(fname)
-    pil300KW.cam.file_number.put(1)
-    pil900KW.cam.file_name.put(fname)
+    pil1M.cam.file_name.set("acq").wait()
+    pil1M.cam.file_number.set(1).wait()
+    # pil300KW.cam.file_name.set(fname).wait()
+    # pil300KW.cam.file_number.put(1)
+    pil900KW.cam.file_name.put("acq")
     pil900KW.cam.file_number.put(1)
-    # rayonix.cam.file_name.put(fname)
-    # rayonix.cam.file_number.put(1)
 
 
 def proposal_id(cycle_id, proposal_id):
@@ -96,8 +117,13 @@ def proposal_id(cycle_id, proposal_id):
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-    newDir = "/nsls2/xf12id2/analysis/" + str(cycle_id) + "/" + str(proposal_id)
-    # newDir = "/nsls2/data/smi/legacy/results/analysis/" + str(cycle_id) + "/" + str(proposal_id)
+    # newDir = "/nsls2/xf12id2/analysis/" + str(cycle_id) + "/" + str(proposal_id)
+    newDir = (
+        "/nsls2/data/smi/legacy/results/analysis/"
+        + str(cycle_id)
+        + "/"
+        + str(proposal_id)
+    )
 
     try:
         os.stat(newDir)
@@ -105,21 +131,11 @@ def proposal_id(cycle_id, proposal_id):
         os.makedirs(newDir)
         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-    pil1M.cam.file_path.put(
-        f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/1M"
-    )
-    pil900KW.cam.file_path.put(
-        f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/900KW"
-    )
-    pil300KW.cam.file_path.put(
-        f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/300KW"
-    )
-    # rayonix.cam.file_path.put(f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/MAXS")
-
-    # pil1M.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/1M")
-    # pil900KW.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/900KW")
-    # pil300KW.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/300KW")
-    # rayonix.cam.file_path.put(f"/nsls2/data/smi/legacy/results/data/{cycle_id}/{proposal_id}/MAXS")
+    pil1M.cam.file_path.put("/ramdisk/1M")
+    # pil300KW.cam.file_path.put(
+    #     f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/300KW"
+    # )
+    pil900KW.cam.file_path.put("/ramdisk/900KW")
 
 
 def beamline_mode(mode=None):
@@ -333,7 +349,7 @@ def move_new_config(mode_name):
         print("Are you sure you really want to move to %s configuration?" % mode_name)
         response = input("    Are you sure? (y/[n]) ")
 
-        if response is "y" or response is "Y":
+        if response == "y" or response == "Y":
 
             feedback("off")
 

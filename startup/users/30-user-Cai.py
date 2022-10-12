@@ -1008,7 +1008,7 @@ def cai_tensile_continous_hard_2022_2(t=0.2):
     det_exposure_time(0.5, 0.5)
 
 
-def cai_transmission_hard__2022_2(t=1):
+def cai_transmission_hard__2022_2(t=1, xoff=0, yoff=0):
     """ """
 
     # x and y are positions on the sample, a and b are different rows
@@ -1022,6 +1022,22 @@ def cai_transmission_hard__2022_2(t=1):
     ]
     x_a = [21500, 15000, 9000, 2000, -4000, -10000]
     y_a = [100, 100, 100, 100, 100, 100]
+
+    # RA-proposal 2022_3: x and y are positions on the sample, a and b are different rows
+    names_a = [
+        "RED_05", "RED_06", "RED_07", "RED_08", "RED_09", "RED_10", "RED_11", "Empty_spot", "Capillary_quartz", "Capillary_glass",]
+    
+    x_a = [
+           39800,    33440,    27220,    20800,    14500,     8200,     1540,        -4500,             -11100,            -17200,]
+    y_a = [
+           -8000,    -8000,    -8000,    -8000,    -8000,    -5100,    -8000,        -8000,              -8000,             -8000,]
+
+    x_a = (np.array(x_a) + xoff).tolist()
+    y_a = (np.array(y_a) + xoff).tolist()
+    names_a = [n + '_xoff_%s__yoff_%s'%(xoff, yoff) for n in names_a]
+
+
+
 
     names_b = []
     x_b = []
@@ -1077,6 +1093,7 @@ def cai_transmission_hard__2022_2(t=1):
             )
             sample_id(user_name=user_name, sample_name=sample_name)
             print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            # yield from bp.count(dets + [energy], md={'smi_md':{'energy': e, 'wax': wa, 'sdd': sdd}})
             yield from bp.count(dets)
 
     sample_id(user_name="test", sample_name="test")

@@ -427,3 +427,167 @@ def song_nexafs_S_2021_2(t=1):
 
             yield from bps.mv(energy, 2470)
             yield from bps.mv(energy, 2450)
+
+def phong_waxs_Sedge_multi_2022_3(t=0.5):
+
+    """
+    Transmission on two row sample bar - Initial sample scan positions (exposure time = 0.5 s)
+    Samples measured on left side
+    Did not complete due to linking failure in BSUI
+    """
+    
+    # names_a   = ['BASIN', 'AGBEH','NTFSI','FTCNQ','EPRN1','EPRA1','EPAN1','EPBN1','EPCN1','EPDN1','EPEN1','EPAV1','EPBV1']
+    # piezo_x_a = [  40700,   33710,  26310,  19860,  12960,   6060,   -640,  -7540, -14690, -21690, -28290, -36390, -41890] 
+    # piezo_y_a = [  -9265,   -9275,  -9385,  -8985,  -8885,  -8985,  -8585,  -8785,  -8785,  -8685,  -8585,  -8685,  -8585]
+
+    # names_b   = ['EPCV1','EPDV1','EPEV1','EPAA1','EPCA1','EPDA1','EPEA1']
+    # piezo_x_b = [  41650,  33400,  26200,  18900,  11150,   2600,  -5200]
+    # piezo_y_b = [   3315,   3165,   3165,   3165,   3365,   4065,   3965]
+
+    """
+    Second exposure, same samples but rotated 90 deg in plane (exposure time = 1 s)
+    Samples measured on left side
+    """
+
+    # names_a   = ['BASIN-rot', 'AGBEH-rot','NTFSI-rot','FTCNQ-rot','EPRN1-rot','EPRA1-rot','EPAN1-rot','EPBN1-rot','EPCN1-rot','EPDN1-rot','EPEN1-rot','EPAV1-rot','EPBV1-rot']
+    # piezo_x_a = [  40900,   35050,  28550,  21900,  15550,   9550,   4050,  -1650, -7850, -14650, -21200, -28450, -34300] 
+    # piezo_y_a = [  -9465,   -9365,  -9265,  -9165,  -9115,  -9265,  -9115,  -9015, -8865,  -8815,  -9015,  -8515,  -8565]
+
+    # names_b   = ['EPCV1-rot','EPDV1-rot','EPEV1-rot','EPAA1-rot','EPCA1-rot','EPDA1-rot','EPEA1-rot']
+    # piezo_x_b = [  41750,  34350,  26400,  18800,  12700,   3300,  -3200]
+    # piezo_y_b = [   3015,   3115,   3215,   3365,   3515,   3915,   3815]
+
+    """
+    Third exposure, same samples but rotated 90 deg in plane (back to starting orientation) (exposure time = 1 s)
+    Samples measured on right side (to expose non-damaged areas)
+    Shifting to left as WAXS angle increases (previously shifted left to right)
+    """
+
+    # names_a   = ['BASIN', 'AGBEH','NTFSI','FTCNQ','EPRN1','EPRA1','EPAN1','EPBN1','EPCN1','EPDN1','EPEN1','EPAV1','EPBV1']
+    # piezo_x_a = [  41250,   34000,  27300,  21350,  14100,   7900,   1350,  -4850, -11700, -18500, -23950, -31050, -38400] 
+    # piezo_y_a = [  -9515,   -9165,  -9365,  -9065,  -8965,  -9265,  -8565,  -9265, -9365,  -9115,  -9065,  -8715,  -8615]
+
+    # names_b   = ['EPCV1','EPDV1','EPEV1','EPAA1','EPCA1','EPDA1','EPEA1']
+    # piezo_x_b = [  35150,  27250,  19700,  13600,  7550,   550,  -7450]
+    # piezo_y_b = [   3315,   3215,   3715,   3415,  4615,   3715,   3865]
+
+    """
+    Fourth exposure, washer samples of Blank, F4TCNQ, LiTFSI, (high resolution NEXAFS) and AgBeh (sample to detector distance calibration)
+    Movement during scans disabled, updated energies for higher resolution
+    Note: Did not work, kapton attenuated all X-rays at this energy, even using blank
+    """
+
+    # names_a   = ['Blank-washer', 'FTCNQ-washer']
+    # piezo_x_a = [22150,                   40750] 
+    # piezo_y_a = [-2235,                   -2235]
+
+    # names_b   = ['LTFSI-washer', 'AgBeh-washer']
+    # piezo_x_b = [32150,                   12950]
+    # piezo_y_b = [-2235,                    -1435]
+
+    """
+    Fifth exposure, same samples loaded as third exposure, but added additional AgBeg on SiNx (exposure time = 0.5 s)
+    Meant for hi-res NEXAFS, WA60 only with finer energies. F4TCNQ skipped for now.
+    """
+
+#    names_a   = ['BASIN', 'AGBEH','NTFSI','EPRN1','EPRA1','EPAN1','EPBN1','EPCN1','EPDN1','EPEN1','EPAV1','EPBV1']
+#    piezo_x_a = [  40800,   33800,  27050,  13650,   7900,   1250,  -4900, -11800, -18550, -23950, -31100, -38400] 
+#    piezo_y_a = [  -9215,   -9165,  -8715,  -8565,  -8565,  -7765,  -8565,  -8665,  -8415,  -8315,  -8065,  -7915]
+
+#    names_b   = ['EPCV1','EPDV1','EPEV1','EPAA1','EPCA1','EPDA1','EPEA1', 'AGBE2']
+#    piezo_x_b = [  35050,  27250,  19700,  13600,  7500,   550,    -7000,  -15900]
+#    piezo_y_b = [   3865,   3865,   4265,   4015,  4565,  4515,     4615,    4615]
+
+#    names_a   = ['BASIN', 'AGBEH','NTFSI','FTCNQ','EPRN1','EPRA1','EPAN1','EPBN1','EPCN1','EPDN1','EPEN1','EPAV1','EPBV1']
+#    piezo_x_a = [  40800,   33800,  27050,  21350,  13650,   7900,   1250,  -4900, -11800, -18550, -23950, -31100, -38400] 
+#    piezo_y_a = [  -9215,   -9165,  -8715,  -8165,  -8565,  -8565,  -7765,  -8565,  -8665,  -8415,  -8315,  -8065,  -7915]
+
+#    names_b   = ['EPCV1','EPDV1','EPEV1','EPAA1','EPCA1','EPDA1','EPEA1', 'AGBE2']
+#    piezo_x_b = [  35050,  27250,  19700,  13600,  7500,   550,    -7000,  -15900]
+#    piezo_y_b = [   3865,   3865,   4265,   4015,  4565,  4515,     4615,    4615]
+
+#    names = names_a + names_b
+#    piezo_x = piezo_x_a + piezo_x_b
+#    piezo_y = piezo_y_a + piezo_y_b
+
+    """
+    Sixth Exposure, finding a spot on the F4TCNQ substrate with good accumulation and running the hi-res nexafs skipped
+    previously
+    """
+
+    names =   ['FTCNQ']
+    piezo_x = [21350]
+    piezo_y = [-8165]
+
+    assert len(names) == len(piezo_x), f"Number of X coordinates ({len(names)}) is different from number of samples ({len(piezo_x)})"
+    assert len(piezo_y) == len(piezo_x), f"Number of Y coordinates ({len(piezo_y)}) is different from number of samples ({len(piezo_x)})"
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+    """
+    BELOW ARE THE ENERGIES STUDIED IN OUR ORIGINAL SURVEY. THEY CONSTITUTED A GOOD, BUT UNINFORMED GUESS AS TO WHERE 
+    WE MIGHT SEE INTERESTING FEATURES. These energies were used March 2022
+    """
+#    energies = np.concatenate((np.arange(2445, 2470, 5),
+#                              np.arange(2470, 2480, 0.25),
+#                              np.arange(2480, 2490, 1),
+#                              np.arange(2490, 2501, 5),
+#                              ))
+    """
+    These energies are specific to doped P3HT where we expect some potential structure in the range 2475-2485 eV, as studied at our
+    September 2022 beamtime. These energies are used for all SiNx window measurements Sept. 2022
+    """
+    # energies = np.concatenate((np.arange(2460, 2471, 5),
+    #                           np.arange(2471, 2474, 1),
+    #                           np.arange(2473.5, 2487.75, 0.5),
+    #                           np.arange(2488, 2490, 1),
+    #                           np.arange(2490, 2501, 5)
+    #                           ))
+
+    """
+    These energies are specific to doped P3HT where we expect some potential structure in the range 2475-2485 eV, as studied at our
+    September 2022 beamtime. These energies are used for all washer sample measurements Sept. 2022, and used for our hi-res nexafs scans
+    """
+    energies = np.concatenate((np.arange(2460, 2474, 1),
+                              np.arange(2473.5, 2488, 0.25),
+                              np.arange(2488, 2501, 1)
+                              ))                              
+    
+    waxs_arc = [60]
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+        det_exposure_time(t, t)
+
+        for name, xs, ys in zip(names, piezo_x, piezo_y):
+            yield from bps.mv(piezo.x, xs,
+                              piezo.y, ys)
+
+            yss = np.linspace(ys, ys , len(energies))
+
+            for e, ysss in zip(energies, yss):
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                # Metadata
+                wa = waxs.arc.position + 0.001
+                wa = str(np.round(float(wa), 1)).zfill(4)
+                sdd = pil1m_pos.z.position / 1000
+                scan_id = db[-1].start["scan_id"] + 1
+
+                # Sample name
+                name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m_id{scan_id}"
+                sample_name = name_fmt.format(
+                    sample=name,
+                    energy="%6.2f" % e,
+                    wax=wa,
+                    sdd="%.1f" % sdd,
+                    scan_id=scan_id,
+                )
+                sample_name.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "})
+                sample_id(user_name="PN", sample_name=sample_name)
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                yield from bp.count(dets)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)

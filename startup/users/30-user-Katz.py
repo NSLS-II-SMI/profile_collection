@@ -1401,3 +1401,7 @@ def ca_spectroscopy_scan_mrl(t=0.2):
     yield from bps.mv(energy, 4075)
     yield from bps.mv(energy, 4050)
     yield from bps.mv(energy, 4030)
+
+
+
+

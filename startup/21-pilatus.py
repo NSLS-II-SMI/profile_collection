@@ -61,7 +61,48 @@ class PilatusDetector(PilatusDetector):
 
 
 class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
-    ...
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__stage_cache = {}
+
+    def describe(self):
+        ret = super().describe()
+        key = self.parent._image_name
+        color_mode = self.parent.cam.color_mode.get(as_string=True)
+        if color_mode == 'Mono':
+            ret[key]['shape'] = [
+                self.parent.cam.num_images.get(),
+                self.array_size.height.get(),
+                self.array_size.width.get()
+                ]
+
+        elif color_mode in ['RGB1', 'Bayer']:
+            ret[key]['shape'] = [self.parent.cam.num_images.get(), *self.array_size.get()]
+        else:
+            raise RuntimeError("SHould never be here")
+
+        cam_dtype = self.data_type.get(as_string=True)
+        type_map = {'UInt8': '|u1', 'UInt16': '<u2', 'Float32':'<f4', "Float64":'<f8', 'Int32':'<i4'}
+        if cam_dtype in type_map:
+            ret[key].setdefault('dtype_str', type_map[cam_dtype])
+
+
+        return ret
+
+    def stage(self):
+        self.__stage_cache['file_path'] = self.file_path.get()
+        self.__stage_cache['file_name'] = self.file_name.get()
+        self.__stage_cache['next_file_num'] = self.file_number.get()
+        return super().stage()
+
+    def unstage(self):
+
+        ret = super().unstage()
+        self.file_path.set(self.__stage_cache['file_path']).wait()
+        self.file_name.set(self.__stage_cache['file_name']).wait()
+        self.file_number.set(self.__stage_cache['next_file_num']).wait()
+        return ret
+
 
 
 class Pilatus(SingleTriggerV33, PilatusDetector):
@@ -139,9 +180,10 @@ def det_exposure_time(exp_t, meas_t=1):
     pil1M.cam.acquire_time.put(exp_t)
     pil1M.cam.acquire_period.put(exp_t + 0.001)
     pil1M.cam.num_images.put(int(meas_t / exp_t))
-    pil300KW.cam.acquire_time.put(exp_t)
-    pil300KW.cam.acquire_period.put(exp_t + 0.001)
-    pil300KW.cam.num_images.put(int(meas_t / exp_t))
+    if pil300KW is not None:
+        pil300KW.cam.acquire_time.put(exp_t)
+        pil300KW.cam.acquire_period.put(exp_t + 0.001)
+        pil300KW.cam.num_images.put(int(meas_t / exp_t))
     pil900KW.cam.acquire_time.put(exp_t)
     pil900KW.cam.acquire_period.put(exp_t + 0.001)
     pil900KW.cam.num_images.put(int(meas_t / exp_t))
@@ -158,7 +200,9 @@ def det_exposure_time(exp_t, meas_t=1):
 
 def det_next_file(n):
     pil1M.cam.file_number.put(n)
-    pil300KW.cam.file_number.put(n)
+    pil900KW.cam.file_number.put(n)
+    if pil300KW is not None:
+        pil300KW.cam.file_number.put(n)
     # rayonix.cam.file_number.put(n)
 
 
@@ -189,7 +233,7 @@ pil1M.set_primary_roi(1)
 
 pil1M.tiff.write_path_template = (
     pil1M.tiff.read_path_template
-) = "/nsls2/xf12id2/data/1M/images/%Y/%m/%d/"
+) = "/nsls2/data/smi/legacy/results/raw/1M/%Y/%m/%d/"
 # pil1M.tiff.write_path_template = pil1M.tiff.read_path_template = '/nsls2/data/smi/assets/default/%Y/%m/%d/'
 
 # pil1M.tiff.write_path_template = pil1M.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/1M/%Y/%m/%d/'
@@ -202,6 +246,8 @@ pil1mroi4 = EpicsSignal("XF:12IDC-ES:2{Det:1M}Stats4:Total_RBV", name="pil1mroi4
 pil1M.stats1.kind = "hinted"
 pil1M.stats1.total.kind = "hinted"
 pil1M.cam.num_images.kind = "config"
+pil1M.cam.kind = 'normal'
+pil1M.cam.file_number.kind = 'normal'
 pil1M.cam.ensure_nonblocking()
 
 
@@ -220,33 +266,33 @@ for detpos in [pil1m_pos]:
 #####################################################
 # Pilatus 300kw definition
 
-pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW")  # , detector_id="WAXS")
-pil300KW.set_primary_roi(1)
+# pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW")  # , detector_id="WAXS")
+# pil300KW.set_primary_roi(1)
 
 
-pil300KW.tiff.write_path_template = (
-    pil300KW.tiff.read_path_template
-) = "/nsls2/xf12id2/data/300KW/images/%Y/%m/%d/"
-# pil300KW.tiff.write_path_template = pil300KW.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/300KW/%Y/%m/%d/'
+# pil300KW.tiff.write_path_template = (
+#     pil300KW.tiff.read_path_template
+# ) = "/nsls2/xf12id2/data/300KW/images/%Y/%m/%d/"
+# # pil300KW.tiff.write_path_template = pil300KW.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/300KW/%Y/%m/%d/'
 
-pil300kwroi1 = EpicsSignal(
-    "XF:12IDC-ES:2{Det:300KW}Stats1:Total_RBV", name="pil300kwroi1"
-)
-pil300kwroi2 = EpicsSignal(
-    "XF:12IDC-ES:2{Det:300KW}Stats2:Total_RBV", name="pil300kwroi2"
-)
-pil300kwroi3 = EpicsSignal(
-    "XF:12IDC-ES:2{Det:300KW}Stats3:Total_RBV", name="pil300kwroi3"
-)
-pil300kwroi4 = EpicsSignal(
-    "XF:12IDC-ES:2{Det:300KW}Stats4:Total_RBV", name="pil300kwroi4"
-)
+# pil300kwroi1 = EpicsSignal(
+#     "XF:12IDC-ES:2{Det:300KW}Stats1:Total_RBV", name="pil300kwroi1"
+# )
+# pil300kwroi2 = EpicsSignal(
+#     "XF:12IDC-ES:2{Det:300KW}Stats2:Total_RBV", name="pil300kwroi2"
+# )
+# pil300kwroi3 = EpicsSignal(
+#     "XF:12IDC-ES:2{Det:300KW}Stats3:Total_RBV", name="pil300kwroi3"
+# )
+# pil300kwroi4 = EpicsSignal(
+#     "XF:12IDC-ES:2{Det:300KW}Stats4:Total_RBV", name="pil300kwroi4"
+# )
 
-pil300KW.stats1.kind = "hinted"
-pil300KW.stats1.total.kind = "hinted"
-pil300KW.cam.num_images.kind = "config"
-pil300KW.cam.ensure_nonblocking()
-
+# pil300KW.stats1.kind = "hinted"
+# pil300KW.stats1.total.kind = "hinted"
+# pil300KW.cam.num_images.kind = "config"
+# pil300KW.cam.ensure_nonblocking()
+pil300KW = None
 
 #####################################################
 # Pilatus 900KW definition
@@ -256,7 +302,9 @@ pil900KW.set_primary_roi(1)
 
 pil900KW.tiff.write_path_template = (
     pil900KW.tiff.read_path_template
-) = "/nsls2/xf12id2/data/1M/images/%Y/%m/%d/"
+# ) = "/nsls2/xf12id2/data/900KW/images/%Y/%m/%d/"
+) = "/nsls2/data/smi/legacy/results/raw/900KW/%Y/%m/%d/"
+
 # pil900KW.tiff.write_path_template = pil900KW.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/900KW/%Y/%m/%d/'
 
 pil900kwroi1 = EpicsSignal(
@@ -275,6 +323,8 @@ pil900kwroi1 = EpicsSignal(
 pil900KW.stats1.kind = "hinted"
 pil900KW.stats1.total.kind = "hinted"
 pil900KW.cam.num_images.kind = "config"
+pil900KW.cam.kind = 'normal'
+pil900KW.cam.file_number.kind = 'normal'
 pil900KW.cam.ensure_nonblocking()
 
 
