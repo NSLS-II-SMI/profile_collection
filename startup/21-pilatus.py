@@ -359,7 +359,8 @@ class WAXS(Device):
     def calc_waxs_bsx(self, arc_value):
         # bsx_pos =-20.92 + 264 * np.tan(np.deg2rad(arc_value))
         # bsx_pos = -17.1 - 252*np.tan(np.deg2rad(arc_value)) # until 29-Mar-2022 when the waxs-arc failed , and MZ also raised the BS maually.
-        bsx_pos = -16.64 - 252 * np.tan(np.deg2rad(arc_value))  # new zero position
+        # bsx_pos = -16.64 - 252 * np.tan(np.deg2rad(arc_value))  # new zero position
+        bsx_pos = -9.07561 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Oct 24, refining after WAXS arc died 
 
         return bsx_pos
 
