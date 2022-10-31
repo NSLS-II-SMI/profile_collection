@@ -37,12 +37,14 @@ def energy_to_gap(target_energy, undulator_harmonic=1, man_offset=0):
     )
     e_exp = np.array([2450, 3600, 4050, 6550, 7700, 9700, 12620, 14000, 16100])
     off_exp = np.array([20, 29, 30, 55, 35, 29, 30, 33, 21])
+
     auto_offset = np.interp(
         target_energy, e_exp, off_exp, left=min(off_exp), right=max(off_exp)
     )
 
-    # offset=21
+
     gap = gap_mm * 1000 - auto_offset - man_offset
+    # gap = gap_mm * 1000 + offset
 
     # -30 for 12.62; -33 for 14 keV; -21 for 16.1 keV, 18.25keV; -50 for 9540eV; -20 for 2450eV; -30 for 4050eV
     # -29 for 9700 keV -- 11.150 keV, -55 for 6.55 keV, -35 for 7.7 kev;  -29 for 3.6 keV

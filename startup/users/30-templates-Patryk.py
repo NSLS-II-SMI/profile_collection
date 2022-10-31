@@ -336,7 +336,8 @@ def song_waxs_hard_2022_2(t=1, strain=0):
             sample_id(user_name="test", sample_name="test")
 
 
-### Calculate beamstpo on WAXS y postion is in 37-Guillaume beam, line ~130
+### Calculate beamstpo on WAXS y postion is in 36-Guillaume beam, line ~160
+### calculate waxs beamstop for x is 21-pilatus.py line 359
 
 """
 for temperature in temperatures:

@@ -163,7 +163,7 @@ class SMIBeam(object):
         if self.dcm.energy.position < 6000:
             yield from bps.mv(waxs.bs_y, 0.95)
         else:
-            # it was -7 initially, changed for 309577 Luo 2022_2
+            # it is -7 for transmission, around -2 to -3 for reflection
             yield from bps.mv(waxs.bs_y, -7)
 
 
