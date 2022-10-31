@@ -29,6 +29,8 @@ def run_caps_fastRPI(t=1):
 
 
 def run_saxs_capsRPI(t=1):
+
+
     x_list = [6908, 13476, 19764, 26055]  #
     # Detectors, motors:
     dets = [pil1M]
@@ -990,3 +992,149 @@ def run_saxs_linkamRPI_2022_2_ps(t=1):
 
         sample_id(user_name="test", sample_name="test")
         det_exposure_time(0.3, 0.3)
+
+
+def run_swaxs_fastRPI_2022_3(t=1):
+    """
+    Take WAXS and SAXS at six sample positions for averaging
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off. Run
+    WAXS arc as the slowest motor.
+    Hexapod may need adjustment for the lower samples.
+    """
+
+    names = [ "S06_5PVPCe-6", "S05_10PVCe-5", "S04_P250-RT-4", "S03_P1000-80-3", "S02_P650-RT-2", "S01_P1000-RT-1","S00_Vacuum25C"]
+    names = [ f'Oct2022_{n}' for n in names]
+    xlocs = [-29000, -18000, -7000, 5000, 21000, 35000,45000]
+    ylocs = [0, 0, 0, 1500, 1500, 1500,1500]
+    hexa_y = [7 for n in names]  #in mm
+
+    x_off = [-500, 500]
+    y_off = [0, -500, -1000]
+
+    waxs_arc = [40, 20, 0]
+
+    user = "SL"
+    det_exposure_time(t, t)
+
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+
+    # Check if the length of xlocs, ylocs and names are the same
+    assert len(xlocs) == len(names), f"Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})"
+    assert len(xlocs) == len(ylocs), f"Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(ylocs)})"
+    assert len(xlocs) == len(hexa_y), f"Number of X coordinates ({len(xlocs)}) is different from hexapod y positions ({len(hexa_y)})"
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        # Detectors, disable SAXS when WAXS in the way
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+
+        for name, x, y, hy in zip(names, xlocs, ylocs, hexa_y):
+            yield from bps.mv(piezo.y, y,
+                              piezo.x, x,
+                              stage.y, hy)
+
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of)
+
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x + x_of)
+
+                    # xxa and yya go into the file name as sample position
+                    #xxa = xx + 1
+                    #yya = yy + 1
+                    loc = xx + 2 * yy + 1
+
+                    # Metadata
+                    e = energy.position.energy / 1000
+                    wa = waxs.arc.position + 0.001
+                    wa = str(np.round(float(wa), 1)).zfill(4)
+                    sdd = pil1m_pos.z.position / 1000
+
+                    # Sample name
+                    name_fmt = ( "{sample}_{energy}keV_wa{wax}_sdd{sdd}m_loc{loc}")
+                    sample_name = name_fmt.format(
+                        sample=name,
+                        energy="%.2f" % e,
+                        wax=wa,
+                        sdd="%.1f" % sdd,
+                        loc=int(loc),
+                    )
+                    # Reference for data analysis
+                    # name_fmt = '{sam}_wa{waxs}_loc{xx}{yy}'
+                    # sample_name = name_fmt.format(sam=name, xx='%1.1d'%xxa, yy='%1.1d'%yya, waxs='%2.1f'%wa)
+
+                    sample_id(user_name=user, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+
+def run_saxs_linkamRPI_2022_3_ps(t=1):
+    """
+    New script for polystryne in 2022_2 cycle in vacuum setup.
+
+    Scan first SAXS then WAXS, just one position on the sample.
+    """
+    name = "Oct2022_S158_B5O3-235wt-3_100C5m-25C"
+    #name = "Oct2022_S010_Air"
+    user = "JA"
+
+    # Hexapod stage, in mm
+    stage_x =-6.5
+    stage_y = 0
+
+    stage_x_off = [0]
+    #stage_y_off = [0]
+    stage_y_off = [-0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6]
+
+    #Only SAXS
+    waxs_arc = [20]
+
+    det_exposure_time(t, t)
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa,
+                          stage.y, stage_y,
+                          stage.x, stage_x
+        )
+
+        #dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        dets = [pil1M]
+
+        for yy, y_of in enumerate(stage_y_off):
+            yield from bps.mv(stage.y, stage_y + y_of)
+
+            for xx, x_of in enumerate(stage_x_off):
+                yield from bps.mv(stage.x, stage_x + x_of)
+
+                loc = xx + yy + 1
+
+                # Metadata
+                e = energy.position.energy / 1000
+                wa = waxs.arc.position + 0.001
+                wa = str(np.round(float(wa), 1)).zfill(4)
+                sdd = pil1m_pos.z.position / 1000
+
+                # Sample name
+                name_fmt = ( "{sample}_{energy}keV_wa{wax}_sdd{sdd}m_loc{loc}")
+                sample_name = name_fmt.format(
+                    sample=name,
+                    energy="%.2f" % e,
+                    wax=wa,
+                    sdd="%.1f" % sdd,
+                    loc=int(loc)
+                )
+                sample_id(user_name=user, sample_name=sample_name)
+                print(f"\n\n\n\n\n\t=== Sample: {sample_name} ===")
+                yield from bp.count(dets)
+
+        sample_id(user_name="test", sample_name="test")
+        det_exposure_time(0.3, 0.3)
+        yield from bps.mv(stage.y, stage_y,
+                          stage.x, stage_x,
+                          waxs, waxs_arc[0])
