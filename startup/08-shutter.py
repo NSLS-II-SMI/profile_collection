@@ -105,7 +105,7 @@ def shopen():
 def shclose():
     yield from bps.mv(manual_PID_disable_pitch, "1")
     yield from bps.mv(manual_PID_disable_roll, "1")
-    yield from bps.sleep(1)
+    yield from bps.sleep(3)
     yield from bps.mv(ph_shutter.close_cmd, 1)
 
     # #Check if te set-up is in-air or not. If so, close the GV automatically when opening the shutter
