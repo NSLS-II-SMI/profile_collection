@@ -1,4 +1,42 @@
-# Align GiSAXS sample
+# 2022-Oct-24, Tsai
+# /nsls2/data/smi/legacy/results/data/2022_3/310000_Tsai
+# /nsls2/data/smi/legacy/results/analysis/2022_3/310000_Tsai
+#
+# det3 ctrlX
+# setthreshold energy 16100 autog 11000
+# RE(shopen()); RE(mv(waxs,0))
+#
+# PRS -90, HP theta 0.297
+# RE(alignment_gisaxs_stage) -- find the rough alignment
+'''
+sample_id(user_name="test", sample_name="test2")
+RE(bp.rel_scan([pil900KW], stage.th, -0.2, 0.2, 11))
+'''
+# RE(bp.rel_scan([pil900KW], stage.th, -0.2, 0.2, 21)) -- find a good th to measure at
+# RE(bp.rel_scan([pil900KW], piezo.x, -2000, 2000, 21)) -- find the range to measure scan
+# RE(bp.rel_scan([pil900KW], piezo.z, -2000, 2000, 21))
+# PRS 0 -- measure at a different rotational angle, PRS 45 doesn't work because stage.z somehow includes tilt 
+# Align and measure one PRS at a time
+# Note that beam is very small, sensitive to any stage or sample tilts
+#
+# Oct 25 9am, vac pipe, find beam, energy (14.4 to 16.1), small beam, align CRL, slits, waxs beamstop, AgBH. 
+# Oct 25 12am, 16.1keV, 50um*2um, vac. yield from bps.mv(piezo.y, 3500);
+#       Align PRS=-90 and 0 and start with waxs=0: ET 
+# Oct 25 9am, waxs=20 (abort since no film signal): ET 
+# Oct 25 11am, Realign PRS=-90 and restart with waxs=10: ET2
+#       Oct 25 11:41 ET2_Sam5p4_scan_prs-90_waxs10.00_x1500_z-900_1s_id346958_000000_WAXS.tif
+#       Oct 25 13:09 ET2_Sam5p4_scan_prs-90_waxs10.00_x-200_z-900_1s_id350214_000000_WAXS.tif
+# paused after ET2_Sam5p4_scan_prs-90_waxs10.00_x430_z-900_1s_id351768_000000_WAXS.tif(th=-0.34)
+# adjust theta: test_prs-90_th-0.5_x400_y3500_z-720_id351775_000000_WAXS better
+# test_prs-90_th-0.64_x-200_y3500_z-720_id351780_000000_WAXS.tif better
+# test_prs-90_th-0.2_x2800_y3500_z-720_id351787_000000_WAXS.tif better
+# test_prs-90_th-0.32_x1500_y3500_z-720_id351796_000000_WAXS better
+#
+# test_prs0_th-0.7_x400_y3500_z-720_id351803_000000_WAXS.tif
+# test_prs0_th-0.66_x1200_y3500_z-720_id351812_000000_WAXS.tif
+# yield from bps.mv(piezo.y, 3530): ET3
+# 15:50 ET3_Sam5p4_scan_prs0_waxs10.00_x-200_y3530_z610_th-0.65_1s_id351944_000000_WAXS
+
 import numpy as np
 
 
@@ -8,7 +46,7 @@ def align_gisaxs_th_stage(rang=0.3, point=31):
     yield from bps.mv(stage.th, ps.peak)
 
 
-def alignement_gisaxs_stage(angle=0.15):
+def alignment_gisaxs_stage(angle=0.15):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.5, 0.5)
@@ -44,10 +82,86 @@ def alignement_gisaxs_stage(angle=0.15):
     yield from bps.mv(stage.th, ps.cen - angle)
     yield from smi.modeMeasurement()
 
+# 2022C3
+def run_scan_ET(t=1):  
 
+    waxs_angle_array = np.array([10])
+    print('{}'.format(waxs_angle_array))
+
+    dets = [pil900KW]  # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]
+
+    '''
+    sample = "Sam5p4_scan_prs-90"
+    yield from bps.mv(prs, -90)
+    #x1_list = np.arange(-200, 1500, 30)
+    #x2_list = np.arange(1500, 2800+1, 30)
+    #x_list = np.concatenate((x2_list, x1_list))
+    x_list = np.arange(-200, 2800+1, 30)
+    z_list = np.arange(-900, 1300+1, 30)
+    #yield from bps.mv(stage.th, -0.27) #2022 Oct 24
+    yield from bps.mv(stage.th, -0.32) #-0.34,-0.4 2022 Oct 25
+
+    for waxs_angle in waxs_angle_array:  # loop through waxs angles
+        yield from bps.mv(waxs, waxs_angle)
+
+        det_exposure_time(t, t)
+
+        for ii, x in enumerate(x_list):  # loop over samples on bar
+            yield from bps.mv(piezo.x, x)  # move to next sample
+            for jj, z in enumerate(z_list):  # loop over samples on bar
+                yield from bps.mv(piezo.z, z)  # move to next sample
+                sample_name = (
+                    "{sample}_waxs{waxs_angle:05.2f}_x{x}_z{z}_th{th}_{t}s".format(
+                        sample=sample, waxs_angle=waxs_angle, x=x, z=z, th=stage.th, t=t
+                    )
+                )
+                sample_id(user_name="ET2", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+
+    '''
+    sample = "Sam5p4_scan_prs0"
+    yield from bps.mv(prs, 0)
+    #x_list = np.arange(-200, 1600+1, 30)
+    #z_list = np.arange(-3000, 1500+1, 30)
+    x_list = np.arange(-200, 1300+1, 30)
+    z_list = np.arange(400, 2700+1, 30)
+    th = -0.65
+    yield from bps.mv(stage.th, th) #-0.47
+    y = 3530
+    yield from bps.mv(piezo.y, y) #3500
+
+    for waxs_angle in waxs_angle_array:  # loop through waxs angles
+        yield from bps.mv(waxs, waxs_angle)
+
+        det_exposure_time(t, t)
+
+        for ii, x in enumerate(x_list):  # loop over samples on bar
+            yield from bps.mv(piezo.x, x)  # move to next sample
+            for jj, z in enumerate(z_list):  # loop over samples on bar
+                yield from bps.mv(piezo.z, z)  # move to next sample
+                sample_name = (
+                    "{sample}_waxs{waxs_angle:05.2f}_x{x}_y{y}_z{z}_th{th}_{t}s".format(
+                        sample=sample, waxs_angle=waxs_angle, x=x, y=y, z=z, th=th, t=t
+                    )
+                )
+                sample_id(user_name="ET3", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+
+
+
+
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5)
+
+
+
+# 2020C1
 def run_tomo_ET(t=0.5):  # 2020C1
 
-    sample = "SampleDario_TOMO"
+    sample = "Sam5p4_scan"
     # x_list = [47200.000,37200.000,23700.000,15700.000]
     x_list = np.arange(-4.158 - 0.5, 3.842 + 0.01 + 0.5, 0.2)
 
