@@ -1217,3 +1217,419 @@ def cai_giswaxs_temperature_scan_2022_2(t=0.5):
     t_kelvin = 23 + 273.15
     yield from ls.output1.mv_temp(t_kelvin)
     yield from ls.output1.turn_off()
+
+
+def run_swaxs_Cai_2022_3(t=1):
+    """
+    Take WAXS and SAXS at six sample positions for averaging
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off. Run
+    WAXS arc as the slowest motor.
+    Hexapod may need adjustment for the lower samples.
+    """
+
+    # Top sample row
+    names_a   = ['sample-23', 'sample-24','sample-25', 'sample-26', 'sample-27',]
+    piezo_x_a = [     42000,      27000,      11000,       -2000,       -16000,]
+    piezo_y_a = [      -8500,       -8500,      -8500,      -8500,        -8000,]
+    hexa_y_a  = [0 for n in names_a]  #in mm
+
+    # Bottom sample row
+    names_b   = ['Background', ]
+    piezo_x_b = [       44000,]
+    piezo_y_b = [        4000,]
+    hexa_y_b  = [0 for n in names_b]  #in mm
+
+    # Combine rows
+    names   = names_a + names_b
+    piezo_x = piezo_x_a + piezo_x_b
+    piezo_y = piezo_y_a + piezo_y_b
+    hexa_y  = hexa_y_a + hexa_y_b
+
+    # Offsets for taking a few points per sample
+    x_off = [0, -1000]
+    y_off = [0, 500, 1000]
+    y_off_waxs = 100
+
+    waxs_arc = [40, 20, 0]
+    user = "LC"
+    
+
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+
+    # Check if the length of xlocs, ylocs and names are the same
+    assert len(piezo_x) == len(names), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})"
+    assert len(piezo_x) == len(piezo_y), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(piezo_y)})"
+    assert len(piezo_x) == len(hexa_y), f"Number of X coordinates ({len(piezo_x)}) is different from hexapod y positions ({len(hexa_y)})"
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        # Detectors, disable SAXS when WAXS in the way
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        det_exposure_time(t, t)
+
+        for name, x, y, hy in zip(names, piezo_x, piezo_y, hexa_y):
+            yield from bps.mv(stage.y, hy)
+
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of + i * y_off_waxs)
+
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x + x_of)
+
+                    loc = xx + 2 * yy + 1
+
+                    # Metadata
+                    e = energy.position.energy / 1000
+                    wa = waxs.arc.position + 0.001
+                    wa = str(np.round(float(wa), 1)).zfill(4)
+                    sdd = pil1m_pos.z.position / 1000
+
+                    # Sample name
+                    name_fmt = ( "{sample}_{energy}keV_wa{wax}_sdd{sdd}m_loc{loc}")
+                    sample_name = name_fmt.format(
+                        sample=name,
+                        energy="%.2f" % e,
+                        wax=wa,
+                        sdd="%.1f" % sdd,
+                        loc=int(loc),
+                    )
+                    sample_id(user_name=user, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+
+def run_swaxs_capillaries_Cai_2022_3(t=1):
+    """
+    Take WAXS and SAXS at six sample positions for averaging
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off. Run
+    WAXS arc as the slowest motor.
+    Hexapod may need adjustment for the lower samples.
+    """
+
+    #names   = [ 'red-07', 'red-08', 'red-09', 'red-10', 'red-11', 'pink-04' ]
+    #piezo_x = [    39100,    32800,    26000,    20400,    13400,      6400, ]
+    #piezo_y = [    -1900,    -1600,    -1600,    -1600,    -1600,     -4000, ]
+    #hexa_y  = [0 for n in names]  #in mm
+    # hexa_y  = [0, 0, -5, -5, 0, ....]
+
+    #Liquid Samples- 2nd set
+    #names   = [ 'red-07', 'red-08', 'red-09', 'red-10', 'red-11', 'pink-04' ]
+    #piezo_x = [    39100,    32800,    26000,    20400,    13400,      7600, ]
+    #piezo_y = [    -1900,    -1600,    -1600,    -1600,    -1600,     -9600, ]
+    #hexa_y  = [0, 0, 0, 0, 0, -10.31]
+
+    #Redo of Pink-04 only
+    names   = ['pink-04_Run2' ]
+    piezo_x = [ 7600, ]
+    piezo_y = [ -10400, ]
+    hexa_y  = [ -10.31]
+
+    # Offsets for taking a few points per sample
+    x_off = [0, 200]
+    y_off = [0, 500, 1000]
+    y_off_waxs = 100
+
+    waxs_arc = [40, 20, 0]
+    user = "LC"
+    
+
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+
+    # Check if the length of xlocs, ylocs and names are the same
+    assert len(piezo_x) == len(names), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})"
+    assert len(piezo_x) == len(piezo_y), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(piezo_y)})"
+    assert len(piezo_x) == len(hexa_y), f"Number of X coordinates ({len(piezo_x)}) is different from hexapod y positions ({len(hexa_y)})"
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        # Detectors, disable SAXS when WAXS in the way
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        det_exposure_time(t, t)
+
+        for name, x, y, hy in zip(names, piezo_x, piezo_y, hexa_y):
+            yield from bps.mv(stage.y, hy)
+
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of + i * y_off_waxs)
+
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x + x_of)
+
+                    loc = xx + 2 * yy + 1
+
+                    # Metadata
+                    e = energy.position.energy / 1000
+                    wa = waxs.arc.position + 0.001
+                    wa = str(np.round(float(wa), 1)).zfill(4)
+                    sdd = pil1m_pos.z.position / 1000
+
+                    # Sample name
+                    name_fmt = ( "{sample}_{energy}keV_wa{wax}_sdd{sdd}m_loc{loc}")
+                    sample_name = name_fmt.format(
+                        sample=name,
+                        energy="%.2f" % e,
+                        wax=wa,
+                        sdd="%.1f" % sdd,
+                        loc=int(loc),
+                    )
+                    sample_id(user_name=user, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+def cai_printing(xpos,ypos):
+    """
+    xpos=[start, stop, npoints]
+    ypos=[step,npoints]
+    """
+    for yy,y in enumerate(range(ypos[1])):
+        if np.mod(yy,2) == 0:
+            xs=xpos[0];xe=xpos[1]
+        else:
+            xs=xpos[1];xe=xpos[0]
+        yield from bp.scan([pil1M,pil900KW,OAV_writing],stage.x,xs,xe,xpos[2])
+        yield from bps.mvr(stage.y,ypos[0])
+
+def cai_printing_vertical(ypos,reps=1,sleep_time=0,x_step=-.1):
+    """
+    ypos=[start, stop, npoints]
+    """
+    for r in range(reps):
+        yield from bp.scan([pil1M,pil900KW,OAV_writing],stage.y,ypos[0],ypos[1],ypos[2])
+        yield from bps.mvr(stage.x,x_step)
+    yield from bps.mvr(stage.x,-(r+1)*x_step)
+
+
+
+def cai_printing_horizontal(speed=.25,time_step=.5,total_time=20):
+    """
+    ypos=[start, stop, npoints]
+    """
+    
+    pil1M.cam.acquire_period.set(pil1M.cam.acquire_time.get())
+    OAV.cam.acquire_period.set(OAV.cam.acquire_time.get())
+    pil900KW.cam.acquire_period.set(pil900KW.cam.acquire_time.get())
+    pil1M.cam.num_images.set(1);OAV.cam.num_images.set(1);pil900KW.cam.num_images.set(1)
+    
+    step_size=speed*time_step
+    nsteps = int((total_time/time_step)+1)
+    cur_x=stage.x.user_readback.get()
+    RE.md['x_start']=cur_x
+    yield from bp.scan([pil1M,pil900KW,OAV_writing],stage.x,cur_x,cur_x-nsteps*step_size,nsteps)
+    
+def cai_printing_time_evolution_horizontal(total_points=15,sleep_time=12,xstep=.05):
+    # take 2 images / point and use acquire period to make up sleep time
+    st=np.max([sleep_time-pil1M.cam.acquire_time.get(),0])
+    pil1M.cam.acquire_period.set(st);OAV.cam.acquire_period.set(st);pil900KW.cam.acquire_period.set(st)
+    pil1M.cam.num_images.set(2);OAV.cam.num_images.set(2);pil900KW.cam.num_images.set(2)
+    cur_x=stage.x.user_readback.get()
+    yield from bp.scan([pil1M,pil900KW,OAV_writing],stage.x,cur_x,cur_x-total_points*xstep,total_points)
+    # set acquire time back to exposure time:
+    pil1M.cam.acquire_period.set(pil1M.cam.acquire_time.get())
+    OAV.cam.acquire_period.set(OAV.cam.acquire_time.get())
+    pil900KW.cam.acquire_period.set(pil900KW.cam.acquire_time.get())
+    pil1M.cam.num_images.set(1);OAV.cam.num_images.set(1);pil900KW.cam.num_images.set(1)
+
+
+def cai_tensile_continous_hard_2022_3(t=0.2):
+    """
+    WAXS and SAXS continous measurement on Linkam MFS stage
+
+    setthreshold energy 14000 autog 11500
+
+    Args:
+        t (float): detector exposure time,
+    """
+
+    name = "BzMA-0.84-3"
+
+    # Sampe starting hexapod positions in mm
+    stage_x = -0.3
+    stage_y = 0.7
+
+    # Calculate position pairs for sample offset
+    # np.linspace(start, stop, number of points)
+    yss = np.linspace(stage_y, stage_y + 0.1, 9)
+    xss = np.linspace(stage_x, stage_x + 0.4, 2)
+    yss, xss = np.meshgrid(yss, xss)
+    yss = yss.ravel()
+    xss = xss.ravel()
+
+    # Delay between taking detector images in seconds
+    delay = 0
+
+    waxs_arc = [15, 7]
+    det_exposure_time(t, t)
+    user_name = "BQ"
+
+    t0 = time.time()
+
+    yield from bps.mv(stage.y, stage_y, stage.x, stage_x, waxs, waxs_arc[0])
+
+    for i in range(5000):
+
+        yield from bps.mv(stage.y, yss[i % len(yss)], stage.x, xss[i % len(xss)])
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            # Do not read SAXS if WAXS is in the way
+            dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+            t1 = time.time()
+
+            # Metadata
+            step = str(i).zfill(3)
+            td = str(np.round(t1 - t0, 1)).zfill(6)
+            e = energy.position.energy / 1000
+            sdd = pil1m_pos.z.position / 1000
+
+            # Sample name
+            name_fmt = (
+                "{sample}_step{step}_time{td}s_{energy}eV_wa{wax}_sdd{sdd}m"
+            )
+            sample_name = name_fmt.format(
+                sample=name,
+                step=step,
+                td=td,
+                energy="%.1f" % e,
+                wax=wa,
+                sdd="%.1f" % sdd,
+            )
+            sample_name = sample_name.translate(
+                {ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ =,"}
+            )
+            sample_id(user_name=user_name, sample_name=sample_name)
+
+            print(f"\n\t=== Step {i + 1} Sample: {sample_name} ===\n")
+            yield from bp.count(dets)
+        print(f"Sleep for {delay} seconds")
+        yield from bps.sleep(delay)
+
+    # End of the scan
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+
+def give_sample_name(sample='test', user_name='DR'):
+    """
+    Wrapper for sample naming and includes metadata
+    """
+
+    RE.md['sample'] = sample
+
+    e = energy.position.energy / 1000
+    sdd = pil1m_pos.z.position / 1000
+    wa = waxs.arc.position + 0.001
+    wa = str(np.round(float(wa), 1)).zfill(4)
+
+    # Sample name
+    name_fmt = ("{sample}_{energy}keV_wa{wax}_sdd{sdd}m")
+    sample_name = name_fmt.format(
+        sample=sample,
+        energy="%.2f" % e,
+        wax=wa,
+        sdd="%.1f" % sdd,
+    )
+    sample_id(user_name=user_name, sample_name=sample_name)
+    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+
+
+def run_swaxs_capillary_overnight_Cai_2022_3(t=1):
+    """
+    Take WAXS and SAXS at 2 sample positions,
+    heating done by Linkam
+
+    """
+
+    name   = 'AAPA-80_run2'
+    hexa_y  =  -0.4
+    hexa_x  =  -7.7
+    hexa_z  =  -5.5
+
+    # Offsets for taking a few points per sample
+    y_off = [0, 0.5]
+    y_off_step = 0.025
+
+    waxs_arc = [20, 0]
+    user = "LC"
+
+    temperatures =   [50, 100, 150, 200, 250]
+    temp_ramp_time = [x * 60 for x in [0, 5, 5, 5, 5]]
+    times = [x * 60 for x in [5, 10, 30, 60]]
+
+    t0_total = time.time()
+    
+    yield from bps.mv(
+        stage.y, hexa_y,
+        stage.x, hexa_x,
+        stage.z, hexa_z,
+        waxs, waxs_arc[0],
+    )
+
+    counter = 0
+
+    for temp, ramp in zip(temperatures, temp_ramp_time):
+        print(f'Waiting for ramp {ramp} s')
+        print(temp)
+        yield from bps.sleep(ramp) 
+
+        t_at_temp = time.time()
+
+        for ti in times:
+            t_difference = time.time() - t_at_temp + 30
+
+            while abs(t_difference) < ti:
+                yield from bps.sleep(10)
+                t_difference = time.time() - t_at_temp + 30
+                print(f'Wating for {ti - t_difference:.0f} s')
+            
+            for i, wa in enumerate(waxs_arc):
+                yield from bps.mv(waxs, wa)
+                # Detectors, disable SAXS when WAXS in the way
+                dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+                det_exposure_time(t, t)
+
+                for yy, y_of in enumerate(y_off):
+                    yield from bps.mv(stage.y, hexa_y + y_of + counter * y_off_step)
+
+                    # Metadata
+                    e = energy.position.energy / 1000
+                    wa = waxs.arc.position + 0.001
+                    wa = str(np.round(float(wa), 1)).zfill(4)
+                    sdd = pil1m_pos.z.position / 1000
+                    temp = str(temp).zfill(3)
+                    tm = str(np.round(float(ti), 0)).zfill(5)
+
+                    t1 = time.time()
+                    td = str(np.round(t1 - t0_total, 1)).zfill(6)
+
+                    # Sample name
+                    name_fmt = ( "{sample}_{temp}C_{tm}s_{energy}keV_wa{wax}_sdd{sdd}m_loc{loc}_time{td}s")
+                    sample_name = name_fmt.format(
+                        sample=name,
+                        temp=temp,
+                        tm=tm,
+                        energy="%.2f" % e,
+                        wax=wa,
+                        sdd="%.1f" % sdd,
+                        td=td,
+                        loc=int(yy),
+                    )
+                    sample_id(user_name=user, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+                    counter += 1
+        if temp == 25:
+            break
+        
