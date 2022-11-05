@@ -1,3 +1,4 @@
+from sqlite3 import enable_callback_tracebacks
 import datetime
 import pprint
 import uuid
@@ -47,7 +48,7 @@ def process_kafka_messages(beamline_acronym, data_source="runengine", target=Non
     #   so generate a unique consumer group id for it
     unique_group_id = f"autosymlink-{beamline_acronym}-{data_source}"
     cconfig = kafka_config["runengine_producer_config"]
-    cconfig["auto.offset.reset"] = "smallest"
+    cconfig["auto.offset.reset"] = "latest"
     kafka_dispatcher = RemoteDispatcher(
         topics=[f"{beamline_acronym}.bluesky.{data_source}.documents"],
         bootstrap_servers=",".join(kafka_config["bootstrap_servers"]),
@@ -130,9 +131,10 @@ def get_symlink_pairs(target_path, *, det_map, root_map=None):
             if name == "event":
                 doc = event_model.pack_event_page(doc)
             for key in target_keys:
+                
                 det, _, _ = key.partition("_")
-                det_name = det[3:]
-                det_type = det_map[det_name]
+                det_name = det.removeprefix('pil')
+                det_type = det_map.get(det_name, det_name)
 
                 if key not in doc["data"]:
                     continue

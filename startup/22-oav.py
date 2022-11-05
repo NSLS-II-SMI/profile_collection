@@ -168,3 +168,4 @@ for camera in [OAV_writing]:
     camera.read_attrs.append('tiff')
     camera.tiff.read_attrs = []
     camera.cam.ensure_nonblocking()
+    #camera.cam.stage_sigs['color_mode'] = 'Mono'
