@@ -240,3 +240,40 @@ def scan_trans_1motor(
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.5, 0.5)
+
+
+from bluesky.utils import short_uid
+import bluesky.plan_stubs as bps
+import bluesky.preprocessors as bpp
+
+def rocking_scan(det, motor, cycle=1, cycle_t=10, phi=-0.6, half_delta=30, md=None):
+    md = dict(md) if md is not None else {}
+    md.update({'cycles': cycle, 'cycle_t': cycle_t, 'phi': phi, 'half_delta': half_delta})
+
+    start = phi - half_delta
+    stop = phi + half_delta
+
+    @bpp.stage_decorator([det])
+    @bpp.run_decorator(md=md)
+    def inner():
+        # name of the group we should wait for
+        group=short_uid('reading')
+        # trigger the detector
+        st = yield from bps.trigger(det, group=group)
+        # move the motor back and forth, cycle in the original was back and forth
+        # except for the last one, this does N-1 cycles
+        for i in range(cycle-1):
+            yield from bps.mv(motor, stop)
+            yield from bps.mv(motor, start)
+        # and the last pass forward
+        yield from bps.mv(motor, stop)
+
+        # wait for the detector to really finish
+        yield from bps.wait(group=group)
+        # put the detector reading in the primary stream
+        yield from bps.create(name='primary')
+        yield from bps.read(det)
+        yield from bps.save()
+
+    yield from bps.mv(motor, start)
+    return (yield from inner())
