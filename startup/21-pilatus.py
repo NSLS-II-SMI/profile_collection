@@ -360,7 +360,9 @@ class WAXS(Device):
         # bsx_pos =-20.92 + 264 * np.tan(np.deg2rad(arc_value))
         # bsx_pos = -17.1 - 252*np.tan(np.deg2rad(arc_value)) # until 29-Mar-2022 when the waxs-arc failed , and MZ also raised the BS maually.
         # bsx_pos = -16.64 - 252 * np.tan(np.deg2rad(arc_value))  # new zero position
-        bsx_pos = -9.07561 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Oct 24, refining after WAXS arc died 
+        # bsx_pos = -9.07561 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Oct 24, refining after WAXS arc died 
+        # bsx_pos = -7.5756 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Nov 8, bumped?
+        bsx_pos = -50.1 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Nov 14, After changing the motor by ZY and Brian
 
         return bsx_pos
 
