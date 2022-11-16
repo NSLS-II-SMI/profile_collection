@@ -539,14 +539,17 @@ def NEXAFS_P_edge(t=0.5):
     yield from bps.sleep(2)
 
 
-def cd_saxs_new(th_ini, th_fin, th_st, exp_t=1):
-    sample = "bkg_sample7"
+def cd_saxs_new2(th_ini, th_fin, th_st, exp_t=1):
+    sample = "sample-33"
     det = [pil1M]
+    yield from bps.mv(piezo.y, 1000)
 
     det_exposure_time(exp_t, exp_t)
 
+    theta_zer=-4
+
     for num, theta in enumerate(np.linspace(th_ini, th_fin, th_st)):
-        yield from bps.mv(prs, theta)
+        yield from bps.mv(prs, theta+theta_zer)
         name_fmt = "{sample}_8.3m_16.1keV_num{num}_{th}deg"
 
         sample_name = name_fmt.format(
@@ -555,4 +558,88 @@ def cd_saxs_new(th_ini, th_fin, th_st, exp_t=1):
         sample_id(user_name="PG", sample_name=sample_name)
         print(f"\n\t=== Sample: {sample_name} ===\n")
 
-        yield from bp.count(det, num=5)
+        yield from bp.count(det, num=1)
+
+    sample = "sample-33_bkg"
+    yield from bps.mv(piezo.y, -3600)
+
+    theta_zer=-4
+
+    for num, theta in enumerate(np.linspace(th_ini, th_fin, th_st)):
+        yield from bps.mv(prs, theta+theta_zer)
+        name_fmt = "{sample}_8.3m_16.1keV_num{num}_{th}deg"
+
+        sample_name = name_fmt.format(
+            sample=sample, num="%2.2d" % num, th="%2.2d" % theta
+        )
+        sample_id(user_name="PG", sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+
+        yield from bp.count(det, num=1)
+
+
+def rugo_contact(exp_t=1):
+    sample = "sample-10_rugo_8.3m_16.1keV_5s"
+    det = [pil1M]
+
+    det_exposure_time(exp_t, exp_t)
+    sample_id(user_name="PG", sample_name=sample)
+
+    yield from bp.count(det, num=50)
+
+
+
+
+def cd_saxs_new(th_ini, th_fin, th_st, exp_t=1, sample='test', num=1):
+    sample = sample
+    det = [pil1M]
+
+    det_exposure_time(exp_t, exp_t)
+
+    theta_zer=-7
+
+    for num, theta in enumerate(np.linspace(th_ini, th_fin, th_st)):
+        yield from bps.mv(prs, theta+theta_zer)
+        name_fmt = "{sample}_8.3m_16.1keV_num{num}_{th}deg"
+
+        sample_name = name_fmt.format(
+            sample=sample, num="%2.2d" % num, th="%2.2d" % theta
+        )
+        sample_id(user_name="PG", sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+
+        yield from bp.count(det, num=num)
+
+
+def night_1_cdsaxs(t=1):
+    det = [pil1M]
+    det_exposure_time(t, t)
+
+    names = ['w08_-3-1', 'w08_-3-1_bkg', 'w08_1-1', 'w08_1-1_bkg', 'w08_2-1', 'w08_2-1_bkg', 
+             'w08_-1-1', 'w08_-1-1_bkg', 'w08_0-1', 'w08_0-1_bkg', 'w08_3-1', 'w08_3-1_bkg', ]
+    x =     [    -32000,         -32000,     -1400,         -1400,     21400,         21400, 
+                ]
+    x_hexa =[       0.1,            0.1,       0.3,           0.3,       0.5,           0.5, 
+    ]
+    y=      [      8900,           6500,      8900,          6000,      8000,          5900, 
+    ]
+    z=      [     10800,          10800,      9600,          9600,      8900,          8900, 
+    ]
+    chi=[           0.3,            0.3,      -0.2,          -0.2,      -0.2,          -0.2, 
+    ]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+
+    for name, xs, ys, xs_hexap in zip(names, x, y, chi):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.chi, chis)
+
+        if 'bkg' in name:
+            num=1
+        else:
+            num=10
+
+        yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name, num=num)

@@ -1006,25 +1006,38 @@ def swaxs_Cl_edge_Gregory_2022_3(t=0.5):
     """
 
     # x and y are top center position on the sample (b/c we scan down the sample during measurements)
-    names_toprow = [ ]
-    x_toprow = [ ]
-    y_toprow = [ ]
+    names_toprow = ['CFTE_redo_4.2_100C', 'CFTE_10_100C', 'CFTE_8_100C', 'CFTE_7_55C', 'CFTE_4.2_RT', 'CFTE_10_RT', 'CFTE_8_RT']
+    x_toprow = [                   -4000,           4000,         12000,        20300,         28800,        36600,       44400]
+    y_toprow = [                   -10000,         -10200,         -9700,        -9700,        -10200,       -10200,      -10500]
+    y_hexa_top = [                     -12,            -12,           -12,          -12,           -12,          -12,         -12]
+    z_toprow = [                      8000,           8000,          8000,         8000,          8000,         8000,        8000]
 
-    names_botrow = [ ]
-    x_botrow = [ ]
-    y_botrow = [ ]
+    names_middle = ['PS', 'FeCl3',  'hT', 'hT-400', 'hT-25', 'hT-6', 'hTe', 'hTe-400', 'hTe-25', 'hTe-6', 'hTe-1.5',   'hB', 'hB-400', 'hB-25', 'hB-6', 'hB-1.5',   'mT']
+    x_middle = [   43000,   37600, 32450,    27150,   21650,  16350, 11200,      6050,      950,   -4200,     -9400, -14700,   -19850,  -25100, -30350,   -35350, -42000]
+    y_middle = [   -7800,   -7600, -7400,    -7400,   -7300,  -7400, -7100,     -7000,    -7000,   -6700,     -6600,  -6600,    -6600,   -6600,  -6600,    -6400,  -6900]
+    y_hexa_middle = [  0,       0,     0,        0,       0,      0,     0,         0,        0,       0,         0,      0,        0,       0,      0,        0,      0]
+    z_middle = [    5100,    5100,  5100,     5100,    5100,   5100,  5100,      5100,     5100,    5100,      5100,   5100,     5100,    5100,   5100,     5100,   5100]
 
-    names = names_toprow + names_botrow
-    x = x_toprow + x_botrow
-    y = y_toprow + y_botrow
+    names_botrow = ['mT-400', 'mT-25', 'mT-6', 'mTe', 'mTe-400', 'mTe-25', 'mTe-6', 'mTe-1.5', 'mB', 'mB-400', 'mB-25', 'mB-6', 'mB-1.5',   'Co', 'Co-400', 'Co-25']
+    x_botrow = [       42600,   37000,  32000, 26800,     21750,    16400,   11250,      6050,  700,    -4750,  -10550, -16200,   -21700, -27350,   -32600,  -38350]
+    y_botrow = [        5100,    5200,   5600,  5600,      5600,     5700,    5400,      5400, 5600,     5900,    5700,   6100,     5900,   5800,     6000,    5800]
+    y_hexa_bot = [         0,       0,      0,     0,         0,        0,       0,         0,    0,        0,       0,      0,        0,      0,        0,       0]
+    z_botrow = [        5100,    5100,   5100,  5100,      5100,     5100,    5100,      5100, 5100,     5100,    5100,   5100,     5100,   5100,     5100,    5100]
+
+
+    names = names_toprow + names_middle + names_botrow
+    x = x_toprow + x_middle + x_botrow
+    y = y_toprow + y_middle + y_botrow
+    z = z_toprow + z_middle + z_botrow
+    y_hexa = y_hexa_top + y_hexa_middle + y_hexa_bot
 
     # Move all x values by + xxx um to be at the centre in x
-    x = (np.array(x) + 0).tolist()
-    y = (np.array(y) + 0).tolist()
+    # x = (np.array(x) + 0).tolist()
+    # y = (np.array(y) + 0).tolist()
 
     # Energies for Chloride
     energies = np.asarray(
-        np.arange(2810, 2820, 5).tolist()
+        np.arange(2800, 2820, 5).tolist()
         + np.arange(2820, 2825, 1).tolist()
         + np.arange(2825, 2835, 0.25).tolist()
         + np.arange(2835, 2840, 0.5).tolist()
@@ -1032,13 +1045,15 @@ def swaxs_Cl_edge_Gregory_2022_3(t=0.5):
         + np.arange(2850, 2910, 10).tolist()
     )
 
-    waxs_arc = np.linspace(7, 67, 4)
+    waxs_arc = [0, 20]
 
-    for name, xs, ys in zip(names, x, y):
+    for name, xs, ys, zs, yhex in zip(names, x, y, z, y_hexa):
         yield from bps.mv(piezo.x, xs, piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(stage.y, yhex)
 
         # Cover a range of 0.9 mm in y to avoid damage
-        yss = np.linspace(ys, ys + 900, len(energies))
+        yss = np.linspace(ys, ys + 500, len(energies))
 
         # Stay at the same x position
         xss = np.array([xs])
@@ -1047,9 +1062,14 @@ def swaxs_Cl_edge_Gregory_2022_3(t=0.5):
         yss = yss.ravel()
         xss = xss.ravel()
 
+        if waxs.arc.position > 18:
+            waxs_arc=[20, 0]
+        else:
+            waxs_arc=[0, 20]
+
         for wa in waxs_arc:
             yield from bps.mv(waxs, wa)
-            yield from bps.mvr(piezo.x, 60)
+            # yield from bps.mvr(piezo.x, 60)
 
             # Do not read SAXS if WAXS is in the way
             dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
@@ -1084,8 +1104,6 @@ def swaxs_Cl_edge_Gregory_2022_3(t=0.5):
             for e in energy_steps:
                 yield from bps.mv(energy, e)
                 yield from bps.sleep(3)
-
-
 
 
 

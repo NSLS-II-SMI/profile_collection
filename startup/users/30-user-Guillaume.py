@@ -1071,3 +1071,327 @@ def test_gi_align():
     t2 = time.time()
     print("time for scan is", t1 - t0)
     print("time for new ps is", t2 - t1)
+
+
+def giwaxs_fleury_2022_3(t=0.5):
+    """
+    GIWAXS macro for 309504 Gregory
+    """
+    user_name = "GF"
+
+    # Samples and coordinates
+    # first bar: Georgia Tech GIWAXS, PEDOT and DPP samples
+    # names = [ 'CFE_7_RT',  'CFE_7_55', 'CFE_7_105']
+    # x_piezo = [   -53000,      -45000,      -25000]
+    # y_piezo = [      3500,       3500,        3500]
+    # z_piezo = [     -1000,         -1000,    -1000]
+    # x_hexa =  [       -10,             0,        0]
+
+    names = [ 'sample1','sample2','sample3','sample5','sample6','sample7','sample8']
+    x_piezo = [   -9000,     2000,    14000,    26000,    37000,    49000,    52000]
+    y_piezo = [    3500,     3500,     3500,     3500,     3500,     3500,     3500]
+    z_piezo = [   -1000,    -1000,    -1000,    -1000,    -1000,    -1000,    -1000]
+    x_hexa =  [       0,        0,        0,        0,        0,        0,       10]
+
+    # Checks
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+    assert len(x_piezo) == len(x_hexa), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})"
+
+    # Geometry conditions
+    waxs_angles = [0, 2, 20, 22]
+    inc_angles = [0.1, 0.15]
+    det_exposure_time(t, t)
+
+    # Go over samples and thier positions
+    for name, xs, zs, ys, xs_hexa in zip(names, x_piezo, z_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, 0.5)
+
+        # Align sample
+        yield from alignement_gisaxs(angle=0.1)
+
+        ai0 = piezo.th.position
+
+        # Go over WAXS detector angles
+        for wa in waxs_angles:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if wa < 15 else [pil900KW, pil1M]
+
+            # Go over different incident angles
+            for i, ai in enumerate(inc_angles):
+                yield from bps.mv(piezo.th, ai0 + ai)
+                yield from bps.mv(piezo.x, xs-i*500)
+
+
+                # Metadata
+                name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m_bpm{xbpm}_ai{ai}"
+                bpm = xbpm3.sumX.get()
+                e = energy.energy.position / 1000
+                sdd = pil1m_pos.z.position / 1000
+
+                sample_name = name_fmt.format(
+                    sample=name,
+                    energy="%.1f" % e,
+                    sdd="%.1f" % sdd,
+                    wax=str(wa).zfill(4),
+                    xbpm="%4.3f" % bpm,
+                    ai="%.2f" % ai,
+                )
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                # Take data
+                yield from bp.count(dets, num=1)
+            yield from bps.mv(piezo.th, ai0)
+
+
+
+
+def waxs_fleury_2022_3(t=0.5):
+    """
+    GIWAXS macro for 309504 Gregory
+    """
+    user_name = "GF"
+
+    names = [     'DS32',    'DS33',    'DS34',    'DS36',    'DS37',    'DS38',   'ISV44',  'ISV220','ISV220_sol']
+    x_piezo = [    39800,     27000,     20800,     14500,      1600,     -4800,    -11000,    -17500,    -23800]
+    y_piezo = [    -5000,     -3900,     -3900,     -4600,     -4100,     -4800,     -4500,     -4400,     -4200]
+    z_piezo = [      710,       710,       710,       710,       710,       710,       710,       710,       710]
+
+    # Checks
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+
+    # Geometry conditions
+    waxs_angles = [0, 20]
+    det_exposure_time(t, t)
+
+    # Go over WAXS detector angles
+    for wa in waxs_angles:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if wa < 15 else [pil900KW, pil1M]
+        
+        # Go over samples and thier positions
+        for name, xs, zs, ys in zip(names, x_piezo, z_piezo, y_piezo):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            yield from bps.mv(piezo.z, zs)
+
+            # Metadata
+            name_fmt = "{sample}_RTafterheating_{energy}eV_wa{wax}_sdd{sdd}m"
+            bpm = xbpm3.sumX.get()
+            e = energy.energy.position / 1000
+            sdd = pil1m_pos.z.position / 1000
+
+            sample_name = name_fmt.format(
+                sample=name,
+                energy="%.1f" % e,
+                sdd="%.1f" % sdd,
+                wax=str(wa).zfill(4),
+            )
+            sample_id(user_name=user_name, sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+
+            # Take data
+            yield from bps.sleep(2)
+            yield from bp.count(dets, num=1)
+
+
+def nexafs_cl(t=1):
+    dets = [pil900KW]
+
+
+    # energies = (np.arange(2800, 2820, 5).tolist()+ np.arange(2820, 2825, 1).tolist()+ np.arange(2825, 2831, 0.25).tolist() + np.arange(2831, 2840, 1).tolist()+ np.arange(2840, 2865, 5).tolist())
+
+    energies = np.linspace(2800, 2850, 51)
+    waxs_arc = [20]
+
+    names = ["test"]
+
+    for name in names:
+        det_exposure_time(t, t)
+        name_fmt = "nexafs_{sample}_{energy}eV_bpm{xbpm}"
+
+        for e in energies:
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(1)
+
+            bpm = xbpm3.sumX.value
+            sample_name = name_fmt.format(
+                sample=name,
+                energy="%6.2f" % e,
+                xbpm="%4.3f" % bpm,
+            )
+            sample_id(user_name="GF", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+            yield from bp.count(dets, num=1)
+
+        yield from bps.mv(energy, 2825)
+        yield from bps.mv(energy, 2800)
+
+
+
+def waxs_nieves_2022_3(t=0.5):
+    """
+    GIWAXS macro for 309504 Gregory
+    """
+    user_name = "GF"
+
+    names = ['s1_prisine_hspe', 's2_prisine_spe', 's3_latp_powder', 's4_pm_hspe_hd', 's5_pm_hspe_vd']
+    x_piezo = [          40000,            32000,            20000,            5000,          -13000]
+    y_piezo = [          -4700,            -4700,            -4500,           -4500,           -4500]
+    z_piezo = [          11000,            11000,            11000,           11000,           11000]
+
+    # Checks
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+
+    # Geometry conditions
+    waxs_angles = [40]
+    det_exposure_time(t, t)
+    ypos = [-500, 500, 3]
+
+    # Go over WAXS detector angles
+    for wa in waxs_angles:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if wa < 15 else [pil900KW, pil1M]
+        dets = [pil1M]
+
+        # Go over samples and thier positions
+        for name, xs, zs, ys in zip(names, x_piezo, z_piezo, y_piezo):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            yield from bps.mv(piezo.z, zs)
+
+            # Metadata
+            name_fmt = "{sample}_countsaxs_{energy}eV_wa{wax}_sdd{sdd}m"
+            bpm = xbpm3.sumX.get()
+            e = energy.energy.position / 1000
+            sdd = pil1m_pos.z.position / 1000
+
+            sample_name = name_fmt.format(
+                sample=name,
+                energy="%.1f" % e,
+                sdd="%.1f" % sdd,
+                wax=str(wa).zfill(4),
+            )
+            sample_id(user_name=user_name, sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+
+            # Take data
+            yield from bps.sleep(2)
+            yield from bp.count(dets, num=50)
+            # yield from bp.rel_scan(dets, piezo.y, *ypos)
+
+
+
+
+def waxs_agbh_2022_3(t=0.5):
+    """
+    GIWAXS macro for 309504 Gregory
+    """
+    user_name = "GF"
+
+    names = ['AgBeh']
+    x_piezo = [          -30500]
+    y_piezo = [          -4500]
+    z_piezo = [          10000]
+
+    # Checks
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+
+    # Geometry conditions
+    waxs_angles = [0, 2, 20, 22, 40]
+    det_exposure_time(t, t)
+
+    # Go over WAXS detector angles
+    for wa in waxs_angles:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW]
+        
+        # Go over samples and thier positions
+        for name, xs, zs, ys in zip(names, x_piezo, z_piezo, y_piezo):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            yield from bps.mv(piezo.z, zs)
+
+            # Metadata
+            name_fmt = "{sample}_{energy}eV_wa{wax}"
+            bpm = xbpm3.sumX.get()
+            e = energy.energy.position / 1000
+
+            sample_name = name_fmt.format(
+                sample=name,
+                energy="%.1f" % e,
+                wax=str(wa).zfill(4),
+            )
+            sample_id(user_name=user_name, sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+
+            # Take data
+            yield from bps.sleep(2)
+            yield from bp.count(dets, num=1)
+
+
+def fly_scan_cdgisaxs(det, motor, cycle=1, cycle_t=10, phi=-0.6):
+    start = phi - 30
+    stop = phi + 30
+    acq_time = cycle * cycle_t
+    yield from bps.mv(motor, start)
+
+    det.stage()
+    det.cam.acquire_time.put(acq_time)
+    print(f"Acquire time before staging: {det.cam.acquire_time.get()}")
+    st = det.trigger()
+    for i in range(cycle):
+        yield from list_scan([], motor, [start, stop])
+    while not st.done:
+        pass
+    det.unstage()
+    print(f"We are done after {acq_time}s of waiting")
+
+
+from bluesky.utils import short_uid
+import bluesky.plan_stubs as bps
+import bluesky.preprocessors as bpp
+
+def rocking_scan(det, motor, cycle=1, cycle_t=10, phi=-0.6, half_delta=30, md=None):
+    md = dict(md) if md is not None else {}
+    md.update({'cycles': cycle, 'cycle_t': cycle_t, 'phi': phi, 'half_delta': half_delta})
+
+    start = phi - half_delta
+    stop = phi + half_delta
+
+    @bpp.stage_decorator([det])
+    @bpp.run_decorator(md=md)
+    def inner():
+        # name of the group we should wait for
+        group=short_uid('reading')
+        # trigger the detector
+        st = yield from bps.trigger(det, group=group)
+        # move the motor back and forth, cycle in the original was back and forth
+        # except for the last one, this does N-1 cycles
+        for i in range(cycle-1):
+            yield from bps.mv(motor, stop)
+            yield from bps.mv(motor, start)
+        # and the last pass forward
+        yield from bps.mv(motor, stop)
+
+        # wait for the detector to really finish
+        yield from bps.wait(group=group)
+        # put the detector reading in the primary stream
+        yield from bps.create(name='primary')
+        yield from bps.read(det)
+        yield from bps.save()
+
+    yield from bps.mv(motor, start)
+    return (yield from inner())
