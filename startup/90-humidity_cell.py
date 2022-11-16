@@ -45,9 +45,9 @@ def setDryFlow(voltage=None):
 def setWetFlow(voltage=0):
     if voltage == None or voltage > 5 or voltage < 0:
         print("Input voltage betwee 0 and 5V")
-    moxa_in.ch2_sp.put(0)
+    moxa_in.ch3_sp.put(0)
     time.sleep(0.5)
-    moxa_in.ch2_sp.put(voltage)
+    moxa_in.ch3_sp.put(voltage)
 
 
 """
