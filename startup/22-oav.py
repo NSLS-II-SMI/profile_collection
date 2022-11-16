@@ -169,3 +169,33 @@ for camera in [OAV_writing]:
     camera.tiff.read_attrs = []
     camera.cam.ensure_nonblocking()
     #camera.cam.stage_sigs['color_mode'] = 'Mono'
+
+
+OAV2 = StandardProsilicaV33('XF:12IDC-BI{Cam:HEX}', name='OAV')
+OAV2.stage_sigs[OAV.cam.trigger_mode] = 'Fixed Rate' # was OFF
+OAV2_writing = StandardProsilicaWithTIFFV33('XF:12IDC-BI{Cam:HEX}', name='OAV')
+
+OAV2_writing.tiff.write_path_template = '/nsls2/data/smi/legacy/results/raw/OAV/%Y/%m/%d/'
+OAV2_writing.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/OAV/%Y/%m/%d/'
+OAV2_writing.tiff.reg_root = '/nsls2/data/smi/legacy/results/raw/OAV/'
+
+all_standard_pros = [OAV, OAV_writing, OAV2, OAV2_writing]
+
+for camera in all_standard_pros:
+    camera.read_attrs = ['stats1', 'stats2', 'stats3', 'stats4', 'stats5']
+    # camera.tiff.read_attrs = []  # leaving just the 'image'
+    for stats_name in ['stats1', 'stats2', 'stats3', 'stats4', 'stats5']:
+        stats_plugin = getattr(camera, stats_name)
+        stats_plugin.read_attrs = ['total']
+    #The following line should only be used when running AD V33
+    camera.cam.ensure_nonblocking()
+    camera.stage_sigs[camera.cam.trigger_mode] = 'Fixed Rate'
+
+#OAV.stage_sigs[OAV.cam.trigger_mode] = 'Fixed Rate'
+#OAV_writing.stage_sigs[OAV_writing.cam.trigger_mode] = 'Fixed rate'
+
+for camera in [OAV_writing, OAV2_writing]:
+    camera.read_attrs.append('tiff')
+    camera.tiff.read_attrs = []
+    camera.cam.ensure_nonblocking()
+    #camera.cam.stage_sigs['color_mode'] = 'Mono'
