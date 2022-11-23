@@ -1367,6 +1367,8 @@ import bluesky.preprocessors as bpp
 def rocking_scan(det, motor, cycle=1, cycle_t=10, phi=-0.6, half_delta=30, md=None):
     md = dict(md) if md is not None else {}
     md.update({'cycles': cycle, 'cycle_t': cycle_t, 'phi': phi, 'half_delta': half_delta})
+    acq_time = cycle * cycle_t
+    det.cam.acquire_time.put(acq_time)
 
     start = phi - half_delta
     stop = phi + half_delta
