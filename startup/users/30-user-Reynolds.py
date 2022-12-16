@@ -591,3 +591,67 @@ def phong_waxs_Sedge_multi_2022_3(t=0.5):
 
             yield from bps.mv(energy, 2470)
             yield from bps.mv(energy, 2450)
+
+
+def patryk_waxs_Sedge_multi_2022_3(t=0.5):
+    """
+    Additional measurements, December 2022
+    """
+
+    names   = ['PAA5-rot90', 'EPAA6-rot90', 'EPBA5-rot90', 'EPRV5-rot90', 'EPRV6-rot90', 'SiN-edge',]
+    piezo_x = [       27200,        20600,          13600,          7000,           700,         -5000,] 
+    piezo_y = [       -1800,        -1600,          -1400,         -1700,          -1400,        -1400,]
+
+
+    assert len(names) == len(piezo_x), f"Number of X coordinates ({len(names)}) is different from number of samples ({len(piezo_x)})"
+    assert len(piezo_y) == len(piezo_x), f"Number of Y coordinates ({len(piezo_y)}) is different from number of samples ({len(piezo_x)})"
+        
+    """
+    These energies are specific to doped P3HT where we expect some potential structure in the range 2475-2485 eV, as studied at our
+    September 2022 beamtime. These energies are used for all washer sample measurements Sept. 2022, and used for our hi-res nexafs scans
+    """
+    energies = np.concatenate((
+        np.arange(2460, 2474, 1),
+        np.arange(2473.5, 2488, 0.25),
+        np.arange(2488, 2501, 1)
+    ))                              
+    
+    waxs_arc = [0, 20, 40, 60]
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+        det_exposure_time(t, t)
+
+        for name, xs, ys in zip(names, piezo_x, piezo_y):
+            yield from bps.mv(piezo.x, xs,
+                              piezo.y, ys)
+
+            yss = np.linspace(ys, ys, len(energies))
+
+            for e, ysss in zip(energies, yss):
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                # Metadata
+                wa = waxs.arc.position + 0.001
+                wa = str(np.round(float(wa), 1)).zfill(4)
+                sdd = pil1m_pos.z.position / 1000
+                scan_id = db[-1].start["scan_id"] + 1
+
+                # Sample name
+                name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m"
+                sample_name = name_fmt.format(
+                    sample=name,
+                    energy="%6.2f" % e,
+                    wax=wa,
+                    sdd="%.1f" % sdd,
+                )
+                sample_name.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "})
+                sample_id(user_name="PW", sample_name=sample_name)
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                yield from bp.count(dets)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
