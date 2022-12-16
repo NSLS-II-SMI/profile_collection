@@ -1027,3 +1027,5 @@ def nigh_cdgisaxs(t=0.5):
 
     # for phi in [0, -0.5]:
     #     yield from cd_gisaxs_alphai(ai0, ai_ini, ai_fin, ai_st, phi0, phi, exp_t=t, sample=sample, nume=1)
+
+#0.28507 prs -3.129

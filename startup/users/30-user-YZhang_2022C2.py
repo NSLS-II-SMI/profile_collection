@@ -17,6 +17,9 @@
 # for thin film ex-situ, PY 2500 , hexY = 1
 
 
+# code is saved in /nsls2/xf12id2/data/images/users/2022_3/308052_YZhang
+
+
 user_name = "YZ"
 username = "YZ"
 
