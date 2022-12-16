@@ -598,9 +598,9 @@ def patryk_waxs_Sedge_multi_2022_3(t=0.5):
     Additional measurements, December 2022
     """
 
-    names   = ['PAA5-rot90', 'EPAA6-rot90', 'EPBA5-rot90', 'EPRV5-rot90', 'EPRV6-rot90', 'SiN-edge',]
-    piezo_x = [       27200,        20600,          13600,          7000,           700,         -5000,] 
-    piezo_y = [       -1800,        -1600,          -1400,         -1700,          -1400,        -1400,]
+    names   = ['PAA5-rot90', 'EPAA6-rot90', 'EPBA5-rot90', 'EPRV5-rot90', 'EPRV6-rot90', 'SiN-window-edge',]
+    piezo_x = [       27300,        20300,          14100,          7100,           600,              -700,] 
+    piezo_y = [       -1700,        -1700,          -1700,         -2200,          -1400,            -1700,]
 
 
     assert len(names) == len(piezo_x), f"Number of X coordinates ({len(names)}) is different from number of samples ({len(piezo_x)})"
