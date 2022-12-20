@@ -686,3 +686,163 @@ def wang_temperature_tender_2022_2(t=1):
     t_kelvin = 23 + 273.15
     yield from ls.output1.mv_temp(t_kelvin)
     yield from ls.output1.turn_off()
+
+
+def wang_temperature_hard_2022_3(t=1):
+    """
+    WAXS and SAXS using heating stage controlled by Lakeshore
+
+    For reference: 16.1 keV, low divergence, in vacuum, SAXS sdd 8.3 m
+    """
+
+    ######### Yunfei solid sample position
+    names =   ['SiNx-a', 'SiNx-b', 'SiNx-c', 'Pff1', 'Pff2', 'P3OT1-1', 'P3OT1-2', 'P3DT1-1', 'P3DT1-2', 'TMB4-1', 'TMB4-2',  'SiNx2-1', 'Pff3-1', 'Pff3-2', 'Pff5-1', 'Pff5-2', 'Pff5-3', 'empty-space']
+    piezo_x = [   43000,    43600,    43600,  26100,  19500,     14300,     13250,      7200,      6000,   -20000,      -18800,       -25400,   -31400,   -31100,   -38500,   -38100,   -38000,     -41450]   
+    piezo_y = [   -5000,    -5000,    -4400,  -4400,  -3800,     -3750,     -5000,     -3650,     -3650,    -2850,      -2900,         -2900,   -2900,     -2900,    -2900,    -2650,    -3450 ,     -3500]
+    piezo_z = [4200 for n in names]
+    # piezo_z = [4200, 4100, ]
+
+    ######### Guorong solid sample position
+    #names =   ['TAMU1', 'TAMU2', 'TAMU3', 'TAMU4', 'TAMU5', 'TAMU6', 'TAMU7', 'TAMU8','TAMU9', 'GM19', 'GER1', 'GER2', 'empty-space']
+    #piezo_x = [   47000,  40700,   34300,   27700,   21300,   15200,    9000,    2500,  -3900, -10400, -16600, -23000,   -29300   ]   
+    #piezo_y = [  -5250,   -5250,   -5250,   -5250,   -5250,   -5250,   -5250,   -4850,  -4850,  -4850,  -4850,  -4850,     -4850     ]
+    #piezo_z = [4200 for n in names]
+    # piezo_z = [4200, 4100, ]
+
+
+    assert len(names) == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_y) == len(piezo_x), f"Wrong list lenghts"
+
+    user_name = "YW"
+    temperatures = [180] #[25, 180]
+    waxs_arc = [0, 20]
+
+    for temperature in temperatures:
+        t_kelvin = temperature + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+
+        # Activate heating range in Lakeshore
+        if temperature < 50:
+            yield from bps.mv(ls.output1.status, 1)
+        else:
+            yield from bps.mv(ls.output1.status, 3)
+
+        # Equalise temperature
+        print(f"Equalising temperature to {temperature:.0f} deg C")
+        start = time.time()
+        temp = ls.input_A.get()
+        while abs(temp - t_kelvin) > 5:
+            print("Difference: {:.1f} K".format(abs(temp - t_kelvin)))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+            
+            # Escape the loop if too much time passes
+            if time.time() - start > 15 * 60:
+                temp = t_kelvin
+        print(
+            "Time needed to equilibrate: {:.1f} min".format((time.time() - start) / 60)
+        )
+
+        # Wait extra time depending on temperature
+        ######## Yunfei changed both to 1 second. Previous is 300 , 600
+        if (56 < temperature) and (temperature < 160):
+            yield from bps.sleep(1)
+        elif 160 <= temperature:
+            yield from bps.sleep(1)
+
+        # Read T and convert to deg C
+        temp_degC = ls.input_A.get() - 273.15
+
+        rod_pos = pil1m_bs_rod.x.position
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+            
+            if not ((0 < rod_pos) and (rod_pos < 3)):
+                dets.append(pdcurrent)
+                dets.append(pdcurrent1)
+                dets.append(pdcurrent2)
+
+            det_exposure_time(t, t)
+
+            for name, x, y in zip(names, piezo_x, piezo_y):
+                yield from bps.mv(piezo.x, x,
+                                  piezo.y, y + i * 0)
+
+                # Metadata
+                e = energy.position.energy / 1000
+                temp = str(np.round(float(temp_degC), 1)).zfill(5)
+                wa = waxs.arc.position + 0.001
+                wa = str(np.round(float(wa), 1)).zfill(4)
+                sdd = pil1m_pos.z.position / 1000
+
+                if not ((0 < rod_pos) and (rod_pos < 3)):
+                    if waxs.arc.position > 15:
+                        fs.open()
+                        yield from bps.sleep(0.3)
+                        curr = pdcurrent2.get()
+                        fs.close()
+                    else:
+                        curr = 0
+                    curr = str(np.round(float(curr), 0))
+                else:
+                    curr = '_rod_'
+
+                
+                
+                name_fmt = "{sample}_{temp}degC_{energy}keV_wa{wax}_sdd{sdd}m_pd{curr}"
+                sample_name = name_fmt.format(
+                    sample=name,
+                    energy="%.2f" % e,
+                    temp=temp,
+                    wax=wa,
+                    sdd="%.1f" % sdd,
+                    #curr='%.0f' % curr,
+                    curr = curr,
+                )
+                sample_name = sample_name.translate(
+                    {ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ =, "}
+                )
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                sample_id(user_name=user_name, sample_name=sample_name)
+                yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+    # Turn off the heating and set temperature to 23 deg C
+    #t_kelvin = 23 + 273.15
+    #yield from ls.output1.mv_temp(t_kelvin)
+    #yield from ls.output1.turn_off()
+
+
+def read_pd_current():
+    """
+    Read pin diode current with attenuated beam
+    """
+    #yield from bps.mv(att1_6.open_cmd, 1)
+    #yield from bps.mv(att1_7.open_cmd, 1)
+    #yield from bps.sleep(2)
+
+    fs.open()
+    yield from bps.sleep(0.3)
+    pd_curr = pdcurrent2.get()
+    fs.close()
+
+    #yield from bps.mv(att1_6.close_cmd, 1)
+    #yield from bps.mv(att1_7.close_cmd, 1)
+
+    #yield from bps.sleep(2)
+
+    return(pd_curr)
+
+def turn_off_heating(temp=23):
+    """
+    Turn off the heating and set temperature to 23 deg C for Lakeshore
+    """
+    print(f'Setting temp to {temp} deg C and turning off the heater')
+    t_kelvin = temp + 273.15
+    yield from ls.output1.mv_temp(t_kelvin)
+    yield from ls.output1.turn_off()
