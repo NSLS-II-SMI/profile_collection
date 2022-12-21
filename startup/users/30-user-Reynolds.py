@@ -599,8 +599,14 @@ def patryk_waxs_Sedge_multi_2022_3(t=0.5):
     """
 
     names   = ['PAA5-rot90', 'EPAA6-rot90', 'EPBA5-rot90', 'EPRV5-rot90', 'EPRV6-rot90', 'SiN-window-edge',]
-    piezo_x = [       27300,        20300,          14100,          7100,           600,              -700,] 
-    piezo_y = [       -1700,        -1700,          -1700,         -2200,          -1400,            -1700,]
+    piezo_x = [       26500,        20400,          13400,          7100,           0,               -400, ] 
+    piezo_y = [       -2700,        -2400,          -1800,         -2300,          -2300,            -1700,]
+
+    names = [n + '-exposed' for n in names]
+
+    names = names[1:]
+    piezo_y = piezo_y[1:]
+    piezo_x = piezo_x[1:]
 
 
     assert len(names) == len(piezo_x), f"Number of X coordinates ({len(names)}) is different from number of samples ({len(piezo_x)})"
@@ -616,7 +622,7 @@ def patryk_waxs_Sedge_multi_2022_3(t=0.5):
         np.arange(2488, 2501, 1)
     ))                              
     
-    waxs_arc = [0, 20, 40, 60]
+    waxs_arc = [0]
 
     for i, wa in enumerate(waxs_arc):
         yield from bps.mv(waxs, wa)
@@ -627,7 +633,7 @@ def patryk_waxs_Sedge_multi_2022_3(t=0.5):
             yield from bps.mv(piezo.x, xs,
                               piezo.y, ys)
 
-            yss = np.linspace(ys, ys, len(energies))
+            yss = np.linspace(ys, ys + 2000, len(energies))
 
             for e, ysss in zip(energies, yss):
                 yield from bps.mv(piezo.y, ysss)
@@ -638,7 +644,6 @@ def patryk_waxs_Sedge_multi_2022_3(t=0.5):
                 wa = waxs.arc.position + 0.001
                 wa = str(np.round(float(wa), 1)).zfill(4)
                 sdd = pil1m_pos.z.position / 1000
-                scan_id = db[-1].start["scan_id"] + 1
 
                 # Sample name
                 name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m"
