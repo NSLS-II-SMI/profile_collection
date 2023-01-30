@@ -2121,3 +2121,89 @@ def run_swaxs_Fei_2022_3(t=1):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.3, 0.3)
+
+
+def run_swaxs_Fei_2023_1(t=1):
+    """
+    Take WAXS and SAXS at nine sample positions for averaging
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off. Run
+    WAXS arc as the slowest motor. SAXS sdd 5.0 m.
+    """
+
+    # 1 sample row
+    #names_1   = [ '1A1',  '1A2', '1A3', '1B1', '1B2', '1B3', '1C1',  '1C2',  '1C3',  '1D1',  '1D2',  '1D3']
+    #piezo_x_1 = [ 46500,  38600, 29700, 22300, 13700,  5700, -2700, -10700, -18700, -26500, -34700, -42900]
+    #piezo_y_1 = [ -8150,  -8150, -7750, -7850, -8350, -7850, -7950,  -7550,  -7550,  -7350,  -7250,  -7250] 
+
+    # 2 sample row
+    #names_2   = [ '2A1', '2A2', '2A3', '2B1', '2B2', '2B3', '2C1', '2C2',  '2C3',  '2D1',  '2D2',  '2D3'] 
+    #piezo_x_2 = [ 47300, 39500, 31300, 23300, 15100,  6900, -1500, -9700, -17900, -26100, -34300, -42500]
+    #piezo_y_2 = [  4250,  4550,  4750,  4750,  4650,  4650,  4650,  4950,   5050,   4950,   5150,   5350]
+
+    names_1   = [   'U1',   'U2',   'U3',   'U4',  'U5',  'U6', 'V6',  'V5',   'V4',   'V3',   'V2',   'V1',   'W1',   'W2',   'W3',   'W4',  'W5', 'W6',]
+    piezo_x_1 = [ -43100, -34100, -25300, -16300, -8100,  1500, 1300, -7500, -16100, -25300, -34100, -43300, -43100, -34100, -25300, -16500, -7300, 1700,]
+    piezo_y_1 = [  -8650,  -9050,  -9050,  -8850, -9050, -9200, 1350,  1350,   1350,   1550,   1550,   1750,   7150,   6950,   6550,   6550,  6500, 6350,]
+
+    names_2   = [   'X1',   'X2',   'X3',   'X4',  'X5', 'X6',   'Y4',  'Y5',  'Y6', 'background',  'Z2',  'Z1',  'Y1',  'Y2',  'Y3'] 
+    piezo_x_2 = [ -42900, -33900, -25200, -16200, -7200, 1900,  10900, 20100, 29100,        28900, 20100, 11100, 10700, 19900, 28700]
+    piezo_y_2 = [   7200,   7200,   6800,   6800,  6600, 6400,   1400,  1200,   800,        -4400, -4200, -4200, -9000, -9200, -9500]
+
+    # Combine rows
+    names   = names_1   + names_2
+    piezo_x = piezo_x_1 + piezo_x_2
+    piezo_y = piezo_y_1 + piezo_y_2
+
+    # Offsets for taking a few points per sample
+    x_off = [-400, 0, 400]
+    y_off = [-400, 0, 400]
+
+    waxs_arc = [40, 20, 0]
+    user = "FY"
+    
+
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+
+    # Check if the length of xlocs, ylocs and names are the same
+    assert len(piezo_x) == len(names), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})"
+    assert len(piezo_x) == len(piezo_y), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(piezo_y)})"
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        # Detectors, disable SAXS when WAXS in the way
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        det_exposure_time(t, t)
+
+        for name, x, y, in zip(names, piezo_x, piezo_y):
+
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of)
+
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x + x_of)
+
+                    loc = f'{yy}{xx}'
+
+                    # Metadata
+                    e = energy.position.energy / 1000
+                    wa = waxs.arc.position + 0.001
+                    wa = str(np.round(float(wa), 1)).zfill(4)
+                    sdd = pil1m_pos.z.position / 1000
+
+                    # Sample name
+                    name_fmt = ( "{sample}_{energy}keV_wa{wax}_sdd{sdd}m_loc{loc}")
+                    sample_name = name_fmt.format(
+                        sample=name,
+                        energy="%.2f" % e,
+                        wax=wa,
+                        sdd="%.1f" % sdd,
+                        loc=loc,
+                    )
+                    sample_id(user_name=user, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
