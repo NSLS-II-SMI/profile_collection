@@ -243,8 +243,9 @@ def alignement_gisaxs_hex(angle=0.1, rough_y=0.5):
 
 def alignement_gisaxs_hex_roughsample(angle=0.1):
     """
-    Regular alignement routine for gisaxs and giwaxs using the hexapod. First, scan of the sample height and incident angle on the direct beam.
-    Then scan of teh incident angle, height and incident angle again on the reflected beam.
+    Regular alignement routine for gisaxs and giwaxs using the hexapod. First,
+    scan of the sample height and incident angle on the direct beam. Then scan
+    of teh incident angle, height and incident angle again on the reflected beam.
 
     param angle: np.float. Angle at which the alignement on the reflected beam will be done
 
