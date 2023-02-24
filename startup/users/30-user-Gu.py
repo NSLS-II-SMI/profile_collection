@@ -978,3 +978,477 @@ def wang_temperature_tender_2022_3(t=2.5):
 
     # Turn off the heating and set temperature to 23 deg C
     yield from turn_off_heating()
+
+
+def guorong_swaxs_2023_1(t=0.5):
+    """
+    Take WAXS and SAXS at several sample positions for averaging
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off.
+    """
+    # Row A
+    names_A = []#['Perth1', 'Perth2', 'Perth3', 'Perth4', 'Perth5','Perth6','Perth7','Perth8','Perth9','Perth10','Perth11_PI film'  ]
+    piezo_x_A = []#[-39000,   -31000, -23000,    -16000,   -8000,    0000,   7000,     14000,   22000,    32000,      40000]
+    piezo_y_A = []#[     0,      0,       0,         0,        0,      0,      0,         0,      0,       -1000,      -1000] 
+    hexa_y_A  = []#[     -3 for n in names_A ]
+
+    # Row B
+    names_B =  ['Sec-PffBT4T_Mag','Sec-PQT-12_Mag','Sec-P3HT_Mag']
+    names_B =   [f'{n}-B-rotate00' for n in names_B]
+    piezo_x_B = [    15000,   23000,    31000]
+    piezo_y_B = [    4200 ,   4200,  4200]
+    hexa_y_B  = [   -3 for n in names_B ]
+
+    # # Row C
+    # names_C =   [ 'G1','G2','G3','G4','G5','G6','G7','G8','G9','G10','G11-Empty-Al']
+    # piezo_x_C = [ -38600,      -30300,     -22000,        -14000,      -6000,    2000,   10000,     18000,   26000,    34000,      42000]
+    # piezo_y_C = [ 9000 for n in names_C]
+    # hexa_y_C  = [ -3 for n in names_C ] 
+
+    # # Row D
+    # names_D =   [ 'D1-058-F1','D2-051','D3-058-F2','D4-JZ1','D5-AgBh','D6-JZ2','D7-Blank_hole','D8-JZ3','D9-Empty_hole','D10-ZJ4','D11-Empty-Al']
+    # piezo_x_D = [ -38600,      -30300,     -22000,        -14000,      -6000,    2000,   10000,     18000,   26000,    34000,      42000]
+    # piezo_y_D = [ -5000 for n in names_D]
+    # hexa_y_D  = [ 10 for n in names_D ] 
+
+    # # Row E
+    # names_E =   ['AT1','AT2','AT3','Empty-Al','Empty-Al','Empty-Al','Empty-Al','Empty-Al','Empty-Al','Empty-Al','Empty-Al' ]
+    # piezo_x_E = [-38600,      -30300,     -22000,        -14000,      -6000,    2000,   10000,     18000,   26000,    34000,      42000]
+    # piezo_y_E = [ 3000 for n in names_E]
+    # hexa_y_E  = [ 10 for n in names_E] 
+
+    # Combine lists
+    names =   names_A   +   names_B #+   names_C #+   names_D +   names_E #+ names_F #+ names_G
+    piezo_x = piezo_x_A + piezo_x_B #+ piezo_x_C #+ piezo_x_D + piezo_x_E #+ piezo_x_F #+ piezo_x_G
+    piezo_y = piezo_y_A + piezo_y_B #+ piezo_y_C #+ piezo_y_D + piezo_y_E #+ piezo_y_F #+ piezo_y_G
+    hexa_y  = hexa_y_A  +  hexa_y_B #+  hexa_y_C #+  hexa_y_D +  hexa_y_E #+ hexa_y_F #+ hexa_y_G
+    
+    x_off = [0]
+    y_off = [0 ]
+
+    waxs_arc = [0]
+
+
+    user = "GM"
+
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+
+    # Check if the length of xlocs, ylocs and names are the same
+    msg = "Wrong number of coordinates, check sample positions!"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(hexa_y), msg
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        # Detectors, disable SAXS when WAXS in the way
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        det_exposure_time(t, t)
+
+        for name, x, y, hy in zip(names, piezo_x, piezo_y, hexa_y):
+            yield from bps.mv(piezo.y, y,
+                              piezo.x, x,
+                              stage.y, hy)
+
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of)
+
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x + x_of)
+                    
+
+                    # Metadata
+                    e = energy.position.energy / 1000
+                    wa = waxs.arc.position + 0.001
+                    wa = str(np.round(float(wa), 1)).zfill(4)
+                    sdd = pil1m_pos.z.position / 1000
+
+                    # Sample name
+                    name_fmt = ( "{sample}_{energy}keV_wa{wax}_sdd{sdd}m_loc{yy}{xx}")
+                    sample_name = name_fmt.format(
+                        sample=name,
+                        energy="%.2f" % e,
+                        wax=wa,
+                        sdd="%.1f" % sdd,
+                        #loc=int(loc),
+                        xx = xx,
+                        yy = yy,
+                    )
+                    sample_id(user_name=user, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+
+def guorong_temperature_cap_2023_1(t=0.5):
+    """
+    Hard X-ray WAXS and SAXS Lakeshore heating stage
+    """
+
+    names =   [ 'Bkg_CB', 'SOE_OX_Tol', 'SOE_Tol','Bkg_Tol','AMA_058_F1','AMA_051','AMA_085_F1',
+                'AMA_058_F2','AMA_085-F2','OMA80-2A','OMA86-2A','OMA80-2','OMA86-1','OMA86-1A','OMA86-2']
+    piezo_x = [ -42000,     -35600,     -29200,  -22900,  -16500,   -10200,   -3900, 2450, 8750,
+                15050, 21350,27650,34000, 40400,46700]   
+    piezo_y = [   6500,       6500,     6400,     6300,    6200,      6100,     
+                6000, 5900, 5800, 5700, 5600, 5500, 5500,   5500,  5500]
+
+
+    assert len(names)   == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_y), f"Wrong list lenghts"
+
+    user_name = "GM"
+    temperatures = [40, 80, 120]
+    waxs_arc = [20]
+
+    x_off = [0]
+    y_off = [-200, 0, 200]
+
+    for temperature in temperatures:
+        t_kelvin = temperature + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+
+        # Activate heating range in Lakeshore
+        if temperature < 50:
+            yield from bps.mv(ls.output1.status, 1)
+        else:
+            yield from bps.mv(ls.output1.status, 3)
+
+        # Equalise temperature
+        print(f"Equalising temperature to {temperature:.0f} deg C")
+        start = time.time()
+        temp = ls.input_A.get()
+        while abs(temp - t_kelvin) > 5:
+            print("Difference: {:.1f} K".format(abs(temp - t_kelvin)))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+            
+            # Escape the loop if too much time passes
+            if time.time() - start > 15 * 60:
+                temp = t_kelvin
+        print(
+            "Time needed to equilibrate: {:.1f} min".format((time.time() - start) / 60)
+        )
+
+        # Wait extra time depending on temperature
+        if (56 < temperature) and (temperature < 160):
+            yield from bps.sleep(300)
+        elif 160 <= temperature:
+            yield from bps.sleep(600)
+
+        # Read T and convert to deg C
+        temp_degC = ls.input_A.get() - 273.15
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+            det_exposure_time(t, t)
+
+            dets.append(pdcurrent)
+            dets.append(pdcurrent1)
+            dets.append(pdcurrent2)
+
+            for name, x, y in zip(names, piezo_x, piezo_y):
+                yield from bps.mv(piezo.x, x,
+                                  piezo.y, y)
+
+                for yy, y_of in enumerate(y_off):
+                    yield from bps.mv(piezo.y, y + y_of)
+
+                    for xx, x_of in enumerate(x_off):
+                        yield from bps.mv(piezo.x, x + x_of)
+                        # Metadata
+                        e = energy.position.energy / 1000
+                        temp = str(np.round(float(temp_degC), 1)).zfill(5)
+                        wa = waxs.arc.position + 0.001
+                        wa = str(np.round(float(wa), 1)).zfill(4)
+                        sdd = pil1m_pos.z.position / 1000
+
+
+                        # Sample name
+                        name_fmt = ( "{sample}_{temp}_degC_{energy}keV_wa{wax}_sdd{sdd}m_loc{yy}{xx}")
+                        sample_name = name_fmt.format(
+                            sample=name,
+                            energy="%.2f" % e,
+                            temp=temp,
+                            wax=wa,
+                            sdd="%.1f" % sdd,
+                            xx = xx,
+                            yy = yy,
+                        )
+                        sample_name = sample_name.translate(
+                            {ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ =, "}
+                        )
+                        print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                        sample_id(user_name=user_name, sample_name=sample_name)
+                        yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+    # Turn off the heating and set temperature to 23 deg C
+    yield from turn_off_heating()
+
+
+
+def yunfei_hard_temperature_2023_1(t=1):
+    """
+    Hard X-ray WAXS and SAXS Lakeshore heating stage
+    """
+
+    names =   ['empty',  'SiNx1', 'SiNx2', 'TMB11',  'TMB12', 'TMB21',  'TMB22',  'Pff11',  'Pff12', 'Pff13', 'P3DDT1', 'P3DDT2',  'Pff21']
+    piezo_x = [  39100,    35100,   35700,   27500,    26300,   17800,    17800,    11200,     9750,    9700,     3300,     2600,    -5200]      
+    piezo_y = [  -1850,    -1850,   -1350,  -922.6,   -922.6,    -950,    -2350,    -2500,    -1050,   -2500,     -950,     -950,    -1050]
+
+    
+    assert len(names)   == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_y), f"Wrong list lenghts"
+
+    user_name = "YW"
+    temperatures = [180]
+    waxs_arc = [20, 0]
+
+    rod_pos = pil1m_bs_rod.x.position
+    pin_diode_in_rod_out = not ((0 < rod_pos) and (rod_pos < 3))
+
+    # Add beamstop to sample name
+    if pin_diode_in_rod_out:
+        names = [n + '-pd' for n in names]
+    else:
+        names = [n + '-rod' for n in names]
+
+    for temperature in temperatures:
+        t_kelvin = temperature + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+
+        # Activate heating range in Lakeshore
+        if temperature < 50:
+            yield from bps.mv(ls.output1.status, 1)
+        else:
+            yield from bps.mv(ls.output1.status, 3)
+
+        # Equalise temperature
+        print(f"Equalising temperature to {temperature:.0f} deg C")
+        start = time.time()
+        temp = ls.input_A.get()
+        while abs(temp - t_kelvin) > 5:
+            print("Difference: {:.1f} K".format(abs(temp - t_kelvin)))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+            
+            # Escape the loop if too much time passes
+            if time.time() - start > 15 * 60:
+                temp = t_kelvin
+        print(
+            "Time needed to equilibrate: {:.1f} min".format((time.time() - start) / 60)
+        )
+
+        # Wait extra time depending on temperature
+        if (56 < temperature) and (temperature <= 150):
+            wait_time = 60
+            print(f'Sleeping for {wait_time} seconds')
+            yield from bps.sleep(wait_time)
+        elif 150 < temperature:
+            wait_time = 1
+            print(f'Sleeping for {wait_time} seconds')
+            yield from bps.sleep(wait_time)
+
+        # Read T and convert to deg C
+        temp_degC = ls.input_A.get() - 273.15
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+            det_exposure_time(t, t)
+
+            dets.append(pdcurrent)
+            dets.append(pdcurrent1)
+            dets.append(pdcurrent2)
+
+            for name, x, y in zip(names, piezo_x, piezo_y):
+                yield from bps.mv(piezo.x, x,
+                                  piezo.y, y)
+                # Metadata
+                e = energy.position.energy / 1000
+                temp = str(np.round(float(temp_degC), 1)).zfill(5)
+                wa = waxs.arc.position + 0.001
+                wa = str(np.round(float(wa), 1)).zfill(4)
+                sdd = pil1m_pos.z.position / 1000
+
+                if pin_diode_in_rod_out:
+                    if waxs.arc.position > 15:
+                        fs.open()
+                        yield from bps.sleep(0.3)
+                        curr = pdcurrent2.get()
+                        fs.close()
+                    else:
+                        curr = 0
+                    curr = str(np.round(float(curr), 0))
+                else:
+                    curr = '_rod_'
+
+                # Sample name
+                name_fmt = ("{sample}_{temp}degC_{energy}keV_wa{wax}_sdd{sdd}m_pd{curr}_expt{t}s")
+                sample_name = name_fmt.format(
+                    sample = name,
+                    energy = "%.2f" % e,
+                    temp = temp,
+                    wax = wa,
+                    sdd = "%.1f" % sdd,
+                    curr = curr,
+                    t = t,
+                )
+                sample_name = sample_name.translate(
+                    {ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ =, "}
+                )
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                sample_id(user_name=user_name, sample_name=sample_name)
+                yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+    # Turn off the heating and set temperature to 23 deg C
+    #yield from turn_off_heating()
+
+def wang_temperature_tender_2023_1(t=5):
+    """
+    Tender X-ray WAXS and SAXS Lakeshore heating stage, coarse energies
+
+    For reference: 2470 eV, low divergence, in vacuum, SAXS sdd 1.6 m
+    """
+
+    names =   ['empty', 'Pff11',  'Pff12',  'Pff13',  'Pff14',   'Pff31',  'Pff32',  'Pff33', 'Pff34',  'SiNx1',  'SiNx2',       'Pff42',   'Pff61',  'Pff62',  'Pff63',  'Pff71',  'Pff72',  'Pff73']       
+    piezo_x = [  46300,   42300,    43100,    43100,    42500,     26100,    25500,    25500,   25500,    15200,    15200,          8000,    -10400,   -10400,    -9800,   -16700,   -17300,   -17300]   
+    piezo_y = [  -3800,   -3800,    -3800,    -2900,    -2900,     -3500,    -3500,    -2900,   -3200,    -3200,    -2600,         -2600,     -2000,    -1700,    -1700,    -1700,    -1700,    -2200]
+
+    piezo_z = [4200 for n in names]
+    # piezo_z = [4200, 4100, ]
+
+    assert len(names)   == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_y), f"Wrong list lenghts"
+    assert len(piezo_y) == len(piezo_z), f"Wrong list lenghts"
+
+    user_name = "YW"
+    #temperatures = [25, 40, 60, 80, 100, 120, 140, 150, 160, 170, 180] #[25, 180]
+    temperatures = [180, 190, 200, 210, 220] #[25, 180]
+    waxs_arc = [20, 0] 
+    energies = [2460, 2470, 2472, 2474, 2475, 2476, 2477, 2478, 2480, 2490]
+    rod_pos = pil1m_bs_rod.x.position
+
+    pin_diode_in_rod_out = not ((0 < rod_pos) and (rod_pos < 3))
+
+    # Add beamstop to sample name
+    if pin_diode_in_rod_out:
+        names = [n + '-pd' for n in names]
+    else:
+        names = [n + '-rod' for n in names]
+
+    for temperature in temperatures:
+        t_kelvin = temperature + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+
+        # Activate heating range in Lakeshore
+        if temperature < 50:
+            yield from bps.mv(ls.output1.status, 1)
+        else:
+            yield from bps.mv(ls.output1.status, 3)
+
+        # Equalise temperature
+        print(f"Equalising temperature to {temperature:.0f} deg C")
+        start = time.time()
+        temp = ls.input_A.get()
+        while abs(temp - t_kelvin) > 5:
+            print("Difference: {:.1f} K".format(abs(temp - t_kelvin)))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+            
+            # Escape the loop if too much time passes
+            if time.time() - start > 15 * 60:
+                temp = t_kelvin
+        print(
+            "Time needed to equilibrate: {:.1f} min".format((time.time() - start) / 60)
+        )
+
+        # Wait extra time depending on temperature
+        if (56 < temperature) and (temperature <= 150):
+            wait_time = 300
+            print(f'Sleeping for {wait_time} seconds')
+            yield from bps.sleep(wait_time)
+        elif 150 < temperature:
+            wait_time = 300
+            print(f'Sleeping for {wait_time} seconds')
+            yield from bps.sleep(wait_time)
+
+        # Read T and convert to deg C
+        temp_degC = ls.input_A.get() - 273.15
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+            det_exposure_time(t, t)
+
+            if pin_diode_in_rod_out:
+                dets.append(pdcurrent)
+                dets.append(pdcurrent1)
+                dets.append(pdcurrent2)
+
+            for name, x, y in zip(names, piezo_x, piezo_y):
+                yield from bps.mv(piezo.x, x,
+                                  piezo.y, y)
+
+                for e in energies:
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                
+                    # Metadata
+                    #e = energy.position.energy / 1000
+                    temp = str(np.round(float(temp_degC), 1)).zfill(5)
+                    wa = waxs.arc.position + 0.001
+                    wa = str(np.round(float(wa), 1)).zfill(4)
+                    sdd = pil1m_pos.z.position / 1000
+
+                    if pin_diode_in_rod_out:
+                        if waxs.arc.position > 15:
+                            fs.open()
+                            yield from bps.sleep(0.3)
+                            curr = pdcurrent2.get()
+                            fs.close()
+                        else:
+                            curr = 0
+                        curr = str(np.round(float(curr), 0))
+                    else:
+                        curr = '_rod_'
+
+                    # Sample name
+                    name_fmt = ("{sample}_{temp}degC_{energy}eV_wa{wax}_sdd{sdd}m_pd{curr}_expt{t}s")
+                    sample_name = name_fmt.format(
+                        sample = name,
+                        energy = "%.2f" % e ,
+                        temp = temp,
+                        wax = wa,
+                        sdd = "%.1f" % sdd,
+                        curr = curr,
+                        t = t,
+                    )
+                    sample_name = sample_name.translate(
+                        {ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ =, "}
+                    )
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    sample_id(user_name=user_name, sample_name=sample_name)
+                    
+                    yield from bp.count(dets)
+                yield from bps.mv(energy, 2475)
+                yield from bps.mv(energy, 2460)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+    # Turn off the heating and set temperature to 23 deg C
+    yield from turn_off_heating()

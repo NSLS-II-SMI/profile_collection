@@ -16,63 +16,65 @@ def alice_grid_scans_2022_3(t=0.5):
 
         To load in interactive namespace in BlueSky
         %run -i startup/users/30-user-Fergerson.py
+
+        proposal_id("2023_1", "311050_Fergerson2)
     """
     macro_user_name = 'alice_grid_scans_2022_3'
 
 
-    # Row A
-    # names_A =   [ '6A1','6A4','6A7','6A10','6A13']
-    # shear_A =   [10 for n in names_A]
-    # draw_A  =   [1,1.3,1.6,2,2.3]
-    # anneal_A =  [True for n in names_A]
-    # piezo_x_A = [-42000,-23700,-5700,12400,30100]
-    # piezo_y_A = [-8600,-8700,-8700,-8300,-8500]
-    # hexa_y_A  = [ -7 for n in names_A ]
+    # # Row A
+    # names_A =   [ '7A1','7A2','7A3','7A4','7A5','7A6','7A7','7A8','7A9','7A10','7A11','7A12','7A13','7A14','7A15']
+    # shear_A =   [100 for n in names_A]
+    # draw_A  =   [1,1,1, 1.3,1.3,1.3, 1.6,1.6,1.6, 2,2,2, 2.3,2.3,2.3]
+    # anneal_A =  [False for n in names_A]
+    # piezo_x_A = [-38600,-32600, -26600,-20600, -14600, -8600, -2600, 3400,  9400, 15400, 21400, 27400, 33400, 39400, 45400]
+    # piezo_y_A = [-9000, -9000,  -9000, -9000,  -9000, -9200, -9250, -9500, -9400, -9300, -9600, -9500, -9800, -9800, 9850] 
+    # hexa_y_A  = [ -6 for n in names_A ]
 
-    # Row B
-    names_B =   ['6B1','6B4','6B7','6B10','6B15']
-    shear_B =   [100 for n in names_B]
-    draw_B  =   [1,1.3,1.6,2,2.3]
-    anneal_B =  [True for n in names_B]
-    piezo_x_B = [-41900,-23800,-5700,12400,42400]
-    piezo_y_B = [-3800,-3700,-3700,-3300,-3300]
-    hexa_y_B  = [ -7 for n in names_B ] 
+    # # Row B
+    # names_B =   [ '7B1','7B2','7B3','7B4','7B5','7B6','7B7','7B8','7B9','7B10','7B11','7B12','7B13','7B14','7B15']
+    # shear_B =   [300 for n in names_B]
+    # draw_B  =   [1,1,1, 1.3,1.3,1.3, 1.6,1.6,1.6, 2,2,2, 2.3,2.3,2.3]
+    # anneal_B =  [False for n in names_B]
+    # piezo_x_B = [-38600,-32600, -26600,-20600, -14600, -8600, -2600, 3400,  9400, 15400, 21400, 27400, 33400, 39400, 45400]
+    # piezo_y_B = [-4000, -4200,   -4200, -3900, -4000,  -4000, -4300, -4400, -4500, -4400, -4500, -4700, -4800, -5100, -4900]
+    # hexa_y_B  = [ -6 for n in names_B ] 
 
-    # Row C
-    names_C =   [ '6C1','6C4']
-    shear_C =   [0.1,1]
-    draw_C  =   [1,1]
-    anneal_C =  [True for n in names_C]
-    piezo_x_C = [-41900,-23900]
-    piezo_y_C = [1300,1200]
-    hexa_y_C  = [ -7 for n in names_C ] 
+    # # Row C
+    # names_C =   [ '7C1','7C2','7C3','7C4','7C5','7C6','7C7','7C8','7C9']
+    # shear_C =   [1000 for n in names_C]
+    # draw_C  =   [1,1,1, 1.3,1.3,1.3, 1.6,1.6,1.6]
+    # anneal_C =  [False for n in names_C]
+    # piezo_x_C = [-38600,-32600, -26600,-20600, -14600, -8600, -2600, 3400,  9400]
+    # piezo_y_C = [1350, 1100,    800,   800,     900,   900,   700,   450, 350,    ]
+    # hexa_y_C  = [ -6 for n in names_C ] 
 
-    # Row D
-    names_D =   [ '6D1','6D4' ]
-    shear_D =   [0.1,1]
-    draw_D  =   [2,2]
-    anneal_D =  [True for n in names_D]
-    piezo_x_D = [-42200,-24100]
-    piezo_y_D = [6300,6500]
-    hexa_y_D  = [ -7 for n in names_D ] 
+    # # Row D
+    # names_D =   [ '7D1','7D2','7D3','7D4','7D5','7D6','7D7','7D8','7D9','7D10','7D11','7D12','7D13','7D14','7D15']
+    # shear_D =   [100 for n in names_A]
+    # draw_D  =   [1,1,1, 1.3,1.3,1.3, 1.6,1.6,1.6, 2,2,2, 2.3,2.3,2.3]
+    # anneal_D =  [True for n in names_D]
+    # piezo_x_D = [-38600,-32600, -26600,-20600, -14600, -8600, -2600, 3400,  9400, 15400, 21400, 27400, 33400, 39400, 45400]
+    # piezo_y_D = [-8100,  -8100, -8100, -8000,  -8100,  -8000,  -8300, -8300,-8600,-8500, -8700, -8600, -8800, -9000, -8800]
+    # hexa_y_D  = [ 8 for n in names_D ] 
 
     # # Row E
-    # names_E =   ['5E1','5E2','5E3','5E4','5E5','5E6','5E7','5E8','5E9','5E10','5E11','5E12','5E13','5E14','5E15']
-    # shear_E =   [10 for n in names_E]
-    # draw_E  =   [1,1,1,1.3,1.3,1.3,1.6,1.6,1.6,2,2,2,2.3,2.3,2.3]
+    # names_E =   ['7E1','7E2','7E3','7E4','7E5','7E6','7E7','7E8','7E9','7E10','7E11','7E12','7E13','7E14','7E15']
+    # shear_E =   [300 for n in names_E]
+    # draw_E  =   [1,1,1, 1.3,1.3,1.3, 1.6,1.6,1.6, 2,2,2, 2.3,2.3,2.3]
     # anneal_E =  [True for n in names_E]
-    # piezo_x_E = [-39300,-33300,-27300,-21300,-15300,-9300,-3300,2700,8700,14700,20700,26700,32700,38700,44700]
-    # piezo_y_E = [-725,-325,-325,-425,-425,-525,-125,-425,-625,-1025,-425,-525,-225,-175,-475]
-    # hexa_y_E  = [ 5 for n in names_E] 
+    # piezo_x_E = [-38600,-32600, -26600,-20600, -14600, -8600, -2600, 3400,  9400, 15400, 21400, 27400, 33400, 39400, 45400]
+    # piezo_y_E = [-3200, -3300, -3400,  -3300, -3600, -3300,   -3600, -3500, -3400, -3400, -3600,-3750, -3750, -4100, -3900]
+    # hexa_y_E  = [ 8 for n in names_E] 
 
     # # Row F
-    # names_F =   ['5F1','5F2','5F3','5F4','5F5','5F6','5F7','5F8','5F9','5F10','5F11','5F12','5F13','5F14','5F15']
-    # shear_F =   [30 for n in names_F]
-    # draw_F  =   [1,1,1,1.3,1.3,1.3,1.6,1.6,1.6,2,2,2,2.3,2.3,2.3]
+    # names_F =   ['5F1','5F2','5F3','5F4','5F5','5F6','5F7','5F8','5F9']
+    # shear_F =   [1000 for n in names_F]
+    # draw_F  =   [1,1,1, 1.3,1.3,1.3, 1.6,1.6,1.6]
     # anneal_F =  [True for n in names_F]
-    # piezo_x_F = [-39300,-33300,-27300,-21300,-15300,-9300,-3300,2700,8700,14700,20700,26700,32700,38700,44700]
-    # piezo_y_F = [4275,4475,4875,4575,4775,4175,4475,4175,4575,4475,4275,4275,4075,4175,4175]
-    # hexa_y_F  = [ 5 for n in names_F] 
+    # piezo_x_F = [-38600,-32600, -26600,-20600, -14600, -8600, -2600, 3400,  9400]
+    # piezo_y_F = [1600,  1650,    1650, 1650,     1500,  1450,  1450, 1550, 1450]
+    # hexa_y_F  = [ 8 for n in names_F] 
     
     # # Row G
     # names_G =   [ f'5G{x + 1}' for x in range(15) ]
@@ -86,21 +88,24 @@ def alice_grid_scans_2022_3(t=0.5):
 
 
     # Combine lists
-    # names = names_A + names_B + names_C + names_D #+ names_E + names_F + names_G
-    # shear = shear_A + shear_B + shear_C + shear_D #+ shear_E + shear_F + shear_G
-    # draw = draw_A + draw_B + draw_C + draw_D #+ draw_E + draw_F + draw_G
-    # anneal = anneal_A + anneal_B + anneal_C + anneal_D #+ anneal_E + anneal_F + anneal_G
-    # piezo_x = piezo_x_A + piezo_x_B + piezo_x_C + piezo_x_D #+ piezo_x_E + piezo_x_F + piezo_x_G
-    # piezo_y = piezo_y_A + piezo_y_B + piezo_y_C + piezo_y_D #+ piezo_y_E + piezo_y_F + piezo_y_G
-    # hexa_y = hexa_y_A + hexa_y_B + hexa_y_C + hexa_y_D #+ hexa_y_E + hexa_y_F + hexa_y_G
+ 
+    # names = names_A + names_B + names_C + names_D + names_E + names_F #+ names_G
+    # shear = shear_A + shear_B + shear_C + shear_D + shear_E + shear_F #+ shear_G
+    # draw = draw_A + draw_B + draw_C + draw_D + draw_E + draw_F #+ draw_G
+    # anneal = anneal_A + anneal_B + anneal_C + anneal_D + anneal_E + anneal_F #+ anneal_G
+    # piezo_x = piezo_x_A + piezo_x_B + piezo_x_C + piezo_x_D + piezo_x_E + piezo_x_F #+ piezo_x_G
+    # piezo_y = piezo_y_A +  piezo_y_B + piezo_y_C + piezo_y_D + piezo_y_E + piezo_y_F #+ piezo_y_G
+    # hexa_y = hexa_y_A +  hexa_y_B + hexa_y_C + hexa_y_D + hexa_y_E + hexa_y_F #+ hexa_y_G
 
-    names = names_B + names_C + names_D #+ names_E + names_F + names_G
-    shear = shear_B + shear_C + shear_D #+ shear_E + shear_F + shear_G
-    draw = draw_B + draw_C + draw_D #+ draw_E + draw_F + draw_G
-    anneal = anneal_B + anneal_C + anneal_D #+ anneal_E + anneal_F + anneal_G
-    piezo_x = piezo_x_B + piezo_x_C + piezo_x_D #+ piezo_x_E + piezo_x_F + piezo_x_G
-    piezo_y = piezo_y_B + piezo_y_C + piezo_y_D #+ piezo_y_E + piezo_y_F + piezo_y_G
-    hexa_y = hexa_y_B + hexa_y_C + hexa_y_D #+ hexa_y_E + hexa_y_F + hexa_y_G
+    # 
+    names =     ['6C1', '6C4',  '6C7',  '6C8',  '6D1',  '6D4',  '6D7',  '6D8',  '6B1',  '6B10', '6B4',  '6B7',  '6B13']
+    shear =      [0.1,   1,      1000,   1000,   0.1,    1,      1000,   1000,   100,    100,    100,    100,    100]
+    draw =       [   1,  1,      1,      1,      2,      2,      2,      2,     1,       1.3,    1.6,    2,      2.3]
+    anneal =    [True,  True,   False, True,   True,   True,    False,  True,   True,   True,   True,   True,   True]
+    piezo_x =   [-39700,-21750, -3600,  2100, -33600,   -21700, -3400,  2250, -39200,   14400,  -21600, -3700,  32500]
+    piezo_y =   [-1625, -2025,  -2025,  -1925,  3175,   3175,   2875,   3000,   -6700,  -7200,  -6900,  -7250,  -7650]
+    hexa_y =    [-3 for n in names]
+
 
 
     # Ranges the same for all samples
@@ -110,6 +115,7 @@ def alice_grid_scans_2022_3(t=0.5):
 
     y_range = [0, 1000, 41]
     x_range = [0, 1000, 41]
+
 
     assert len(piezo_x) == len(names), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})"
     assert len(shear) == len(names), f"Number of shear entries ({len(shear)}) is different from number of samples ({len(names)})"
