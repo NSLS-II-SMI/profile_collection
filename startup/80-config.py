@@ -45,7 +45,7 @@ def sample_id(*, user_name, sample_name, tray_number=None):
     
 
 
-def proposal_id(cycle_id, proposal_id):
+def proposal_id(cycle_id, proposal_id, analysis=False):
     RE.md["cycle"] = cycle_id
     RE.md["proposal_number"] = proposal_id.split("_")[0]
     RE.md["main_proposer"] = proposal_id.split("_")[1]
@@ -83,11 +83,11 @@ def proposal_id(cycle_id, proposal_id):
     #     os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
     # Create folder for the analysis
-    # newDir = "/nsls2/xf12id2/analysis/" + str(cycle_id) + "/" + str(proposal_id)
-    newDir = ("/nsls2/data/smi/legacy/results/analysis/"+ str(cycle_id)+ "/"+ str(proposal_id))
-    if not os.path.exists(newDir):
-        os.makedirs(newDir)
-        os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
+    if analysis:
+        newDir = ("/nsls2/data/smi/legacy/results/analysis/"+ str(cycle_id)+ "/"+ str(proposal_id))
+        if not os.path.exists(newDir):
+            os.makedirs(newDir)
+            os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
 
 def beamline_mode(mode=None):
