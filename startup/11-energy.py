@@ -36,15 +36,15 @@ def energy_to_gap(target_energy, undulator_harmonic=1, man_offset=0):
         + (1 - 0.28544) / (1 + 10 ** ((7180.06758 - f) * 6.34167e-4))
     )
     e_exp = np.array([ 2450, 2470, 3600, 4050, 6550, 7700, 8980, 9700, 12000, 12620, 14000, 14400, 16100,])
-    off_exp = np.array([-10,  -35,   29,   30,   55,   35,   19,   29,    15,    30,    13,     7,    21,])
+    off_exp = np.array([-10,  -35,   29,   30,   55,   35,   19,   29,    15,    30,    13,     7,    11,])
 
-    auto_offset = np.interp(
-        target_energy, e_exp, off_exp, left=min(off_exp), right=max(off_exp)
-    )
-
-
+    auto_offset = np.interp(target_energy, e_exp, off_exp, left=min(off_exp), right=max(off_exp))
     gap = gap_mm * 1000 - auto_offset - man_offset
-    # gap = gap_mm * 1000 + offset
+
+    # Work this out for tender
+    if target_energy < 6000:
+        #K edge -10
+        gap = (gap_mm * 1000 + 20)
 
     # -30 for 12.62; -33 for 14 keV; -21 for 16.1 keV, 18.25keV; -50 for 9540eV; -20 for 2450eV; -30 for 4050eV
     # -29 for 9700 keV -- 11.150 keV, -55 for 6.55 keV, -35 for 7.7 kev;  -29 for 3.6 keV
@@ -224,3 +224,5 @@ def move_E(E, gap_off=0):
     if gap_off != 0:
         cur_gap = ivugap.user_readback.value
         ivugap.move(cur_gap + gap_off)
+
+dcm_theta = EpicsMotor("XF12ID:m65", name="dcm_theta")
