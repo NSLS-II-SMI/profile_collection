@@ -73,6 +73,7 @@ def export_spectra_to_csv(run, *, dir, common_column, columns):
     )
 
 
+
 def factory(name, doc):
     # We will stream documents into this cache.
     # When the run is complete, we will build an in-memory BlueskyRun from it.
@@ -85,36 +86,20 @@ def factory(name, doc):
             if "amptek" in run.metadata["start"]["detectors"]:
                 # retreive information from the start document
                 cycle = run.metadata["start"]["cycle"]
-                propos = (
-                    run.metadata["start"]["proposal_number"]
-                    + "_"
-                    + run.metadata["start"]["main_proposer"]
-                )
-                direc = "/nsls2/xf12id2/data/images/users/%s/%s/Amptek/" % (
-                    cycle,
-                    propos,
-                )
-
+                propos = (run.metadata["start"]["proposal_number"]+ "_"+ run.metadata["start"]["main_proposer"])
+                newDir = "/nsls2/data/smi/legacy/results/data/%s/%s/Amptek/" % (cycle,propos)                
                 # create a new directory
-                try:
-                    os.stat(direc)
-                except FileNotFoundError:
-                    os.makedirs(direc)
-                    os.chmod(direc, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
+                if not os.path.exists(newDir):
+                    os.makedirs(newDir)
+                    os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-                export_spectra_to_csv(
-                    run,
-                    dir=direc,
-                    common_column="amptek_energy_channels",
-                    columns=["amptek_mca_spectrum"],
-                )
+                export_spectra_to_csv(run,
+                                      dir=newDir,
+                                      common_column="amptek_energy_channels",
+                                      columns=["amptek_mca_spectrum"])
 
     return [dc, export_on_stop], []
 
 
-rr = RunRouter(
-    [
-        factory,
-    ]
-)
-#export_cid = RE.subscribe(rr)  # noqa F821
+rr = RunRouter([factory,])
+RE.subscribe(rr)  # noqa F821
