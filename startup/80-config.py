@@ -50,93 +50,44 @@ def proposal_id(cycle_id, proposal_id):
     RE.md["proposal_number"] = proposal_id.split("_")[0]
     RE.md["main_proposer"] = proposal_id.split("_")[1]
     # RE.md['path'] = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id)
-    RE.md["path"] = (
-        "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id)
-    )
+    RE.md["path"] = ("/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id))
 
-    # # 2018-04-10: Maksim asked Tom about why this 'put' does not create the folder,
-    # # Tom suggested to ask PoC to update AD installation.
-    # import stat
-
-    # newDir = (
-    #     "/nsls2/xf12id2/data/images/users/"
-    #     + str(cycle_id)
-    #     + "/"
-    #     + str(proposal_id)
-    #     + "/MAXS"
-    # )
-    # # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
-
-    # try:
-    #     os.stat(newDir)
-    # except FileNotFoundError:
+    # Create folder for the Rayonix MAXS detector
+    # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
+    # newDir = ("/nsls2/data/smi/legacy/results/data/"+ str(cycle_id)+ "/"+ str(proposal_id)) + "/MAXS"
+    # if not os.path.exists(newDir):
     #     os.makedirs(newDir)
     #     os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-    # newDir = (
-    #     "/nsls2/xf12id2/data/images/users/"
-    #     + str(cycle_id)
-    #     + "/"
-    #     + str(proposal_id)
-    #     + "/1M"
-    # )
-    # # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/1M"
+    # Create folder for the Pilatus 1M SAXS detector
+    # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/1M"
+    newDir = ("/nsls2/data/smi/legacy/results/data/"+ str(cycle_id)+ "/"+ str(proposal_id)) + "/1M"
+    if not os.path.exists(newDir):
+        os.makedirs(newDir)
+        os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-    # try:
-    #     os.stat(newDir)
-    # except FileNotFoundError:
+
+    # Create folder for the Pilatus 900KW WAXS detector
+    # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/900KW"
+    newDir = ("/nsls2/data/smi/legacy/results/data/"+ str(cycle_id)+ "/"+ str(proposal_id)) + "/900KW"
+    if not os.path.exists(newDir):
+        os.makedirs(newDir)
+        os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
+
+
+    # Create folder for the Pilatus 300KW WAXS detector
+    # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
+    # newDir = ("/nsls2/data/smi/legacy/results/data/"+ str(cycle_id)+ "/"+ str(proposal_id)) + "/300KW"
+    # if not os.path.exists(newDir):
     #     os.makedirs(newDir)
     #     os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-    # newDir = (
-    #     "/nsls2/xf12id2/data/images/users/"
-    #     + str(cycle_id)
-    #     + "/"
-    #     + str(proposal_id)
-    #     + "/300KW"
-    # )
-    # # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
-
-    # try:
-    #     os.stat(newDir)
-    # except FileNotFoundError:
-    #     os.makedirs(newDir)
-    #     os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
-
-    # newDir = (
-    #     "/nsls2/xf12id2/data/images/users/"
-    #     + str(cycle_id)
-    #     + "/"
-    #     + str(proposal_id)
-    #     + "/900KW"
-    # )
-    # # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/900KW"
-
-    # try:
-    #     os.stat(newDir)
-    # except FileNotFoundError:
-    #     os.makedirs(newDir)
-    #     os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
-
-    # # newDir = "/nsls2/xf12id2/analysis/" + str(cycle_id) + "/" + str(proposal_id)
-    # newDir = (
-    #     "/nsls2/data/smi/legacy/results/analysis/"
-    #     + str(cycle_id)
-    #     + "/"
-    #     + str(proposal_id)
-    # )
-
-    # try:
-    #     os.stat(newDir)
-    # except FileNotFoundError:
-    #     os.makedirs(newDir)
-    #     os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
-
-    # pil1M.cam.file_path.put("/ramdisk/1M")
-    # # pil300KW.cam.file_path.put(
-    # #     f"/nsls2/xf12id2/data/images/users/{cycle_id}/{proposal_id}/300KW"
-    # # )
-    # pil900KW.cam.file_path.put("/ramdisk/900KW")
+    # Create folder for the analysis
+    # newDir = "/nsls2/xf12id2/analysis/" + str(cycle_id) + "/" + str(proposal_id)
+    newDir = ("/nsls2/data/smi/legacy/results/analysis/"+ str(cycle_id)+ "/"+ str(proposal_id))
+    if not os.path.exists(newDir):
+        os.makedirs(newDir)
+        os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
 
 def beamline_mode(mode=None):
