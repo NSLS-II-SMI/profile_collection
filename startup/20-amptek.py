@@ -48,9 +48,7 @@ class AmptekMCA(EpicsMCA):
 
 
 channels = np.linspace(0, 8191, 8192)
-energy_channels = (
-    -165.83 + 3.134 * channels - 7.2124e-5 * channels**2 + 8.89825e-9 * channels**3
-)
+energy_channels = (-120.34 + 2.925 * channels)
 # amptek_energy = Signal(name='amptek_energy', value=energy_channels)
 
 
