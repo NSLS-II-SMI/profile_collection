@@ -142,11 +142,20 @@ class StandardProsilicaWithTIFFV33(StandardProsilicaV33):
 # OnAxis camera
 OAV = StandardProsilicaV33('XF:12IDC-BI{Cam:SAM}', name='OAV')
 OAV.stage_sigs[OAV.cam.trigger_mode] = 'Fixed Rate' # was OFF
-OAV_writing = StandardProsilicaWithTIFFV33('XF:12IDC-BI{Cam:SAM}', name='OAV')
-
+#OAV_writing = StandardProsilicaWithTIFFV33('XF:12IDC-BI{Cam:SAM}', name='OAV')
+OAV_writing = StandardProsilicaWithTIFFV33('XF:12IDC-BI{Cam:SAM}', name='OAV_writing')
 OAV_writing.tiff.write_path_template = '/nsls2/data/smi/legacy/results/raw/OAV/%Y/%m/%d/'
 OAV_writing.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/OAV/%Y/%m/%d/'
 OAV_writing.tiff.reg_root = '/nsls2/data/smi/legacy/results/raw/OAV/'
+
+
+ 
+
+
+ 
+
+
+
 
 # Hex (top) camera
 OAV2 = StandardProsilicaV33('XF:12IDC-BI{Cam:HEX}', name='OAV2')
