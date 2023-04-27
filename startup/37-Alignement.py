@@ -217,7 +217,7 @@ def alignement_gisaxs_hex(angle=0.1, rough_y=0.5):
 
     # Scan theta and height
     yield from align_gisaxs_height_hex(rough_y, 21, der=True)
-    yield from align_gisaxs_th_hex(0.5, 11)
+    yield from align_gisaxs_th_hex(0.5, 21)
 
     # move to theta 0 + value
     yield from bps.mv(stage.th, ps.peak + angle)
