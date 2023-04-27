@@ -78,6 +78,16 @@
                                
 """
 
+def turn_off_heating(temp=23):
+    """
+    Turn off the heating and set temperature to 23 deg C for Lakeshore
+    """
+    
+    print(f'Setting temp to {temp} deg C and turning off the heater')
+    t_kelvin = temp + 273.15
+    yield from ls.output1.mv_temp(t_kelvin)
+    yield from ls.output1.turn_off()
+
 # Name correction
 """
     # Check and correct sample names just in case
