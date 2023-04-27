@@ -164,7 +164,7 @@ class SMIBeam(object):
             yield from bps.mv(waxs.bs_y, 0.95)
         else:
             # it is -7 for transmission, around -2 to -3 for reflection
-            yield from bps.mv(waxs.bs_y, -7)
+            yield from bps.mv(waxs.bs_y, -3)
 
 
 # End class SMIBeam(object)
