@@ -36,7 +36,8 @@ def energy_to_gap(target_energy, undulator_harmonic=1, man_offset=0):
         + (1 - 0.28544) / (1 + 10 ** ((7180.06758 - f) * 6.34167e-4))
     )
     e_exp = np.array([ 2450, 2470, 3600, 4050, 6550, 7700, 8980, 9700, 12000, 12620, 14000, 14400, 16100,])
-    off_exp = np.array([-10,  -35,   29,   30,   55,   35,   19,   29,    15,    30,    13,     7,    11,])
+    off_exp = np.array([-10,  -35,   29,   30,   55,   35,   19,   20,    15,    30,     3,     7,    -4,])
+
 
     auto_offset = np.interp(target_energy, e_exp, off_exp, left=min(off_exp), right=max(off_exp))
     gap = gap_mm * 1000 - auto_offset - man_offset
@@ -93,19 +94,19 @@ def move_dcm(target_energy, delta_bragg=0):
 
 
 class DCMInternals(Device):
-    height = Cpt(EpicsMotor, "XF12ID:m66")
-    pitch = Cpt(EpicsMotor, "XF12ID:m67")
-    roll = Cpt(EpicsMotor, "XF12ID:m68")
-    theta = Cpt(EpicsMotor, "XF12ID:m65")
+    height = Cpt(EpicsMotor, "XF:12ID:m66")
+    pitch = Cpt(EpicsMotor, "XF:12ID:m67")
+    roll = Cpt(EpicsMotor, "XF:12ID:m68")
+    theta = Cpt(EpicsMotor, "XF:12ID:m65")
 
 
 class Energy(PseudoPositioner):
     # synthetic axis
     energy = Cpt(PseudoSingle, kind="hinted", labels=["mono"])
     # real motors
-    dcmgap = Cpt(EpicsMotor, "XF12ID:m66", read_attrs=["user_readback"])
-    bragg = Cpt(EpicsMotor, "XF12ID:m65", read_attrs=["user_readback"], labels=["mono"])
-    #    dcmpitch = Cpt(EpicsMotor, 'XF12ID:m67', read_attrs=['readback'])
+    dcmgap = Cpt(EpicsMotor, "XF:12ID:m66", read_attrs=["user_readback"])
+    bragg = Cpt(EpicsMotor, "XF:12ID:m65", read_attrs=["user_readback"], labels=["mono"])
+    #    dcmpitch = Cpt(EpicsMotor, 'XF:12ID:m67', read_attrs=['readback'])
 
     ivugap = Cpt(
         InsertionDevice,
@@ -206,10 +207,10 @@ energy = Energy(
 dcm = energy
 ivugap = energy.ivugap
 # DCM motor shortcuts. Early scans used the names at right (p2h, etc).
-dcm_gap = dcm.dcmgap  # Height in CSS # EpicsMotor('XF12ID:m66', name='p2h')
-dcm_pitch = EpicsMotor("XF12ID:m67", name="dcm_pitch")
-# dcm_roll = dcm.roll  # Roll in CSS # EpicsMotor('XF12ID:m68', name='p2r')
-bragg = dcm.bragg  # Theta in CSS  # EpicsMotor('XF12ID:m65', name='bragg')
+dcm_gap = dcm.dcmgap  # Height in CSS # EpicsMotor('XF:12ID:m66', name='p2h')
+dcm_pitch = EpicsMotor("XF:12ID:m67", name="dcm_pitch")
+# dcm_roll = dcm.roll  # Roll in CSS # EpicsMotor('XF:12ID:m68', name='p2r')
+bragg = dcm.bragg  # Theta in CSS  # EpicsMotor('XF:12ID:m65', name='bragg')
 # dcm_x = dcm.x  # E Mono X in CSS
 
 dcm_config = DCMInternals("", name="dcm_config")
@@ -225,4 +226,4 @@ def move_E(E, gap_off=0):
         cur_gap = ivugap.user_readback.value
         ivugap.move(cur_gap + gap_off)
 
-dcm_theta = EpicsMotor("XF12ID:m65", name="dcm_theta")
+dcm_theta = EpicsMotor("XF:12ID:m65", name="dcm_theta")
