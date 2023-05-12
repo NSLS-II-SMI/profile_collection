@@ -366,5 +366,4 @@ class WAXS(Device):
         bsx_pos = -50.1 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 May 5, discovering it was bumped somehow
         return bsx_pos
 
-
 waxs = WAXS("XF:12IDC-ES:2{", name="waxs")
