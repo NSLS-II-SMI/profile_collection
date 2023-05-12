@@ -5,6 +5,7 @@ print(f"Loading {__file__}")
 from bluesky.plan_stubs import one_1d_step
 from collections import ChainMap
 import bluesky.plans as bp
+from epics import caget, caput
 
 # only use in old ps
 get_fields = db.get_fields
@@ -187,16 +188,16 @@ def ps(
 
     # get the scan information:
     if uid == "-1":
-        uid = -1
+        uid = db[-1].start['scan_id']
     if det == "default":
-        if db[uid].start.detectors[0] == "elm" and suffix == "default":
+        if db[uid].start['detectors'][0] == "elm" and suffix == "default":
             intensity_field = "elm_sum_all"
-        elif db[uid].start.detectors[0] == "elm":
+        elif db[uid].start['detectors'][0] == "elm":
             intensity_field = "elm" + suffix
         elif suffix == "default":
-            intensity_field = db[uid].start.detectors[0] + "_stats1_total"
+            intensity_field = db[uid].start['detectors'][0] + "_stats1_total"
         else:
-            intensity_field = db[uid].start.detectors[0] + suffix
+            intensity_field = db[uid].start['detectors'][0] + suffix
     else:
         if det == "elm" and suffix == "default":
             intensity_field = "elm_sum_all"
@@ -207,7 +208,8 @@ def ps(
         else:
             intensity_field = det + suffix
 
-    field = db[uid].start.motors[0]
+    field = db[uid].start['motors'][0]
+    taken_at = datetime.datetime.fromtimestamp(db[uid].start['time']).strftime('%Y-%m-%d %H:%M:%S')
 
     # field='dcm_b';intensity_field='elm_sum_all'
     [x, y, t] = get_data(
@@ -272,20 +274,22 @@ def ps(
     if plot:
         if logplot == "on":
             plt.close(999)
-            plt.figure(999)
-            plt.semilogy([PEAK, PEAK], [np.min(y), np.max(y)], "k--", label="PEAK")
+            plt.figure(999, figsize=(6.4 * 2, 4.8 * 2))
+            plt.semilogy([PEAK, PEAK], [np.min(y), np.max(y)], "k--", label="PEAK", lw=2)
             # plt.hold(True)
-            plt.semilogy([CEN, CEN], [np.min(y), np.max(y)], "r-.", label="CEN")
-            plt.semilogy([COM, COM], [np.min(y), np.max(y)], "g.-.", label="COM")
+            plt.semilogy([CEN, CEN], [np.min(y), np.max(y)], "r-.", label="CEN", lw=2)
+            plt.semilogy([COM, COM], [np.min(y), np.max(y)], "g.-.", label="COM", lw=2)
             plt.semilogy(x, y, "bo-")
-            plt.xlabel(field)
-            plt.ylabel(intensity_field)
-            plt.legend()
+            plt.xlabel(field, fontsize=20, labelpad=15)
+            plt.ylabel(intensity_field, fontsize=20, labelpad=15)
+            plt.xticks(fontsize=20)
+            plt.yticks(fontsize=20)
+            plt.legend(fontsize=20)
             plt.title(
                 "uid: "
                 + str(uid)
                 + " @ "
-                + str(t)
+                + str(taken_at)
                 + "\nPEAK: "
                 + str(PEAK_y)[:8]
                 + " @ "
@@ -296,25 +300,27 @@ def ps(
                 + str(FWHM)[:8]
                 + " @ CEN: "
                 + str(CEN)[:8],
-                size=9,
+                size=20,
             )
             plt.show()
         else:
             plt.close(999)
-            plt.figure(999)
-            plt.plot([PEAK, PEAK], [np.min(y), np.max(y)], "k--", label="PEAK")
+            plt.figure(999, figsize=(6.4 * 2, 4.8 * 2))
+            plt.plot([PEAK, PEAK], [np.min(y), np.max(y)], "k--", label="PEAK", lw=2)
             # plt.hold(True)
-            plt.plot([CEN, CEN], [np.min(y), np.max(y)], "r-.", label="CEN")
-            plt.plot([COM, COM], [np.min(y), np.max(y)], "g.-.", label="COM")
+            plt.plot([CEN, CEN], [np.min(y), np.max(y)], "r-.", label="CEN", lw=2)
+            plt.plot([COM, COM], [np.min(y), np.max(y)], "g.-.", label="COM", lw=2)
             plt.plot(x, y, "bo-")
-            plt.xlabel(field)
-            plt.ylabel(intensity_field)
-            plt.legend()
+            plt.xlabel(field, fontsize=20, labelpad=15)
+            plt.ylabel(intensity_field, fontsize=20, labelpad=15)
+            plt.legend(fontsize=20)
+            plt.xticks(fontsize=20)
+            plt.yticks(fontsize=20)
             plt.title(
                 "uid: "
                 + str(uid)
                 + " @ "
-                + str(t)
+                + str(taken_at)
                 + "\nPEAK: "
                 + str(PEAK_y)[:8]
                 + " @ "
@@ -325,7 +331,7 @@ def ps(
                 + str(FWHM)[:8]
                 + " @ CEN: "
                 + str(CEN)[:8],
-                size=9,
+                size=20,
             )
             plt.show()
 
@@ -574,3 +580,59 @@ def cam_scan(detectors, camera, motor, start, stop, num, md=None, idle_time=1):
             LiveTable(detectors + [motor]),
         )
     )
+
+def purge_cryo():
+    """
+    Copied from CHX
+    automatically purge cryo-cooler according to Bruker manual
+    pre-requisit: GN2 of 1.5<p<3.0 bar connected to V21
+    AND cryo-control NOT disabled, e.g. by EPS
+    calling sequence: purge_cryo()
+    LW 05/27/2018
+    """
+
+    print('start purging cryo-cooler')
+    print('Please make sure: \n 1) GN2 of 1.5<p<3.0 bar connected to V21 \n 2) cryo-control NOT disabled, e.g. by EPS')
+    #print('going to check EPS status:')
+    #if caget('XF:12ID-OP{Cryo:1}Enbl-Sts') == 1:
+    #    print('cryo-cooler operations are enabled!')
+    #else: raise cryo_Exception('error: cryo-cooler operations not enabled by EPS')
+    print('going to close all valves....')
+    caput('XF:12ID-UT{Cryo:1-IV:21}Cmd:Cls-Cmd', 1)
+    caput('XF:12ID-UT{Cryo:1-IV:09}Cmd:Cls-Cmd', 1)
+    caput('XF:12ID-UT{Cryo:1-IV:19}Cmd:Cls-Cmd', 1)
+    caput('XF:12ID-UT{Cryo:1-IV:15}Cmd:Cls-Cmd', 1)
+    caput('XF:12ID-UT{Cryo:1-IV:20}Cmd:Cls-Cmd', 1)
+    caput('XF:12ID-UT{Cryo:1-IV:10}Pos-SP', 0)
+    caput('XF:12ID-UT{Cryo:1-IV:11}Pos-SP', 0)
+    caput('XF:12ID-UT{Cryo:1-IV:17_35}Cmd:Cls-Cmd', 1) #V17.2
+    caput('XF:12ID-UT{Cryo:1-IV:17_100}Cmd:Cls-Cmd', 1)  #V17.1
+    print('purging step 1/3, taking 30 min \n current time: '+str(datetime.now()))
+    caput('XF:12ID-UT{Cryo:1-IV:20}Cmd:Opn-Cmd', 1)
+    caput('XF:12ID-UT{Cryo:1-IV:09}Cmd:Opn-Cmd', 1)
+    caput('XF:12ID-UT{Cryo:1-IV:10}Pos-SP', 100)
+    caput('XF:12ID-UT{Cryo:1-IV:21}Cmd:Opn-Cmd', 1)
+    for i in range(6):
+        print('time left on purging step 1/3: '+str(30-i*5)+'min \n')
+        RE(sleep(300))
+    print('purging step 1/3 complete....proceeding to 2/3!')
+    caput('XF:12ID-UT{Cryo:1-IV:09}Cmd:Cls-Cmd', 1)
+    caput('XF:12ID-UT{Cryo:1-IV:11}Pos-SP', 100)
+    print('purging step 2/3, taking 15 min \n current time: '+str(datetime.now()))
+    for i in range(3):
+       print('time left on purging step 2/3: '+str(15-i*5)+'min \n')
+       RE(sleep(300))
+    print('purging step 2/3 complete....proceeding to 3/3!')
+    caput('XF:12ID-UT{Cryo:1-IV:11}Pos-SP', 0)
+    caput('XF:12ID-UT{Cryo:1-IV:17_35}Cmd:Opn-Cmd', 1)
+    caput('XF:12ID-UT{Cryo:1-IV:17_100}Cmd:Opn-Cmd', 1)
+    print('purging step 3/3, taking 15 min \n current time: '+str(datetime.now()))
+    for i in range(3):
+       print('time left on purging step 3/3: '+str(15-i*5)+'min \n')
+       RE(sleep(300))
+    print('purging COMPLETE! Closing all valves...')
+    caput('XF:12ID-UT{Cryo:1-IV:21}Cmd:Cls-Cmd', 1)
+    caput('XF:12ID-UT{Cryo:1-IV:17_35}Cmd:Cls-Cmd', 1)
+    caput('XF:12ID-UT{Cryo:1-IV:17_100}Cmd:Cls-Cmd', 1)
+    caput('XF:12ID-UT{Cryo:1-IV:10}Pos-SP', 0)
+    caput('XF:12ID-UT{Cryo:1-IV:20}Cmd:Cls-Cmd', 1)
