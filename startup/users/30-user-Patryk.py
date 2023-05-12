@@ -139,7 +139,7 @@ def run_swaxs_Dominik_2023_1(t=0.1):
     det_exposure_time(0.1, 0.1)
 
 
-RE.md['SAF_number'] = 311069
+# RE.md['SAF_number'] = 311069
 
 def run_swaxs_fibres_2023_1(t=1):
     """
@@ -206,6 +206,126 @@ def run_swaxs_fibres_2023_1(t=1):
                     sample_id(user_name=user_name, sample_name=sample_name)
                     print(f"\n\n\n\t=== Sample: {sample_name} ===")
 
+                    yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+
+def run_swaxs_textile_2023_2(t=0.5):
+    """
+    Take WAXS and SAXS at a few sample positions for averaging
+    """
+
+    names   = [  's01']#, 's02', 's03', 's04', 's05',  'bkg', ]
+    piezo_x = [  -37900]#, 33000, 18000,  4500, -8000, -18000, ]
+    piezo_y = [  3200 for n in names ]
+    stage_y = [ 0 for n in names ]
+    names = [ n + '-try4' for n in names]
+
+    # offsets inside the main loop
+
+    waxs_arc = [ 20 ]
+    x_off = [ 500, 0, 500 ]
+    y_off = [ 0, ]
+    user_name = "PW"
+
+    assert len(names)    == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_x)  == len(piezo_y), f"Wrong list lenghts"
+    assert len(piezo_y)  == len(stage_y), f"Wrong list lenghts"
+
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+
+        #dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        dets = [pil1M]
+        det_exposure_time(t, t)
+
+        for name, x, y, hex_y in zip(names, piezo_x, piezo_y, stage_y):
+
+            yield from bps.mv(piezo.x, x,
+                              piezo.y, y,
+                              stage.y, hex_y)
+
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of)
+
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x + x_of)
+
+                    #if (
+                    #     #(name == names[0])
+                    #     (wa == waxs_arc[0])
+                    #     and (yy == 0)
+                    #     and (xx == 0)
+                    #    ):
+                    #
+                    #    sample_id(user_name="test", sample_name="test")
+                    #    yield from bp.count(dets)
+
+                    loc = f'{yy}{xx}'
+                    sample_name = f'{name}{get_scan_md()}_loc{loc}'
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    sample_id(user_name=user_name, sample_name=sample_name)
+                    yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+
+def run_swaxs_workaround_2023_2(t=0.5):
+    """
+    Take WAXS and SAXS at a few sample positions for averaging
+    """
+
+    names   = [  's01', 's02', 's03', 's04', 's05',  'bkg', ]
+    piezo_x = [  44000, 33000, 18000,  4500, -8000, -18000, ]
+    piezo_y = [  2000 for n in names ]
+    stage_y = [ 0 for n in names ]
+    names = [ n + '-attn-nobs' for n in names]
+
+    # offsets inside the main loop
+
+    waxs_arc = [ 20 ]
+    x_off = [ -500, 0, 500 ]
+    y_off = [ 0, ]
+    user_name = "PW"
+
+    assert len(names)    == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_x)  == len(piezo_y), f"Wrong list lenghts"
+    assert len(piezo_y)  == len(stage_y), f"Wrong list lenghts"
+
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+
+        #dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        dets = [pil1M]
+        det_exposure_time(t, t)
+
+        for name, x, y, hex_y in zip(names, piezo_x, piezo_y, stage_y):
+
+            yield from bps.mv(piezo.x, x,
+                              piezo.y, y,
+                              stage.y, hex_y)
+
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of)
+
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x + x_of)
+
+                    loc = f'{yy}{xx}'
+
+                    if loc != '01':
+                        sample_name = 'test'
+                        sample_id(user_name="test", sample_name=sample_name)
+
+                    else:
+                        sample_name = f'{name}{get_scan_md()}_loc{loc}'
+                        sample_id(user_name=user_name, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
                     yield from bp.count(dets)
 
     sample_id(user_name="test", sample_name="test")

@@ -335,3 +335,88 @@ def in_situ_waxs_ppg(t=0.3):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.3, 0.3)
+
+
+####################
+### 2023-2 cycle ###
+
+RE.md['SAF_number'] = 311180
+
+def capillaries_PPG_2023_2(t=1):
+    """
+    SAXS 8.3 m 6.510 keV low div in vacuum
+    Exposure increased as the intensity is lower
+    """
+
+    samples = ['80b','81b','82b','83b','84b']
+    piezo_x = [3450,-6050,-18250,-25350,-33350]
+
+    # y and z positions the same for all samples
+    piezo_y = [-3500 for s in samples]
+    piezo_z = [5600 for s in samples]
+
+    assert len(samples) == len(piezo_x), f"Lenght of samples list is different than piezo_x)"
+    assert len(piezo_x) == len(piezo_x), f"Lenght of piezo_x list is different than piezo_y)"
+    assert len(piezo_y) == len(piezo_z), f"Lenght of piezo_y list is different than piezo_z)"
+
+    waxs_arc = [0, 20, 40, 60]
+    offset_y = 0  # in um
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        # Do not read SAXS if WAXS is in the way
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+        det_exposure_time(t, t)
+
+        for name, x, y, z in zip(samples, piezo_x, piezo_y, piezo_z):
+            yield from bps.mv(piezo.x, x,
+                              piezo.y, y + i * offset_y,
+                              piezo.z, z)
+
+            # Sample name
+            sample_name = f'{name}{get_scan_md()}'
+            sample_id(user_name="CW", sample_name=sample_name)
+            print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+
+def saxs_only_PPG_2023_2(t=1):
+    """
+    SAXS 8.3 m 6.510 keV low div in vacuum
+    """
+
+    samples = [  'bkg-vacuum' ]
+    piezo_x = [ -35800]
+
+    # y and z positions the same for all samples
+    piezo_y = [ -6000 for s in samples]
+    piezo_z = [ 11200 for s in samples]
+
+    assert len(samples) == len(piezo_x), f"Lenght of samples list is different than piezo_x)"
+    assert len(piezo_x) == len(piezo_x), f"Lenght of piezo_x list is different than piezo_y)"
+    assert len(piezo_y) == len(piezo_z), f"Lenght of piezo_y list is different than piezo_z)"
+
+    waxs_arc = [ 20 ]
+    offset_y = 0  # in um
+
+    dets = [ pil1M ]
+    det_exposure_time(t, t)
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        for name, x, y, z in zip(samples, piezo_x, piezo_y, piezo_z):
+            yield from bps.mv(piezo.x, x,
+                              piezo.y, y + i * offset_y,
+                              piezo.z, z)
+
+            # Sample name
+            sample_name = f'{name}{get_scan_md()}'
+            sample_id(user_name="CW", sample_name=sample_name)
+            print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
