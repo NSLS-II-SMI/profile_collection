@@ -55,6 +55,7 @@ class PilatusDetectorCamV33(PilatusDetectorCam):
     file_template = Cpt(SignalWithRBV, "FileName", string=True)
     file_number = Cpt(SignalWithRBV, "FileNumber")
 
+from ophyd.utils.epics_pvs import AlarmStatus
 
 class PilatusDetector(PilatusDetector):
     cam = Cpt(PilatusDetectorCamV33, "cam1:")
@@ -174,22 +175,47 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
 
     def read_threshold(self):
         return self.energy_read, self.threshold_read, self.gain_read
+    
+    def trigger(self):
+        "Trigger one acquisition."
+        if self._staged != Staged.yes:
+            raise RuntimeError("This detector is not ready to trigger."
+                               "Call the stage() method before triggering.")
+
+        self._status = self._status_type(self)
+
+        def _acq_done(*, data, pvname):
+            data.get()
+            print(data)
+            print(data.alarm_status)
+            if data.alarm_status is not AlarmStatus.NO_ALARM:
+                self._status.set_exception(
+                    RuntimeError(f"FAILED {pvname}: {data.alarm_status}: {data.alarm_severity}")
+                )
+            else:
+                self._status._finished()
+
+        self._acquisition_signal.put(1, use_complete=True, callback=_acq_done, 
+                                     callback_data=self.cam.detector_state)
+        self.dispatch(self._image_name, ttime.time())
+        return self._status
 
 
 def det_exposure_time(exp_t, meas_t=1):
-    pil1M.cam.acquire_time.put(exp_t)
-    pil1M.cam.acquire_period.put(exp_t + 0.001)
-    pil1M.cam.num_images.put(int(meas_t / exp_t))
-    if pil300KW is not None:
-        pil300KW.cam.acquire_time.put(exp_t)
-        pil300KW.cam.acquire_period.put(exp_t + 0.001)
-        pil300KW.cam.num_images.put(int(meas_t / exp_t))
-    pil900KW.cam.acquire_time.put(exp_t)
-    pil900KW.cam.acquire_period.put(exp_t + 0.001)
-    pil900KW.cam.num_images.put(int(meas_t / exp_t))
-    # rayonix.cam.acquire_time.put(exp_t)
-    # rayonix.cam.acquire_period.put(exp_t+0.01)
-    # rayonix.cam.num_images.put(int(meas_t/exp_t))
+    for j in range(2):
+        pil1M.cam.acquire_time.put(exp_t)
+        pil1M.cam.acquire_period.put(exp_t + 0.001)
+        pil1M.cam.num_images.put(int(meas_t / exp_t))
+        if pil300KW is not None:
+            pil300KW.cam.acquire_time.put(exp_t)
+            pil300KW.cam.acquire_period.put(exp_t + 0.001)
+            pil300KW.cam.num_images.put(int(meas_t / exp_t))
+        pil900KW.cam.acquire_time.put(exp_t)
+        pil900KW.cam.acquire_period.put(exp_t + 0.001)
+        pil900KW.cam.num_images.put(int(meas_t / exp_t))
+        # rayonix.cam.acquire_time.put(exp_t)
+        # rayonix.cam.acquire_period.put(exp_t+0.01)
+        # rayonix.cam.num_images.put(int(meas_t/exp_t))
 
     # See if amptek is connected
     try:

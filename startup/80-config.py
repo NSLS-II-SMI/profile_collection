@@ -33,15 +33,15 @@ def sample_id(*, user_name, sample_name, tray_number=None):
     RE.md["user_name"] = user_name
     RE.md["sample_name"] = sample_name
 
-    fname = f"{user_name}_{sample_name}"
+    #fname = f"{user_name}_{sample_name}"
 
     # DIRTY HACK, do not copy
     pil1M.cam.file_name.set("acq").wait()
-    pil1M.cam.file_number.set(1).wait()
+    # pil1M.cam.file_number.set(1).wait()
     # pil300KW.cam.file_name.set(fname).wait()
     # pil300KW.cam.file_number.put(1)    
     pil900KW.cam.file_name.put("acq")
-    pil900KW.cam.file_number.put(1)
+    # pil900KW.cam.file_number.put(1)
     
 
 
