@@ -1365,7 +1365,7 @@ def wang_temperature_tender_2023_1(t=5):
         temp = ls.input_A.get()
         while abs(temp - t_kelvin) > 5:
             print("Difference: {:.1f} K".format(abs(temp - t_kelvin)))
-            yield from bps.sleep(10)
+            yield from bps.sleep(5)
             temp = ls.input_A.get()
             
             # Escape the loop if too much time passes
@@ -1446,6 +1446,193 @@ def wang_temperature_tender_2023_1(t=5):
                     yield from bp.count(dets)
                 yield from bps.mv(energy, 2475)
                 yield from bps.mv(energy, 2460)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+    # Turn off the heating and set temperature to 23 deg C
+    yield from turn_off_heating()
+
+def atten_move_in():
+    """
+    Move 4x + 2x Sn 60 um attenuators in
+    """
+    print('Moving attenuators in')
+
+    while att1_7.status.get() != 'Open':
+        yield from bps.mv(att1_7.open_cmd, 1)
+        yield from bps.sleep(1)
+    while att1_6.status.get() != 'Open':
+        yield from bps.mv(att1_6.open_cmd, 1)
+        yield from bps.sleep(1)
+
+def atten_move_out():
+    """
+    Move 4x + 2x Sn 60 um attenuators out
+    """
+    print('Moving attenuators out')
+    while att1_7.status.get() != 'Not Open':
+        yield from bps.mv(att1_7.close_cmd, 1)
+        yield from bps.sleep(1)
+    while att1_6.status.get() != 'Not Open':
+        yield from bps.mv(att1_6.close_cmd, 1)
+        yield from bps.sleep(1)
+
+
+def guorong_temperature_cap_2023_2(t=0.5):
+    """
+    Hard X-ray WAXS and SAXS Lakeshore heating stage
+    at multiple SAXS detector distances.
+    Measure transmission only during the first run
+    """
+
+    names =   [ 'Bkg_98v2', 'Bkg_95v5',  'Bkg_7v3', 'Bkg_5v5', 'Bkg_3v7', 'Bkg_1v9', 'P3HT_pTBA', 'PQT12_pTBA',
+                   'Bkg_pTBA', 'DPP_CB_fine', 'DPP_DCB_fine', 'DPP_TCB_fine', 'DPP_DCB_Hex_fine', 'DPP_DCB_DMSO_fine', 'PBTTT14_CB' ]
+    piezo_x = [     -39000,     -32800,     -26400,     -20000,       -13800,      -7400,      -1000,         5400,
+                     11800,      18200,      24600,      31000,        37400,      43800,      50200]   
+    piezo_y = [      -4200,      -4300,      -4400,      -4600,        -4800,      -4900,      -5000,         -5100,
+                     -5300,      -5400,      -5500,      -5800,        -6200,      -6300,      -6400]
+
+    assert len(names)   == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_y), f"Wrong list lenghts"
+
+    user_name = "GM"
+    temperatures = [ 30, 40, 50, 60, 70, 90, 110, 130, 150, 170 ]
+    waxs_arc = [20, 0]
+
+    points = 5
+    dy = 100
+    dbeam_x = -38500
+    dbeam_y = -4000
+    stats1_direct = 1
+
+    saxs_dist = [3000]
+
+    current_sdd = pil1m_pos.z.user_setpoint.get()
+
+    if ( abs(current_sdd - saxs_dist[0]) ) > ( abs(current_sdd - saxs_dist[-1]) ):
+        saxs_dist = saxs_dist[::-1]
+
+    saxs_dict = {
+        3000 : {'sdd': 3000, 'beam_centre': [396, 557], 'bs': 'rod', 'energy': 16100, 'bs_pos': 2.25},
+        8300 : {'sdd': 8300, 'beam_centre': [401, 555], 'bs': 'rod', 'energy': 16100, 'bs_pos': 1.40},
+    }
+
+    for temperature in temperatures:
+        t_kelvin = temperature + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+
+        # Activate heating range in Lakeshore
+        if temperature < 70:
+            yield from bps.mv(ls.output1.status, 3)
+        else:
+            yield from bps.mv(ls.output1.status, 3)
+
+        # Equalise temperature
+        print(f"Equalising temperature to {temperature:.0f} deg C")
+        start = time.time()
+        temp = ls.input_A.get()
+        while abs(temp - t_kelvin) > 5:
+            print("Difference: {:.1f} K".format(abs(temp - t_kelvin)))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+            
+            # Escape the loop if too much time passes
+            if time.time() - start > 15 * 60:
+                temp = t_kelvin
+        print(
+            "Time needed to equilibrate: {:.1f} min".format((time.time() - start) / 60)
+        )
+
+        # Wait extra time depending on temperature
+        if (56 < temperature) and (temperature < 160):
+            yield from bps.sleep(300)
+        elif 160 <= temperature:
+            yield from bps.sleep(600)
+
+        # Read T and convert to deg C
+        temp_degC = ls.input_A.get() - 273.15
+        temp = str(np.round(float(temp_degC), 1)).zfill(5)
+
+        for sdd in saxs_dist:
+            yield from bps.mv(pil1m_pos.z, sdd)
+
+            SAXS_setup = saxs_dict[sdd]
+            RE.md['SAXS_setup'] = SAXS_setup
+            bs_pos = SAXS_setup['bs_pos']
+            yield from bps.mv(pil1m_bs_rod.x, bs_pos)
+            print(SAXS_setup)
+
+
+            for wa in waxs_arc:
+                yield from bps.mv(waxs, wa)
+
+                dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+                det_exposure_time(t, t)
+
+                condition = (
+                    ( 19 < waxs.arc.position )
+                    and ( waxs.arc.position < 21 )
+                    and ( temperature == temperatures[0] )
+                    and ( sdd == saxs_dist[0] )
+                )
+
+                if condition:
+                    yield from atten_move_in()
+                    yield from bps.mv(pil1m_bs_rod.x, bs_pos + 5)
+                    yield from bps.mv(piezo.x, dbeam_x,
+                                      piezo.y, dbeam_y)
+
+                    sample_name = f'empty_{temp}degC_-attn-direct'
+                    sample_id(user_name='test', sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count([pil1M])
+                    stats1_direct = db[-1].table(stream_name='primary')['pil1M_stats1_total'].values[0]
+
+                    yield from bps.mv(pil1m_bs_rod.x, bs_pos)
+                    yield from atten_move_out()
+
+                for name, x, y in zip(names, piezo_x, piezo_y):
+                    yield from bps.mv(piezo.x, x,
+                                      piezo.y, y)
+
+                    # Scan along the capillary
+                    for i in range(points):
+
+                        new_y = y + i * dy
+
+                        yield from bps.mv(piezo.y, new_y)
+
+                        if (condition and i == 0):
+
+                            # Take transmission
+                            yield from atten_move_in()
+
+                            # Sample
+                            yield from bps.mv(pil1m_bs_rod.x, bs_pos + 5)
+                            sample_name = f'{name}_loc{i}-attn-sample'
+                            sample_id(user_name='test', sample_name=sample_name)
+                            print(f"\n\n\t=== Sample: {sample_name} ===")
+                            yield from bp.count([pil1M])
+                            stats1_sample = db[-1].table(stream_name='primary')['pil1M_stats1_total'].values[0]
+
+                            # Transmission
+                            trans = np.round( stats1_sample / stats1_direct, 5)
+
+                            # Revert configuraton
+                            yield from bps.mv(pil1m_bs_rod.x, bs_pos)
+                            yield from atten_move_out()
+                        else:
+                            trans = 0
+
+                        # Take normal scans
+                        yield from bps.mv(piezo.x, x)
+                        sample_name = f'{name}_{temp}degC{get_scan_md()}_loc{i}_trs{trans}'
+                        sample_id(user_name=user_name, sample_name=sample_name)
+                        print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                        yield from bp.count(dets)
+
+        saxs_dist = saxs_dist[::-1]
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.5, 0.5)

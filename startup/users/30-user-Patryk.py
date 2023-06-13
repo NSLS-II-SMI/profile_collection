@@ -330,3 +330,26 @@ def run_swaxs_workaround_2023_2(t=0.5):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.5, 0.5)
+
+def move_energy_slowly(target_e, e_step=100):
+    """
+    Move energy gently using feedback
+    """
+
+    current_e = energy.position.energy
+    
+
+    if (current_e > 10000) and (target_e > 10000):
+
+        energies = np.arange(current_e, target_e + 1, e_step)
+
+        for e in energies:
+
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+    else:
+        print('Energy change not allowed, do proper alignment')
+
+
+
+    
