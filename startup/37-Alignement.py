@@ -178,7 +178,7 @@ def alignement_gisaxs_multisample(angle=0.15):
     # Scan theta and height
     yield from align_gisaxs_th(0.2, 31)
     yield from align_gisaxs_height_rb(150, 21)
-    yield from align_gisaxs_th(0.1, 21)  # changed from .025 to .1 on 3-38-22
+    yield from align_gisaxs_th(0.025, 21)  # changed from .025 to .1 on 3-38-22
 
     # Close all the matplotlib windows
     plt.close("all")
