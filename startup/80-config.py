@@ -33,40 +33,16 @@ def sample_id(*, user_name, sample_name, tray_number=None):
     RE.md["user_name"] = user_name
     RE.md["sample_name"] = sample_name
 
-    #fname = f"{user_name}_{sample_name}"
+    fname = f"{user_name}_{sample_name}"
 
     # DIRTY HACK, do not copy
-    # pil1M.cam.file_name.value="acq"
-    # pil1M.cam.file_number.value=1
-    # pil1M.cam.file_name.put("acq")
-    # pil1M.cam.file_number.put(1)
-    # pil1M.cam.file_name.set("acq").wait()
-    # pil1M.cam.file_number.set(1).wait()
-    ## pil300KW.cam.file_name.set(fname).wait()
-    ## pil300KW.cam.file_number.put(1)    
-    #pil900KW.cam.file_name.put("acq")
-    #pil900KW.cam.file_number.put(1)
-    #yield from bps.sleep(0.5)
+    pil1M.cam.file_name.set("acq").wait()
+    pil1M.cam.file_number.set(1).wait()
+    # pil300KW.cam.file_name.set(fname).wait()
+    # pil300KW.cam.file_number.put(1)    
+    pil900KW.cam.file_name.put("acq")
+    pil900KW.cam.file_number.put(1)
     
-def get_scan_md():
-    """
-    Create a string with scan metadata
-    """
-    # Metadata
-    e = energy.position.energy / 1000
-    #temp = str(np.round(float(temp_degC), 1)).zfill(5)
-    wa = waxs.arc.position + 0.001
-    wa = str(np.round(float(wa), 1)).zfill(4)
-    sdd = pil1m_pos.z.position / 1000
-
-    md_fmt = ("_{energy}keV_wa{wa}_sdd{sdd}m")
-
-    scan_md = md_fmt.format(
-        energy = "%.2f" % e ,
-        wa = wa,
-        sdd = "%.1f" % sdd,
-    )
-    return scan_md
 
 
 def proposal_id(cycle_id, proposal_id, analysis=False):
