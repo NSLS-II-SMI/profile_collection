@@ -352,4 +352,54 @@ def move_energy_slowly(target_e, e_step=100):
 
 
 
-    
+def test_DI(t=1):
+    """
+    Test duplicated images
+    """
+
+    user_name = "test"
+
+    names = ["test2", "test3"]
+
+    det_exposure_time(t, t)
+
+    # Energies for calcium K edge, coarse resolution
+    energies_coarse = np.concatenate(
+        (
+            np.linspace(4030, 4045, 3),
+        )
+    )
+
+    # Do not read SAXS if WAXS is in the way
+    wa = waxs.arc.position
+    dets = [pil900KW]
+
+    # Change energies
+    energies = energies_coarse
+
+    # Go over samples
+
+    for name in names:
+
+        # Scan over energies
+        for e in energies:
+            yield from bps.sleep(2)
+
+            # Metadata
+            bpm = xbpm3.sumX.get()
+            sdd = pil1m_pos.z.position / 1000
+            wa = str(np.round(float(wa), 1)).zfill(4)
+
+            # Detector file name
+            name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m_bpm{xbpm}"
+            sample_name = name_fmt.format(
+                sample=name,
+                energy="%6.2f" % e,
+                wax=wa,
+                sdd="%.1f" % sdd,
+                xbpm="%4.3f" % bpm,
+            )
+            sample_id(user_name=user_name, sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+
+            yield from bp.count(dets, num=1)

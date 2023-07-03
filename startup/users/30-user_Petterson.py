@@ -217,3 +217,206 @@ def run_gi_sweden_GISAXS(tim=0.5, sample="Test", ti_sl=77):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(1, 1)
+
+def alignment_start(sample_name='alignment'):
+    """
+    Attenuators in, beamstop out, ROI1 set to direct beam
+    """
+
+    smi = SMI_Beamline()
+    yield from smi.modeAlignment()
+
+    # Set direct beam ROI
+    yield from smi.setDirectBeamROI()
+
+    sample_id(user_name='test', sample_name=sample_name)
+    proposal_id('2023_2', '311564_test')
+
+
+def alignment_start_angle(angle=0.10):
+    """
+    Attenuators in, beamstop out, ROI1 set to direct beam
+    """
+
+    smi = SMI_Beamline()
+    yield from smi.modeAlignment()
+
+    # Set reflected beam ROI
+    yield from smi.setReflectedBeamROI(total_angle=angle, technique="gisaxs")
+
+
+def alignment_stop():
+    """
+    Attenuators out, beamstop in,
+    """
+
+    smi = SMI_Beamline()
+    yield from smi.modeMeasurement()
+    proposal_id('2023_2', '311564_Pettersson')
+
+
+def alignment_org(angle=0.1):
+    """
+    Align using an original script
+    """
+    proposal_id('2023_2', '311564_test')
+    yield from alignement_gisaxs_multisample(angle=angle)
+    RE.md['ai_0'] = piezo.th.user_setpoint.get()
+    proposal_id('2023_2', '311564_Pettersson')
+
+def run_loop_measurement(t=0.5, name='test', loops=4, pump_t=180, total_t=600, jump_x=10):
+    """
+    RE(run_loop_measurement(t=1, name='1bl_PEI_10mM', loops=7, pump_t=210, total_t=720, jump_x=10))
+
+
+    Take measurements in the loop
+
+    Sample has to be aligned before starting the script and theta
+    angle at 0 deg (flat sample).
+
+    Parameters:
+        t (float): detector exposure time of one frame,
+        name (str): sample name,
+        loops (int): number of loops (measurements taken),
+        pump_t (flaot): initial delay to finish pumping,
+        total_t (float): total time of one measurement iteration,
+        jump_x (foat): relative move in piezo x after each y scan, in um,
+            (be careful on the direction, move relative to - jump below).
+    """
+
+    incident_angles = [0.1, 0.4]
+    waxs_arc = [20, 0]
+    user = "TP"
+
+    condition = (
+        ( -1 < waxs.arc.position )
+        and ( waxs.arc.position < 1 )
+        and (waxs_arc[0] == 20)
+    )
+
+    if condition:
+        waxs_arc = waxs_arc[::-1]
+    
+    ranges = { 0.1 : [-16, 16, 33],
+               0.4 : [-25, 25, 51],
+    }
+
+    try:
+        ai0 = RE.md['ai_0']
+    except:
+        yield from bp.count([])
+        ai0 = db[-1].start['ai_0']
+        print('Failed to acces RE.md')
+    print(f'\n\nSample flat at theta = {ai0}')
+    
+    proposal_id('2023_2', '311564_Pettersson')
+    #det_exposure_time(t, t)
+    
+    t_initial = time.time()
+
+    for i in range(loops):
+        t_start = time.time()
+        print('Cycle number',i+1,'started at', (t_start - t_initial)/60)
+
+        # Wait initial time for pumping to finish
+        print(f'Start pumping now, going to wait for {pump_t} s\n')
+        while (time.time() - t_start) < pump_t:
+            print(f'Pumping time: {(time.time() - t_start):.1f} s')
+            yield from bps.sleep(10)
+
+        # Go over SAXS and WAXS
+        t_measurement = ( time.time() - t_initial ) / 60
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+
+            for ai in incident_angles:
+                yield from bps.mv(piezo.th, ai0 + ai)
+                yield from bps.mvr(piezo.x, - jump_x)
+
+                t2 = 2 * t if ai == 0.4 else t
+                det_exposure_time(t2, t2)
+
+                try:
+                    y_range = ranges[ai]
+                except:
+                    y_range = [-10, 10, 11]
+                
+                sample_name = f'{name}{get_scan_md()}_time{t_measurement:.1f}_ai{ai}'
+                sample_id(user_name=user, sample_name=sample_name)
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                yield from bp.rel_scan(dets, piezo.y, *y_range, md=dict(ai=ai))
+        
+        yield from bps.mv(waxs, waxs_arc[0],
+                          piezo.th, ai0)
+
+        # Wait until the total loop time passes
+        if i + 1 < loops:
+            print(f'Waiting for the loop to last {total_t} s in total\n')
+            sleep_count = 0
+            while (time.time() - t_start) < total_t:
+                sleep_count += 1
+                if (sleep_count % 10 == 0):
+                    print(f'Total time: {(time.time() - t_start):.1f} s')
+                yield from bps.sleep(1)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+
+"""
+2023-2
+Manual alignment 
+
+# direct beam alignment
+RE(alignment_start())
+
+# half cut on direct beam
+RE(rel_scan([pil1M], piezo.y, -300, 300, 21))
+ps(der=True)
+RE(mv(piezo.y, ps.cen)) # or replace ps.cen with a valid piezo y position
+
+# th scan (rocking) on direct beam
+RE(rel_scan([pil1M], piezo.th, -1, 1, 21))
+ps()
+RE(mv(piezo.th, ps.cen)) # or replace ps.cen with a valid th position
+RE.md['ai_0'] = piezo.th.user_setpoint.get()
+
+# repeat halfcat on direct beam if move in th was substantial
+# RE(rel_scan([pil1M], piezo.y, -100, 100, 21))
+# ps(der=True)
+# RE(mv(piezo.y, ps.cen)) # or replace ps.cen with a valid piezo y position
+
+# Reflected beam alignment
+# remember to change angle for values different than 0.1
+RE(alignment_start_angle(angle=0.1))
+RE(mvr(piezo.th, 0.1))
+# alternatively RE(mv(piezo.th,RE.md['ai_0'] + 0.1))
+
+# th scan reflected
+RE(rel_scan([pil1M], piezo.th, -0.2, 0.2, 31))
+ps()
+RE(mv(piezo.th, ps.cen))
+RE.md['ai_0'] = piezo.th.user_setpoint.get() - 0.1
+
+# y scan reflected
+RE(rel_scan([pil1M], piezo.y, -50, 50, 21))
+ps()
+RE(mv(piezo.y, ps.cen))  # or replace ps.cen with a valid piezo y position
+
+# final refinement of th
+RE(rel_scan([pil1M], piezo.th, -0.025, 0.025, 21))
+ps()
+RE(mv(piezo.th, ps.cen))
+RE.md['ai_0'] = piezo.th.user_setpoint.get() - 0.1
+
+# if aligned and ready for data
+RE(alignment_stop())
+
+# if need to change angle of incident from 0.1 to differnt do it now
+to thetha 0
+
+RE(mvr(piezo.th, -0.1))
+or
+RE(mv(piezo.th, RE.md['ai_0']))
+"""
