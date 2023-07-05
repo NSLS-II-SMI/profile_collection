@@ -2891,3 +2891,114 @@ def polefigure_14keV(t=5):
                 yield from bp.count([pil900KW], num=1)
 
         yield from bps.mv(stage.th, ai0)
+
+
+
+def julie_gisaxs_temperature_scan_2023_2(t=0.5):
+    """
+    Grazing incidence measurement using Lakeshore controlled heating bar
+    """
+
+    proposal_id('2023_2', '311003_Freychet_01', analysis=True)
+
+    temperatures = [185]
+
+
+    names   = ['cube50','cube28-1','cube28-1']
+    piezo_x = [  -15000,     -1400,      8400]
+    piezo_y = [    4377,      4200,      3900]
+    piezo_z = [    1000,      1000,      1000]
+
+
+    msg = "Wrong number of coordinates, check names, piezos, and hexas"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_y) == len(piezo_z), msg
+
+    incident_angles = [0.2]
+    waxs_range = [20]
+    user_name = "JG"
+    det_exposure_time(t, t)
+
+    dets = [pil900KW, pil1M]
+
+    #loop for alignement
+    piezo_th = [0.766706, 0.265281, 0.26577]
+    piezo_y_al = [4377.597, 4066.471, 3805.02]
+
+    print(piezo_th)
+    print(piezo_y_al)
+
+    t0 = time.time()
+    t1 = time.time()
+    
+    while t1-t0<15000:
+        for name, x, y, z, th in zip(names, piezo_x, piezo_y_al, piezo_z, piezo_th):
+            yield from bps.mv(waxs, waxs_range[0])
+
+            yield from bps.mv(piezo.x, x,
+                            piezo.y, y,
+                            piezo.z, z, 
+                            piezo.th, th + incident_angles[0])
+
+            tim='%.5d'%(t1-t0)
+            sample_name = f'{name}_{tim}s_185degC{get_scan_md()}'
+            sample_id(user_name=user_name, sample_name=sample_name)
+            print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            yield from bp.count(dets)
+        
+        t1 = time.time()
+
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+    # Turn off the heating and set temperature to 23 deg C
+    t_kelvin = 23 + 273.15
+    yield from ls.output1.mv_temp(t_kelvin)
+    yield from ls.output1.turn_off()
+
+
+
+def julie_gisaxs_2023_2(t=0.5):
+    """
+    Grazing incidence measurement using Lakeshore controlled heating bar
+    """
+
+    proposal_id('2023_2', '311003_Freychet_01', analysis=True)
+
+    names   = ['cube50','cube28-1','cube28-1']
+    piezo_x = [  -15000,     -1400,      8400]
+    piezo_y = [    4431,      4200,      3900]
+    piezo_z = [    1000,      1000,      1000]
+
+    incident_angles = [0.2]
+    waxs_range = [20]
+    user_name = "JG"
+    det_exposure_time(t, t)
+
+    msg = "Wrong number of coordinates, check names, piezos, and hexas"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_y) == len(piezo_z), msg
+
+    dets = [pil900KW, pil1M]
+
+    #loop for alignement
+    piezo_th = [0.766706, 0.265281, 0.26577]
+    piezo_y_al = [4437.597, 4066.471, 3805.02]
+
+    yield from bps.mv(waxs, waxs_range[0])
+
+    for name, x, y, z, th in zip(names, piezo_x, piezo_y_al, piezo_z, piezo_th):
+        yield from bps.mv(piezo.x, x,
+                        piezo.y, y,
+                        piezo.z, z, 
+                        piezo.th, th + incident_angles[0])
+
+        sample_name = f'{name}_100C_{get_scan_md()}'
+        sample_id(user_name=user_name, sample_name=sample_name)
+        print(f"\n\n\n\t=== Sample: {sample_name} ===")
+        yield from bp.count(dets)
+        
+

@@ -1392,4 +1392,61 @@ def grid_milan_temp_2023_1(t=1):
     yield from ls.output1.mv_temp(t_kelvin)
     yield from ls.output1.turn_off()
 
+def run_harv_linkam_swaxs_2023_2(t=0.2, t_tot=20, temp=25):
+    """
+    WAXS and SAXS continous measurement on Linkam GI stage
+    Args:
+        t (float): detector exposure time single frame,
+        t_tot (float): total exposure time,
+        temp (float): temperature from Linkam to record in sample.
+    """
 
+    # Samples and coordinats
+    names   = ['FSB41' ]
+    piezo_x = [  7500 ]
+    piezo_y = [ -2170 ]
+    piezo_z = [ 7200 ]
+
+    # Check if the length of xlocs, ylocs and names are the same
+    msg = "Wrong number of coordinates, check names and piezos"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+
+    waxs_arc = [20, 7]
+    det_exposure_time(t, t)
+    user = "FS"
+    waxs_rounds = int(np.ceil( t_tot / t / 2))
+
+    yield from bps.mv(waxs, waxs_arc[0])
+
+    for name, x, y, z in zip(names, piezo_x, piezo_y, piezo_z):
+
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y,
+                          piezo.z, z,
+                          waxs, waxs_arc[0])
+        
+        t0 = time.time() - 1400
+
+
+        for i in range(waxs_rounds):
+            for wa in waxs_arc:
+                yield from bps.mv(waxs, wa)
+                dets = [pil900KW] if waxs.arc.position < 14 else [pil900KW, pil1M]
+
+                # Metadata
+                step = str(i).zfill(3)
+                td = str(np.round(time.time() - t0, 1)).zfill(6)
+                temp = str(np.round(float(temp), 1)).zfill(5)
+            
+                sample_name = f'{name}_{temp}degC_step{step}_time{td}s{get_scan_md()}'
+                sample_name = sample_name.translate(
+                    {ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ =,"})
+                sample_id(user_name=user, sample_name=sample_name)
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                yield from bp.count(dets)
+    
+    # End of the scan
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
