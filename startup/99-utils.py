@@ -210,6 +210,11 @@ def ps(
 
     field = db[uid].start['motors'][0]
     taken_at = datetime.datetime.fromtimestamp(db[uid].start['time']).strftime('%Y-%m-%d %H:%M:%S')
+    #taken_at =  datetime.fromtimestamp(db[uid].start['time']).strftime('%Y-%m-%d %H:%M:%S')
+
+
+
+
 
     # field='dcm_b';intensity_field='elm_sum_all'
     [x, y, t] = get_data(
@@ -636,3 +641,23 @@ def purge_cryo():
     caput('XF:12ID-UT{Cryo:1-IV:17_100}Cmd:Cls-Cmd', 1)
     caput('XF:12ID-UT{Cryo:1-IV:10}Pos-SP', 0)
     caput('XF:12ID-UT{Cryo:1-IV:20}Cmd:Cls-Cmd', 1)
+
+def get_scan_md():
+    """
+    Create a string with scan metadata
+    """
+    # Metadata
+    e = energy.position.energy / 1000
+    #temp = str(np.round(float(temp_degC), 1)).zfill(5)
+    wa = waxs.arc.position + 0.001
+    wa = str(np.round(float(wa), 1)).zfill(4)
+    sdd = pil1m_pos.z.position / 1000
+
+    md_fmt = ("_{energy}keV_wa{wa}_sdd{sdd}m")
+
+    scan_md = md_fmt.format(
+        energy = "%.2f" % e ,
+        wa = wa,
+        sdd = "%.1f" % sdd,
+    )
+    return scan_md
