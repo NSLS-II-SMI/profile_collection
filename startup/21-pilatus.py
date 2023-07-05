@@ -194,6 +194,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
             #    )
                 print('YOLO: gnoring detector failure')
                 print('Reset detector camserver if this is the start of the macro')
+                self._status._finished()
             else:
                 self._status._finished()
 
