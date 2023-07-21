@@ -2,75 +2,15 @@
 
 
 def cd_saxs(th_ini, th_fin, th_st, exp_t=1):
-    sample = [
-        "cdsaxs_ech03_defectivity_pitch128",
-        "cdsaxs_ech03_defectivity_pitch127",
-        "cdsaxs_ech03_defectivity_pitch124",
-        "cdsaxs_ech03_defectivity_pitch121",
-        "cdsaxs_ech03_defectivity_pitch118",
-        "cdsaxs_ech03_defectivity_pitch115",
-        "cdsaxs_ech03_defectivity_pitch112",
-        "cdsaxs_ech04_defectivity_pitch128",
-        "cdsaxs_ech04_defectivity_pitch127",
-        "cdsaxs_ech04_defectivity_pitch124",
-        "cdsaxs_ech04_defectivity_pitch121",
-        "cdsaxs_ech04_defectivity_pitch118",
-        "cdsaxs_ech04_defectivity_pitch115",
-        "cdsaxs_ech04_defectivity_pitch112",
-        "cdsaxs_ech11b_defectivity_pitch128",
-        "cdsaxs_ech11b_defectivity_pitch127",
-        "cdsaxs_ech11b_defectivity_pitch124",
-        "cdsaxs_ech11b_defectivity_pitch121",
-        "cdsaxs_ech11b_defectivity_pitch118",
-        "cdsaxs_ech11b_defectivity_pitch115",
-        "cdsaxs_ech11b_defectivity_pitch112",
-    ]
-    x = [
-        -41100,
-        -38550,
-        -34050,
-        -29550,
-        -25050,
-        -20550,
-        -16050,
-        -11150,
-        -9650,
-        -5150,
-        -650,
-        3850,
-        8350,
-        12850,
-        17000,
-        18500,
-        23000,
-        27500,
-        32000,
-        36500,
-        41000,
-    ]
-    y = [
-        2000,
-        2000,
-        2000,
-        2000,
-        2000,
-        2000,
-        2000,
-        2000,
-        2000,
-        2000,
-        2000,
-        2000,
-        2000,
-        2000,
-        3900,
-        3900,
-        3900,
-        3900,
-        3900,
-        3900,
-        3900,
-    ]
+    sample = ["cdsaxs_ech03_defectivity_pitch128","cdsaxs_ech03_defectivity_pitch127","cdsaxs_ech03_defectivity_pitch124",
+              "cdsaxs_ech03_defectivity_pitch121","cdsaxs_ech03_defectivity_pitch118","cdsaxs_ech03_defectivity_pitch115",
+              "cdsaxs_ech03_defectivity_pitch112","cdsaxs_ech04_defectivity_pitch128","cdsaxs_ech04_defectivity_pitch127",
+              "cdsaxs_ech04_defectivity_pitch124","cdsaxs_ech04_defectivity_pitch121","cdsaxs_ech04_defectivity_pitch118",
+              "cdsaxs_ech04_defectivity_pitch115","cdsaxs_ech04_defectivity_pitch112","cdsaxs_ech11b_defectivity_pitch128",
+              "cdsaxs_ech11b_defectivity_pitch127","cdsaxs_ech11b_defectivity_pitch124","cdsaxs_ech11b_defectivity_pitch121",
+              "cdsaxs_ech11b_defectivity_pitch118","cdsaxs_ech11b_defectivity_pitch115","cdsaxs_ech11b_defectivity_pitch112"]
+    x = [-41100,-38550,-34050,-29550,-25050,-20550,-16050,-11150,-9650,-5150,-650,3850,8350,12850,17000,18500,23000,27500,32000,36500, 41000]
+    y = [  2000,  2000,  2000,  2000,  2000,  2000,  2000,2000,2000,2000,2000,2000,2000,2000,3900,3900,3900,3900,3900,3900,3900,    ]    
     det = [pil1M]
 
     det_exposure_time(exp_t, exp_t)
@@ -89,7 +29,7 @@ def cd_saxs(th_ini, th_fin, th_st, exp_t=1):
             yield from bp.count(det, num=10)
 
 
-def cd_saxs_new(sample, x, y, num=1, exp_t=1, step=121):
+def cd_saxs_old(sample, x, y, num=1, exp_t=1, step=121):
     det = [pil1M]
 
     det_exposure_time(exp_t, exp_t)
@@ -97,58 +37,21 @@ def cd_saxs_new(sample, x, y, num=1, exp_t=1, step=121):
     yield from bps.mv(piezo.y, y)
 
     for i, theta in enumerate(np.linspace(-60, 60, step)):
-        yield from bps.mv(prs, theta - 1)
+        yield from bps.mv(prs, theta)
         name_fmt = "{sample}_{num}_{th}deg"
 
-        sample_name = name_fmt.format(
-            sample=sample, num="%2.2d" % i, th="%2.2d" % theta
-        )
+        sample_name = name_fmt.format(sample=sample, num="%2.2d"%i, th="%2.2d"%theta)
         sample_id(user_name="PG", sample_name=sample_name)
         print(f"\n\t=== Sample: {sample_name} ===\n")
 
         yield from bp.count(det, num=num)
+        yield from bps.sleep(1)
 
 
 def cdsaxs_all_pitch(sample, x, y, num=1, exp_t=1, step=121):
-    pitches = [
-        "p112nm",
-        "p113nm",
-        "p114nm",
-        "p115nm",
-        "p116nm",
-        "p117nm",
-        "p118nm",
-        "p119nm",
-        "p120nm",
-        "p121nm",
-        "p122nm",
-        "p123nm",
-        "p124nm",
-        "p125nm",
-        "p126nm",
-        "p127nm",
-        "p128nm",
-    ]
-
-    x_off = [
-        0,
-        1500,
-        3000,
-        4500,
-        6000,
-        7500,
-        9000,
-        10500,
-        12000,
-        13500,
-        15000,
-        16500,
-        18000,
-        19500,
-        21000,
-        22500,
-        24000,
-    ]
+    pitches = ["p112nm","p113nm","p114nm","p115nm","p116nm","p117nm","p118nm","p119nm","p120nm","p121nm","p122nm","p123nm","p124nm","p125nm",
+               "p126nm","p127nm","p128nm"]
+    x_off = [0,1500,3000,4500,6000,7500,9000,10500,12000,13500,15000,16500,18000,19500,21000,22500,24000]
     det_exposure_time(exp_t, exp_t)
     for x_of, pitch in zip(x_off, pitches):
         yield from bps.mv(piezo.x, x + x_of)
@@ -235,11 +138,7 @@ def night_patrice(exp_t=1):
 
 
 def scan_boite_pitch(exp_t=1):
-    sample = [
-        "Echantillon03_defectivity",
-        "Echantillon04_defectivity",
-        "Echantillon11b_defectivity",
-    ]
+    sample = ["Echantillon03_defectivity","Echantillon04_defectivity","Echantillon11b_defectivity"]
     x = [-40050, -11150, 17000]
     y = [2000, 2000, 3900]
     det = [pil1M]
@@ -387,14 +286,7 @@ def sample_patrice_2020_3(exp_t=1):
         else:
             yield from cdsaxs_important_pitch(sample_name, x, y, num=2)
 
-    names = [
-        "champs2",
-        "champs2_bkg",
-        "champs1",
-        "champs1_bkg",
-        "champs0",
-        "champs0_bkg",
-    ]
+    names = ["champs2","champs2_bkg","champs1","champs1_bkg","champs0","champs0_bkg"]
 
     xs = [-29420, -29420, -3400, -3400, 22650, 22650]
     ys = [6460, 7300, 6360, 7300, 6410, 7300]
@@ -589,19 +481,13 @@ def rugo_contact(exp_t=1):
     yield from bp.count(det, num=50)
 
 
-
-
-def cd_saxs_new(th_ini, th_fin, th_st, exp_t=1, sample='test', nume=1):
-    sample = sample
-    det = [pil1M]
+def cd_saxs_new(th_ini, th_fin, th_st, exp_t=1, sample='test', nume=1, det=[pil1M]):
 
     det_exposure_time(exp_t, exp_t)
 
-    theta_zer=-5.25
-
     for num, theta in enumerate(np.linspace(th_ini, th_fin, th_st)):
-        yield from bps.mv(prs, theta+theta_zer)
-        name_fmt = "{sample}_8.3m_16.1keV_num{num}_{th}deg_bpm{bpm}"
+        yield from bps.mv(prs, theta)
+        name_fmt = "{sample}_9.2m_16.1keV_num{num}_{th}deg_bpm{bpm}"
         sample_name = name_fmt.format(sample=sample, num="%2.2d"%num, th="%2.2d"%theta, bpm="%1.3f"%xbpm3.sumX.get())
         sample_id(user_name="PG", sample_name=sample_name)
         print(f"\n\t=== Sample: {sample_name} ===\n")
@@ -1029,3 +915,248 @@ def nigh_cdgisaxs(t=0.5):
     #     yield from cd_gisaxs_alphai(ai0, ai_ini, ai_fin, ai_st, phi0, phi, exp_t=t, sample=sample, nume=1)
 
 #0.28507 prs -3.129
+
+
+
+
+def cdsaxs_echPaul_2023_2(t=1):
+    det = [pil1M]
+    det_exposure_time(t, t)
+
+    names = ['E1_001', 'E1_001_bkg', 'E1_010', 'E1_010-bkg','E1_100', 'E1_100_bkg', 'E2_001', 'E2_001_bkg', 'E2_010', 'E2_010_bkg', 'E2_100', 'E2_100_bkg']
+    x =     [  -21300,       -23000,    -8400,        -9950,     700,         -900,    11600,        10100,    23300,        21800,    34700,        33100]
+    x_hexa =[    0.15,         0.15,     0.15,         0.15,    0.15,         0.15,     0.15,         0.15,     0.15,         0.15,     0.15,         0.15]
+    y=      [   -5200,        -5200,    -5700,        -5700,   -6200,        -6200,    -6400,        -6400,    -6200,        -6200,    -6200,        -6200]
+    z=      [    8800,         8800,     8800,         8800,    8800,         8800,     8800,         8800,     8800,         8800,     8800,         8800]
+    chi=    [       0,            0,        0,            0,       0,            0,     -1.5,         -1.5,     -1.8,         -1.8,     -1.6,         -1.6]
+    th =    [       0,            0,        0,            0,       0,            0,        0,            0,        0,            0,        0,            0]
+
+
+    names = [ 'bkg']
+    x =     [-17500]
+    x_hexa =[  0.15]
+    y=      [ -9200]
+    z=      [  8800]
+    chi=    [     0]
+    th =    [     0]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+
+    for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.ch, chis)
+        yield from bps.mv(piezo.th, ths)
+
+        num=2
+
+        yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name, nume=num)
+
+
+
+
+def cdsaxs_ocd_2023_2(t=1):
+    det = [pil1M]
+    det_exposure_time(t, t)
+
+    # names = ['w25_cm4', 'w25_cm4_bkg', 'w25_cm3', 'w25_cm3_bkg', 'w25_cm2', 'w25_cm2_bkg', 'w25_cm1', 'w25_cm1_bkg']
+    # x =     [  -27600,         -27600,    -12000,        -12000,     18700,        18700,     38500,         38500]
+    # x_hexa =[    0.15,           0.15,      0.15,          0.15,      0.15,          0.15,      0.15,          0.15]
+    # y=      [   -7100,          -4800,     -7100,         -4800,     -7100,         -4800,     -7100,         -4800]
+    # z=      [    4800,           4800,      4800,          4800,      4800,          4800,      4800,          4800]
+    # chi=    [     -0.7,          -0.7,      -0.7,          -0.7,      -0.7,          -0.7,      -0.7,          -0.7]
+    # th =    [       0,              0,         0,             0,         0,             0,         0,             0]
+
+
+    # names = ['w25_c0', 'w25_c0_bkg', 'w25_c1', 'w25_c1_bkg', 'w25_c2', 'w25_c2_bkg']
+    # x =     [   -9000,        -9000,    17000,        17000,    36500,        36500]
+    # x_hexa =[    0.15,         0.15,     0.15,         0.15,     0.15,         0.15]
+    # y=      [   -7100,        -4800,    -7100,        -4800,    -7100,        -4800]
+    # z=      [    4800,         4800,     4800,         4800,     4800,         4800]
+    # chi=    [     -0.7,        -0.7,     -0.7,         -0.7,     -0.7,         -0.7]
+    # th =    [       0,            0,        0,            0,        0,            0]
+
+    names = ['w25_c3', 'w25_c3_bkg', 'w25_c4', 'w25_c4_bkg', 'w25_c5', 'w25_c5_bkg']
+    x =     [   -8000,        -8000,    18000,        17000,    37000,        37000]
+    x_hexa =[    0.15,         0.15,     0.15,         0.15,     0.15,         0.15]
+    y=      [   -7100,        -4500,    -7100,        -4500,    -7100,        -4500]
+    z=      [    4800,         4800,     4800,         4800,     4800,         4800]
+    chi=    [     -0.4,        -0.4,     -0.4,         -0.4,     -0.4,         -0.4]
+    th =    [       0,            0,        0,            0,        0,            0]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+
+    for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.ch, chis)
+        yield from bps.mv(piezo.th, ths)
+
+        if 'bkg' not in name:
+            for xx in [-4000, 0, 4000]:
+                for yy in [-1000, 0, 1000]:
+                    yield from bps.mv(piezo.x, xs + xx)
+                    yield from bps.mv(piezo.y, ys + yy)
+                    num=1
+                    yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'xx%.1d_yy%.1d'%(0.001*xx, 0.001*yy), nume=num)
+
+        else:                    
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            num=2
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name, nume=num)
+
+    
+
+def cdsaxs_ovl_2023_2(t=1):
+    det = [pil1M]
+    det_exposure_time(t, t)
+
+
+    names = ['w09ovl_c00-p112', 'w09ovl_c00_bkg-p112', 'w09ovl_c00-p128', 'w09ovl_c00_bkg-p128', 'w09ovl_-10-p112', 'w09ovl_c-10_bkg-p112', 'w09ovl_-10-p112', 'w09ovl_c-10_bkg-p112']
+    x =     [           -21100,                -20400,              2900,                  2100,              4900,                   5900,             28900,                  27900]
+    x_hexa =[             0.15,                  0.15,              0.15,                  0.15,              0.15,                   0.15,              0.15,                   0.15]
+    y=      [             -900,                  -100,             -1000,                  -200,             -1000,                   -200,             -1200,                   -400]
+    z=      [             4800,                  4800,              4800,                  4800,              4800,                   4800,              4800,                   4800]
+    chi=    [             -0.6,                  -0.6,              -0.6,                  -0.6,              -0.6,                   -0.6,              -0.6,                   -0.6]
+    th =    [                0,                     0,                0,                      0,                 0,                      0,                 0,                      0]
+
+    names = [ 'w09ovl_-10-p118', 'w09ovl_c-10_bkg-p118']
+    x =     [             28900,                  27900]
+    x_hexa =[              0.15,                   0.15]
+    y=      [             -1200,                   -400]
+    z=      [              4800,                   4800]
+    chi=    [              -0.6,                   -0.6]
+    th =    [                 0,                      0]
+
+
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+
+    for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.ch, chis)
+        yield from bps.mv(piezo.th, ths)
+                  
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        num=2
+        if 'bkg' not in name:
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet1', nume=num)
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet2', nume=num)
+        else:
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name, nume=1)
+
+
+
+    for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+        if 'bkg' not in name:
+            yield from bps.mv(stage.x, xs_hexa)
+            yield from bps.mv(piezo.z, zs)
+            yield from bps.mv(piezo.ch, chis)
+            yield from bps.mv(piezo.th, ths)
+                    
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            num=2
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet3', nume=num)
+
+
+
+
+
+def cdwaxs_echPaulSophie_2023_2(t=1):
+    det = [pil900KW]
+    waxs_arc =[0, 20]
+    det_exposure_time(t, t)
+
+    yield from bps.mv(stage.y, -9)
+
+    names = ['echsoph_E','echpaul_01','echpaul_02','echpaul_04','echpaul_05','echpaul_06', 'echsoph_F']
+    x =     [      41000,       32000,       23000,        3000,       -8000,      -18000,      -33000]
+    x_hexa =[       0.15,        0.15,        0.15,        0.15,        0.15,        0.15,        0.15]
+    y=      [      -9000,       -9000,       -9000,       -9000,       -9000,       -9000,       -9000]
+    z=      [       4550,        4550,        4550,        4550,        4550,        4550,        4550]
+    chi=    [       -0.5,        -0.5,        -0.5,        -0.5,        -0.5,        -0.5,        -0.5]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+
+
+    for name, xs, xs_hexa, ys, zs, chis in zip(names, x, x_hexa, y, z, chi):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.ch, chis)
+
+        num=1
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            name = name+'_wa%sdeg'%wa
+
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name, nume=num, det=det)
+    
+    
+    
+    yield from bps.mv(stage.y, 0)
+
+    names = ['E1_01_A4','E1_01_C3','E1_01_D3','E1_10_A4','E1_10_C3','E1_10_D3','E1_100_A4','E1_100_C3','E1_100_D3',
+             'E2_01_A4','E2_01_C3','E2_01_D3','E2_10_A4','E2_10_C3','E2_10_D3','E2_100_A4','E2_100_C3','E2_100_D3']
+    x =     [     35400,     39300,     41300,     22900,     24900,     26900,       9700,      13700,      15500, 
+                   -600,      3300,      5300,    -11700,     -7800,     -5700,     -22100,     -18300,     -16300]
+    x_hexa =[      0.15,      0.15,      0.15,      0.15,      0.15,      0.15,       0.15,       0.15,       0.15,
+                   0.15,      0.15,      0.15,      0.15,      0.15,      0.15,       0.15,       0.15,       0.15]
+    y=      [      5800,      7900,      7900,      5700,      7800,      7900,       9700,       8000,       8000, 
+                   5900,      7800,      7800,      6000,      8100,      8100,       5300,       7600,       7500]
+    z=      [      4550,      4550,      4550,      4550,      4550,      4550,       4550,       4550,       4550,
+                   4550,      4550,      4550,      4550,      4550,      4550,       4550,       4550,       4550]
+    chi=    [      -0.5,      -0.5,      -0.5,      -0.5,      -0.5,      -0.5,       -0.5,       -0.5,       -0.5,
+                   -0.5,      -0.5,      -0.5,      -0.5,      -0.5,      -0.5,       -0.5,       -0.5,       -0.5]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+
+
+    for name, xs, xs_hexa, ys, zs, chis in zip(names, x, x_hexa, y, z, chi):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.ch, chis)
+
+        num=1
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            name = name+'_wa%sdeg'%wa
+
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name, nume=num, det=det)
