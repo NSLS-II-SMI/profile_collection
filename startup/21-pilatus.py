@@ -192,8 +192,8 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
             #    self._status.set_exception(
             #        RuntimeError(f"FAILED {pvname}: {data.alarm_status}: {data.alarm_severity}")
             #    )
-                print('YOLO: gnoring detector failure')
-                print('Reset detector camserver if this is the start of the macro')
+                print('\n\n\n\nYOLO: ignoring detector failure')
+                print('Reset detector camserver if this is the start of the macro\n\n\n\n\n')
                 self._status._finished()
             else:
                 self._status._finished()
