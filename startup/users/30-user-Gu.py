@@ -1639,3 +1639,68 @@ def guorong_temperature_cap_2023_2(t=0.5):
 
     # Turn off the heating and set temperature to 23 deg C
     yield from turn_off_heating()
+
+
+
+
+def guorong_temperature_2023_2_redo(t=1, prefix='test'):
+    """
+    Hard X-ray WAXS and SAXS Lakeshore heating stage
+    at multiple SAXS detector distances.
+    Measure transmission only during the first run
+    """
+    # yield from bps.sleep(1500)
+    
+    names =   [ 'cap', 'bkg_CB', 'bkg_Tol', 'P3HT_CB', 'P3HT_Tol', 'PffBT_CB']
+    piezo_x = [-23550,  -10850,      1900,     14350,      27450,      40300]   
+    piezo_y = [ -9500,   -9100,     -8800,     -8300,      -7900,      -7300]
+    piezo_z = [  2700,    2700,      2700,      2700,       2700,       2700]
+
+    names =   [ 'PffBT_CB']
+    piezo_x = [      40100]   
+    piezo_y = [      -7700]
+    piezo_z = [       2700]
+
+    assert len(names)   == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_y), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_z), f"Wrong list lenghts"
+
+    waxs_arc = [20, 0]
+
+    y_off = [0, 200]
+
+    for name, x, y, z in zip(names, piezo_x, piezo_y, piezo_z):
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(piezo.z, z)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+            det_exposure_time(t, t)
+            
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of)
+
+                name_fmt = "{sample}_pos{loc}_wa{wax}"
+                sample_name = name_fmt.format(sample=name + '_' + prefix, loc="%.2d"%yy, wax=wa)
+                sample_id(user_name="GM", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                
+                yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+    # Turn off the heating and set temperature to 23 deg C
+    # yield from turn_off_heating()
+
+def night_guorong(t=1):
+    yield from bps.sleep(600)
+
+    yield from guorong_temperature_2023_2_redo(t=1, prefix='150C')
+
+    yield from turn_off_heating()
+    yield from bps.sleep(10800)
+    
+    yield from guorong_temperature_2023_2_redo(t=1, prefix='RT_afterheating')
