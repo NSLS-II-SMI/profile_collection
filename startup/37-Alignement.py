@@ -29,9 +29,9 @@ def align_xrr_prs(rang=0.3, point=31):
 
 
 def align_xrr_height(rang=0.3, point=31, der=False):
-    yield from bp.rel_scan([pil1M], piezo.x, -rang, rang, point)
+    yield from bp.rel_scan([pil1M], piezo.z, -rang, rang, point)
     ps(der=der, plot=False)
-    yield from bps.mv(piezo.x, ps.peak)
+    yield from bps.mv(piezo.z, ps.peak)
 
 
 def align_gisaxs_height_hex(rang=0.3, point=31, der=False):
@@ -217,6 +217,8 @@ def alignement_gisaxs_hex(angle=0.1, rough_y=0.5):
 
     # Scan theta and height
     yield from align_gisaxs_height_hex(rough_y, 21, der=True)
+
+    yield from smi.setReflectedBeamROI(total_angle=0.06, technique="gisaxs")
     yield from align_gisaxs_th_hex(0.5, 21)
 
     # move to theta 0 + value
@@ -226,7 +228,7 @@ def alignement_gisaxs_hex(angle=0.1, rough_y=0.5):
     yield from smi.setReflectedBeamROI(total_angle=angle, technique="gisaxs")
 
     # Scan theta and height
-    yield from align_gisaxs_th_hex(0.3, 21)
+    yield from align_gisaxs_th_hex(0.3, 31)
     yield from align_gisaxs_height_hex(0.1, 21)
     yield from align_gisaxs_th_hex(0.05, 21)
 
