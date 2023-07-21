@@ -49,6 +49,7 @@ def proposal_id(cycle_id, proposal_id, analysis=False):
     RE.md["cycle"] = cycle_id
     RE.md["proposal_number"] = proposal_id.split("_")[0]
     RE.md["main_proposer"] = proposal_id.split("_")[1]
+    RE.md["amptek_folder"] = proposal_id
     # RE.md['path'] = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id)
     RE.md["path"] = ("/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id))
 
