@@ -1405,3 +1405,237 @@ def ca_spectroscopy_scan_mrl(t=0.2):
 
 
 
+
+
+
+
+def swaxs_2023_2_run1(t=1):
+
+
+    # names = ["latex_01","latex_02","latex_03","latex_04","latex_05","latex_06","latex_07",
+    #          "latex_08","latex_09","latex_10"]
+    # xlocs = [     49000,     37000,     23000,     11000,     -3000,    -15000,    -27500, 
+    #               48000,     36000,     24000]
+    # ylocs = [     -6500,     -6500,     -7000,     -7500,     -7500,     -8000,     -8500, 
+    #                6000,      6000,      5500]
+    # zlocs = [      4000,      4000,      4000,      4000,      4000,      4000,      4000, 
+    #                4000,      4000,      4000]
+    
+    # names = [  "cam_01",  "cam_02",  "cam_03",  "cam_04",  "cam_05","cam_06", "cam_07"]
+    # xlocs = [     13000,      5000,     -2000,     -8000,    -13000,  -25000,   -35000]
+    # ylocs = [      5500,      5000,      5000,      4500,      4500,    4500,     3000]
+    # zlocs = [      4000,      4000,      4000,      4000,      4000,    6000,     6000]
+
+    # names = [ "cam_08", "cam_09", "cam_10", "cam_11", "cam_12", "cam_13", "cam_14", "cam_15", "cam_16", "cam_17", "cam_18"]
+    # xlocs = [    50000,    38000,    25000,    15000,     4000,    -6000,   -15000,   -22500,   -27500,   -32500,   -37500]
+    # ylocs = [    -4000,    -2500,    -2500,    -2500,    -2500,    -2500,    -2500,    -5000,    -5000,    -5000,    -4000]
+    # zlocs = [     4200,     4200,     4200,     4200,     4200,     4200,     4200,     4200,     4200,     4200,     4300]
+
+
+
+   # names = ["Ac_01", "Ac_02", "Ac_03", "Ac_04", "Ac_05","Ac_06","Ac_07","Ac_08",
+   #          "Ac_09", "Ac_10", "Ac_11", "Ac_12", "Ac_13", "Ac_14"]
+   # xlocs = [  48000,   37000,   25000,   13000,    1000,  -10000,  22000, -34000,
+   #            47000,   31000,   18000,       0,  -20000,  -36000]
+   # ylocs = [  -7500,   -7500,   -7500,   -7500,   -6300,   -6500,  -6500,  -6500,
+   #             5000,    5000,    5000,    5500,    5500,    5500]
+   # zlocs = [   4300,    4300,    4300,    4300,    4300,    4300,   4300,   4300,
+   #             4300,    4300,    4300,    4300,    4300,    4300]
+
+
+    names = ["54I-12-CuTF2N-60_pos1", "54I-12-CuTF2N-60_pos2" ]
+    xlocs = [                  37500,                   36500 ]
+    ylocs = [                   4000,                    6650 ]
+    zlocs = [                   4300,                    4300 ]
+
+
+
+
+    # yield from bps.mv(att1_5.open_cmd, 1)
+
+
+    user = "ML"
+    det_exposure_time(t, t)
+
+    assert len(xlocs) == len(names), f"Number of X coordinates ({len(xlocs)}) is different from number of samples ({len(names)})"
+    assert len(xlocs) == len(ylocs), f"Number of X coordinates ({len(ylocs)}) is different from number of samples ({len(names)})"
+    assert len(xlocs) == len(zlocs), f"Number of X coordinates ({len(zlocs)}) is different from number of samples ({len(names)})"
+
+    # Detectors, motors:
+    dets = [pil1M, pil900KW]
+    # dets = [pil900KW]
+
+    waxs_range = [20]
+
+    ypos = [-200, 200, 3]
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        for sam, x, y, z in zip(names, xlocs, ylocs, zlocs):
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.z, z)
+
+            name_fmt = "{sam}_16.1keV_sdd9.2m_wa{waxs}"
+            sample_name = name_fmt.format(sam=sam, waxs="%2.1f" % wa)
+            sample_id(user_name=user, sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+            yield from bp.rel_scan(dets, piezo.y, *ypos)
+            yield from bps.sleep(2)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+    # yield from bps.mv(att1_5.close_cmd, 1)
+
+
+
+def giswaxs_2023_2(t=1):
+    dets = [pil1M, pil900KW]
+    det_exposure_time(t, t)
+
+    # names = [  'grazing1', 'grazing2', 'grazing3', 'grazing4', 'grazing5', 'grazing6', 'grazing7', 'grazing8', 'grazing9', 
+    #           'grazing10','grazing11','grazing12','grazing13','grazing14','grazing15']
+    # x_piezo = [    -50000,     -50000,     -43000,     -36000,     -29000,   -20000,   -11000,    -1000,     9000,
+    #                 19000,      30000,      40000,      50000,      50000,    57000]
+    # y_piezo = [      2500,       4500,       5000,       4500,       4500,     4500,     4500,     4500,     4700,
+    #                  5300,       5300,       5400,       5500,       5600,     4100]
+    # z_piezo = [      7000,       7000,       7000,       7000,       7000,     7000,     7000,     7000,     7000,
+    #                  7000,       7000,       7000,       7000,       7000,     7000]
+    # x_hexa =  [       -13,          0,          0,          0,          0,        0,        0,        0,        0,
+    #                     0,          0,          0,          0,          8,       10]
+
+
+    names = [ 'grazing13', 'grazing14', 'grazing15']
+    x_piezo = [     48000,       50000,       57000]
+    y_piezo = [      5500,        5600,        4100]
+    z_piezo = [      7000,        7000,        7000]
+    x_hexa =  [         0,           8,          10]
+
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+    assert len(x_piezo) == len(x_hexa), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})"
+
+    waxs_arc = [20, 0]
+    ai0 = 0
+    ai_list = [0.15]
+
+    for name, xs, ys, zs, xs_hexa in zip(names, x_piezo, y_piezo, z_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+        yield from bps.mv(piezo.th, ai0)
+        yield from alignement_gisaxs(angle=0.15)
+
+        yield from bps.mv(att1_5.open_cmd, 1)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            # Do not take SAXS when WAXS detector in the way
+            dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+
+            for k, ais in enumerate(ai_list):
+                yield from bps.mv(piezo.th, ai0 + ais)
+
+                name_fmt = "{sample}_ai{ai}_wa{wax}"
+                sample_name = name_fmt.format(sample=name, ai="%3.2f"%ais, wax=wa)
+                sample_id(user_name="LR", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(piezo.th, ai0)
+
+
+
+from bluesky.utils import short_uid
+import bluesky.plan_stubs as bps
+import bluesky.preprocessors as bpp
+
+def blading_scan(det, motor, position, md=None):
+    md = dict(md) if md is not None else {}
+
+    @bpp.stage_decorator([det])
+    @bpp.run_decorator(md=md)
+    def inner():
+        # name of the group we should wait for
+        group=short_uid('reading')
+
+        # trigger the detector
+        st = yield from bps.trigger(det, group=group)
+        # move the motor 
+        yield from bps.mv(motor, position)
+
+        # wait for the detector to really finish
+        yield from bps.wait(group=group)
+        # put the detector reading in the primary stream
+        yield from bps.create(name='primary')
+        yield from bps.read(det)
+        yield from bps.save()
+
+    yield from inner()
+
+
+def blade_coating(sample_name='test'):
+    proposal_id('2023_2', '312762_Katz_04')
+    yield from bps.mv(bc_smaract.x1, 70)
+    # x2=73.605
+    # yield from bps.mv(stage.th, 0.65)
+
+    yield from alignement_gisaxs_hex(angle=0.15)
+
+    yield from bps.mvr(stage.th, 0.12)
+    # yield from bps.mvr(stage.y, 0.05)
+
+    yield from bps.mv(bc_smaract.x1, 0)
+
+    det_exposure_time(0.1, 180)
+    sample_id(user_name='ML', sample_name=sample_name)
+
+    yield from bps.mv(syringe_pu.x3, 1)
+    yield from bps.sleep(3)
+    yield from blading_scan(pil1M, bc_smaract.x1, 70)
+
+
+
+
+def alignement_blade_coating():
+    proposal_id('2023_2', '312762_Katz_04')
+    yield from bps.mv(bc_smaract.x1, 70)
+    # x2=73.605
+    # yield from bps.mv(stage.th, 0.65)
+
+    yield from alignement_gisaxs_hex(angle=0.15)
+
+    yield from bps.mvr(stage.th, 0.12)
+    yield from bps.mvr(stage.y, 0.05)
+
+    yield from bps.mv(bc_smaract.x1, 0)
+
+
+def button_blade_coating(sample_name='test'):
+
+    det_exposure_time(0.1, 180)
+    sample_id(user_name='ML', sample_name=sample_name)
+    yield from blading_scan(pil1M, bc_smaract.x1, 70)
+
+
+def nexafs_cu(t=1, name='test'):
+    ener = np.asarray(np.linspace(8960, 8970, 6).tolist() + np.linspace(8970, 9010, 41).tolist() + np.linspace(9010, 9090, 17).tolist())
+
+    for e in ener:
+        bpm = xbpm3.sumX.get()
+        name_fmt = "{sample}_{energy}eV_wa{wax}_bpm{xbpm}"
+        sample_name = name_fmt.format(sample=name,energy="%6.2f" % e,wax=20,xbpm="%4.3f"%bpm)
+        sample_id(user_name='ML', sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+
+        yield from bp.count([pil900KW], num=1)
+
+        yield from bps.mv(energy, e)
+        yield from bps.sleep(3)
