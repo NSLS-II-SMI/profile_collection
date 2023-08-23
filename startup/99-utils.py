@@ -619,14 +619,14 @@ def purge_cryo():
     caput('XF:12ID-UT{Cryo:1-IV:21}Cmd:Opn-Cmd', 1)
     for i in range(6):
         print('time left on purging step 1/3: '+str(30-i*5)+'min \n')
-        RE(sleep(300))
+        yield from bps.sleep(300)
     print('purging step 1/3 complete....proceeding to 2/3!')
     caput('XF:12ID-UT{Cryo:1-IV:09}Cmd:Cls-Cmd', 1)
     caput('XF:12ID-UT{Cryo:1-IV:11}Pos-SP', 100)
     print('purging step 2/3, taking 15 min \n current time: '+str(datetime.now()))
     for i in range(3):
        print('time left on purging step 2/3: '+str(15-i*5)+'min \n')
-       RE(sleep(300))
+       yield from bps.sleep(300)
     print('purging step 2/3 complete....proceeding to 3/3!')
     caput('XF:12ID-UT{Cryo:1-IV:11}Pos-SP', 0)
     caput('XF:12ID-UT{Cryo:1-IV:17_35}Cmd:Opn-Cmd', 1)
@@ -634,7 +634,7 @@ def purge_cryo():
     print('purging step 3/3, taking 15 min \n current time: '+str(datetime.now()))
     for i in range(3):
        print('time left on purging step 3/3: '+str(15-i*5)+'min \n')
-       RE(sleep(300))
+       yield from bps.sleep(300)
     print('purging COMPLETE! Closing all valves...')
     caput('XF:12ID-UT{Cryo:1-IV:21}Cmd:Cls-Cmd', 1)
     caput('XF:12ID-UT{Cryo:1-IV:17_35}Cmd:Cls-Cmd', 1)
