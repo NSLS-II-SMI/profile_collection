@@ -143,10 +143,10 @@ class SMIFastShutter(Device):
         self.check_status()
 
 
-fs = SMIFastShutter("", name="fs")
+#fs = SMIFastShutter("", name="fs")
 
 # What is the difference between both
-fshutter = EpicsMotor("XF:12IDC:2{Sh:E-Ax:Y}Mtr", name="fshutter")
+##fshutter = EpicsMotor("XF:12IDC:2{Sh:E-Ax:Y}Mtr", name="fshutter")
 
 
 GV7 = TwoButtonShutter("XF:12IDC-VA:2{Det:1M-GV:7}", name="GV7")
