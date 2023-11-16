@@ -392,7 +392,11 @@ class WAXS(Device):
         # bsx_pos = -9.07561 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Oct 24, refining after WAXS arc died 
         # bsx_pos = -7.5756 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Nov 8, bumped?
         # bsx_pos = -50.1 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Nov 14, After changing the motor by ZY and Brian
-        bsx_pos = -50.1 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 May 5, discovering it was bumped somehow
+        # bsx_pos = -50.1 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 May 5, discovering it was bumped somehow
+        # bsx_pos = -51.3 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Sep 12, not bloking when waxs at 0
+        # bsx_pos = -48.2 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Sep 21, bumped diagonaly by last users
+        # bsx_pos = -50.2 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Oct 20, bumped again please be careful people!!
+        bsx_pos = -54.65 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Nov 02, bumped again with 3d printer.
         return bsx_pos
 
 waxs = WAXS("XF:12IDC-ES:2{", name="waxs")
