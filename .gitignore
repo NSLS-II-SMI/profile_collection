@@ -83,13 +83,7 @@ startup/00-startup.corrupt
 # Some user scripts
 startup/users/30-user-2023C1-EHu.py
 startup/users/30-user-ChangYong_2022C3.py
-startup/users/30-user-Dinca2022C3.py
-startup/users/30-user-Dinca2023C2.py
-startup/users/30-user-Flu_2023C1_GIX.py
-startup/users/30-user-Flu_2023C1_TSAXS.py
 startup/users/30-user-Jones.py
-startup/users/30-user-Kim_2022C3B.py
-startup/users/30-user-Kim_2023C1.py
 startup/users/30-user-Liu-Akron.py
 startup/users/30-user-OGang_TSAXS.py
 startup/users/30-user-OGang_TSAXS_Pattern.py
@@ -97,14 +91,12 @@ startup/users/30-user-SWong_2002C3.py
 startup/users/30-user-SYang_2023C1.py
 startup/users/30-user-SYang_2023C2.py
 startup/users/30-user-TLi_2023C1.py
-startup/users/30-user-YZhang_2002C3B.py
-startup/users/30-user-YZhang_2023C1D.py
-startup/users/30-user-YZhang_2023C1_GIX.py
-startup/users/30-user-YZhang_2023C2_GIX.py
-startup/users/30-user-YZhang_2023C2_TSAXS.py
-startup/users/30-user-YZhang_SMI_Droplet_2023C1.py
-startup/users/30-user-YZhang_SMI_Droplet_2023C2.py
 startup/users/30-user-lwiegart.py
 startup/users/YZhang_SMI_Base.py
 smi_PV_to_archive.txt
 startup/.22-oav.py.swx
+*user-CLiu_*
+*user-YZhang*
+*user-Dinca*
+*user-Flu*
+*user-Kim_*
