@@ -2091,3 +2091,412 @@ def cai_temperature_trans_scan_2023_2(t=0.5):
     t_kelvin = 23 + 273.15
     yield from ls.output1.mv_temp(t_kelvin)
     yield from ls.output1.turn_off()
+
+def atten_move_in(x4=True, x2=True):
+    """
+    Move 4x + 2x Sn 60 um attenuators in
+    """
+    print('Moving attenuators in')
+
+    if x4:
+        while att1_7.status.get() != 'Open':
+            yield from bps.mv(att1_7.open_cmd, 1)
+            yield from bps.sleep(1)
+    if x2:
+        while att1_6.status.get() != 'Open':
+            yield from bps.mv(att1_6.open_cmd, 1)
+            yield from bps.sleep(1)
+
+def atten_move_out():
+    """
+    Move 4x + 2x Sn 60 um attenuators out
+    """
+    print('Moving attenuators out')
+    while att1_7.status.get() != 'Not Open':
+        yield from bps.mv(att1_7.close_cmd, 1)
+        yield from bps.sleep(1)
+    while att1_6.status.get() != 'Not Open':
+        yield from bps.mv(att1_6.close_cmd, 1)
+        yield from bps.sleep(1)
+
+def engage_detectors():
+    """
+    Making sure camserver responds and data is taken
+    """
+
+    yield from atten_move_in()
+    sample_id(user_name='test', sample_name='test')
+    print(f"\n\n\n\t=== Making sure detectores are engaged and ready ===")
+    yield from bp.count([pil900KW, pil1M])
+    yield from atten_move_out()
+
+def run_swaxs_Cai_2023_3(t=0.5):
+    """
+    Hard X-ray WAXS and SAXS
+    Measure transmission only during the first run
+    """
+    #Capillaries, run 1
+    #names =   [  'control0', '1.1', '1.2', '1.3', '1.4', '1.5', '5.M1', '5.M2', 'control1'] 
+    #piezo_x = [ -13000, -6800, -800, 5800, 12200, 18600, 25000, 31400, 37400]   
+    #piezo_y = [   2700, 2700, 2700, 2700, 2700, 2700, 2700, 2700, 2700]          
+    #p0iezo_z = [ 14600 for n in names ]
+
+    #Test 3, run 1
+    #names =   [  'control_JustBeam', '4.1', '4.2', '4.3', '4.4', '4.6'] 
+    #piezo_x = [ -41500, -20000, 2000, 28500, -33500, -1500, 32500]   
+    #piezo_y = [  -4800, -4800, -4800, -6000, 7200, 7200, 7200]     
+    #piezo_z = [ 9000 for n in names ]
+    #piezo_z = [  14600, ]
+
+    #Test 4, run 1
+    #names =   [  'control_JustBeam', '4.1', '4.2', '4.3', '4.4', '4.5', '4.6'] 
+    #piezo_x = [ -40000, -36000, -20000, -8000, 8500, 21500, 27500]   
+    #piezo_y = [  1700, 1700, 1700, 1700, 1700, 1300, 1300]     
+    #piezo_z = [ 9000 for n in names ]
+    #piezo_z = [  14600, ]
+
+    #Test 5, run 1
+    names =   ['control_JustBeam', '6.1', '6.2', '6.3', '6.4', '6.5','6.6'] 
+    piezo_x = [-42000, -36000, -20000, -12000, -2000, 6000, 14000]   
+    piezo_y = [1700, 1700, 1700, 1700, 1700, 1700, 1700]     
+    piezo_z = [ 9000 for n in names ]
+    #piezo_z = [  14600, ]
+    
+    hexa_x =  [ 0 for n in names]
+
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+    assert len(piezo_x) == len(hexa_x), msg
+
+    user_name = "DR"
+    waxs_arc = [20, 0]
+
+    points = 3
+    dy = 150
+    dbeam_x = -44000
+    dbeam_y = 2400
+
+    bs_pos = 2.90
+
+    det_exposure_time(t, t)
+
+    # Make sure cam server engages with the detector
+    yield from engage_detectors()
+
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+        
+
+        condition = (
+            ( 19 < waxs.arc.position )
+            and ( waxs.arc.position < 21 )
+        )
+
+        if condition:
+            yield from atten_move_in()
+            yield from bps.mv(pil1m_bs_rod.x, bs_pos + 5)
+            yield from bps.mv(piezo.x, dbeam_x,
+                              piezo.y, dbeam_y)
+
+            sample_id(user_name='test', sample_name='test')
+            yield from bp.count([pil1M])
+            stats1_direct = db[-1].table(stream_name='primary')['pil1M_stats1_total'].values[0]
+            yield from bps.mv(pil1m_bs_rod.x, bs_pos)
+            yield from atten_move_out()
+
+        for name, x, y, z, hx in zip(names, piezo_x, piezo_y, piezo_z, hexa_x):
+            yield from bps.mv(piezo.x, x,
+                              piezo.y, y,
+                              piezo.z, z,
+                              stage.x, hx)
+
+            # Scan along the capillary
+            for i in range(points):
+
+                new_y = y + i * dy
+
+                yield from bps.mv(piezo.y, new_y)
+
+                if (condition and i == 0):
+
+                    # Take transmission
+                    yield from atten_move_in()
+
+                    # Sample
+                    yield from bps.mv(pil1m_bs_rod.x, bs_pos + 5)
+                    sample_id(user_name='test', sample_name='test')
+                    yield from bp.count([pil1M])
+                    stats1_sample = db[-1].table(stream_name='primary')['pil1M_stats1_total'].values[0]
+
+                    # Transmission
+                    trans = np.round( stats1_sample / stats1_direct, 5)
+
+                    # Revert configuraton
+                    yield from bps.mv(pil1m_bs_rod.x, bs_pos)
+                    yield from atten_move_out()
+                
+                if not condition:
+                    trans = 0
+
+                # Take normal scans
+                sample_name = f'{name}{get_scan_md()}_loc{i}_trs{trans}'
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+
+def cai_tensile_continous_hard_2023_3(t=0.2):
+    """
+    WAXS and SAXS continous measurement on Linkam MFS stage
+
+    setthreshold energy 14000 autog 11500
+
+    Args:
+        t (float): detector exposure time,
+    """
+
+    name = "400-1-2000_PEG-PEGDA-NIPAM_Cast_Damp"
+
+    # Sampe starting hexapod positions in mm
+    stage_x = -0.2
+    stage_y = 0.5
+
+    # Calculate position pairs for sample offset
+    # np.linspace(start, stop, number of points)
+    yss = np.linspace(stage_y, stage_y + 0.1, 4)
+    xss = np.linspace(stage_x, stage_x + 0.1, 3)
+    yss, xss = np.meshgrid(yss, xss)
+    yss = yss.ravel()
+    xss = xss.ravel()
+
+    # Delay between taking detector images in seconds
+    delay = 0
+
+    waxs_arc = [15, 7]
+    det_exposure_time(t, t)
+    user_name = "DR"
+
+    #yield from engage_detectors()
+
+    t0 = time.time()
+
+    yield from bps.mv(stage.y, stage_y, stage.x, stage_x, waxs, waxs_arc[0])
+
+    for i in range(5000):
+
+        yield from bps.mv(stage.y, yss[i % len(yss)], stage.x, xss[i % len(xss)])
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            # Do not read SAXS if WAXS is in the way
+            dets = [pil900KW] if waxs.arc.position < 10 else [pil1M, pil900KW]
+
+            t1 = time.time()
+
+            # Metadata
+            step = str(i).zfill(3)
+            td = str(np.round(t1 - t0, 1)).zfill(6)
+            
+            sample_name = f'{name}_step{step}_time{td}s{get_scan_md()}'
+            sample_id(user_name=user_name, sample_name=sample_name)
+
+            print(f"\n\t=== Step {i + 1} Sample: {sample_name} ===\n")
+            yield from bp.count(dets)
+        print(f"Sleep for {delay} seconds")
+        yield from bps.sleep(delay)
+
+    # End of the scan
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+
+def cai_giswaxs_temp_scan_2023_3(t=0.5):
+    """
+    Grazing incidence measurement using Lakeshore controlled heating bar
+    """
+
+    names   = [  'LBBL_35per', 'LfBBL_s2.70', 'MSolid1', 'MSolid2', 'MSolid3' ]
+    piezo_x = [ -35500,               -16000,      8000,     26000,    44000]
+    piezo_y = [ 600,  400,  -500, -900, -900]
+    piezo_z = [ 5000 for n in names ]
+
+    i = 1
+    names   = names[i:]
+    piezo_x = piezo_x[i:]
+    piezo_y = piezo_y[i:]
+    piezo_z = piezo_z[i:]
+
+
+    temperatures = [26.7, 50, 75, 100, 125, 150, 175, 200, 225, 200, 175, 150, 125, 100, 75, 50, 25] 
+
+    incident_angles = [0.125, 0.2]
+    waxs_arc = [0, 20, 40]
+    user_name = "DR"
+    det_exposure_time(t, t)
+
+    msg = "Wrong number of coordinates, check names, piezos, and hexas"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_y) == len(piezo_z), msg
+
+
+    for ts, temperature in enumerate(temperatures):
+        t_kelvin = temperature + 273.15
+        yield from ls.output1.mv_temp(t_kelvin)
+
+        # Activate heating range in Lakeshore
+        #if temperature < 80:
+        #   yield from bps.mv(ls.output1.status, 1)
+        #else:
+        yield from bps.mv(ls.output1.status, 3)
+
+        # Equalise temperature
+        print(f"Equalising temperature to {temperature} deg C")
+        start = time.time()
+        temp = ls.input_A.get()
+        while abs(temp - t_kelvin) > 1:
+            print("Difference: {:.1f} K".format(abs(temp - t_kelvin)))
+            yield from bps.sleep(10)
+            temp = ls.input_A.get()
+
+            # Escape the loop if too much time passes
+            if time.time() - start > 1800:
+                temp = t_kelvin
+        print("Time needed to equilibrate: {:.1f} min".format((time.time() - start) / 60))
+
+        # Wait extra time depending on temperature
+
+        if (30 < temperature) and (temperature < 181):
+            extra_time = 1200
+        elif 160 <= temperature:
+            extra_time = 1200
+        else:
+            extra_time = 0
+        
+        print(f'Equilibrating temperature for extra {extra_time} s\n')
+        t_start = time.time()
+        while (time.time() - t_start) < extra_time:
+            print(f'Pumping time: {(time.time() - t_start):.1f} s')
+            yield from bps.sleep(30)
+
+        # Read T and convert to deg C
+        temp_degC = ls.input_A.get() - 273.15
+
+        for name, x, y, z in zip(names, piezo_x, piezo_y, piezo_z):
+
+            yield from bps.mv(piezo.x, x,
+                              piezo.y, y,
+                              piezo.z, z,)
+
+            # Align the sample
+            try:
+                yield from alignement_gisaxs_cai()
+            except:
+                yield from alignement_gisaxs(0.01)
+
+            # Sample flat at ai0
+            ai0 = piezo.th.position
+
+            for wa in waxs_arc:
+                yield from bps.mv(waxs, wa)
+                dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+ 
+                for ai in incident_angles:
+                    yield from bps.mv(piezo.th, ai0 + ai)
+
+                    temp = str(np.round(float(temp_degC), 1)).zfill(5)
+                    sample_name = f'{name}_ts{ts}_temp{temp}_ai{ai}{get_scan_md()}'
+                    sample_id(user_name=user_name, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+    # Turn off the heating and set temperature to 23 deg C
+    t_kelvin = 23 + 273.15
+    yield from ls.output1.mv_temp(t_kelvin)
+    yield from ls.output1.turn_off()
+
+
+def alignement_gisaxs_cai(angle=0.15):
+    """
+    Regular alignement routine for gisaxs and giwaxs.
+    First, scan of the sample height and incident angle on the direct beam.
+    Then scan of teh incident angle, height and incident angle again on the reflected beam.
+
+    param angle: np.float. Angle at which the alignement on the reflected beam will be done
+
+    """
+
+    # Activate the automated derivative calculation
+    bec._calc_derivative_and_stats = True
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+    smi = SMI_Beamline()
+    yield from smi.modeAlignment(technique="gisaxs")
+
+    # Set direct beam ROI
+    yield from smi.setDirectBeamROI()
+
+    # Scan theta and height
+    yield from align_gisaxs_height(1000, 51, der=True)
+    yield from align_gisaxs_th(5, 51)
+
+    # move to theta 0 + value
+    yield from bps.mv(piezo.th, ps.peak + angle)
+
+    # Set reflected ROI
+    yield from smi.setReflectedBeamROI(total_angle=angle, technique="gisaxs")
+
+    # Scan theta and height
+    #yield from align_gisaxs_th(0.2, 21)
+    yield from align_gisaxs_th(0.5, 51)
+    yield from align_gisaxs_height_rb(300, 31)
+    yield from align_gisaxs_th(0.1, 31)  # was .025, 21 changed to .1 31
+
+    # Close all the matplotlib windows
+    plt.close("all")
+
+    # Return angle
+    yield from bps.mv(piezo.th, ps.cen - angle)
+    yield from smi.modeMeasurement()
+
+    # Deactivate the automated derivative calculation
+    bec._calc_derivative_and_stats = False
+
+def cai_printing_2023_3(xpos, ypos, sample_name='test'):
+    """
+    xpos=[startX, stop, npoints]
+    ypos=[startY,step,npoints]%
+    RE(mv(waxs, 0)) in BlueSky to move waxs
+    """
+    #RAU added move to starting y
+    #bps.mvr(stage.y,ypos[0])
+    yield from bps.mv(stage.y,ypos[0])
+        
+    sname = f'{sample_name}{get_scan_md()}'
+    sample_id(user_name='DR', sample_name=sname)
+
+    dets = [pil900KW, OAV_writing]
+    if waxs.arc.position > 14:
+        dets.append(pil1M)
+
+    for yy,y in enumerate(range(ypos[2])):
+        if np.mod(yy, 2) == 0:
+            xs=xpos[0]; xe=xpos[1]
+        else:
+            xs=xpos[1]; xe=xpos[0]
+        yield from bp.scan(dets, stage.x, xs, xe, xpos[2])
+        yield from bps.mvr(stage.y,ypos[1])

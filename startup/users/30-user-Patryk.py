@@ -345,8 +345,11 @@ def move_energy_slowly(target_e, e_step=100):
 
         for e in energies:
 
+            feedback('off')
             yield from bps.mv(energy, e)
             yield from bps.sleep(2)
+            feedback('on')
+            yield from bps.sleep(5)
     else:
         print('Energy change not allowed, do proper alignment')
 
@@ -403,3 +406,39 @@ def test_DI(t=1):
             print(f"\n\t=== Sample: {sample_name} ===\n")
 
             yield from bp.count(dets, num=1)
+
+def test_example_SWAXS_2023_3(t=0.5):
+    """
+    Standard SWAXS scan
+    """
+    
+    names =   [ 'AgBH-1', 'AgBH-2', 'empty', ]
+    piezo_x = [   -45400,   -44400,  -19000, ] 
+    piezo_y = [     3800,     4200,    4200, ]
+    piezo_z = [ 14400 for n in names ]
+
+    assert len(names)   == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_y), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_z), f"Wrong list lenghts"
+
+    user = 'test'
+    waxs_arc = [40, 20, 0]
+    det_exposure_time(t, t)
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+            
+        for name, x, y, z in zip(names, piezo_x, piezo_y, piezo_z):
+            yield from bps.mv(piezo.x, x,
+                              piezo.y, y,
+                              piezo.z, z,
+            )
+        
+            sample_name = f'{name}{get_scan_md()}'
+            sample_id(user_name=user, sample_name=sample_name)
+            print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)

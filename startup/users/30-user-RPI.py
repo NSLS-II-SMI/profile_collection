@@ -1490,3 +1490,129 @@ def run_saxs_linkamRPI_2023_2(t=1):
     yield from bps.mv(stage.y, stage_y,
                       stage.x, stage_x,
                       waxs, waxs_arc[0])
+
+def run_plaq_swaxs_fastRPI_2023_3(t=1):
+    """
+    Take WAXS and SAXS at several sample positions for averaging
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off.
+    Hexapod may need adjustment for the upper row samples.
+    """
+
+    names_1 =   ['S016_1A', 'S017_1C', 'S018_1D', 'S019_2A', 'S020_2B', 'S021_2C', 'S022_3A', 'S023_3B', 'S024_3C', 'S025_3D', 'S026_4A',
+                 'S027_4B', 'S028_4C', 'S029_5A', 'S030_5C', 'S031_5D', 'S032_5E', 'S033_6A', 'S034_6C', 'S035_6D', 'S036_6E']
+                       
+    piezo_x_1 = [-38550, -36150, -34150, -26550, -24350, -21350, -11550, -9450, -7450, -4950, 2550, 4650, 7150, 19450, 21350, 23350, 26250, 37950, 40950, 43550, 46150]         
+    piezo_y_1 = [  7400,   7400,   7400,   7400,   7400,   7400,   7400,  7400,  7400,  7400, 7400, 7400, 7400,  7100,  6900,  6900,  6900,  6500,  6500,  6500,  6500]
+    #hexa_y_1 =  [ -5 for n in names_1]  #in mm
+    hexa_y_1 =  [ 5 for n in names_1]
+    names_2 =   []
+    piezo_x_2 = []
+    piezo_y_2 = []
+    hexa_y_2 =  [ -11 for n in names_2]  #in mm
+
+    names   = names_1   + names_2
+    piezo_x = piezo_x_1 + piezo_x_2
+    piezo_y = piezo_y_1 + piezo_y_2
+    hexa_y  = hexa_y_1  + hexa_y_2
+
+    names = [ f'Sep2023_{n}' for n in names]
+
+    x_off = [0]
+    y_off = [ 0, -1000, -2000, -3000]
+        
+    waxs_arc = [20, 40, 0]
+    
+    user = "JA"
+    det_exposure_time(t, t)
+
+    # Check if the length of xlocs, ylocs and names are the same
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(hexa_y), msg
+
+    # Make sure cam server engages with the detector
+    sample_id(user_name='test', sample_name='test')
+    yield from bp.count([pil900KW])
+
+    y_add = 0
+    
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        
+        y_add=300*wa/20
+        
+        for name, x, y, hy in zip(names, piezo_x, piezo_y, hexa_y):
+            yield from bps.mv(piezo.y, y,
+                              piezo.x, x,
+                              stage.y, hy)
+            
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of+y_add)
+
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x + x_of)
+                    
+                    loc = yy + 2*xx + 1
+                    sample_name = f'{name}{get_scan_md()}_loc{loc}'
+                    sample_id(user_name=user, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+def run_saxs_linkamRPI_2023_3(t=1):
+    """
+    Scan SAXS, just one position on the sample.
+    """
+    name = "S251_B5O4nB5O3-r1wt-15.5wt-2_77C-25C"
+    #name = "S037_4"
+    user = "JA"
+
+    name = f'Sep2023_{name}'
+
+    # Hexapod stage, in mm
+    stage_x = -6
+    stage_y = -0.6
+    # x -27500 y 3000
+    stage_x_off = [0] # =-0.25
+    
+    
+    stage_y_off = [0,0.270,0.54,0.81,1.08,1.35]
+    #stage_y_off = [0.81]
+
+
+    waxs_arc = [20]
+
+    dets = [pil1M]
+    det_exposure_time(t, t)
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa,
+                          stage.y, stage_y,
+                          stage.x, stage_x
+        )
+        
+
+        for yy, y_of in enumerate(stage_y_off):
+            yield from bps.mv(stage.y, stage_y + y_of)
+
+            for xx, x_of in enumerate(stage_x_off):
+                yield from bps.mv(stage.x, stage_x + x_of)
+
+                loc = xx + yy + 1
+
+                sample_name = f'{name}{get_scan_md()}_loc{loc}'
+                sample_id(user_name=user, sample_name=sample_name)
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+    yield from bps.mv(stage.y, stage_y,
+                      stage.x, stage_x,
+                      waxs, waxs_arc[0])
