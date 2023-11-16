@@ -45,6 +45,21 @@ class SAXSPindiode(Device):
     x = Cpt(EpicsMotor, "OBB}Mtr")
     y = Cpt(EpicsMotor, "OBM}Mtr")
 
+class MDriveMortor(Device):
+    '''
+    Added by YZhang@2023Nov9
+    '''
+    m1 = Cpt(EpicsMotor, "1}Mtr")
+    m2 = Cpt(EpicsMotor, "2}Mtr")
+    m3 = Cpt(EpicsMotor, "3}Mtr")
+    m4 = Cpt(EpicsMotor, "4}Mtr")
+    m5 = Cpt(EpicsMotor, "5}Mtr")
+    m6 = Cpt(EpicsMotor, "6}Mtr")
+    m7 = Cpt(EpicsMotor, "7}Mtr")
+    m8 = Cpt(EpicsMotor, "8}Mtr")
+
+## for MDrive, YZhang
+MDrive =  MDriveMortor("XF:12ID2-ES{Mdrive-Ax:", name = "MDrive")
 
 ## SAXS det position
 SAXS = DetMortor("XF:12IDC-ES:2{Det:1M-Ax:", name="SAXS")
