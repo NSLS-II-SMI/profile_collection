@@ -661,3 +661,41 @@ def get_scan_md():
         sdd = "%.1f" % sdd,
     )
     return scan_md
+
+def atten_move_in(x4=True, x2=True):
+    """
+    Move 4x + 2x Sn 60 um attenuators in
+    """
+    print('Moving attenuators in')
+
+    if x4:
+        while att1_7.status.get() != 'Open':
+            yield from bps.mv(att1_7.open_cmd, 1)
+            yield from bps.sleep(1)
+    if x2:
+        while att1_6.status.get() != 'Open':
+            yield from bps.mv(att1_6.open_cmd, 1)
+            yield from bps.sleep(1)
+
+def atten_move_out():
+    """
+    Move 4x + 2x Sn 60 um attenuators out
+    """
+    print('Moving attenuators out')
+    while att1_7.status.get() != 'Not Open':
+        yield from bps.mv(att1_7.close_cmd, 1)
+        yield from bps.sleep(1)
+    while att1_6.status.get() != 'Not Open':
+        yield from bps.mv(att1_6.close_cmd, 1)
+        yield from bps.sleep(1)
+
+def engage_detectors():
+    """
+    Making sure camserver responds and data is taken
+    """
+
+    yield from atten_move_in()
+    sample_id(user_name='test', sample_name='test')
+    print(f"\n\n\n\t=== Making sure detectores are engaged and ready ===")
+    yield from bp.count([pil900KW, pil1M])
+    yield from atten_move_out()
