@@ -87,7 +87,7 @@ def factory(name, doc):
                 # retreive information from the start document
                 cycle = run.metadata["start"]["cycle"]
                 propos = (run.metadata["start"]["proposal_number"]+ "_"+ run.metadata["start"]["main_proposer"])
-                propos = (run.metadata["start"]["amptek_folder"])
+                propos = (run.metadata["start"]["proposal_id"])
 
                 newDir = "/nsls2/data/smi/legacy/results/data/%s/%s/Amptek/" % (cycle,propos)                
                 # create a new directory
