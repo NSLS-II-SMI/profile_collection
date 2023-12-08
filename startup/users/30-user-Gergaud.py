@@ -1160,3 +1160,75 @@ def cdwaxs_echPaulSophie_2023_2(t=1):
             name = name+'_wa%sdeg'%wa
 
             yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name, nume=num, det=det)
+
+
+
+def cdsaxs_ovl_2023_3(t=1):
+    det = [pil1M]
+    det_exposure_time(t, t)
+
+    names = ['ech1_p128', 'ech1_bkg_p128', 'ech2_p128', 'ech2_bkg_p128', 'ech3_p128', 'ech3_bkg_p128', 'ech4_p128', 'ech4_bkg_p128', 'ech5_p128','ech5_bkg_p128']
+    x =     [     -44200,          -46100,      -25500,          -26500,       -1300,            1700,       16400,           15400,       36700,          35600]
+    x_hexa =[      0.365,           0.365,       0.265,           0.265,       0.265,           0.265,       0.265,           0.265,       0.065,          0.065]
+    y=      [      -6300,           -8500,       -7500,           -9600,       -7500,           -9600,       -7500,           -9600,       -8000,         -10000]
+    z=      [      13310,           13310,       13410,           13410,       13310,           13310,       13110,           13110,       13210,          13210]
+    chi=    [     -1.367,          -1.367,      -0.067,          -0.067,      -0.367,          -0.367,       0.433,           0.433,      -0.167,         -0.167]
+    th =    [      -0.15,           -0.15,       -0.15,           -0.15,       -0.15,           -0.15,       -0.15,           -0.15,       -0.15,          -0.15]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+
+    proposal_id("2023_3", "311000_Freychet_04")
+    for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.ch, chis)
+        yield from bps.mv(piezo.th, ths)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        num=5
+        if 'bkg' not in name:
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet1', nume=num)
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet2', nume=num)
+        else:
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name, nume=1)
+
+    proposal_id("2023_3", "311000_Freychet_05")
+    for name, xs, xs_hexa, ys, zs, chis, ths in zip(names[:1], x[:1], x_hexa[:1], y[:1], z[:1], chi[:1], th[:1]):
+        if 'bkg' not in name:
+            yield from bps.mv(stage.x, xs_hexa)
+            yield from bps.mv(piezo.z, zs)
+            yield from bps.mv(piezo.ch, chis)
+            yield from bps.mv(piezo.th, ths)
+                    
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            
+            det_exposure_time(0.1, 0.1)
+            num=20
+            yield from cd_saxs_new(-60, 60, 241, exp_t=t, sample=name+'testfinestep', nume=num)
+            det_exposure_time(t, t)
+
+
+    proposal_id("2023_3", "311000_Freychet_06")
+
+    for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+        if 'bkg' not in name:
+            yield from bps.mv(stage.x, xs_hexa)
+            yield from bps.mv(piezo.z, zs)
+            yield from bps.mv(piezo.ch, chis)
+            yield from bps.mv(piezo.th, ths)
+                    
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            num=5
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet3', nume=num)
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet4', nume=num)
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet5', nume=num)
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet6', nume=num)
+            yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet7', nume=num)

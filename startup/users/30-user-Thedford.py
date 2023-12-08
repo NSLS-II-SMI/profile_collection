@@ -2331,3 +2331,85 @@ def run_swaxs_Fei_2023_2(t=1):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.3, 0.3)
+
+
+def run_swaxs_Fei_2023_3(t=1):
+    """
+    Take WAXS and SAXS at nine sample positions for averaging
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off. Run
+    WAXS arc as the slowest motor. SAXS sdd 5.0 m.
+    """
+
+    names_1   = [  'A1',  'B1',  'C1',  'D1',  'E1',  'A2',  'B2',  'C2',  'D2', '86AF', '86BF',  '86A',  '86B', 'AJDPI']
+    piezo_x_1 = [ 39500, 34500, 30400, 24300, 19500, 38500, 34500, 29500, 24500,   5500,  -4000, -15000, -24000,  -32500]
+    piezo_y_1 = [ -3300, -3300, -3700, -3400, -3400,  1600,  1600,  1600,  1600,  -3800,  -3800,  -2200,  -2200,   -4700]
+    hexa_y_1 =  [     0,     0,     0,     0,     0,     0,     0,     0,     0,      0,      0,      0,      0,       0]
+
+    names_1   = [ 'AJDPI']
+    piezo_x_1 = [  -32500]
+    piezo_y_1 = [   -4700]
+    hexa_y_1 =  [       0]
+
+    # Combine rows
+    names   = names_1   
+    piezo_x = piezo_x_1 
+    piezo_y = piezo_y_1 
+    hexa_y  = hexa_y_1 
+
+    # Offsets for taking a few points per sample
+    x_off = [-400, 0, 400]
+    y_off = [-400, 0, 400]
+
+    waxs_arc = [40, 20, 0]
+    user = "FY"
+    
+
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+
+    # Check if the length of xlocs, ylocs and names are the same
+    assert len(piezo_x) == len(names), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})"
+    assert len(piezo_x) == len(piezo_y), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(piezo_y)})"
+    assert len(piezo_x) == len(hexa_y), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(hexa_y)})"
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        # Detectors, disable SAXS when WAXS in the way
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        det_exposure_time(t, t)
+
+        for name, x, y, y_hexa in zip(names, piezo_x, piezo_y, hexa_y):
+
+            yield from bps.mv(stage.y, y_hexa)
+
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of)
+
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x + x_of)
+
+                    loc = f'{yy}{xx}'
+
+                    # Metadata
+                    e = energy.position.energy / 1000
+                    wa = waxs.arc.position + 0.001
+                    wa = str(np.round(float(wa), 1)).zfill(4)
+                    sdd = pil1m_pos.z.position / 1000
+
+                    # Sample name
+                    name_fmt = ( "{sample}_{energy}keV_wa{wax}_sdd{sdd}m_loc{loc}")
+                    sample_name = name_fmt.format(
+                        sample=name,
+                        energy="%.2f" % e,
+                        wax=wa,
+                        sdd="%.1f" % sdd,
+                        loc=loc,
+                    )
+                    sample_id(user_name=user, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
