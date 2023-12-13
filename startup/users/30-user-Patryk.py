@@ -1,24 +1,3 @@
-def get_scan_md():
-    """
-    Create a string with scan metadata
-    """
-    # Metadata
-    e = energy.position.energy / 1000
-    #temp = str(np.round(float(temp_degC), 1)).zfill(5)
-    wa = waxs.arc.position + 0.001
-    wa = str(np.round(float(wa), 1)).zfill(4)
-    sdd = pil1m_pos.z.position / 1000
-
-    md_fmt = ("_{energy}keV_wa{wa}_sdd{sdd}m")
-    
-    scan_md = md_fmt.format(
-        energy = "%.2f" % e ,
-        wa = wa,
-        sdd = "%.1f" % sdd,
-    )
-    return scan_md
-
-
 def patryk_saxs_overnight(t=1):
     """
     SAXS mapping
@@ -442,3 +421,124 @@ def test_example_SWAXS_2023_3(t=0.5):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.5, 0.5)
+
+# DT-313930
+
+def get_more_md(temp=25, tender=True, bpm=True):
+    """
+    Add temperature and XBPM3 readings into the scan metadata
+    """
+
+    more_md = f'{get_scan_md(tender=tender)}'
+
+    if temp:
+        temp = str(np.round(float(temp), 1)).zfill(5)
+        more_md = f'_{temp}degC{more_md}'
+    if bpm:
+        xbpm = xbpm3.sumX.get()
+        xbpm = str(np.round(float(xbpm), 3)).zfill(5)
+        more_md = f'{more_md}_xbpm{xbpm}'
+
+    return more_md
+
+
+def take_single_temp_frame(name='test', temp=25):
+    """
+    After reaching T, take data
+    """
+
+    dets = [pil900KW]
+
+
+    sample_name = f'{name}{get_more_md(temp)}'
+    sample_id(user_name='PW', sample_name=sample_name)
+    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+    yield from bp.count(dets)
+
+def take_energy_temp_scan(name='test', temp=25):
+    """
+    After reaching T, take data
+    """
+
+    e = np.around(energy.position.energy)
+    energies = np.concatenate((
+        np.arange(e - 5, e - 2, 1),
+        np.arange(e - 2, e + 2 + 0.5, 0.5),
+        np.arange(e + 2 + 1 , e + 2 + 2 + 1, 1),
+    ))
+
+    dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+
+    for nrg in energies:
+        yield from bps.mv(energy, nrg)
+        yield from bps.sleep(2)
+        if xbpm2.sumX.get() < 50:
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, nrg)
+            yield from bps.sleep(2)
+
+        sample_name = f'{name}-escan{get_more_md(temp=temp)}'
+        sample_id(user_name='PW', sample_name=sample_name)
+        print(f"\n\n\n\t=== Sample: {sample_name} ===")
+        yield from bp.count(dets)
+
+    yield from bps.mv(energy, e)
+    sample_id(user_name='test', sample_name=f'test_{get_more_md()}')
+
+def create_timestamp():
+    """
+    store in RE.md and print
+    """
+    RE.md['tstamp'] = time.time()
+    print('\nTime stamp created in RE.md')
+    tstamp = RE.md['tstamp']
+    print(f'tstamp: {tstamp}')
+
+
+
+def run_Linkam_temp_run(name, t=0.5, td= 4 * 60, frames=600):
+    """
+    Set temperature ramp in Linkam, create timestamp,
+    run continous measurement, explore WAXS and SAXS
+
+    Args:
+        name (str): sample name,
+        t (float): exposure time for one frame in s,
+        td (float): time difference between point measurements,
+        frames (int): number of franes.
+    """
+
+    try:
+        tstamp = RE.md['tstamp']
+    except:
+        tstamp = time.time()
+        RE.md['tstamp'] = tstamp
+        print(f'\nTime stamp created in RE.md: {tstamp}')
+
+    waxs_arc = [0, 20]
+    det_exposure_time(t, t)
+    user = 'PW'
+
+    for spoint in range(frames):
+        print(f'Frame {spoint + 1} / {frames}')
+        t_frame = time.time()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 14.9 else [pil1M, pil900KW]
+
+            t_measurement = time.time()
+            time_sname = str(np.round(t_measurement - tstamp, 0)).zfill(7)
+            md = f'{get_more_md(temp=False)}'
+
+            sample_name = f'{name}-tscan_time{time_sname}s{md}'
+            sample_id(user_name=user, sample_name=sample_name)
+            print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            yield from bp.count(dets)
+
+        yield from bps.mv(waxs, waxs_arc[0])
+        print(f'Waiting for {td}s to pass between frames')
+        while (time.time() - t_frame) < td:
+            yield from bps.sleep(1)
+
+    sample_id(user_name='test', sample_name=f'test')
