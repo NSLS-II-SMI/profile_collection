@@ -642,7 +642,7 @@ def purge_cryo():
     caput('XF:12ID-UT{Cryo:1-IV:10}Pos-SP', 0)
     caput('XF:12ID-UT{Cryo:1-IV:20}Cmd:Cls-Cmd', 1)
 
-def get_scan_md():
+def get_scan_md(tender=False):
     """
     Create a string with scan metadata
     """
@@ -655,11 +655,18 @@ def get_scan_md():
 
     md_fmt = ("_{energy}keV_wa{wa}_sdd{sdd}m")
 
-    scan_md = md_fmt.format(
-        energy = "%.2f" % e ,
-        wa = wa,
-        sdd = "%.1f" % sdd,
-    )
+    if tender:
+        scan_md = md_fmt.format(
+            energy = "%.5f" % e ,
+            wa = wa,
+            sdd = "%.1f" % sdd,
+        )
+    else:
+        scan_md = md_fmt.format(
+            energy = "%.2f" % e ,
+            wa = wa,
+            sdd = "%.1f" % sdd,
+        )
     return scan_md
 
 def atten_move_in(x4=True, x2=True):
