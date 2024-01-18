@@ -7,62 +7,11 @@ from collections import ChainMap
 import bluesky.plans as bp
 from epics import caget, caput
 
-# only use in old ps
-get_fields = db.get_fields
-get_images = db.get_images
-get_table = db.get_table
 from lmfit import Model
 from scipy.special import erf
 
 import peakutils
 
-
-def get_scan(scan_id, debug=False):
-    """Get scan from databroker using provided scan id.
-    from Maksim
-        :param scan_id: scan id from bluesky.
-        :param debug: a debug flag.
-        :return: a tuple of scan and timestamp values.
-    """
-    scan = db[scan_id]
-    # t = datetime.datetime.fromtimestamp(scan['start']['time']).strftime('%Y-%m-%d %H:%M:%S')
-    # t = dtt.datetime.fromtimestamp(scan['start']['time']).strftime('%Y-%m-%d %H:%M:%S')
-    t = "N.A. conflicting with other macro"
-    if debug:
-        print(scan)
-    print("Scan ID: {}  Timestamp: {}".format(scan_id, t))
-    return scan, t
-
-
-def get_data(
-    scan_id, field="ivu_gap", intensity_field="elm_sum_all", det=None, debug=False
-):
-    """Get data from the scan stored in the table.
-    from Maksim
-        :param scan_id: scan id from bluesky.
-        :param field: visualize the intensity vs. this field.
-        :param intensity_field: the name of the intensity field.
-        :param det: the name of the detector.
-        :param debug: a debug flag.
-        :return: a tuple of X, Y and timestamp values.
-    """
-    scan, t = get_scan(scan_id)
-    if det:
-        imgs = get_images(scan, det)
-        im = imgs[-1]
-        if debug:
-            print(im)
-
-    table = get_table(scan)
-    fields = get_fields(scan)
-
-    if debug:
-        print(table)
-        print(fields)
-    x = table[field]
-    y = table[intensity_field]
-
-    return x, y, t
 
 
 def ps_new(der=False, plot=True):
@@ -187,17 +136,19 @@ def ps(
     # from scipy.special import erf
 
     # get the scan information:
+    h = db[uid]
+    uid = h.start['scan_id']
     if uid == "-1":
         uid = db[-1].start['scan_id']
     if det == "default":
-        if db[uid].start['detectors'][0] == "elm" and suffix == "default":
+        if h.start['detectors'][0] == "elm" and suffix == "default":
             intensity_field = "elm_sum_all"
-        elif db[uid].start['detectors'][0] == "elm":
+        elif h.start['detectors'][0] == "elm":
             intensity_field = "elm" + suffix
         elif suffix == "default":
-            intensity_field = db[uid].start['detectors'][0] + "_stats1_total"
+            intensity_field = h.start['detectors'][0] + "_stats1_total"
         else:
-            intensity_field = db[uid].start['detectors'][0] + suffix
+            intensity_field = h.start['detectors'][0] + suffix
     else:
         if det == "elm" and suffix == "default":
             intensity_field = "elm_sum_all"
@@ -208,20 +159,14 @@ def ps(
         else:
             intensity_field = det + suffix
 
-    field = db[uid].start['motors'][0]
-    taken_at = datetime.datetime.fromtimestamp(db[uid].start['time']).strftime('%Y-%m-%d %H:%M:%S')
-    #taken_at =  datetime.fromtimestamp(db[uid].start['time']).strftime('%Y-%m-%d %H:%M:%S')
+    field = h.start['motors'][0]
+    taken_at = datetime.datetime.fromtimestamp(h.start['time']).strftime('%Y-%m-%d %H:%M:%S')
+    #taken_at =  datetime.fromtimestamp(h.start['time']).strftime('%Y-%m-%d %H:%M:%S')
+    
+    tab = h.table()
 
-
-
-
-
-    # field='dcm_b';intensity_field='elm_sum_all'
-    [x, y, t] = get_data(
-        uid, field=field, intensity_field=intensity_field, det=None, debug=False
-    )  # need to re-write way to get data
-    x = np.array(x)
-    y = np.array(y)
+    x = tab[field].values
+    y = tab[intensity_field].values
     # print(t)
     if der:
         y = np.diff(y)
