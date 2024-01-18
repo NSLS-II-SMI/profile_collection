@@ -183,18 +183,28 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
                                "Call the stage() method before triggering.")
 
         self._status = self._status_type(self)
-
+        fail_count = 0
         def _acq_done(*, data, pvname):
+            nonlocal fail_count
             data.get()
             #print(data)
             #print(data.alarm_status)
             if data.alarm_status is not AlarmStatus.NO_ALARM:
-            #    self._status.set_exception(
-            #        RuntimeError(f"FAILED {pvname}: {data.alarm_status}: {data.alarm_severity}")
-            #    )
-                print('\n\n\n\nYOLO: ignoring detector failure')
-                print('Reset detector camserver if this is the start of the macro\n\n\n\n\n')
-                self._status._finished()
+ 
+                if fail_count < 5:
+                    # chosen after testing and it failing 2x per cam server restart so
+                    # so two extra tries seems reasonable
+                    print('\n\n\n\nYOL0(or twice): retrying detector failure')
+                    print('Reset detector camserver if this is the start of the macro\n\n\n\n\n')
+                    self._acquisition_signal.put(1, use_complete=True, callback=_acq_done, 
+                                     callback_data=self.cam.detector_state)
+                
+                    fail_count += 1
+                    time.sleep(0.1)
+                else:
+                    self._status.set_exception(
+                        RuntimeError(f"FAILED {pvname}: {data.alarm_status}: {data.alarm_severity}")
+                    )
             else:
                 self._status._finished()
 
