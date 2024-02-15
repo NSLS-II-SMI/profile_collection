@@ -64,7 +64,7 @@ class AmptekSoftTrigger(BlueskyInterface):
         self._status = None
         self._acquisition_signal = self.mca.erase_start
 
-        self.stage_sigs[self.mca.stop_signal] = 1
+        # self.stage_sigs[self.mca.stop_signal] = 1
 
         self._count_signal = self.mca.preset_real_time
         self._count_time = None
@@ -107,38 +107,16 @@ class AmptekSoftTrigger(BlueskyInterface):
             )
 
         def callback(value, old_value, **kwargs):
-            print(f"  {self.name} old value {old_value} --> new_value {value}")
+            # print(f"  {self.name} old value {old_value} --> new_value {value}")
             if int(round(old_value)) == 1 and int(round(value)) == 0:
-                if self._starting or self._starting is None:
-                    self.starting = False
-                    return True
-                else:
-                    self.starting = True
-                return False
-
-        status = SubscriptionStatus(self.mca.when_acq_stops, callback, run=False)
-        print(f"  !!! attempting to put to {self._acquisition_signal.pvname} value 1")
+                return True
+                
+        max_time = 1 + 2 * self.mca.preset_real_time.get()
+        status = SubscriptionStatus(self.mca.when_acq_stops, callback, run=False, timeout=max_time)
+        # print(f"  !!! attempting to put to {self._acquisition_signal.pvname} value 1")
         # ttime.sleep(0.1)
-        timeout = 10  # s
-        self._acquisition_signal.put(1)
 
-        print(f"  !!! sleeping 0.1s after putting")
-        t0 = ttime.time()
-        print(f"Start waiting at {ttime.ctime(t0)}...")
-        while True:
-            ttime.sleep(0.01)
-            if int(round(self.mca.when_acq_stops.get())) == 1:
-                print(
-                    f"Success, {self.mca.when_acq_stops.pvname} was set to 1. Waited for {ttime.time() - t0}s."
-                )
-                break
-            else:
-                if ttime.time() - t0 > timeout:
-                    print(
-                        f"Waited for {timeout}s, but the signal {self.mca.when_acq_stops.pvname} did not change. Attempting again."
-                    )
-                    self._acquisition_signal.put(1)
-                    break
+        self._acquisition_signal.put(1)
 
         return status
 
