@@ -1387,3 +1387,251 @@ def waxs_hard_Xray_Su3_2022_1(t=1):
             print(f"\n\t=== Sample: {sample_name} ===\n")
 
             yield from bp.count(dets, num=1)
+
+
+
+def waxs_S_edge_greg_2024_1(t=1):
+    """
+    307830_Su Feb 2, 2024
+    """
+
+    dets = [pil900KW, pil1M]
+
+    names = ['N211_AR', 'NC700_AR', 'NC700_H', 'Pemion', 'Pemion_X1']
+    x =     [    17500,       8500,      1500,    -6500,      -14500]
+    y =     [    -7500,      -7500,     -7400,    -7400,       -7400]
+
+
+    # energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.5).tolist() + np.arange(2480, 2490, 2).tolist()+ np.arange(2490, 2501, 5).tolist()
+    energies = 7 + np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()
+                              + np.arange(2490, 2501, 5).tolist())
+    
+    waxs_arc = [0, 20]
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1500, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_1.8m_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.3f"%bpm)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+
+
+def swaxs_S_edge_greg_2024_2(t=1):
+    """
+    307830_Su Feb 2, 2024
+    """
+
+    dets = [pil900KW, pil1M]
+
+    names = ['SO3_particle_1', 'SO3_particle_2', 'SO3_particle_3', 'SO3_particle_4']
+    x =     [          -19200,           -25100,           -30500,           -36100]
+    y =     [            6000,             6500,             6000,             6000]
+
+
+    # energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.5).tolist() + np.arange(2480, 2490, 2).tolist()+ np.arange(2490, 2501, 5).tolist()
+    energies = 7+np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()
+                              + np.arange(2490, 2501, 5).tolist())
+    
+    waxs_arc = [20]
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 0, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_3.0m_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.3f"%bpm)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+
+def nexafs_Ce_edge_greg_2024_1(t=1):
+    """
+    307830_Su Feb 2, 2024
+    """
+
+    dets = [pil900KW, pil1M]
+
+    names = ['test_nexafs']
+    x =     [         8500]
+    y =     [        -7500]
+
+    dets = [pil900KW]
+    det_exposure_time(t, t)
+
+    energies = np.linspace(5710, 5760, 51)
+
+    energies = np.asarray(np.arange(5700, 5720, 5).tolist() + np.arange(5720, 5727, 1).tolist() + np.arange(5727, 5737, 0.5).tolist() + np.arange(5737, 5747, 2).tolist()
+                            + np.arange(5747, 5780, 5).tolist())
+    
+    waxs_arc = [40]
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 0, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.3f"%bpm)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 5740)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 5710)
+            yield from bps.sleep(2)
+
+
+
+def swaxs_Ce_edge_greg_2024_1(t=1):
+    """
+    307830_Su Feb 2, 2024
+    """
+
+    dets = [pil900KW, pil1M]
+
+    names = ['NC700_AR', 'NC700_H']
+    x =     [      7500,       500]
+    y =     [     -7500,     -7500]
+
+    det_exposure_time(t, t)
+
+    energies = np.asarray(np.arange(5700, 5720, 5).tolist() + np.arange(5720, 5727, 1).tolist() + np.arange(5727, 5737, 0.5).tolist() + np.arange(5737, 5747, 2).tolist()
+                            + np.arange(5747, 5790, 5).tolist())
+    
+    waxs_arc = [40, 20, 0]
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1000, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_sdd5100_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.3f"%bpm)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 5750)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 5700)
+            yield from bps.sleep(2)
