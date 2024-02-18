@@ -80,7 +80,7 @@ class SMIBeam(object):
         elif 5500 < self.dcm.energy.position < 7000:
             target_state = [att1_12]
         elif 7000 < self.dcm.energy.position < 7500:
-            target_state = [att2_8]
+            target_state = [att2_7, att2_6, att2_5]
         elif 7500 < self.dcm.energy.position < 8400:
             target_state = [att2_1, att2_3]
         elif 8400 < self.dcm.energy.position < 8800:
@@ -168,7 +168,7 @@ class SMIBeam(object):
             yield from bps.mv(waxs.bs_y, 0.95)
         else:
             # it is -7 for transmission, around -2 to -3 for reflection
-            yield from bps.mv(waxs.bs_y, -2)
+            yield from bps.mv(waxs.bs_y, -7)
 
 
 # End class SMIBeam(object)
