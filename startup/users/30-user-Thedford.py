@@ -2413,3 +2413,156 @@ def run_swaxs_Fei_2023_3(t=1):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.3, 0.3)
+
+
+
+
+def run_swaxs_Fei_2024_1(t=1):
+    """
+    Take WAXS and SAXS at nine sample positions for averaging
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off. Run
+    WAXS arc as the slowest motor. SAXS sdd 4.0 m.
+    """
+
+    names   = [  'A1',  'A2',  'A3',  'A4',  'A5',  'A6',  'B1',  'B2',  'B3',  'B4',  'B5',  'B6',  'C1',  'C2',  'C3',  'C4',  'C5',  'C6',  'D1',  'D2',  'D3',  'D4',  'D5',  'D6',
+                 'E1',  'E2',  'E3',  'E4',  'E5',  'E6',  'F1',  'F2',  'F3',  'F4',  'F5',  'F6',  'G1',  'G2',  'G3',  'G4',  'G5',  'G6',  'H1',  'H2',  'H3',  'H4',  'H5',  'H6']
+    piezo_x = [ 56500, 46500, 37700, 28700, 20500, 11500, 56700, 47000, 38500, 29500, 20500, 11500, 56700, 47000, 38000, 29000, 20500, 11500, 56500, 47000, 38500, 29500, 20500, 11500, 
+                 1800, -7200,-16200,-25200,-34000,-42500,  2000, -7000,-16000,-25000,-34000,-43000,  2000, -7000,-16000,-25000,-34000,-43000,  2000, -7000,-15500,-24500,-33500,-43300]
+    piezo_y = [ -7200, -7200, -7200, -7200, -7200, -7000, -2200, -2200, -2200, -2200, -2200, -2000,  2800,  2800,  2800,  2800,  2800,  3500,  8500,  8500,  8500,  8500,  8500,  8500,
+                -6800, -6800, -6800, -6800, -6800, -6700, -1500, -1500, -1500, -1500, -1500, -1500,  3500,  3500,  3500,  3500,  3500,  4000, 9800,  9300,  8500,  9600, 10000,  9800]
+    hexa_y =  [     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+                    0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0]
+
+    # Offsets for taking a few points per sample
+    x_off = [-400, 0, 400]
+    y_off = [-400, 0, 400]
+
+    waxs_arc = [40, 20, 0]
+    user = "FY"
+
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+
+    # Check if the length of xlocs, ylocs and names are the same
+    assert len(piezo_x) == len(names), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})"
+    assert len(piezo_x) == len(piezo_y), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(piezo_y)})"
+    assert len(piezo_x) == len(hexa_y), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(hexa_y)})"
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        # Detectors, disable SAXS when WAXS in the way
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        det_exposure_time(t, t)
+
+        for name, x, y, y_hexa in zip(names, piezo_x, piezo_y, hexa_y):
+
+            yield from bps.mv(stage.y, y_hexa)
+
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of)
+
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x + x_of)
+
+                    loc = f'{yy}{xx}'
+                    sample_name = f'{name}{get_scan_md()}_loc{loc}'
+                    sample_id(user_name='FY', sample_name=sample_name)
+
+                    sample_id(user_name=user, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+
+def run_swaxs_Feicap_2024_1(t=1):
+    """
+    Take WAXS and SAXS at nine sample positions for averaging
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off. Run
+    WAXS arc as the slowest motor. SAXS sdd 4.0 m.
+    """
+
+    names   = [ 'C01', 'C04', 'C03', 'C05', 'C07', 'C08', 'C09', 'C10', 'C11', 'C12', 'C13', 'C15', 'C17', 'C18']
+    piezo_x = [ 45000, 38900, 32000, 26100, 19400, 12900,  7700,   700, -6300,-12700,-18700,-25400,-31000,-37100]
+    piezo_y = [  1500,  1500,  1500,  1500,  1500,  1500,  1500,  1500,  1500,  1500,  1500,  1500,  1500,  1500]
+
+    # Offsets for taking a few points per sample
+    x_off = [0]
+    y_off = [-600, -400, -200, 0, 200, 400, 600]
+
+    waxs_arc = [20]
+
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+
+    user='LT'
+
+    # Check if the length of xlocs, ylocs and names are the same
+    assert len(piezo_x) == len(names), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})"
+    assert len(piezo_x) == len(piezo_y), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(piezo_y)})"
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        # Detectors, disable SAXS when WAXS in the way
+        dets = [pil1M]
+        det_exposure_time(t, t)
+
+        for name, x, y in zip(names, piezo_x, piezo_y):
+
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of)
+
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x + x_of)
+
+                    loc = f'{xx}{yy}'
+                    sample_name = f'{name}{get_scan_md()}_loc{loc}'
+                    sample_id(user_name=user, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+
+def run_Fei_manualcap_2024_1(t=1, name='test'):
+    """
+    Take WAXS and SAXS at nine sample positions for averaging
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off. Run
+    WAXS arc as the slowest motor. SAXS sdd 4.0 m.
+    """
+
+    # Offsets for taking a few points per sample
+    y_off = [-600, -400, -200, 0, 200, 400, 600]
+
+    waxs_arc = [20]
+
+    # Check and correct sample names just in case
+    user='LT'
+
+    # Check if the length of xlocs, ylocs and names are the same
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        # Detectors, disable SAXS when WAXS in the way
+        dets = [pil1M]
+        det_exposure_time(t, t)
+        y=piezo.y.position
+
+        for yy, y_of in enumerate(y_off):
+            yield from bps.mv(piezo.y, y + y_of)
+            loc = f'{yy}'
+            sample_name = f'{name}{get_scan_md()}_loc{loc}'
+            sample_id(user_name=user, sample_name=sample_name)
+            print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            yield from bp.count(dets)
+    
+    yield from bps.mv(piezo.y, y)
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
