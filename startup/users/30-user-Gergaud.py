@@ -1232,3 +1232,139 @@ def cdsaxs_ovl_2023_3(t=1):
             yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet5', nume=num)
             yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet6', nume=num)
             yield from cd_saxs_new(-60, 60, 121, exp_t=t, sample=name+'repet7', nume=num)
+
+
+
+
+def cdsaxs_ovl_2024_1(t=1):
+    det = [pil1M]
+    det_exposure_time(t, t)
+
+    phi_offest = -1.52
+
+    names = ['ech_c1', 'ech_c1_bkg', 'ech_c0', 'ech_c0_bkg', 'ech_cm1', 'ech_cm1_bkg', 'ech_cm3', 'ech_cm3_bkg']
+    x =     [   28100,        27100,    10700,        10700,     -8500,         -8500,   -28100,         -28100]
+    x_hexa =[    0.20,         0.20,     0.20,         0.20,      0.20,          0.20,     0.20,           0.20]
+    y=      [    -700,          500,    -1500,        -1500,     -1600,          -200,    -1900,           -400]
+    z=      [    1350,         1350,     1350,         1350,      1300,          1300,     1200,           1200]
+    chi=    [   0.853,        0.853,   -0.847,       -0.847,    -2.347,        -2.347,   -1.647,         -1.647]
+    th =    [ -0.4229,      -0.4229,  -0.4229,      -0.4229,   -0.4229,       -0.4229,  -0.4229,        -0.4229]
+
+    names = ['ech_c5', 'ech_c5_bkg', 'ech_c3', 'ech_c3_bkg', 'ech_cm5', 'ech_cm5_bkg']
+    x =     [   18000,        18000,     1400,         1400,    -17800,        -17800]
+    x_hexa =[    0.20,         0.20,     0.20,         0.20,      0.20,          0.20]
+    y=      [   -1600,         -100,    -1100,          300,     -1100,           300]
+    z=      [    1350,         1350,     1300,         1300,      1250,          1250]
+    chi=    [  -0.347,       -0.347,   -0.147,       -0.147,    -0.747,        -0.747]
+    th =    [ -0.4229,      -0.4229,  -0.4229,      -0.4229,   -0.4229,       -0.4229]
+
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+    for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.ch, chis)
+        yield from bps.mv(piezo.th, ths)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        num=10
+        if 'bkg' not in name:
+            yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name, nume=num)
+        else:
+            yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name, nume=1)
+
+
+
+
+def cdsaxs_IBM_2024_1(t=1):
+    det = [pil1M]
+    det_exposure_time(t, t)
+
+    phi_offest = -1.52
+
+    names = ['sam1_g1', 'sam1_g2', 'sam1_g3', 'sam1_g4',  'sam1_g5',  'sam1_g6']
+    x =     [    -5500,     -2000,     2000,       6000,      10000,      14000]
+    x_hexa =[     0.20,      0.20,     0.20,       0.20,       0.20,       0.20]
+    y=      [    -9000,     -9000,    -9000,      -9000,      -9000,      -9000]
+    y_hexa =[     -6.0,      -6.0,     -6.0,       -6.0,       -6.0,       -6.0]
+    z=      [     5550,      5550,     5500,       5500,       5500,       5500]
+    chi=    [    -1.50,     -1.50,    -1.50,      -1.50,      -1.50,      -1.50]
+    th =    [  -0.4229,   -0.4229,  -0.4229,    -0.4229,    -0.4229,    -0.4229]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+    for name, xs, xs_hexa, ys, ys_hexa, zs, chis, ths in zip(names, x, x_hexa, y, y_hexa, z, chi, th):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(stage.y, ys_hexa)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.ch, chis)
+        yield from bps.mv(piezo.th, ths)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name)
+
+
+    names = ['sam2_g1', 'sam2_g2', 'sam2_g3', 'sam2_g4',  'sam2_g5',  'sam2_g6']
+    x =     [    -5000,     -1000,     3000,       7000,      11000,      14500]
+    x_hexa =[     0.20,      0.20,     0.20,       0.20,       0.20,       0.20]
+    y=      [    -8000,     -8000,    -8000,      -8000,      -8000,      -8000]
+    y_hexa =[      0.0,       0.0,      0.0,        0.0,        0.0,        0.0]
+    z=      [     5550,      5550,     5500,       5500,       5500,       5500]
+    chi=    [    -0.70,     -0.70,    -0.70,      -0.70,      -0.70,      -0.70]
+    th =    [  -0.4229,   -0.4229,  -0.4229,    -0.4229,    -0.4229,    -0.4229]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+    for name, xs, xs_hexa, ys, ys_hexa, zs, chis, ths in zip(names, x, x_hexa, y, y_hexa, z, chi, th):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(stage.y, ys_hexa)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.ch, chis)
+        yield from bps.mv(piezo.th, ths)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name)
+
+
+
+    names = ['sam3_g1',  'sam3_g2',  'sam3_g3']
+    x =     [     6500,      10500,      14500]
+    x_hexa =[     0.20,       0.20,       0.20]
+    y=      [     4000,       4000,       4000]
+    y_hexa =[      0.0,        0.0,        0.0]
+    z=      [     5500,       5500,       5500]
+    chi=    [     -2.0,       -2.0,       -2.0]
+    th =    [  -0.4229,    -0.4229,    -0.4229]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+    for name, xs, xs_hexa, ys, ys_hexa, zs, chis, ths in zip(names, x, x_hexa, y, y_hexa, z, chi, th):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(stage.y, ys_hexa)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.ch, chis)
+        yield from bps.mv(piezo.th, ths)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name)

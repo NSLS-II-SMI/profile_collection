@@ -1,76 +1,3 @@
-def agbh(t=1):
-    waxs_arc = [0, 2, 10, 20, 30, 40, 50]
-    dets = [pil900KW, pil1M]
-    det_exposure_time(t, t)
-
-    for wa in waxs_arc:
-        if wa != 20:
-            dets = [pil900KW]
-        else:
-            dets = [pil900KW, pil1M]
-
-        yield from bps.mv(waxs, wa)
-
-        name_fmt = "AgBh_16.1keV_exptime_1s_wa{wa}"
-        sample_name = name_fmt.format(wa="%2.1f" % wa)
-        sample_id(user_name="ED", sample_name=sample_name)
-        print(f"\n\t=== Sample: {sample_name} ===\n")
-        yield from bp.count(dets, num=1)
-
-
-def gradient_sample(exp_time):
-    dets = [pil300KW, pil1M]
-    sam = ["ZnTi_gradient"]
-
-    xst = 25500  # step 2000
-    xsto = -24200
-
-    waxs_arc = [2.95, 38.95, 7]
-    alph_na = ["0.1", "0.2"]
-    alphai = [0.617, 0.717]
-
-    det_exposure_time(exp_time, exp_time)
-
-    x = xst
-    while x > xsto:
-        yield from bps.mv(piezo.x, x)
-        for i, ai in enumerate(alphai):
-            yield from bps.mv(piezo.th, ai)
-
-            name_fmt = "{sam}_xpos{x_pos}_ai{ai}deg"
-            sample_name = name_fmt.format(sam=sam[0], x_pos="%5.5d" % x, ai=alph_na[i])
-
-            sample_id(user_name="ES", sample_name=sample_name)
-            print(f"\n\t=== Sample: {sample_name} ===\n")
-
-            yield from bp.scan(dets, waxs, *waxs_arc)
-
-        x -= 200
-
-
-def MOF_measure(exp_time):
-    dets = [pil300KW, pil1M]
-    names = ["E07_130nm", "F07_70nm"]  # , 'Ref_ZnO']
-    # names = ['Ref_ZnO_npos']
-    xs = [30000, 0]
-
-    inc_angle = [0.10, 0.15, 0.20]
-    waxs_arc = [2.93, 26.93, 5]
-    for name, x in zip(names, xs):
-        yield from bps.mv(piezo.x, x)
-        yield from alignement_gisaxs(angle=0.15)
-        yield from bps.mvr(piezo.th, -0.15)
-
-        for incident_angle in inc_angle:
-            name_fmt = "{sample}_{angle}deg"
-            yield from bps.mvr(piezo.th, incident_angle)
-            sample_name = name_fmt.format(sample=name, angle=incident_angle)
-            sample_id(user_name="GF", sample_name=sample_name)
-            det_exposure_time(exp_time, exp_time)
-            yield from bp.scan(dets, waxs, *waxs_arc)
-            yield from bps.mvr(piezo.th, -incident_angle)
-
-
 def guigui(meas_t=0.3):
     det = [pil1M]
     """
@@ -113,54 +40,6 @@ def guigui(meas_t=0.3):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.5)
-
-
-def align_gui():
-    det_exposure_time(0.5)
-    sample_id(user_name="test", sample_name="test")
-    yield from bps.mv(pil1M.roi1.min_xyz.min_x, 162)
-    yield from bps.mv(pil1M.roi1.size.x, 20)
-    yield from bps.mv(pil1M.roi1.min_xyz.min_y, 895)
-    yield from bps.mv(pil1M.roi1.size.y, 20)
-
-    yield from align_x(250, 30, der=True)
-    yield from align_y(250, 30, der=True)
-
-
-def test_test(angle=0.15):
-    yield from remove_suspender(susp_xbpm2_sum)
-
-
-## SMI config file
-import pandas as pds
-
-
-def optics_config_save():
-    """
-    Save the optics configuration for a given set-up
-    Save a panda DataFrame to track the evolution with time
-    """
-    # TODO: Do a list of a what motor we need to be stored
-    # Cryocooler, HFM/VFM/VDM Stripe, SSA position, Slits and etc
-
-
-def optics_config_load():
-    """
-    Load the optics configuration for a given set-up
-    Allow to move to the previous motor position
-    """
-    # TODO: Do a list of a what motor we need to be stored
-
-
-def calc_metadata():
-    # TODO: List of metadata needed for the analysis
-    # SDD, Energy, Direct beam, BS_position, waxs_arc_pos, detector, geometry, alphai
-
-    read_bs_x = yield from bps.read(pil1m_bs_rod.x)
-
-
-def test_test():
-    yield from move_new_config("16p1keV_microfocused")
 
 
 def waxs_S_edge_guil(t=1):
@@ -1145,6 +1024,15 @@ def waxs_agbh_2022_3(t=0.5):
             # Take data
             yield from bps.sleep(2)
             yield from bp.count(dets, num=1)
+
+# CD GI saxs alignments
+            # height with the hexapod
+            # change phi, and check reflection is on the same pixel
+            # change alpha of the hexapod, compensate for the sample to stay at the same 
+            # final alignment with height
+            # incident angles 0.05,.1,.15,.2
+            # is wobble is a problem, do a step scan with short exposures
+            
 
 
 def fly_scan_cdgisaxs(det, motor, cycle=1, cycle_t=10, phi=-0.6):
@@ -4243,3 +4131,313 @@ def nexafs_Cl_edge_2023_3(t=1):
             yield from bps.sleep(2)
             yield from bps.mv(energy, 2800)
             yield from bps.sleep(2)
+
+
+
+
+def gisaxs_saroj_2024_1(t=1):
+    dets = [pil1M]
+    det_exposure_time(t, t)
+
+    names = [ 'A_025', 'A_050', 'A_075', 'B_025', 'B_050', 'B_075', 'C_025', 'C_050', 'C_075',
+              'D_025', 'D_050', 'D_075', 'E_025', 'E_050', 'E_075', 'F_025', 'F_050', 'F_075']
+    x_piezo = [ 55000,   55000,   50000,   42000,   35000,   28000,   20000,   13000,    5000, 
+                -3000,  -13000,  -21000,  -28000,  -35000,  -42000,  -49000,  -49000,  -49000]
+    z_piezo = [  2300,    2300,    2300,    2300,    2300,    2300,    2300,    2300,    2300,
+                 2300,    2300,    2300,    2300,    2300,    2300,    2300,    2300,    2300]
+    y_piezo = [  7000,    7000,    7000,    7000,    7000,    7000,    7000,    7000,    7000,
+                 7000,    7000,    7000,    7000,    7000,    7000,    7000,    7000,    7000]
+    x_hexa =  [    14,       4,       0,       0,       0,       0,       0,       0,       0,
+                    0,       0,       0,       0,       0,       0,       0,      -6,     -13]
+
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+    assert len(x_piezo) == len(x_hexa), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})"
+
+    waxs_arc = [20]
+    ai0 = 0
+    ai_list = [0.12, 0.15, 0.20]
+
+    for name, xs, ys, zs, xs_hexa in zip(names, x_piezo, y_piezo, z_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+        yield from bps.mv(piezo.th, ai0)
+        yield from alignement_gisaxs(angle=0.12)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for k, ais in enumerate(ai_list):
+            yield from bps.mv(piezo.th, ai0 + ais)
+
+            for i, wa in enumerate(waxs_arc):
+                yield from bps.mv(waxs, wa)
+                # Do not take SAXS when WAXS detector in the way
+                dets = [pil1M]
+
+                yield from bps.mv(piezo.x, xs)
+                yield from bps.sleep(1)
+                
+                sample_name = f'{name}{get_scan_md()}__ai{ais}_pos1'
+                sample_id(user_name='SU', sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.x, xs-1000)
+                yield from bps.sleep(1)
+                sample_name = f'{name}{get_scan_md()}__ai{ais}_pos2'
+                sample_id(user_name='SU', sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+                yield from bps.sleep(1)
+
+
+        yield from bps.mv(piezo.th, ai0)
+
+
+
+# def big_plan():
+#     while True:
+#         try:
+#             yield from useful_plan()
+#         except FailedStatus as e:
+#             if e.args[0].device is amptek:
+#                 yield from recovery_plan()
+#             else:
+#                 raise
+
+
+
+def NEXAFS_Fe_edge(t=0.5):
+    dets = [pil900KW, amptek]
+    energies = np.linspace(7100, 7150, 51)
+
+    name = "sampletest_nexafs_Feedge"
+
+    det_exposure_time(t, t)
+    name_fmt = "{sample}_{energy}eV_xbpm{xbpm}"
+    for e in energies:
+        yield from bps.mv(energy, e)
+        yield from bps.sleep(2)
+        if xbpm2.sumX.get() < 5:
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+    
+        bpm = xbpm3.sumX.get()
+        sample_name = name_fmt.format(sample=name,energy="%6.2f"%e, ai="%3.2f"%0.5, wax=20, xbpm="%4.3f"%bpm)
+        sample_id(user_name="LR", sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+        yield from bp.count(dets, num=1)
+
+
+
+def Fe_edge_measurments_2024_1(t=1):
+    dets = [pil900KW, amptek]
+    det_exposure_time(t, t)
+
+    names = ['Pg32T-TT_FeCl3_sa7', 'Pg32T-TT_FeCl3_sa7', 'P3MEEMT_FeCl3_sa15','P3MEEMT_FeCl3_sa16','Pg32T-TT_KCLO4_sa7','Pg32T-TT_KCLO4_sa8',   'Co',   'hT',  'hTe']             
+    x_piezo = [             55000,                 46000,               28000,                6000,               -6000,              -25000, -36000, -45000, -45000]
+    x_hexa = [                 10,                     0,                   0,                   0,                   0,                   0,      0,     -7,    -15]
+    y_piezo = [              6700,                  6700,                6800,                6800,                6900,                6900,   7000,   7100,   7100]
+    z_piezo = [             -3000,                 -3000,               -3000,               -3000,               -3000,               -3000,  -3000,  -3000,  -3000]
+       
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+    assert len(x_piezo) == len(x_hexa), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})"
+
+    energies = [7100, 7105, 7110, 7112, 7114, 7115, 7116, 7117, 7118, 7119, 7121, 7122, 7123, 7124, 7125, 7126, 7127, 7128, 7129, 7130, 
+                7131, 7132, 7133, 7134, 7135, 7136, 7137, 7138, 7139, 7140, 7141, 7142, 7143, 7145, 7147, 7150, 7155, 7160, 7165]
+
+    waxs_arc = [20]
+    ai0_all = 0
+    ai_list = [0.5]
+
+    for name, xs, ys, zs, xs_hexa in zip(names, x_piezo, y_piezo, z_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+
+        yield from bps.mv(GV7.open_cmd, 1)
+        yield from bps.sleep(5)
+        yield from bps.mv(GV7.open_cmd, 1)
+
+        yield from bps.mv(piezo.th, ai0_all)
+        yield from alignement_gisaxs_doblestack(0.5)
+
+
+        yield from bps.mv(GV7.close_cmd, 1)
+        yield from bps.sleep(5)
+        yield from bps.mv(GV7.close_cmd, 1)
+
+
+        yield from bps.mv(att2_5.open_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(att2_5.open_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(att2_6.open_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(att2_6.open_cmd, 1)
+        yield from bps.sleep(1)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            # Do not take SAXS when WAXS detector in the way
+
+            yield from bps.mv(piezo.x, xs)
+            counter = 0
+
+            for k, ais in enumerate(ai_list):
+                yield from bps.mv(piezo.th, ai0 + ais)
+
+                name_fmt = "{sample}_pos1_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}"
+                for e in energies:
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                    if xbpm2.sumX.get() < 5:
+                        yield from bps.sleep(2)
+                        yield from bps.mv(energy, e)
+                        yield from bps.sleep(2)
+                    yield from bps.mv(piezo.x, xs - counter * 30)
+                    counter += 1
+                    
+                    bpm = xbpm2.sumX.get()
+                    sample_name = name_fmt.format(sample=name, energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm)
+                    sample_id(user_name="LR", sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
+                    yield from bp.count(dets, num=1)
+
+                name_fmt = "{sample}_pos2_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}"
+                for e in energies[::-1]:
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                    if xbpm2.sumX.get() < 5:
+                        yield from bps.sleep(2)
+                        yield from bps.mv(energy, e)
+                        yield from bps.sleep(2)
+                    yield from bps.mv(piezo.x, xs - counter * 30)
+                    counter += 1
+
+                    bpm = xbpm2.sumX.get()
+                    sample_name = name_fmt.format(sample=name,energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm)
+                    sample_id(user_name="NS", sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
+                    yield from bp.count(dets, num=1)
+
+
+            yield from bps.mv(piezo.th, ai0)
+
+
+
+
+def Fe_edge_measurments_xscanamptek_2024_1(t=1):
+    dets = [pil900KW, amptek]
+    det_exposure_time(t, t)
+
+    # names = ['Pg32T-TT_FeCl3_sa7', 'Pg32T-TT_FeCl3_sa7', 'P3MEEMT_FeCl3_sa15','P3MEEMT_FeCl3_sa16','Pg32T-TT_KCLO4_sa7','Pg32T-TT_KCLO4_sa8',   'Co',   'hT',  'hTe']             
+    # x_piezo = [             55000,                 46000,               28000,                6000,               -6000,              -25000, -36000, -45000, -45000]
+    # x_hexa = [                 10,                     0,                   0,                   0,                   0,                   0,      0,     -7,    -15]
+    # y_piezo = [              6700,                  6700,                6800,                6800,                6900,                6900,   7000,   7100,   7100]
+    # z_piezo = [             -3000,                 -3000,               -3000,               -3000,               -3000,               -3000,  -3000,  -3000,  -3000]
+       
+    # assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    # assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    # assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+    # assert len(x_piezo) == len(x_hexa), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})"
+
+    # energies = [7100, 7105, 7110, 7112, 7114, 7115, 7116, 7117, 7118, 7119, 7121, 7122, 7123, 7124, 7125, 7126, 7127, 7128, 7129, 7130, 
+    #             7131, 7132, 7133, 7134, 7135, 7136, 7137, 7138, 7139, 7140, 7141, 7142, 7143, 7145, 7147, 7150, 7155, 7160, 7165]
+
+    # waxs_arc = [20]
+    # ai0_all = 0
+    # ai_list = [0.5]
+
+    for name, xs, ys, zs, xs_hexa in zip(names, x_piezo, y_piezo, z_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+
+        yield from bps.mv(GV7.open_cmd, 1)
+        yield from bps.sleep(5)
+        yield from bps.mv(GV7.open_cmd, 1)
+
+        yield from bps.mv(piezo.th, ai0_all)
+        yield from alignement_gisaxs_doblestack(0.5)
+
+
+        yield from bps.mv(GV7.close_cmd, 1)
+        yield from bps.sleep(5)
+        yield from bps.mv(GV7.close_cmd, 1)
+
+
+        yield from bps.mv(att2_5.open_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(att2_5.open_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(att2_6.open_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(att2_6.open_cmd, 1)
+        yield from bps.sleep(1)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            # Do not take SAXS when WAXS detector in the way
+
+            yield from bps.mv(piezo.x, xs)
+            counter = 0
+
+            for k, ais in enumerate(ai_list):
+                yield from bps.mv(piezo.th, ai0 + ais)
+
+                name_fmt = "{sample}_pos1_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}"
+                for e in energies:
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                    if xbpm2.sumX.get() < 5:
+                        yield from bps.sleep(2)
+                        yield from bps.mv(energy, e)
+                        yield from bps.sleep(2)
+                    yield from bps.mv(piezo.x, xs - counter * 30)
+                    counter += 1
+                    
+                    bpm = xbpm2.sumX.get()
+                    sample_name = name_fmt.format(sample=name, energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm)
+                    sample_id(user_name="LR", sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
+                    yield from bp.count(dets, num=1)
+
+                name_fmt = "{sample}_pos2_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}"
+                for e in energies[::-1]:
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                    if xbpm2.sumX.get() < 5:
+                        yield from bps.sleep(2)
+                        yield from bps.mv(energy, e)
+                        yield from bps.sleep(2)
+                    yield from bps.mv(piezo.x, xs - counter * 30)
+                    counter += 1
+
+                    bpm = xbpm2.sumX.get()
+                    sample_name = name_fmt.format(sample=name,energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm)
+                    sample_id(user_name="NS", sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
+                    yield from bp.count(dets, num=1)
+
+
+            yield from bps.mv(piezo.th, ai0)
