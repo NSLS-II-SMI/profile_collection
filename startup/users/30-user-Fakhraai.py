@@ -469,3 +469,83 @@ def grazing_Kritika_2023_3(t=0.5):
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5, 0.5)
+
+
+def grazing_Kritika_2024_1(t=0.5):
+    """
+    standard GI-S/WAXS
+    """
+    
+    names   = [   's03a', 's03b', 's05a', 's05b',  's10a',  's10b',  's14a',   's14b', ]
+    piezo_x = [  -27000,  -26000, -14000, -13000,   -1000,       0,   14000,    15000, ]
+    piezo_y = [    2100,    2100,   2200,   2250,    2400,    2400,    2400,     2400, ]          
+    piezo_z = [    4000,    4000,   4000,   4000,    4600,    4600,    4600,     4600, ]
+    hexa_x =  [ 0 for n in names ]
+    
+    
+    names = [ n + '-rot90alonglonger' for n in names]
+    #piezo_x = np.asarray(piezo_x) + 1000
+
+
+    i = 0
+    names   = names[i:]
+    piezo_x = piezo_x[i:]
+    piezo_y = piezo_y[i:]
+    piezo_z = piezo_z[i:]
+    hexa_x =  hexa_x[i:]
+
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+    assert len(piezo_x) == len(hexa_x), msg
+
+    waxs_arc = [ 0, 2, 20, 22 ]  # degrees
+    x_off = [0]
+    incident_angles = [ 0.1 ]
+    user_name = 'KJ'
+
+    det_exposure_time(t, t)
+
+    # Make sure cam server engages with the detector
+    #yield from engage_detectors()
+ 
+    for name, x, y, z, hx in zip(names, piezo_x, piezo_y, piezo_z, hexa_x):
+
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y,
+                          piezo.z, z,
+                          stage.x, hx)
+
+        # Align the sample
+        try:
+            yield from alignement_gisaxs(0.1) #0.1 to 0.15
+        except:
+            yield from alignement_gisaxs(0.01)
+
+        # Sample flat at ai0
+        ai0 = piezo.th.position
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+
+            # problems with the beamstop
+            yield from bps.mv(waxs.bs_y, -3)
+
+            for xx, x_of in enumerate(x_off):
+                yield from bps.mv(piezo.x, x + x_of)
+            
+                for ai in incident_angles:
+                    yield from bps.mv(piezo.th, ai0 + ai)
+
+                    sample_name = f'{name}{get_scan_md()}_loc{xx}_ai{ai}'
+
+                    sample_id(user_name=user_name, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+        yield from bps.mv(piezo.th, ai0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)

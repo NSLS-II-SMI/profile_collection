@@ -191,3 +191,235 @@ def run_temp_capillaries_Alexandra_2023_3(ts=0.5, tl=1, waxs_only=False):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.5, 0.5)
+
+
+def run_capillaries_Chen_2024_1_saxsonly(ts1=10,ts2=20,tl=30):
+    """
+    Standard SAXS, measure transmission only during the first run
+
+    Use two exposures:
+        ts (float): shorter exposure time for first measurement,
+        tl (float): longer exposure time for second measurement.
+    
+    sample_id(user_name='test', sample_name='test')
+    RE(count([pil900KW]))
+    
+
+
+    """
+    # yield from bps.sleep(1500)
+    
+    #names =   ['PN13-3','PN14-3','PN15-3','PN16-3','PN17-3','PN18-3','PN19-3','PN20-3','PN21-3','PN22-3','PN23-3','PN24-3','PN25-3','PN-empty-3']
+    #piezo_x = [ -35400, -28900,   -22700, -16400,   -10000,  -3600,    2800,    9300,    15600,    21900,   28200,   34600,  40900, 47300 ]
+    #piezo_y = [ -950 for n in names]
+    #piezo_z = [ -5000 for n in names]
+
+    #names =   ['PN1-3','PN2-3','PN3-3','PN4-3','PN5-3','PN6-3','PN7-3','PN8-3','PN9-3','PN10-3','PN11-3','PN12-3']
+    #piezo_x = [ -34500, -27900,-21500, -15100, -8900,  -2500,  3800,    10200,  16400,   23000,   29300,   35400]
+    #piezo_y = [ 50 for n in names]
+    #piezo_z = [ -5000 for n in names]
+
+    #names =   ['PN13-trial-6']
+    #piezo_x = [ -34500]
+    #piezo_y = [ 2450 for n in names]
+    #piezo_z = [ -4600 for n in names]
+
+    names =   ['H3_4longer']
+    piezo_x = [-27600]
+    piezo_y = [ -7550]
+    piezo_z = [ -5500]  
+
+
+    assert len(names)   == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_y), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_z), f"Wrong list lenghts"
+
+    
+    y_off = [0]
+    user_name = 'TC'
+    
+    exposures = [ts1, ts2,tl]
+    
+    dets = [pil1M]
+
+    for name, x, y, z in zip(names, piezo_x, piezo_y, piezo_z):
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y,
+                          piezo.z, z,
+                          )
+
+
+
+        # Read pin diode current
+        if waxs.arc.position > 15:
+            fs.open()
+            yield from bps.sleep(0.3)
+            pd_curr = pdcurrent1.value
+            fs.close()
+            pd = str(int(np.round(pd_curr, 0))).zfill(7)
+        else:
+            pd = 0
+        
+        for yy, y_of in enumerate(y_off):
+            yield from bps.mv(piezo.y, y + y_of)
+
+            for exp in exposures:
+                det_exposure_time(exp, exp)
+                yield from bps.sleep(2)
+
+                exp_save = str(int(np.round(exp, 0))).zfill(2)
+
+                sample_name = f'{name}_exp{exp_save}_loc{yy}_pd{pd}{get_scan_md()}'
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets)
+
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+
+
+def run_capillaries_Chen_2024_1_waxs(ts1=0.5, ts2=1):
+    """
+    Standard SAXS, measure transmission only during the first run
+
+    Use two exposures:
+        ts (float): shorter exposure time for first measurement,
+        tl (float): longer exposure time for second measurement.
+    
+    sample_id(user_name='test', sample_name='test')
+    RE(count([pil900KW]))
+    
+    """
+    # yield from bps.sleep(1500)
+    #names =   [ 'AgB-2m']
+    #piezo_x = [  -38900 ]
+    #piezo_y = [  4000 ]
+    #piezo_z = [ -8224 for n in names]
+
+    names =   ['Dry-D-SXQ-A1-17-076-02-2','Dry-D-SXQ-A1-09-04-2','Dry-SXQ-A1-17-076-02-2','Dry-SXQ-A1-09-04-2']
+    piezo_x = [-30200,                      -25600,                   -17200,                -10600   ]
+    piezo_y = [3100 for n in names]
+    piezo_z = [-5500 for n in names]
+
+    assert len(names)   == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_y), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_z), f"Wrong list lenghts"
+
+    waxs_arc = [0,20]
+    
+    y_off = [0]
+    user_name = 'TC'
+    
+    exposures = [ts1, ts2]
+    
+    #waxs_arc = [0, 20] if waxs_only else [20]
+
+    for name, x, y, z in zip(names, piezo_x, piezo_y, piezo_z):
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y,
+                          piezo.z, z,
+                          )
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+
+            # Read pin diode current
+            if waxs.arc.position > 15:
+                fs.open()
+                yield from bps.sleep(0.3)
+                pd_curr = pdcurrent1.value
+                fs.close()
+                pd = str(int(np.round(pd_curr, 0))).zfill(7)
+            else:
+                pd = 0
+            
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of)
+
+                for exp in exposures:
+                    det_exposure_time(exp, exp)
+                    yield from bps.sleep(2)
+
+                    exp_save = str(int(np.round(exp, 0))).zfill(2)
+
+                    sample_name = f'{name}_exp{exp_save}_loc{yy}_pd{pd}{get_scan_md()}'
+                    sample_id(user_name=user_name, sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
+                    yield from bp.count(dets)
+
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+
+
+
+def run_capillaries_Chen_2024_1_saxs_time(exp_time=0.5, delay_sec=300,num=7):
+    """
+    Standard SAXS, measure transmission only during the first run
+
+    Use two exposures:
+        ts (float): shorter exposure time for first measurement,
+        tl (float): longer exposure time for second measurement.
+    
+    sample_id(user_name='test', sample_name='test')
+    RE(count([pil900KW]))
+    
+    """
+    # yield from bps.sleep(1500)
+    names =   [ 'TC5-thf-timestudy']
+    piezo_x = [ -28400]
+    piezo_y = [ 2550 for n in names]
+    piezo_z = [ -4200 for n in names]
+
+    assert len(names)   == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_y), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_z), f"Wrong list lenghts"
+
+    
+    dets = [pil1M]
+    y_off = [0]
+    user_name = 'TC'
+    
+    exposures = [exp_time]
+    
+
+    for name, x, y, z in zip(names, piezo_x, piezo_y, piezo_z):
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y,
+                          piezo.z, z,
+                          )
+
+
+
+        # Read pin diode current
+        if waxs.arc.position > 15:
+            fs.open()
+            yield from bps.sleep(0.3)
+            pd_curr = pdcurrent1.value
+            fs.close()
+            pd = str(int(np.round(pd_curr, 0))).zfill(7)
+        else:
+            pd = 0
+        
+        for yy, y_of in enumerate(y_off):
+            yield from bps.mv(piezo.y, y + y_of)
+
+            for exp in exposures:
+                det_exposure_time(exp, exp)
+                yield from bps.sleep(2)
+
+                exp_save = str(int(np.round(exp, 0))).zfill(2)
+
+                sample_name = f'{name}_exp{exp_save}_loc{yy}_pd{pd}{get_scan_md()}'
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets,num,delay_sec)
+
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)

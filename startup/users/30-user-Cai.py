@@ -2500,3 +2500,102 @@ def cai_printing_2023_3(xpos, ypos, sample_name='test'):
             xs=xpos[1]; xe=xpos[0]
         yield from bp.scan(dets, stage.x, xs, xe, xpos[2])
         yield from bps.mvr(stage.y,ypos[1])
+
+
+def run_swaxs_Cai_2024_1(t=0.5):
+    """
+    Hard X-ray WAXS and SAXS
+    Measure transmission only during the first run
+    """
+    
+    #Test 5, run 1
+    names =   [ 'MMA1.5',  'MMA1.7',  'MK2',  'MMA2.77',  'MM2.15',  'BnMA1.85',  'MK2-film',  'vacuum', ] 
+    piezo_x = [   -46300,    -39800, -33500,      -3500,      8500,       17500,       29500,     41500, ]   
+    piezo_y = [    -3000,     -3000,  -3000,      -3000,     -3000,       -3000,       -3000,     -3000, ]     
+    piezo_z = [    10800,     10800,  10800,       4000,      4000,        4000,        4000,      4000, ]
+
+    
+    hexa_x =  [ 0 for n in names]
+
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+    assert len(piezo_x) == len(hexa_x), msg
+
+    user_name = "PW"
+    waxs_arc = [20, 0]
+
+    points = 5
+    dy = 150
+    dbeam_x = -25900
+    dbeam_y = -3000
+
+    bs_pos = -199.0
+
+    det_exposure_time(t, t)
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+        
+        condition = (
+            ( 19 < waxs.arc.position )
+            and ( waxs.arc.position < 21 )
+        )
+
+        if condition:
+            yield from atten_move_in()
+            yield from bps.mv(pil1m_bs_pd.x, bs_pos + 10)
+            yield from bps.mv(piezo.x, dbeam_x,
+                              piezo.y, dbeam_y)
+
+            sample_id(user_name='test', sample_name='test')
+            yield from bp.count([pil1M])
+            stats1_direct = db[-1].table(stream_name='primary')['pil1M_stats1_total'].values[0]
+            yield from bps.mv(pil1m_bs_pd.x, bs_pos)
+            yield from atten_move_out()
+
+        for name, x, y, z, hx in zip(names, piezo_x, piezo_y, piezo_z, hexa_x):
+            yield from bps.mv(piezo.x, x,
+                              piezo.y, y,
+                              piezo.z, z,
+                              stage.x, hx)
+
+            # Scan along the capillary
+            for i in range(points):
+
+                new_y = y + i * dy
+
+                yield from bps.mv(piezo.y, new_y)
+
+                if (condition and i == 0):
+
+                    # Take transmission
+                    yield from atten_move_in()
+
+                    # Sample
+                    yield from bps.mv(pil1m_bs_pd.x, bs_pos + 5)
+                    sample_id(user_name='test', sample_name='test')
+                    yield from bp.count([pil1M])
+                    stats1_sample = db[-1].table(stream_name='primary')['pil1M_stats1_total'].values[0]
+
+                    # Transmission
+                    trans = np.round( stats1_sample / stats1_direct, 5)
+
+                    # Revert configuraton
+                    yield from bps.mv(pil1m_bs_pd.x, bs_pos)
+                    yield from atten_move_out()
+                
+                if not condition:
+                    trans = 0
+
+                # Take normal scans
+                sample_name = f'{name}{get_scan_md()}_loc{i}_trs{trans}'
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                yield from bp.count(dets)
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)

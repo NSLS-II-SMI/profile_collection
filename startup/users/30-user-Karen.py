@@ -339,3 +339,65 @@ def alignment_off():
     smi = SMI_Beamline()
     yield from smi.modeMeasurement()
     yield from bps.mv(waxs, 0)
+
+def continous_run_change_xpos(sname='test', t=2, wait=8, frames=5000, x_off=[-50, 0, 50]):
+    """
+    Take data continously
+    
+    Create timestamp in BlueSky before running this function as
+    create_timestamp()
+
+    Args:
+        sname (str): basic sample name,
+        t (float): camera exposure time is seconds,
+        wait (float): delay between frames,
+        frames(int): number of frames to take,
+        x_off (list of floats): relative x positions to take data at.
+    """
+    try:
+        tstamp = RE.md['tstamp']
+    except:
+        tstamp = time.time()
+        RE.md['tstamp'] = tstamp
+    
+    det_exposure_time(t, t)
+
+    for i in range(frames):
+
+        print(f'Taking {i + 1} / {frames} frames for {len(x_off)} x positions')
+
+        x_0 = piezo.x.position
+
+        for x_step in x_off:
+            yield from bps.mv(piezo.x, x_0 + x_step)
+            # update sample name
+            name_sample(sname, tstamp)
+
+            # take one frame
+            yield from bp.count([pil900KW])
+        
+        yield from bps.mv(piezo.x, x_0)
+
+        # don't wait
+        #print(f'\nWaiting {wait} s')
+        #yield from bps.sleep(wait)
+
+def take_data_across_x(sname='20240326_op_Na_Cu_bar_a', t=2, x_off=[-300, -200, 100, 0, 100, 200, 300]):
+
+    try:
+        tstamp = RE.md['tstamp']
+    except:
+        tstamp = time.time()
+        RE.md['tstamp'] = tstamp
+
+    x_0 = piezo.x.position
+
+    for x_step in x_off:
+        yield from bps.mv(piezo.x, x_0 + x_step)
+        # update sample name
+        name_sample(sname, tstamp)
+
+        # take one frame
+        yield from bp.count([pil900KW])
+    
+    yield from bps.mv(piezo.x, x_0)

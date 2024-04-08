@@ -109,7 +109,7 @@ def ps_new_post(uid=-1, der=False, plot=True):
 
 
 def ps(
-    uid="-1",
+    uid=-1,
     det="default",
     suffix="default",
     shift=0.5,

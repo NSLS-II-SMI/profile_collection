@@ -36,7 +36,7 @@ def energy_to_gap(target_energy, undulator_harmonic=1, man_offset=0):
         + (1 - 0.28544) / (1 + 10 ** ((7180.06758 - f) * 6.34167e-4))
     )
     e_exp = np.array([ 2450, 2470, 3600, 4050, 6510, 6550, 7700, 8980, 9700, 12000, 12620, 14000, 14400, 16100,])
-    off_exp = np.array([-10,  -35,   29,   30,   -2,    55,   35,   19,   20,    15,    30,     3,     30,    22,])
+    off_exp = np.array([-20,  -35,   29,   30,   -2,    55,   35,   19,   20,    15,    30,     3,     38,    20,])
 
 
     auto_offset = np.interp(target_energy, e_exp, off_exp, left=min(off_exp), right=max(off_exp))

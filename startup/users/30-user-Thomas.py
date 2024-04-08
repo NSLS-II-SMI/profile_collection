@@ -27,6 +27,10 @@
 # Note: Linkam Transmission, HEXAPOD around x=-9.3, y=1, z=-7.257
 # beamstop_save()
 
+def move_waxs(waxs_angle=20):
+    yield from bps.mv(waxs, waxs_angle)
+
+    
 # 2023-May
 # Measures at 0, 15 waxs detector angles; Take both SAXS and WAXS
 # RE(run_measure1(t=0.5, user_name='VS', sam_name='PS-PDMS_5033_run1'))
@@ -256,15 +260,28 @@ def run_tswaxs_single(t=10, user_name='StaticT', sam_name='PS-PDMS', waxs_angles
 
 
 
-# RE(run_tswaxs(t=10, name = 'VS', waxs_angles = [15]))
-def run_tswaxs(t=10, name="VS", grid=0, Nmax=1):
+# RE(run_tswaxs(t=2, name = 'T', waxs_angles = [15]))
+def run_tswaxs(t=10, name="T", grid=0, Nmax=1):
     # 59000 (sample1),-44000 (AgBH)
-    x_list = [59000]
-    y_list = [-1500]  #-5800
-    # z_list =  [7500, 7500,  7500, 7500, 7500,  7500, 7500, 7500, 7500, 7500,    7500, 7500,7500,7500,7500, 7500 ]
-    samples = ["KX1"]
-    # HEX: -3.41, y 1.67, z-1.4
+    
+    # x_list = [-31430, -18430, 1570, 9570, 23570, 33570, 37370, 43170]
+    # y_list = [-2900, -2900, -2900, -2900, -2900, -2900, -2900, -2800]  
+    # samples = ["KL13", "KL12", "KL1", "KL2", "KL3","KL4", "KL5", "Kapton2"]
+    x_list = [42120]
+    y_list = [-8000]
+    samples = ['Kapton3']
+    # # HEX: -3.41, y 1.67, z-1.4
     # sam6: x-7830, y -10950, z7500
+    # x_list = [-3000, 4000, 10000, 17000, 23000, 32100, 39100]
+    # y_list = [-5000, -4500, -5000, -5500, -5500, -5500, -5500]  #-5800
+    # samples = ["HE_s1_S2VP_Bulk_Pristine_Trans", "HE_s2_S2VP_Bulk_LiTFSI_Trans", 
+    #            "HE_s3_S2VP_Bulk_EIMTFSI_Trans","HE_s4_SnBA_Bulk_66",
+    #            "HE_s5_SnBA_Bulk_16", "HE_s6_SnBA_Sphere_66",
+    #            "HE_s7_SnBA_Sphere_16"]
+    # x_list = [-43000, -43000, -37250, -31260, -24270, -18330]
+    # y_list = [-2500, -3300, -2750, -2900, -2900, -2900]  #-5800
+    # samples = ["KL7a", "KL7b", "KL8", "KL9", "KL10", "KL11"]  
+
 
     assert len(x_list) == len(
         samples
@@ -272,7 +289,7 @@ def run_tswaxs(t=10, name="VS", grid=0, Nmax=1):
     det_exposure_time(t, t)
 
     t0 = time.time()
-    waxs_angles = np.array([15, 0])
+    waxs_angles = np.array([0])
 
     for waxs_angle in waxs_angles:  # loop through waxs angles
         yield from bps.mv(waxs, waxs_angle)
@@ -289,7 +306,7 @@ def run_tswaxs(t=10, name="VS", grid=0, Nmax=1):
                 yield from bps.mv(piezo.x, x)
                 yield from bps.mv(piezo.y, y)
 
-                name_fmt = "{sample}_16.1keV_9.2m_waxs{waxs_angle:05.2f}_x{x:04.2f}_y{y:04.2f}_{t:05.2f}s"
+                name_fmt = "{sample}_16.1keV_8.3m_waxs{waxs_angle:05.2f}_x{x:04.2f}_y{y:04.2f}_{t:05.2f}s"
                 sample_name = name_fmt.format(
                     sample=names,
                     waxs_angle=waxs_angle,
@@ -320,13 +337,7 @@ def run_tswaxs(t=10, name="VS", grid=0, Nmax=1):
 
 
 # RE(run_giswaxs(t=0.5))
-def run_giswaxs(t=0.5, flag_align=1):
-    # sample_list = ['C35_O3_10nm_400C', 'C36_H2O_10nm_400C', 'C37_D2O_10nm_400C', 'C38_H2O2_10nm_400C', 'C39_O3_7nm_400C', 'C40_H2O_7nm_400C', 'C41_D2O_7nm_400C']
-    # x_list = [49400] #, 36400, 24400, 12400, -3600,    -17600, -31600, -43600]
-    # sample_list = ['sam1'] #, 'sam2', 'sam3', 'sam4', 'sam5',    'sam6', 'sam7', 'sam8' ]
-
-    # x_list = [48600, 36000, 20000, 8000,-6000,    -16000, -30000, -44000,]
-    # sample_list = ['sam16', 'sam15', 'sam14', 'sam13','sam12',    'sam11', 'sam10','sam9']
+def run_giswaxs(t=0.5, flag_align=1, flag_reflect=1, piezo_y_init=7200):
 
     # x_list = [50000, 40000, 28000, 14000, -4000,    -24000]
     # sample_list = ['WS1', 'WS2', 'WS3', 'WS4','WS5',    'sam17']
@@ -338,8 +349,11 @@ def run_giswaxs(t=0.5, flag_align=1):
     # 3.649785 3.649785 13.000338 0.000234 9.799842
     #x_list =  [59000] #, 47000, 39000, 28000, 15000, 3000, -15000]
     #sample_list = ["HE_sam1-1"] #,"HE_sam1-2","HE_sam1-3","HE_sam2-1","HE_sam2-2","HE_sam2-3", "KS_sam1"]
-    x_list = [59000, 47000, 39000, 28000, 15400, 3000]
-    sample_list = ["HE_sam1-1","HE_sam1-2","HE_sam1-3","HE_sam2-1","HE_sam2-2","HE_sam2-3"] 
+    #x_list = [-48000, -36000, -14000, 7000, 22000, 35000]
+    #sample_list = ["HE_s1_Bulk_S2VP_Pristine","HE_s2_Bulk_S2VP_LiTFSI","HE_s3_Bulk_S2VP_EIMTFSI","HE_s4_Film_S2VP_Pristine","HE_s5_Film_S2VP_LiTFSI","HE_s6_Film_S2VP_EIMTFSI"] 
+    x_list = [-14000+400]
+    sample_list = ["HE_s3_Bulk_S2VP_EIMTFSI"] 
+ 
     ##### HE_sam1-1, x = 58999.955, aligned at y = 4687.467, theta = 0.126291
 
     assert len(x_list) == len(sample_list), f"Sample name/position list is borked"
@@ -349,14 +363,10 @@ def run_giswaxs(t=0.5, flag_align=1):
     # waxs_angle_array = np.linspace(0, 84, 15)
 
     waxs_angles = np.array(
-        [15]
+        [20]
     )  # q=4*3.14/0.77*np.sin((max angle+3.5)/2*3.14159/180)
-    # if 12, 3: up to q=2.199
-    # if 18, 4: up to q=3.04
-    # if 24, 5: up to q=3.87
-    # if 30, 6: up to q=4.70
-    # 52/6.5 +1 =8
-    # dets = [pil300KW, pil1M] # waxs, maxs, saxs = [pil300KW, rayonix, pil1M]
+    
+    data_dir = '/nsls2/data/smi/legacy/results/data/2024_1/312283_Subramanian/'
 
     # x_shift_array = np.linspace(-500, 500, 3) # measure at a few x positions
     aligned_positions = []
@@ -364,11 +374,15 @@ def run_giswaxs(t=0.5, flag_align=1):
 
         yield from bps.mv(piezo.x, x)  # move to next sample
         if flag_align:
-            yield from bps.mv(piezo.y, 5200) 
-            yield from alignement_gisaxs(0.1)  # run alignment routine
+            yield from bps.mv(piezo.y, piezo_y_init) 
+            yield from alignement_gisaxs(0.1, flag_reflect=flag_reflect)  # run alignment routine
 
         print('##### {}, x = {}, aligned at y = {}, theta = {}'.format(sample, piezo.x.position, piezo.y.position, piezo.th.position))
         aligned_positions.append([sample, piezo.x.position, piezo.y.position, piezo.th.position])
+        with open(data_dir+'Align/aligned_positions.txt', 'a') as f:
+            note = '{}: x{}, y{}, th{},'.format(sample, piezo.x.position, piezo.y.position, piezo.th.position)
+            f.write(note)
+            f.write('\n')
 
         th_meas = (
             angle_arc + piezo.th.position
@@ -389,7 +403,7 @@ def run_giswaxs(t=0.5, flag_align=1):
             for i, th in enumerate(th_meas):  # loop over incident angles
                 yield from bps.mv(piezo.th, th)
 
-                sample_name = "{sample}_{th:5.4f}deg_waxs{waxs_angle:05.2f}_x{x}_{t}s".format(
+                sample_name = "{sample}_{th:5.4f}deg_waxs{waxs_angle:05.2f}_ssd9200_x{x}_{t}s".format(
                     sample=sample,
                     th=th_real[i],
                     waxs_angle=waxs_angle,

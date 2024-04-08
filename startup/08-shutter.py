@@ -91,8 +91,11 @@ ph_shutter = TwoButtonShutter("XF:12IDA-PPS:2{PSh}", name="ph_shutter")
 def shopen():
     yield from bps.mv(ph_shutter.open_cmd, 1)
     yield from bps.sleep(1)
-    yield from bps.mv(manual_PID_disable_pitch, "0")
-    yield from bps.mv(manual_PID_disable_roll, "0")
+
+    # Disabled because of problems with XBPM3 in microfocus
+    
+    #yield from bps.mv(manual_PID_disable_pitch, "0")
+    #yield from bps.mv(manual_PID_disable_roll, "0")
 
     # #Check if te set-up is in-air or not. If so, open the GV automatically when opening the shutter
     # if get_chamber_pressure(chamber_pressure.waxs) > 1E-02 and get_chamber_pressure(chamber_pressure.maxs) < 1E-02:
