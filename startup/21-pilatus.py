@@ -231,10 +231,10 @@ def det_exposure_time(exp_t, meas_t=1):
         # rayonix.cam.num_images.put(int(meas_t/exp_t))
 
     # See if amptek is connected
-    try:
-        amptek.mca.preset_real_time.put(exp_t)
-    except:
-        print("amptek disconnected")
+    #try:
+    #    amptek.mca.preset_real_time.put(exp_t)
+    #except:
+    #    print("amptek disconnected")
 
 
 def det_next_file(n):
