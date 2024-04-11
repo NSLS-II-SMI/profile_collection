@@ -401,3 +401,85 @@ def take_data_across_x(sname='20240326_op_Na_Cu_bar_a', t=2, x_off=[-300, -200, 
         yield from bp.count([pil900KW])
     
     yield from bps.mv(piezo.x, x_0)
+
+
+def align_across_x():
+    """
+    Create alignment look up table for different positions
+
+    Need to go manually
+    """
+
+    try:
+        sample_pos = RE.md['sample_pos0']
+        x0 = sample_pos['x0']
+    except:
+        x0 = piezo.x.position
+        y0 = piezo.y.position
+        z0 = piezo.z.position
+        th0 = piezo.th.position
+        ch0 = piezo.ch.position
+        RE.md['sample_pos0'] = dict(x0=x0, y0=y0, z0=z0, th0=th0, ch0=ch0)
+
+    piezo_x = np.linspace(-500, 500, 11, dtype=int) + x0
+
+    yield from bps.mv(
+        piezo.x, sample_pos['x0'],
+        piezo.y, sample_pos['y0'],
+        piezo.th, sample_pos['th0'],
+    )
+
+    yield from alignment_on()
+
+    RE.md['alignment_LUT'] = dict()
+
+    for i, x in enumerate(piezo_x):
+        yield from bps.mv(piezo.x, x)
+
+
+
+        # Align step by step
+        alignment_LUP = dict()
+
+        yield from rel_scan([pil1M], piezo.y, -100, 100, 26)
+        ps(der=True)
+        yield from bps.mv(piezo.y, ps.cen)
+
+        yield from rel_scan([pil1M], piezo.th, -1.5, 1.5, 26)
+        ps(der=False)
+        yield from bps.mv(piezo.th, ps.peak)
+
+        plt.close('all')
+
+        yield from bps.sleep(1)
+
+        dict1 = dict(
+            x = piezo.x.position,
+            y = piezo.y.position,
+            th = piezo.th.position,
+        )
+
+        RE.md['alignment_LUT'][i] = dict1
+
+    yield from alignment_off()
+
+
+def save_alignment_to_md(point=0):
+    """
+    Save alignment positon for single point
+    """
+
+    dict1 = dict(
+        x = np.round(piezo.x.position, 2),
+        y = np.round(piezo.y.position, 2),
+        z = np.round(piezo.z.position, 2),
+        th = np.round(piezo.th.position, 3),
+    )
+
+    try:
+        RE.md['alignment_LUT'][point] = dict1
+    except:
+        RE.md['alignment_LUT'] = dict()
+        RE.md['alignment_LUT'][point] = dict1
+
+
