@@ -5,7 +5,16 @@ from ophyd import (
     Device,
     Component as Cpt,
     PseudoPositioner,
+    PVPositioner,
 )
+
+class ThorlabsMotor(PVPositioner):
+    readback = Cpt(EpicsSignal,'.RBV')
+    setpoint = Cpt(EpicsSignal,'.VAL')
+    done = Cpt(EpicsSignal,'.DMOV')
+    done_value=0
+
+thorlabs_su = ThorlabsMotor('XF:12ID2-ES{DDSM100-Ax:X1}Mtr',name='thorlabs_su')
 
 
 ########## motor classes ##########
