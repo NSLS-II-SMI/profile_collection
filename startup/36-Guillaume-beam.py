@@ -86,9 +86,11 @@ class SMIBeam(object):
         elif 8400 < self.dcm.energy.position < 8800:
             target_state = [att2_2, att2_3]
         elif 8800 < self.dcm.energy.position < 9700:
-            target_state = [att2_1, att2_2, att2_3]
+            #target_state = [att2_1, att2_2, att2_3]
+            target_state = [att2_3]
         elif 9700 < self.dcm.energy.position < 10500:
-            target_state = [att2_4]
+            #target_state = [att2_4] # changing for lower flux
+            target_state = [att2_3]
         elif 10500 < self.dcm.energy.position < 11000:
             target_state = [att2_1, att2_4]
         elif 11000 < self.dcm.energy.position < 11500:
@@ -107,7 +109,7 @@ class SMIBeam(object):
             target_state = [att1_1, att1_3]
         elif 18500 < self.dcm.energy.position < 20000:
             target_state = [att1_2, att1_3]
-        elif 20000 < self.dcm.energy.position < 23000:
+        elif 20000 < self.dcm.energy.position < 23001: #added 1 here -Tom Chaney
             target_state = [att1_1, att1_2, att1_3]
         return target_state
 
@@ -437,7 +439,7 @@ class SMI_Beamline(Beamline):
         md_beamline = self.md.copy()
 
         RE.md[prefix + "beamsize"] = self.crl_state
-        RE.md[prefix + "sample_environement"] = self.pressure_state
+        RE.md[prefix + "sample_environment"] = self.pressure_state
         RE.md[prefix + "attenuators"] = self.att_state
 
         if prefix is not None:
