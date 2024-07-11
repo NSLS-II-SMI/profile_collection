@@ -492,8 +492,200 @@ def run_2024_11_13_night(t=1):
     yield from waxs_S_edge_chaney_2024_1(t=t)
 
 
+"""
+    syringe pump
+  
 
 
+
+    vol = Cpt(EpicsSignal, "Val:Vol-SP",) 
+    rate = Cpt(EpicsSignal, "Val:Rate-SP", )
+    go = Cpt(EpicsSignal, "Cmd:Run-Cmd",)
+    stop = Cpt(EpicsSignal, "Cmd:Stop-Cmd",)
+    dia = Cpt(EpicsSignal, "Val:Dia-RB")
+    dir = Cpt(EpicsSignal, "Val:Dir-Sel",) 
+
+    Examples
+    yield from bps.mv(syringe_pu.x3, 1)         # start pump
+    yield from bps.sleep(2.5)                   # wait 2.5 seconds
+    yield from bps.mv(syringe_pu.x4, 1)         # stop pump
+    yield from bps.mv(syringe_pu.x1, 200)       # sets the volume to 200
+
+    LThermal
+    sample_id(user_name='Chaney', sample_name=f'{name_base}_{LThermal.temperature()}degC_{en}eV')
+        RE.md['temp'] = LThermal.temperature()
+
+    #examples
+
+    LThermal.on() # turn on the heating
+
+    LThermal.off(self): # turn off the heating
+
+    LThermal.setTemperature(temperature): # sets the setpoint
+
+    LThermal.setTemperatureRate(temperature_rate): # sets the rate
+
+    LThermal.temperature() #reads back the current temperature
+
+    LThermal.temperatureRate() # reads back the current temperature
+
+
+
+
+
+
+"""
+
+# example script from Eliot
+# to run, in bluesky, it's RE(temp_snapshot(name_base='something')) for example
+def temp_series(name_base='temp',temps = np.linspace(25,40,16),ramp=1, num=10, pump_delay=1,exp_time=1, hold_delay=120, dets=[pil900KW,pil1M]):   # function loop to bring linkam to temp, hold and measure
+# Function will begin at start_temp and take a SAXS measurement at every temperature given 
+    LThermal.setTemperature(temps[0])
+    LThermal.setTemperatureRate(ramp)
+    LThermal.on() # turn on 
+    det_exposure_time(exp_time,exp_time)
+    for i, temp in enumerate(temps):
+        LThermal.setTemperature(temp)
+
+        yield from bps.sleep(hold_delay)
+
+        #Move WAXS detector, wait until finished
+        yield from bps.mv(waxs, 20)
+
+        yield from bps.sleep(1) #status code takes a second to change
+        while not int(LThermal.status_code.get()) & 2:
+            yield from bps.sleep(2) # wait for 2 seconds and try again
+
+        # also to prevent motor from being moved too often
+        yield from bps.sleep(hold_delay) #equilibrate capillary to temp
+
+        # Put in attenuators
+        yield from SMIBeam().insertFoils("Alignement")
+
+        # Move beamstop
+        yield from pil1m_bs_rod.mv_in(x_pos=bsx_pos + 5)
+
+        #setimagename
+        sample_id(user_name='Chaney', sample_name=f'{name_base}_scanDirect_{int(temp)}degC')
+        #take image
+        yield from bp.count(dets)
+
+        # Move beamstop
+        yield from pil1m_bs_rod.mv_in(x_pos=bsx_pos)
+        # yield from bps.mv(pil1m_bs_rod.x, bsx_pos) #2 for 4000 mm, 1.2 for 6500
+
+        # Remove attenuators
+        yield from SMIBeam().insertFoils("Measurement")
+
+        ### constant infuse over all frames ###
+        # #start pump, constant infuse during measurement
+        # yield from bps.mv(syringe_pu.dir, 0) #set infuse
+        # start_time = time.time()
+        # yield from bps.mv(syringe_pu.go, 1) # start pump
+        # yield from bps.sleep(pump_delay)
+
+        # #take measurements
+        # for exposure in range(num):
+        #     sample_id(user_name='Chaney', sample_name=f'{name_base}_scan{exposure}_{int(temp)}degC')
+        #     RE.md['temp'] = LThermal.temperature()
+        #     # collect data
+        #     yield from bp.count(dets)
+        # stop_time = time.time()
+        # yield from bps.mv(syringe_pu.stop_flow, 1) #stop pump
+
+        # #return pump to original position
+        # yield from bps.mv(syringe_pu.dir, 1) #set withdrawal
+        # yield from bps.mv(syringe_pu.go, 1) # start pump
+        # time_withdrawal = stop_time-start_time
+        # yield from bps.sleep(time_withdrawal)
+        # yield from bps.mv(syringe_pu.stop_flow, 1) # stop pump
+
+        ### oscillation with every frame ###
+        # SAXS +20deg WAXS
+        for osc in range(num):
+            if osc % 2 != 0:
+                yield from bps.mv(syringe_pu.dir, 0) #infuse
+            else:
+                yield from bps.mv(syringe_pu.dir, 1) #withdrawal
+
+            yield from bps.mv(syringe_pu.go, 1) # start pump
+            yield from bps.sleep(pump_delay)
+            # read the current temperature, and set the sample name
+            sample_id(user_name='Chaney', sample_name=f'{name_base}_scan{osc}_wa20_{int(temp)}degC')
+            RE.md['temp'] = LThermal.temperature()
+            # collect data
+            yield from bp.count(dets)
+            # wait for some delay and repeat num times
+            yield from bps.mv(syringe_pu.stop_flow, 1) # stop pump
+        
+        #Move WAXS detector, wait until finished
+        yield from bps.mv(waxs, 0)
+        #0 deg WAXS
+        for osc in range(num):
+            if osc % 2 != 0:
+                yield from bps.mv(syringe_pu.dir, 0) #infuse
+            else:
+                yield from bps.mv(syringe_pu.dir, 1) #withdrawal
+
+            yield from bps.mv(syringe_pu.go, 1) # start pump
+            yield from bps.sleep(pump_delay)
+            # read the current temperature, and set the sample name
+            sample_id(user_name='Chaney', sample_name=f'{name_base}_scan{osc}_wa0_{int(temp)}degC')
+            RE.md['temp'] = LThermal.temperature()
+            # collect data
+            yield from bp.count([pil900KW])
+            # wait for some delay and repeat num times
+            yield from bps.mv(syringe_pu.stop_flow, 1) # stop pump
+        #push fresh sample into beam
+        yield from bps.mv(syringe_pu.dir, 0) #infuse
+        yield from bps.mv(syringe_pu.go, 1) # start pump
+        yield from bps.sleep(5)
+        yield from bps.mv(syringe_pu.stop_flow, 1) # stop pump
+
+    LThermal.off()
+
+def snap_series(name_base='series', num=10, temp=25, exp_time=1, dets=[pil900KW,pil1M]):
+    LThermal.setTemperature(temp)
+    LThermal.on() # turn on 
+    yield from bps.sleep(1) #status code takes a second to change
+    while not int(LThermal.status_code.get()) & 2:
+        yield from bps.sleep(2) # wait for 2 seconds and try again
+    det_exposure_time(exp_time,exp_time)
+    for exposure in range(num):
+        sample_id(user_name='Chaney', sample_name=f'{name_base}_scan{exposure}_{int(temp)}degC')
+        RE.md['temp'] = LThermal.temperature()
+        # collect data
+        yield from bp.count(dets)
+
+
+# by the number of steps and the step size
+# during the measurement there will be a gentle oscilatinon of solution
+# oscilation volume should be +50ul and -50ul with a rate of 
+
+
+
+
+
+def temp_snapshop(name_base="temp",num=1,delay=0, exp_time=1,dets=[pil900KW,pil1M],pump_time=2.5):
+    det_exposure_time(exp_time,exp_time)
+    # move sample in
+    yield from bps.mv(syringe_pu.x3, 1) # start pump
+    yield from bps.sleep(pump_time) # wait 2.5 seconds
+    yield from bps.mv(syringe_pu.x4, 1) # stop pump
+    for i in range(num):
+        # read the current temperature, and set the sample name
+        sample_id(user_name='Chaney', sample_name=f'{name_base}_{LThermal.temperature()}degC_{en}eV')
+        RE.md['temp'] = LThermal.temperature()
+        # collect data
+        yield from bp.count(dets)
+        # wait for some delay and repeat num times
+        yield from bps.sleep(delay)
+
+def set_pump_rate(rate):
+    yield from bps.mv(syringe_pu.rate, rate)
+
+def set_pump_vol(vol):
+    yield from bps.mv(syringe_pu.vol, vol)
 
 
 

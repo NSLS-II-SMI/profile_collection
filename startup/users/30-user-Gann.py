@@ -63,28 +63,58 @@ def test_gi_tender(t=0.5):
 
         # Sample flat at ai0
         ai0 = piezo.th.position
-        for wa in waxs_arc:
-            yield from bps.mv(waxs, wa)
-            dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
-        
-            for ai in incident_angles:
+        # construct the det list here
+        # add run decorator and stage decorators here ()
+        def inner():
+            for wa in waxs_arc:
+                yield from bps.mv(waxs, wa)
+                dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M] # making one run this will not be possible
+                # potentially we don't link those useless files
+                # or make the detecor know when it's useless and produce none and have tiled assume nans
+                # or have different trigger and reads e.g.(name="saxs") (different streams) for each detector
+                yield from bps.declare_stream(...)
+                for ai in incident_angles:
 
-                yield from bps.mv(piezo.th, ai0 + ai)
-                for e in energies:
-                    
-                    yield from bps.mv(energy, e)
+                    yield from bps.mv(piezo.th, ai0 + ai)
+                    for e in energies:
+                        
+                        yield from bps.mv(energy, e)# ADD SETTLE TIME TO ENERGY?
+                        yield from bps.sleep(2)
+
+                        sample_name = f'{name}{get_scan_md_tender()}_ai{ai}'
+                        sample_id(user_name=user_name, sample_name=sample_name)
+                        print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                        yield from bp.count(dets) # potentially add all motors to  and motor indexes(soft signals to match up saxs and nosaxs streams) 
+                        
+                        def inner_copunt(...):
+                        #Toms replacement for bp.count
+                        yield from bps.checkpoint()
+                        yield from bps.trigger(pil900KW, group='dets')
+                        arc = yield from  bps.rd(waxs.arc)
+                        if arc is not None and arc > 15:
+                            yield from bps.trigger(pil1M, group='dets')
+                        yield from bps.wait(group='dets')
+                        yield from bps.create(name='SAXS')
+                        yield from bps.read(...)
+                        yield from bps.save()
+                        if COND:
+                            yield from bps.create(name='WAXS')
+
+                            yield from bps.read(pil1M)
+                            for m in motors:
+                                yield from bps.read(m)
+                            yield from bps.save()
+                        # (do hinting to adjust what adds to the livetable etc)
+                        # change count to trigger_and_read(), add around the outer for loop stage list of detector, run decorator 
+                        # add all motors we care about in the dets scan_nd([dets])
+                        # add signal for index position in scan -  motor positions
+                        # to trigger once..
+                    yield from bps.mv(energy, energies[int(len(energies) / 2)])
                     yield from bps.sleep(2)
-
-                    sample_name = f'{name}{get_scan_md_tender()}_ai{ai}'
-                    sample_id(user_name=user_name, sample_name=sample_name)
-                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
-                    yield from bp.count(dets)
+                    yield from bps.mv(energy, energies[0])
                 
-                yield from bps.mv(energy, energies[int(len(energies) / 2)])
-                yield from bps.sleep(2)
-                yield from bps.mv(energy, energies[0])
-            
-            yield from bps.mv(piezo.th, ai0)
-        waxs_arc = waxs_arc[::-1]
+                yield from bps.mv(piezo.th, ai0)
+            waxs_arc = waxs_arc[::-1]
+        yield from inner()
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.5, 0.5)

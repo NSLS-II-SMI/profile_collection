@@ -943,3 +943,531 @@ def run_swaxs_2024_1_par3(t=2):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.3, 0.3)
+
+
+def grazing_brsc_zinc_2024_2(t=3):
+    """
+    standard GI-S/WAXS across energies
+    """
+    
+    names   = [    'S01',    'S02',   'S03',   'S04',   'S05',   'S06',  'S07', 'A02', 'A08', 'A11', 'A13', 'A0B', 'A21', 'A81', ]
+    piezo_x = [   -55300,   -47000,  -36000,  -38000,  -28000,  -17000,  -6500,  5000, 15000, 26000, 36000, 46000, 45000, 55000, ]
+    piezo_y = [     7700,     7700,    7700,    7500,    7500,    7500,   7500,  7100,  7100,  7100,  7100,  7100,  7100,  7100, ]          
+    piezo_z = [     2500,     2500,    2500,    2500,    2500,    2500,   2500,  2500,  2500,  2500,  2500,  2500,  2500,  2500, ]
+    hexa_x =  [    -11.4,    -11.4,   -11.4,       0,       0,       0,      0,     0,     0,     0,     0,     0,    13,    13, ]
+    
+    n = 7
+    m = 1
+    names   = names[m:n]
+    piezo_x = piezo_x[m:n]
+    piezo_y = piezo_y[m:n]
+    piezo_z = piezo_z[m:n]
+    hexa_x  = hexa_x[m:n]
+
+    # Energies across Zn K-edge
+    energies = [ 9600, 9610, 9620, 9630, 9640, 9650, 9660, 9670, 9680, 9690, 9700]
+
+
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+    assert len(piezo_x) == len(hexa_x), msg
+
+    waxs_arc = [ 0, 20 ]
+    x_off = [0]
+    #incident_angles = [ 0.1, 0.2 ]
+    #incident_angles = [ 0.05, 0.15, 0.25, 0.5 ]
+    incident_angles = [ 0.5 ]
+    user_name = 'PW'
+
+    for name, x, y, z, hx in zip(names, piezo_x, piezo_y, piezo_z, hexa_x):
+
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y,
+                          piezo.z, z,
+                          stage.x, hx)
+
+        # Align the sample
+        try:
+            yield from alignement_gisaxs(0.1) #0.1 to 0.15
+        except:
+            #yield from alignement_gisaxs(0.01)
+            print('\n\n\n\n\n\n\n\n\n\nCould not align, remeasure!!!\n\n\n\n\n\n\n\n\n\n')
+
+        # Sample flat at ai0
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+
+            # problems with the beamstop
+            yield from bps.mv(waxs.bs_y, -3)
+
+            for xx, x_of in enumerate(x_off):
+                yield from bps.mv(piezo.x, x + x_of)
+                for en in energies:
+                    
+                    yield from bps.mv(energy, en)
+                    yield from bps.sleep(3)
+                    for ai in incident_angles:
+                        yield from bps.mv(piezo.th, ai0 + ai)
+
+                        sample_name = f'{name}{get_scan_md()}_loc{xx}_ai{ai}'
+
+                        sample_id(user_name=user_name, sample_name=sample_name)
+                        print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                        yield from bp.count(dets)
+                yield from bps.mv(energy, energies[0])
+                yield from bps.sleep(2)
+        yield from bps.mv(piezo.th, ai0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)
+
+
+def grazing_brsc_2024_2(t=1):
+    """
+    standard GI-S/WAXS
+    """
+    
+    names   = [  'S01',  'S02',  'S03',  'S04',  'S05',  'S06', 'S07','A02', 'A08', 'A11', 'A13', 'A0B', 'A21', 'A81', ]
+    piezo_x = [ -55000, -46500, -35500, -37500, -27500, -16500, -6000, 5500, 15500, 26500, 36500, 46500, 45500, 55200, ]
+    piezo_y = [   7700,   7700,   7700,   7500,   7500,   7500,  7500, 7100,  7100,  7100,  7100,  7100,  7100,  7100, ]          
+    piezo_z = [   2500,   2500,   2500,   2500,   2500,   2500,  2500, 2500,  2500,  2500,  2500,  2500,  2500,  2500, ]
+    hexa_x =  [  -11.4,  -11.4,  -11.4,      0,      0,      0,     0,    0,     0,     0,     0,     0,    13,    13, ]
+    
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+    assert len(piezo_x) == len(hexa_x), msg
+
+    waxs_arc = [ 0, 20 ]
+    x_off = [0]
+    incident_angles = [ 0.1, 0.2, 0.5 ]
+    user_name = 'PW'
+
+    for name, x, y, z, hx in zip(names, piezo_x, piezo_y, piezo_z, hexa_x):
+
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y,
+                          piezo.z, z,
+                          stage.x, hx)
+
+        # Align the sample
+        try:
+            yield from alignement_gisaxs(0.1) #0.1 to 0.15
+        except:
+            yield from alignement_gisaxs(0.01)
+            print('\n\n\n\n\n\n\n\n\n\nCould not align, remeasure!!!\n\n\n\n\n\n\n\n\n\n')
+
+        # Sample flat at ai0
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+
+            # problems with the beamstop
+            yield from bps.mv(waxs.bs_y, -3)
+
+            for xx, x_of in enumerate(x_off):
+                yield from bps.mv(piezo.x, x + x_of)
+                for ai in incident_angles:
+                    yield from bps.mv(piezo.th, ai0 + ai)
+
+                    sample_name = f'{name}{get_scan_md()}_loc{xx}_ai{ai}'
+
+                    sample_id(user_name=user_name, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+        yield from bps.mv(piezo.th, ai0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)
+    proposal_id('2024_2', '000000_tests')
+
+
+def run_swaxs_2024_2_Paren_tender(t=2):
+    """
+    Take WAXS and SAXS at several sample positions
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off.
+    """
+
+    names =   [ 'SLi0-edge', 'SLi10', 'SLi10-edge', 'MNa10', 'MNa10-edge', 'MLi0-edge', 'MLi10-edge', 'MNa0-edge', 'SNa10', 'SNa10-edge', 'SNa0-edge',  'blank', 'darks', ]           
+    piezo_x = [       42150,   35600,        36000,   28400,        29900,       22500,        16400,       11200,    5200,         4900,       -3250,    -9300,  -21300, ]         
+    piezo_y = [       -5900,   -5900,        -5900,   -5900,        -4900,       -5200,        -5200,       -4700,   -5900,        -5900,       -4750,    -6100,   -6100, ]
+    piezo_z = [        2600,    2600,         2600,    2600,         2600,        2600,         2600,        2600,    2600,         2600,        2600,     2600,    2600, ]
+
+    names = names[1:]
+    piezo_x = piezo_x[1:]
+    piezo_y = piezo_y[1:]
+    piezo_z = piezo_z[1:]
+    waxs_arc = [0]
+
+    energies = np.concatenate((
+        np.arange(2445, 2470, 5),
+        np.arange(2470, 2480, 0.25),
+        np.arange(2480, 2490, 1),
+        np.arange(2490, 2501, 5),
+    ))
+
+    user = "BP"
+    det_exposure_time(t, t)
+
+    step = 1000 / len(energies)
+
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        #dets.append(OAV_writing)
+
+        for name, x, y, z, in zip(names, piezo_x, piezo_y, piezo_z):
+            yield from bps.mv(piezo.y, y,
+                              piezo.x, x,
+                              piezo.z, z,
+                              )
+
+            for i, nrg in enumerate(energies):
+                yield from bps.mv(energy, nrg)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, nrg)
+                    yield from bps.sleep(2)
+                
+                if 'edge' not in name:
+                    yield from bps.mv(piezo.y, y + i * step)
+                    loc = str(i).zfill(2)
+                else:
+                    loc = '00'
+
+                sample_name = f'{name}{get_more_md()}_loc{loc}'
+                sample_id(user_name=user, sample_name=sample_name)
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                yield from bp.count(dets)
+
+                if (wa == waxs_arc[0]) and (i == 0):
+                    yield from bp.count([OAV_writing])
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+
+def run_swaxs_2024_2_Paren_tender_long_exposure(t=7):
+    """
+    Take WAXS and SAXS at several sample positions
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off.
+    """
+
+    names_1   = [ 'SLi0-a', 'SLi0-b', 'SLi0-c',  'SLi10-a', 'SLi10-b', 'SLi10-c',  'MNa10-a', 'MNa10-b', 'MNa10-c', ]
+    piezo_x_1 = [    42150,    42150,    43350,      36000,     35900,     35900,      29900,     28400,     29000, ]
+    piezo_y_1 = [    -5900,    -4500,    -4500,      -5900,     -5400,     -4600,      -4900,     -5900,     -5000, ]
+
+    names_2   = [ 'MLi0-a', 'MLi0-b', 'MLi0-c',  'MLi10-a', 'MLi10-b', 'MLi10-c',   'MNa0-a',  'MNa0-b',  'MNa0-c', ]
+    piezo_x_2 = [    22500,    22500,    23700,      16400,     16400,     17700,      11200,      9900,     11500, ]
+    piezo_y_2 = [    -5200,    -4600,    -5400,      -5200,     -4700,     -4700,      -4700,     -4800,     -6200, ]
+    
+    names_3   = ['SNa10-a','SNa10-b','SNa10-c',   'SNa0-a',  'SNa0-b',  'SNa0-c',    'blank',   'darks', ]
+    piezo_x_3 = [     4900,     5200,     5200,      -3250,     -1400,     -1400,      -9300,    -21300, ]
+    piezo_y_3 = [    -5900,    -5900,    -5100,      -4750,     -4650,     -4550,      -6100,     -8500, ]
+    
+
+    names   =   names_1 +   names_2 +   names_3
+    piezo_x = piezo_x_1 + piezo_x_2 + piezo_x_3
+    piezo_y = piezo_y_1 + piezo_y_2 + piezo_y_3
+    piezo_z = [2600 for n in names]
+
+    waxs_arc = [0, 20]
+
+    energies = [ 2445, 2474, 2476, 2478.25, 2500 ]
+
+    user = "BP"
+    det_exposure_time(t, t)
+
+
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        #dets.append(OAV_writing)
+
+        for name, x, y, z, in zip(names, piezo_x, piezo_y, piezo_z):
+            yield from bps.mv(piezo.y, y,
+                              piezo.x, x,
+                              piezo.z, z,
+                              )
+
+            for i, nrg in enumerate(energies):
+                yield from bps.mv(energy, nrg)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, nrg)
+                    yield from bps.sleep(2)
+
+                loc = '00'
+
+                sample_name = f'{name}{get_more_md()}_loc{loc}'
+                sample_id(user_name=user, sample_name=sample_name)
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                yield from bp.count(dets)
+
+                if (wa == waxs_arc[0]) and (i == 0):
+                    yield from bp.count([OAV_writing])
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+
+def run_swaxs_2024_2_Paren_tender_nexafs(t=2):
+    """
+    Take WAXS and SAXS at several sample positions
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off.
+    """
+
+    names_1   = [ 'SLi0-a', 'SLi0-b', 'SLi0-c',  'SLi10-a', 'SLi10-b', 'SLi10-c',  'MNa10-a', 'MNa10-b', 'MNa10-c', ]
+    piezo_x_1 = [    42150,    42150,    43350,      36000,     35900,     35900,      29900,     28400,     29000, ]
+    piezo_y_1 = [    -5900,    -4500,    -4500,      -5900,     -5400,     -4600,      -4900,     -5900,     -5000, ]
+
+    names_2   = [ 'MLi0-a', 'MLi0-b', 'MLi0-c',  'MLi10-a', 'MLi10-b', 'MLi10-c',   'MNa0-a',  'MNa0-b',  'MNa0-c', ]
+    piezo_x_2 = [    22500,    22500,    23700,      16400,     16400,     17700,      11200,      9900,     11500, ]
+    piezo_y_2 = [    -5200,    -4600,    -5400,      -5200,     -4700,     -4700,      -4700,     -4800,     -6200, ]
+    
+    names_3   = ['SNa10-a','SNa10-b','SNa10-c',   'SNa0-a',  'SNa0-b',  'SNa0-c',    'blank',   'darks', ]
+    piezo_x_3 = [     4900,     5200,     5200,      -3250,     -1400,     -1400,      -9300,    -21300, ]
+    piezo_y_3 = [    -5900,    -5900,    -5100,      -4750,     -4650,     -4550,      -6100,     -6100, ]
+    
+
+    names   =   names_1 +   names_2 +   names_3
+    piezo_x = piezo_x_1 + piezo_x_2 + piezo_x_3
+    piezo_y = piezo_y_1 + piezo_y_2 + piezo_y_3
+    piezo_z = [2600 for n in names]
+
+    names = [ n + f'-nexafs' for n in names]
+
+    waxs_arc = [ 60, 0, 20, 40]
+
+    energies = np.concatenate((
+        np.arange(2445, 2470, 5),
+        np.arange(2470, 2480, 0.25),
+        np.arange(2480, 2490, 1),
+        np.arange(2490, 2501, 5),
+    ))
+
+    user = "BP"
+    det_exposure_time(t, t)
+
+
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+
+        for name, x, y, z, in zip(names, piezo_x, piezo_y, piezo_z):
+            
+            if ('0-c' not in name) and (wa != waxs_arc[0]):
+                print(f'No measurement for {name} at lower angles')
+                continue
+
+            else:
+            
+                yield from bps.mv(
+                    piezo.y, y,
+                    piezo.x, x,
+                    piezo.z, z,
+                )
+
+                for i, nrg in enumerate(energies):
+                    yield from bps.mv(energy, nrg)
+                    yield from bps.sleep(2)
+                    if xbpm2.sumX.get() < 50:
+                        yield from bps.sleep(2)
+                        yield from bps.mv(energy, nrg)
+                        yield from bps.sleep(2)
+
+                    loc = '00'
+
+                    sample_name = f'{name}{get_more_md()}_loc{loc}'
+                    sample_id(user_name=user, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+                    if (wa == waxs_arc[0]) and (i == 0):
+                        yield from bp.count([OAV_writing])
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+def run_tender_overnight_Paren_2024_2():
+    '''
+    Run overnight all samples across 5 energies,
+    then nexafs for all, and 0, 20, 40, for -c samples
+    '''
+    yield from run_swaxs_2024_2_Paren_tender_long_exposure(t=7)
+    yield from run_swaxs_2024_2_Paren_tender_nexafs(t=2)
+    print('All done!!!')
+
+
+def run_swaxs_2024_2_Paren_hard(t=2):
+    """
+    Take WAXS and SAXS at several sample positions
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off.
+    """
+
+    names_1   = [ 'SLi0-a', 'SLi0-b', 'SLi0-c',  'SLi10-a', 'SLi10-b', 'SLi10-c',  'MNa10-a', 'MNa10-b', 'MNa10-c', ]
+    piezo_x_1 = [    42150,    42150,    43350,      36000,     35900,     35900,      29900,     28400,     29000, ]
+    piezo_y_1 = [    -5900,    -4500,    -4500,      -5900,     -5400,     -4600,      -4900,     -5900,     -5000, ]
+
+    names_2   = [ 'MLi0-a', 'MLi0-b', 'MLi0-c',  'MLi10-a', 'MLi10-b', 'MLi10-c',   'MNa0-a',  'MNa0-b',  'MNa0-c', ]
+    piezo_x_2 = [    22500,    22500,    23700,      16400,     16400,     17700,      11200,      9900,     11500, ]
+    piezo_y_2 = [    -5200,    -4600,    -5400,      -5200,     -4700,     -4700,      -4700,     -4800,     -6200, ]
+    
+    names_3   = ['SNa10-a','SNa10-b','SNa10-c',   'SNa0-a',  'SNa0-b',  'SNa0-c',    'blank',   'darks', ]
+    piezo_x_3 = [     4900,     5200,     5200,      -3250,     -1400,     -1400,      -9300,    -21300, ]
+    piezo_y_3 = [    -5900,    -5900,    -5100,      -4750,     -4650,     -4550,      -6100,     -9000, ]
+    
+
+    names   =   names_1 +   names_2 +   names_3
+    piezo_x = piezo_x_1 + piezo_x_2 + piezo_x_3
+    piezo_y = piezo_y_1 + piezo_y_2 + piezo_y_3
+    piezo_z = [2600 for n in names]
+
+    user = "BP"
+    waxs_arc = [ 0, 20, 40 ]
+    det_exposure_time(t, t)
+
+
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+
+        for name, x, y, z, in zip(names, piezo_x, piezo_y, piezo_z):
+            
+            
+            yield from bps.mv(
+                piezo.y, y,
+                piezo.x, x,
+                piezo.z, z,
+            )
+
+            loc = '00'
+
+            sample_name = f'{name}{get_scan_md()}_loc{loc}'
+            sample_id(user_name=user, sample_name=sample_name)
+            print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            yield from bp.count(dets)
+
+            if (wa == waxs_arc[0]) and (i == 0):
+                yield from bp.count([OAV_writing])
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+
+def run_swaxs_2024_2_Paren_tender_long_exposure2(t=10):
+    """
+    Take WAXS and SAXS at several sample positions
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off.
+    """
+
+    names_1   = [ 'SLi0-a', 'SLi0-b', 'SLi0-c',  'SLi10-a', 'SLi10-b', 'SLi10-c',  'MNa10-a', 'MNa10-b', 'MNa10-c', ]
+    piezo_x_1 = [    42150,    42150,    43350,      36000,     35900,     35900,      29900,     28400,     29000, ]
+    piezo_y_1 = [    -5900,    -4500,    -4500,      -5900,     -5400,     -4600,      -4900,     -5900,     -5000, ]
+
+    names_2   = [ 'MLi0-a', 'MLi0-b', 'MLi0-c',  'MLi10-a', 'MLi10-b', 'MLi10-c',   'MNa0-a',  'MNa0-b',  'MNa0-c', ]
+    piezo_x_2 = [    22500,    22500,    23700,      16400,     16400,     17700,      11200,      9900,     11500, ]
+    piezo_y_2 = [    -5200,    -4600,    -5400,      -5200,     -4700,     -4700,      -4700,     -4800,     -6200, ]
+    
+    names_3   = ['SNa10-a','SNa10-b','SNa10-c',   'SNa0-a',  'SNa0-b',  'SNa0-c',    'blank',   'darks', ]
+    piezo_x_3 = [     4900,     5200,     5200,      -3250,     -1400,     -1400,      -9300,    -21300, ]
+    piezo_y_3 = [    -5900,    -5900,    -5100,      -4750,     -4650,     -4550,      -6100,     -8500, ]
+    
+
+    names   =   names_1 +   names_2 +   names_3
+    piezo_x = piezo_x_1 + piezo_x_2 + piezo_x_3
+    piezo_y = piezo_y_1 + piezo_y_2 + piezo_y_3
+    piezo_z = [2600 for n in names]
+
+    waxs_arc = [0, 20]
+
+    energies = [ 2445, 2474, 2476, 2478.25, 2500 ]
+
+    user = "BP"
+    det_exposure_time(t, t)
+
+
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        #dets.append(OAV_writing)
+
+        for name, x, y, z, in zip(names, piezo_x, piezo_y, piezo_z):
+
+            if '0-a' not in name:
+                print(f'No measurement for {name}')
+                continue
+
+            yield from bps.mv(piezo.y, y,
+                              piezo.x, x,
+                              piezo.z, z,
+                              )
+
+            for i, nrg in enumerate(energies):
+                yield from bps.mv(energy, nrg)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, nrg)
+                    yield from bps.sleep(2)
+
+                loc = '00'
+
+                sample_name = f'{name}{get_more_md()}_loc{loc}'
+                sample_id(user_name=user, sample_name=sample_name)
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                yield from bp.count(dets)
+
+                if (wa == waxs_arc[0]) and (i == 0):
+                    yield from bp.count([OAV_writing])
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)

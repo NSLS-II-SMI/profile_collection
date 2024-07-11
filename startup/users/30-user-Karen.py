@@ -8,13 +8,16 @@ def get_positions():
     y = piezo.y.position
     z = piezo.z.position
     th = piezo.th.position
+    temp = ls.input_A.get() - 273.15
+
     
     x = str(np.round(float(x), 0)).zfill(5)
     y = str(np.round(float(y), 0)).zfill(5)
     z = str(np.round(float(z), 0)).zfill(5)
     th = str(np.round(float(th), 4)).zfill(0)
+    temp = str(np.round(float(temp), 1)).zfill(5)
    
-    return f'x={x}_y={y}_z={z}_th={th}'
+    return f'x={x}_y={y}_z={z}_th={th}_temp{temp}degC'
 
 
 def name_sample(name, tstamp):
@@ -340,7 +343,7 @@ def alignment_off():
     yield from smi.modeMeasurement()
     yield from bps.mv(waxs, 0)
 
-def continous_run_change_xpos(sname='test', t=2, wait=8, frames=5000, x_off=[-50, 0, 50]):
+def continous_run_change_xpos(sname='20240524_operando_exp_b_echem', t=2, wait=8, frames=5000, x_off=[-250, 0, 250]):
     """
     Take data continously
     
@@ -379,10 +382,10 @@ def continous_run_change_xpos(sname='test', t=2, wait=8, frames=5000, x_off=[-50
         yield from bps.mv(piezo.x, x_0)
 
         # don't wait
-        #print(f'\nWaiting {wait} s')
-        #yield from bps.sleep(wait)
+        print(f'\nWaiting {wait} s')
+        yield from bps.sleep(wait)
 
-def take_data_across_x(sname='20240326_op_Na_Cu_bar_a', t=2, x_off=[-300, -200, 100, 0, 100, 200, 300]):
+def take_data_across_x(sname='20240408_op_Na_Cu_bar_b_interrupted_fresh', t=2, x_off=[-550, -500, -450, -300, -250, -200, -50, 0, 50, 200, 250, 300, 450, 500, 550]):
 
     try:
         tstamp = RE.md['tstamp']
@@ -464,7 +467,7 @@ def align_across_x():
     yield from alignment_off()
 
 
-def save_alignment_to_md(point=0):
+def save_alignment_to_md(point='0'):
     """
     Save alignment positon for single point
     """
@@ -477,9 +480,157 @@ def save_alignment_to_md(point=0):
     )
 
     try:
-        RE.md['alignment_LUT'][point] = dict1
+        RE.md['alignment_LUT'][str(point)] = dict1
     except:
         RE.md['alignment_LUT'] = dict()
-        RE.md['alignment_LUT'][point] = dict1
+        RE.md['alignment_LUT'][str(point)] = dict1
+
+def move_to_sample_pos0(key='sample_pos0'):
+    """
+    Move to starting position based on RE.md
+    """
+
+    try:
+        sample_pos = RE.md[key]
+    except:
+        print(f'There is no starting position {key} saved in RE.md')
+
+    print(f'Moving to sample position\n{sample_pos}')
+
+    yield from bps.mv(
+        piezo.x, sample_pos['x0'],
+        piezo.y, sample_pos['y0'],
+        piezo.z, sample_pos['z0'],
+        piezo.th, sample_pos['th0'],
+        piezo.ch, sample_pos['ch0']
+    )
+
+def save_sample_pos0():
+    """
+    Save sample start position into metadata after alignment
+    """
+
+    x0 = np.round(piezo.x.position, 2)
+    y0 = np.round(piezo.y.position, 2)
+    z0 = np.round(piezo.z.position, 2)
+    th0 = np.round(piezo.th.position, 3)
+    ch0 = np.round(piezo.ch.position, 3)
+
+    RE.md['sample_pos0'] = dict(x0=x0, y0=y0, z0=z0, th0=th0, ch0=ch0)
 
 
+def clear_md():
+    """
+    Remove time stamp, sample zero, and alignment after changing the cell
+    """
+
+    keys = [ 'tstamp', 'alignment_LUT', 'sample_pos0']
+    
+    for k in keys:
+        try:
+            RE.md.pop(k)
+        except:
+            print(f'No {k} key')
+
+
+def continous_run_prealigned_positions_2024_1(sname='20240408_op_Na_Cu_bar_a', t=2, wait=0, frames=1):
+    """
+    WAXS at each prealigned point
+
+    Args:
+        sname (str): sample name,
+        t (float): exposure time,
+        wait (float): wait time after one series of points is done.
+    """
+
+    try:
+        alignment = RE.md['alignment_LUT']
+    except:
+        alignment =  {
+                      '0': {'x': 3999.71, 'y': -1442.75, 'z': 799.8, 'th': 1.00},
+                        '-250': {'x': 3749.71, 'y': -1437.84, 'z': 799.82, 'th': 1.00},
+                        '-500': {'x': 3499.71, 'y': -1437.94, 'z': 799.82, 'th': 1.00},
+                        '250': {'x': 4249.71, 'y': -1438.07, 'z': 799.82, 'th': 1.00},
+                        '500': {'x': 4499.71, 'y': -1438.41, 'z': 799.81, 'th': 1.00}
+        }
+
+    alignment = {int(k) : v for k, v in alignment.items()}
+
+    try:
+        tstamp = RE.md['tstamp']
+    except:
+        tstamp = time.time()
+        RE.md['tstamp'] = tstamp
+
+    for i in range(frames):
+
+        print(f'Taking {i + 1} / {frames} frames for {len(alignment)} x positions')
+
+        for key, value in sorted(alignment.items()):
+
+            yield from bps.mv(
+                piezo.x, value['x'],
+                piezo.y, value['y'],
+                #piezo.z, value['z'],
+                #piezo.th, value['th'] + 0.1, # angle set already
+                piezo.th, value['th'],
+            )
+
+            name_sample(sname, tstamp)
+            yield from bp.count([pil900KW])
+        
+        # wait
+        print(f'\nWaiting {wait} s')
+        yield from bps.sleep(wait)
+
+# Backup
+''' {'0': {'x': 3648.04, 'y': -1263.1, 'z': 799.8, 'th': 2.19},
+ '-100': {'x': 3547.69, 'y': -1249.21, 'z': 799.82, 'th': 2.19},
+ '-200': {'x': 3447.79, 'y': -1249.52, 'z': 799.82, 'th': 2.19},
+ '-300': {'x': 3347.77, 'y': -1249.37, 'z': 799.82, 'th': 1.875},
+ '-400': {'x': 3247.8, 'y': -1244.76, 'z': 799.81, 'th': 1.875},
+ '-500': {'x': 3147.79, 'y': -1244.88, 'z': 799.81, 'th': 1.875},
+ '-1000': {'x': 2647.77, 'y': -1239.85, 'z': 799.81, 'th': 1.875},
+ '-900': {'x': 2748.02, 'y': -1239.9, 'z': 799.81, 'th': 1.875},
+ '-1100': {'x': 2547.76, 'y': -1239.96, 'z': 799.81, 'th': 1.875},
+ '-1500': {'x': 2147.76, 'y': -1230.9, 'z': 799.8, 'th': 1.675},
+ '-1400': {'x': 2248.09, 'y': -1229.97, 'z': 799.79, 'th': 1.686},
+ '-1600': {'x': 2047.73, 'y': -1225.97, 'z': 799.79, 'th': 1.686},
+ '100': {'x': 3748.02, 'y': -1255.0, 'z': 799.77, 'th': 2.04},
+ '200': {'x': 3848.0, 'y': -1255.05, 'z': 799.77, 'th': 2.04},
+ '300': {'x': 3947.96, 'y': -1250.96, 'z': 799.77, 'th': 2.04},
+ '400': {'x': 4047.98, 'y': -1251.02, 'z': 799.76, 'th': 2.04},
+ '500': {'x': 4148.0, 'y': -1251.18, 'z': 799.74, 'th': 2.04},
+ '1000': {'x': 4648.05, 'y': -1256.98, 'z': 799.74, 'th': 2.18},
+ '900': {'x': 4547.77, 'y': -1255.99, 'z': 799.74, 'th': 2.18},
+ '1100': {'x': 4748.04, 'y': -1257.98, 'z': 799.74, 'th': 2.33},
+ '1500': {'x': 5148.08, 'y': -1259.73, 'z': 799.74, 'th': 2.18},
+ '1400': {'x': 5047.73, 'y': -1257.99, 'z': 799.74, 'th': 2.32},
+ '1600': {'x': 5248.13, 'y': -1259.23, 'z': 799.73, 'th': 2.02}}
+
+ 
+ {'0': {'x': 3999.71, 'y': -1442.75, 'z': 799.8, 'th': 1.00},
+ '-250': {'x': 3749.71, 'y': -1437.84, 'z': 799.82, 'th': 1.00},
+ '-500': {'x': 3499.71, 'y': -1437.94, 'z': 799.82, 'th': 1.00},
+ '250': {'x': 4249.71, 'y': -1438.07, 'z': 799.82, 'th': 1.00},
+ '500': {'x': 4499.71, 'y': -1438.41, 'z': 799.81, 'th': 1.00}
+
+
+    0': {'x': 3999.71, 'y': -1442.75, 'z': 799.8, 'th': 1.00},
+ '-250': {'x': 3749.71, 'y': -1437.84, 'z': 799.82, 'th': 1.00},
+ '-500': {'x': 3499.71, 'y': -1437.94, 'z': 799.82, 'th': 1.00},
+ '250': {'x': 4249.71, 'y': -1438.07, 'z': 799.82, 'th': 1.00},
+ '500': {'x': 4499.71, 'y': -1438.41, 'z': 799.81, 'th': 1.00}
+
+ 0': {'x': 3999.71, 'y': -1250.94, 'z': 799.8, 'th': 2.05},
+ '-250': {'x': 3749.71, 'y': -1247.7, 'z': 799.82, 'th': 2.05},
+ '-500': {'x': 3499.71, 'y': -1243.4, 'z': 799.82, 'th': 2.05},
+ '250': {'x': 4249.71, 'y': -1249.9, 'z': 799.82, 'th': 2.05},
+ '500': {'x': 4499.71, 'y': -1454.7, 'z': 799.81, 'th': 2.05}
+ ,
+
+
+'''
+# Read T and convert to deg C
+#temp = ls.input_A.get() - 273.15
+#temp = str(np.round(float(temp), 1)).zfill(5)

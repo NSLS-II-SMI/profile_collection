@@ -25,31 +25,36 @@
 # Note: 
 # beamstop_save()
 
-def measure_saxs(t=1, user_name="ZC", sample='EmptyKapton', xr_list = [0]):
+#sample_id(user_name='test', sample_name=f'test{get_scan_md()}')
+def measure_saxs(t=1, user_name="NEA", sample='D2O_s1', xr_list = [0, 100], yr_list = [0, 500]):
     x0 = piezo.x.position
-    y0 = piezo.y.position
+    y0 = -8000 #piezo.y.position
     dets = [pil1M]
     det_exposure_time(t, t)
 
     for xr in xr_list:
-        x = x0+xr
-        yield from bps.mv(piezo.x, x0+xr)
+        for yr in yr_list:
+            x = x0+xr
+            y = x0+yr
+            yield from bps.mv(piezo.x, x0+xr)
+            yield from bps.mv(piezo.y, y0+yr)
 
-        sample_name = "{sample}_x{x:06.0f}_y{y:06.0f}_{t}s".format(
-            sample=sample,
-            x=x,
-            y=y0,
-            t=t,
-        )
-        sample_id(user_name=user_name, sample_name=sample_name)
-        print(f"\n\t=== Sample: {sample_name} ===\n")
+            sample_name = "{sample}_x{x:06.0f}_y{y:06.0f}_{md}".format(
+                sample=sample,
+                x=x,
+                y=y0,
+                md=get_scan_md(),
+            )
+            sample_id(user_name=user_name, sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
 
-        yield from bp.count(dets, num=1)
+            yield from bp.count(dets, num=1)
 
 
 def measure_saxs_array(t=1, user_name="SF", sample='Ba4_d', xr_list = [-200, 0]):
     #x0 = piezo.x.position
     x0_list = np.arange(-43550, 40451-12000, 6000)
+    # x0_list = [-19400, -13500]
 
     for idx, x0 in enumerate(x0_list):
         y0 = piezo.y.position
