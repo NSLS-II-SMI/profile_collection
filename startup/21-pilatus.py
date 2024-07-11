@@ -89,6 +89,11 @@ class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
 
 
         return ret
+    
+    def get_frames_per_point(self):
+        ret = super().get_frames_per_point()
+        print('get_frames_per_point returns', ret)
+        return ret
 
     def stage(self):
         self.__stage_cache['file_path'] = self.file_path.get()
@@ -215,26 +220,55 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
 
 
 def det_exposure_time(exp_t, meas_t=1):
-    for j in range(2):
+    """
+    Waits broke pilatus exposure set when setting burst mode
+    and hitting ctrl+c
+    """
+    try:
+        for j in range(2):
+            waits = []
+            waits.append(pil1M.cam.acquire_time.set(exp_t))
+            waits.append(pil1M.cam.acquire_period.set(exp_t + 0.001))
+            waits.append(pil1M.cam.num_images.set(int(meas_t / exp_t)))
+            if pil300KW is not None:
+                waits.append(pil300KW.cam.acquire_time.set(exp_t))
+                waits.append(pil300KW.cam.acquire_period.set(exp_t + 0.001))
+                waits.append(pil300KW.cam.num_images.set(int(meas_t / exp_t)))
+            waits.append(pil900KW.cam.acquire_time.set(exp_t))
+            waits.append(pil900KW.cam.acquire_period.set(exp_t + 0.001))
+            waits.append(pil900KW.cam.num_images.set(int(meas_t / exp_t)))
+            for w in waits:
+                w.wait()
+            # rayonix.cam.acquire_time.put(exp_t)
+            # rayonix.cam.acquire_period.put(exp_t+0.01)
+            # rayonix.cam.num_images.put(int(meas_t/exp_t))
+    except:
+        print('Problem with new exposure set, using old method')
         pil1M.cam.acquire_time.put(exp_t)
         pil1M.cam.acquire_period.put(exp_t + 0.001)
         pil1M.cam.num_images.put(int(meas_t / exp_t))
-        if pil300KW is not None:
-            pil300KW.cam.acquire_time.put(exp_t)
-            pil300KW.cam.acquire_period.put(exp_t + 0.001)
-            pil300KW.cam.num_images.put(int(meas_t / exp_t))
         pil900KW.cam.acquire_time.put(exp_t)
         pil900KW.cam.acquire_period.put(exp_t + 0.001)
         pil900KW.cam.num_images.put(int(meas_t / exp_t))
-        # rayonix.cam.acquire_time.put(exp_t)
-        # rayonix.cam.acquire_period.put(exp_t+0.01)
-        # rayonix.cam.num_images.put(int(meas_t/exp_t))
 
     # See if amptek is connected
     #try:
     #    amptek.mca.preset_real_time.put(exp_t)
     #except:
     #    print("amptek disconnected")
+
+def det_exposure_time_old(exp_t, meas_t=1):
+    """
+    The above broke, using old version as weekend workaround
+    """
+    for j in range(2):
+        pil1M.cam.acquire_time.put(exp_t)
+        pil1M.cam.acquire_period.put(exp_t + 0.001)
+        pil1M.cam.num_images.put(int(meas_t / exp_t))
+        pil900KW.cam.acquire_time.put(exp_t)
+        pil900KW.cam.acquire_period.put(exp_t + 0.001)
+        pil900KW.cam.num_images.put(int(meas_t / exp_t))
+
 
 
 def det_next_file(n):
@@ -406,7 +440,10 @@ class WAXS(Device):
         # bsx_pos = -51.3 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Sep 12, not bloking when waxs at 0
         # bsx_pos = -48.2 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Sep 21, bumped diagonaly by last users
         # bsx_pos = -50.2 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Oct 20, bumped again please be careful people!!
-        bsx_pos = -54.65 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Nov 02, bumped again with 3d printer.
+        # bsx_pos = -54.65 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Nov 02, bumped again with 3d printer.
+        bsx_pos = -36.1 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2024 May 20, changing script rather than dial as previously...
+        bsx_pos = -27.7 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2024 May 20, changing script rather than dial as previously...
+
         return bsx_pos
 
 waxs = WAXS("XF:12IDC-ES:2{", name="waxs")
