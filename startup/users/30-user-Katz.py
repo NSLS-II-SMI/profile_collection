@@ -1581,7 +1581,7 @@ def blading_scan(det, motor, position, md=None):
     yield from inner()
 
 
-def blade_coating(sample_name='test'):
+def blade_coating_2022_1(sample_name='test'):
     proposal_id('2023_2', '312762_Katz_04')
     yield from bps.mv(bc_smaract.x1, 70)
     # x2=73.605
@@ -1639,3 +1639,197 @@ def nexafs_cu(t=1, name='test'):
 
         yield from bps.mv(energy, e)
         yield from bps.sleep(3)
+
+
+
+def waxs_Ca_edge_Katz_2024_2(t=0.2):
+    """
+    Wide WAXS scan including nexafs at 60 deg 2022_2 cycle
+
+    NEXAFS at WAXS 60 deg scanned with higher resolution
+    """
+
+    user_name = "ML"
+
+    names = ['xle-ctrl', 'xle-01', 'xle-02', 'xle-03', 'xle-04', 'xle-05']
+    piezo_x = [   41000,    34000,    27000,    19000,    13000,     6000]
+    piezo_y = [   -7000,    -7000,    -7000,    -7000,    -7000,    -7000]
+
+    waxs_arc = [0, 20, 40]
+    det_exposure_time(t, t)
+
+    assert len(piezo_x) == len(names), f"Number of piezo x coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})"
+    assert len(piezo_x) == len(piezo_y), f"Number of piezo x coordinates ({len(piezo_x)}) is different tan number of piezo y coordinates ({len(piezo_y)})"
+    assert len(piezo_y) == len(names), f"Number of piezo y coordinates ({len(piezo_y)}) is different from number of samples ({len(names)})"
+
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+
+    # Energies for calcium K edge, nexafs resolution
+    energies = np.concatenate((np.arange(4030, 4035, 5),
+                                      np.arange(4035, 4042, 2),
+                                      np.arange(4042, 4070, 1),
+                                      np.arange(4070, 4080, 2),
+                                      np.arange(4080, 4140, 5),))
+
+    # Go over WAXS arc positions as the sloest motor
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+
+        # Do not read SAXS if WAXS is in the way
+        dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+
+        # Go over samples
+        for name, xs, ys in zip(names, piezo_x, piezo_y):
+
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+
+            # Cover a range of 1.0 mm in y to avoid damage
+            yss = np.linspace(ys, ys + 1500, len(energies))
+
+            # Scan over energies
+            for e, ysss in zip(energies, yss):
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+
+                # Metadata
+                bpm = xbpm3.sumX.get()
+                sdd = pil1m_pos.z.position / 1000
+                wa = str(np.round(float(wa), 1)).zfill(4)
+
+                # Detector file name
+                name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m_bpm{xbpm}"
+                sample_name = name_fmt.format(
+                    sample=name,
+                    energy="%6.2f" % e,
+                    wax=wa,
+                    sdd="%.1f" % sdd,
+                    xbpm="%4.3f" % bpm,
+                )
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+            # Come back gently with energies
+            energy_steps = [4100, 4080, 4050]
+            for e in energy_steps:
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+
+
+    names = ['xle-isolated-ctrl', 'xle-isolated-snomCa' ]
+    piezo_x = [   -3000,    -8200]
+    piezo_y = [   -7000,    -7000]
+
+    waxs_arc = [0, 20, 40]
+    det_exposure_time(t, t)
+
+    assert len(piezo_x) == len(names), f"Number of piezo x coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})"
+    assert len(piezo_x) == len(piezo_y), f"Number of piezo x coordinates ({len(piezo_x)}) is different tan number of piezo y coordinates ({len(piezo_y)})"
+    assert len(piezo_y) == len(names), f"Number of piezo y coordinates ({len(piezo_y)}) is different from number of samples ({len(names)})"
+
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+
+    # Go over WAXS arc positions as the sloest motor
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+
+        # Do not read SAXS if WAXS is in the way
+        dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+
+        # Go over samples
+        for name, xs, ys in zip(names, piezo_x, piezo_y):
+
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+
+            # Cover a range of 1.0 mm in y to avoid damage
+            yss = np.linspace(ys, ys + 600, len(energies))
+
+            # Scan over energies
+            for e, ysss in zip(energies, yss):
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+
+                # Metadata
+                bpm = xbpm3.sumX.get()
+                sdd = pil1m_pos.z.position / 1000
+                wa = str(np.round(float(wa), 1)).zfill(4)
+
+                # Detector file name
+                name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m_bpm{xbpm}"
+                sample_name = name_fmt.format(
+                    sample=name,
+                    energy="%6.2f" % e,
+                    wax=wa,
+                    sdd="%.1f" % sdd,
+                    xbpm="%4.3f" % bpm,
+                )
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+            # Come back gently with energies
+            energy_steps = [4100, 4080, 4050]
+            for e in energy_steps:
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+       
+
+
+
+
+
+
+
+
+
+def alignement_blade_coating_2024_2(coating_start_pos, measurement_pos,th):
+
+    yield from bps.mv(thorlabs_su, measurement_pos)
+    yield from alignement_gisaxs_hex(angle=th)
+
+    yield from bps.mvr(stage.th, th)
+    yield from bps.mvr(stage.y, 0.05)
+
+    yield from bps.mv(thorlabs_su, coating_start_pos)
+
+
+
+
+def blade_coating_2024_2(sample_name='test', coating_start_pos=10, measurement_pos=87, th=0.12):
+
+    #proposal_id('2023_2', '312762_Katz_04')
+    sample_id(user_name='ML', sample_name=sample_name)
+    yield from alignement_blade_coating_2024_2(coating_start_pos, measurement_pos,th)
+
+    yield from bps.mv(syringe_pu.x3, 1) 
+    yield from bps.sleep(3)
+    
+    yield from bps.mv(thorlabs_su, measurement_pos)
+
+    det_exposure_time(0.5,300)
+    yield from bp.count([pil1M])
+    

@@ -1273,3 +1273,377 @@ def bpmvspindiode_Cledge_2024_1(t=1):
         print(f"\n\t=== Sample: {sample_name} ===\n")
 
         yield from bp.count([pil1M], num=1)
+
+
+
+
+
+
+
+def S_edge_measurments_2024_2_ILs_Linkam(t=1):
+    dets = [pil1M, pil900KW]
+    det_exposure_time(t, t)
+    
+
+    
+    names = ['IL11_PBTTTC14:C8mim TFSI_1_3']             
+    x_piezo = [                   9350]
+    y_piezo = [                    1746]
+    z_piezo = [                   -3000]
+
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+
+    energies = [2450.0,2455.0,2460.0,2465.0,2470.0,2473.0,2475.0,2475.5,2476.0,2476.5,2477.0,2477.5,2478.0,2478.5,2479.0,2479.5,
+    2480.0,2480.5,2481.0,2481.5,2482.0,2482.5,2483.0,2483.5,2484.0,2484.5,2485.0,2485.5,2486.0,2487.0,2488.0,2489.0,2490.0,2491.0,2492.5,2495.0,2500.0,2510.0,2515.0]
+
+    waxs_arc = [0, 20]
+    ai0_all = 0
+    ai_list = [3.2, 5.0]
+ 
+    temp = LThermal.temperature()
+
+    for name, xs, ys, zs in zip(names, x_piezo, y_piezo, z_piezo):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+        yield from bps.mv(piezo.th, ai0_all)
+        yield from alignement_gisaxs(0.7)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            # Do not take SAXS when WAXS detector in the way
+            dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+
+            yield from bps.mv(piezo.x, xs)
+            counter = 0
+
+            for k, ais in enumerate(ai_list):
+                yield from bps.mv(piezo.th, ai0 + ais)
+
+                name_fmt = "{sample}_pos1_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}_temp{temp}"
+
+                #LThermal.temperature()
+                for e in energies:
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                    if xbpm2.sumX.get() < 50:
+                        yield from bps.sleep(2)
+                        yield from bps.mv(energy, e)
+                        yield from bps.sleep(2)
+                    yield from bps.mv(piezo.x, xs - counter * 30)
+                    counter += 1
+                    
+                    bpm = xbpm2.sumX.get()
+                    sample_name = name_fmt.format(sample=name, energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm, temp="%3.1f"%temp)
+                    sample_id(user_name="NS", sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
+                    yield from bp.count(dets, num=1)
+
+
+                # dets = [pil900KW, amptek]
+                # det_exposure_time(3, 3)
+                # yield from bps.sleep(5)
+
+                # name_fmt = "{sample}_amptek_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}"
+                # sample_name = name_fmt.format(sample=name,energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm)
+                # sample_id(user_name="NS", sample_name=sample_name)
+
+                # yield from bp.count(dets, num=1)
+                # yield from bps.sleep(5)
+
+                det_exposure_time(t, t)
+                dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+
+                name_fmt = "{sample}_pos2_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}"
+                for e in energies[::-1]:
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                    if xbpm2.sumX.get() < 50:
+                        yield from bps.sleep(2)
+                        yield from bps.mv(energy, e)
+                        yield from bps.sleep(2)
+                    yield from bps.mv(piezo.x, xs - counter * 30)
+                    counter += 1
+
+                    bpm = xbpm2.sumX.get()
+                    sample_name = name_fmt.format(sample=name,energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm)
+                    sample_id(user_name="NS", sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
+                    yield from bp.count(dets, num=1)
+
+
+            yield from bps.mv(piezo.th, ai0)            
+
+
+
+
+
+def S_edge_measurments_2024_2_ILs(t=1):
+    dets = [pil1M, pil900KW]
+    det_exposure_time(t, t)
+#names = ['PBTTTC16_Doped-05V-C12mimTFSI', 'PBTTTC16-Doped-06V-C12mimTFSI', 'PBTTTC16-Doped-10V-C12mimTFSI', 'IL1_NeatC8mimTFSI', 'IL2_NeatC12mimTFSI', 'IL3_NeatC14mimTFSI', 'IL20_PBTTTC14_C14mimTFSI 2_1', 'IL21_PBTTTC14_C14mimTFSI 1_1', 'IL22_PBTTTC14_C14mimTFSI 1_2', 'IL30_NeatPBTTTC16-ILConditions', 'IL31_PBTTTC16_C12mimTFSI 1_1', 'IL32_PBTTTC16_C12mimTFSI 2_1', 'IL33_PBTTTC16_C12mimTFSI 3_1', 'IL34_PBTTTC16_C14mimTFSI 1_1', 'IL35_PBTTTC16_C14mimTFSI 2_1', 'IL36_PBTTTC16_C14mimTFSI 3_1', 'IL37_PBTTTC16_C16mimTFSI 1_1', 'IL38_PBTTTC16_C16mimTFSI 2_1', 'IL39_PBTTTC16_C16mimTFSI 3_1', 'IL7_PBTTTC14_C8mimTFSI 3_1', 'IL8_PBTTTC14_C8mimTFSI 2_1']
+#12 samples on bottom 9 on top, Names go Left to Right beginning on Bottom gold substrates for the first 3 -Focus on bleached circular area in center of films for the 1st 2
+    names = ['PBTTTC16_Doped-03V-C12mimTFSI',  'PBTTTC16_Doped-04V-C12mimTFSI',             'PBTTTC16-Undoped', 
+                        'IL4_NeatC16mimTFSI', 'IL5_Neat-PBTTTC14-ILConditions',   'IL6_PBTTTC14_C8mimTFSI 5_1', 
+                'IL7_PBTTTC14_C8mimTFSI 3_1',     'IL8_PBTTTC14_C8mimTFSI 2_1',   'IL9_PBTTTC14_C8mimTFSI 1_1', 
+               'IL10_PBTTTC14_C8mimTFSI 1_2',    'IL11_PBTTTC14_C8mimTFSI 1_3', 'IL12_PBTTTC14_C12mimTFSI 5_1', 
+              'IL13_PBTTTC14_C12mimTFSI 3_1',   'IL14_PBTTTC14_C12mimTFSI 2_1', 'IL15_PBTTTC14_C12mimTFSI 1_1', 
+              'IL16_PBTTTC14_C12mimTFSI 1_2',   'IL17_PBTTTC14_C12mimTFSI 1_3', 'IL18_PBTTTC14_C14mimTFSI 5_1', 
+              'IL19_PBTTTC14_C14mimTFSI 3_1',   'IL29_PBTTTC14_C16mimTFSI 1_3', 'IL28_PBTTTC14_C16mimTFSI 1_2', 
+              'IL27_PBTTTC14_C16mimTFSI 1_1',   'IL26_PBTTTC14_C16mimTFSI 2_1', 'IL25_PBTTTC14_C16mimTFSI 3_1', 
+              'IL24_PBTTTC14_C16mimTFSI 5_1',   'IL23_PBTTTC14_C14mimTFSI 1_3']             
+    x_piezo = [                        -51000,                           -47000,                        -34000,
+                                       -23000,                           -12000,                         0,
+                                       9000,                            20000,                         30000,
+                                       42000,                            51000,                         53000,
+                                       56000,                           -51000,                        -52000,
+                                       -41000,                           -28000,                        -16000,
+                                       -6500,                            4000,                         16000,
+                                       27000,                            39000,                         49000,
+                                       54000,                            56000]
+    #hexapod -12 and 12
+    x_hexa = [                             -10,                                0,                            0,
+                                           0,                                0,                            0,
+                                           0,                                0,                            0,
+                                           0,                                0,                            7,
+                                           14,                                -10,                            0,
+                                           0,                                0,                            0,
+                                           0,                                0,                            0,
+                                           0,                                0,                            0,
+                                           7,                                14]
+    y_piezo = [                         2000,                             2000,                         2000,
+                                        2000,                             2000,                         2000,
+                                        2000,                             2000,                         2000,
+                                        2000,                             2000,                         2000,
+                                        2000,                             -7000,                         -7000,
+                                        -7000,                             -7000,                         -7000,
+                                       -7000,                            -7000,                       -7000,
+                                       -7000,                            -7000,                        -7000,
+                                       -7000,                            -7000]
+    z_piezo = [                        -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000]
+
+
+    #names = ['IL9_PBTTTC14_C8mimTFSI 1_1', 'IL10_PBTTTC14_C8mimTFSI 1_2', 'IL11_PBTTTC14_C8mimTFSI 1_3', 'IL12_PBTTTC14_C12mimTFSI 5_1', 'IL13_PBTTTC14_C12mimTFSI 3_1', 'IL19_PBTTTC14_C14mimTFSI 3_1', 'IL35_PBTTTC16_C16mimTFSI 2_1', 'IL36_PBTTTC16_C16mimTFSI 3_1', 'IL37_PBTTTC16_C16mimTFSI 1_1', 'IL26_PBTTTC14_C16mimTFSI 2_1', 'IL27_PBTTTC14_C16mimTFSI 1_1', 'IL28_PBTTTC14_C16mimTFSI 1_2', 'IL29_PBTTTC14_C16mimTFSI 1_3' ]
+    #Samples from left to right, all on bottom row, beginning on sample closest to the chamber's door
+    names = ['IL9_PBTTTC14_C8mimTFSI 1_1', 'IL10_PBTTTC14_C8mimTFSI 1_2', 'PBTTTC16-Doped-10V-C12mimTFSI', 
+                          'IL1_NeatC8mimTFSI',           'IL2_NeatC12mimTFSI',            'IL3_NeatC14mimTFSI', 
+               'IL20_PBTTTC14_C14mimTFSI 2_1', 'IL21_PBTTTC14_C14mimTFSI 1_1',  'IL22_PBTTTC14_C14mimTFSI 1_2', 
+             'IL30_NeatPBTTTC16-ILConditions', 'IL31_PBTTTC16_C12mimTFSI 1_1',  'IL32_PBTTTC16_C12mimTFSI 2_1', 
+               'IL33_PBTTTC16_C12mimTFSI 3_1', 'IL34_PBTTTC16_C14mimTFSI 1_1',  'IL35_PBTTTC16_C14mimTFSI 2_1', 
+               'IL36_PBTTTC16_C14mimTFSI 3_1', 'IL37_PBTTTC16_C16mimTFSI 1_1',  'IL38_PBTTTC16_C16mimTFSI 2_1', 
+               'IL39_PBTTTC16_C16mimTFSI 3_1',   'IL7_PBTTTC14_C8mimTFSI 3_1',     'IL8_PBTTTC14_C8mimTFSI 2_1']            
+    x_piezo = [                        -47000,                         -45000,                          -30000,
+                                       -18000,                          -5000,                            8000,
+                                        19000,                          31000,                           44000,
+                                        55000,                          56000,
+                                       -47000,                         -39000,                          -30000,
+                                       -18000,                          -2000,                           14000,
+                                        30000,                          48000,                           55000,
+                                        56000]
+    #hexapod -12 and 12
+    x_hexa = [                           -10,                                0,                            0,
+                                           0,                                0,                            0,
+                                           0,                                0,                            0,
+                                           2,                               12,
+                                          -5,                                0,                            0,
+                                           0,                                0,                            0,
+                                           0,                                0,                            2,
+                                          12]
+    y_piezo = [                         2000,                             2000,                         2000,
+                                        2000,                             2000,                         2000,
+                                        2000,                             2000,                         2000,
+                                        2000,                             2000,
+                                       -7000,                            -7000,                        -7000,
+                                       -7000,                            -7000,                        -7000,
+                                       -7000,                            -7000,                        -7000,
+                                       -7000]
+    z_piezo = [                        -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000]
+
+
+
+    #names = 
+    #Samples from left to right, all on bottom row, beginning on sample closest to the chamber's door
+    names = [  'IL9_PBTTTC14_C8mimTFSI 1_1',  'IL10_PBTTTC14_C8mimTFSI 1_2',  'IL11_PBTTTC14_C8mimTFSI 1_3', 
+             'IL12_PBTTTC14_C12mimTFSI 5_1', 'IL13_PBTTTC14_C12mimTFSI 3_1', 'IL19_PBTTTC14_C14mimTFSI 3_1', 
+             'IL35_PBTTTC16_C16mimTFSI 2_1', 'IL36_PBTTTC16_C16mimTFSI 3_1', 'IL37_PBTTTC16_C16mimTFSI 1_1', 
+             'IL26_PBTTTC14_C16mimTFSI 2_1', 'IL27_PBTTTC14_C16mimTFSI 1_1', 'IL28_PBTTTC14_C16mimTFSI 1_2', 
+             'IL29_PBTTTC14_C16mimTFSI 1_3' ]            
+    x_piezo = [                        -50000,                         -40000,                          -27000,
+                                       -10000,                              0,                            7000,
+                                        14000,                          22000,                           31000,
+                                        42000,                          51000,                           55000,
+                                        57000]
+    #hexapod -12 and 12
+    x_hexa = [                            -4,                                0,                            0,
+                                           0,                                0,                            0,
+                                           0,                                0,                            0,
+                                           0,                                0,                            7,
+                                          13]
+    y_piezo = [                         2000,                             2000,                         2000,
+                                        2000,                             2000,                         2000,
+                                        2000,                             2000,                         2000,
+                                        2000,                             2000,                         2000,
+                                        2000]
+    z_piezo = [                        -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000,                            -3000,                        -3000,
+                                       -3000]
+
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+    assert len(x_piezo) == len(x_hexa), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})"
+
+    energies = [2450.0,2455.0,2460.0,2465.0,2470.0,2473.0,2475.0,2475.5,2476.0,2476.5,2477.0,2477.5,2478.0,2478.5,2479.0,2479.5,
+    2480.0,2480.5,2481.0,2481.5,2482.0,2482.5,2483.0,2483.5,2484.0,2484.5,2485.0,2485.5,2486.0,2487.0,2488.0,2489.0,2490.0,2491.0,2492.5,2495.0,2500.0,2510.0,2515.0]
+
+
+    #waxs_arc = [0, 20]
+    waxs_arc = [0]
+    ai0_all = 0
+    ai_list = [3.2, 5.0]
+
+    for name, xs, ys, zs, xs_hexa in zip(names, x_piezo, y_piezo, z_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+        yield from bps.mv(piezo.th, ai0_all)
+        yield from alignement_gisaxs_doblestack(0.7)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            # Do not take SAXS when WAXS detector in the way
+            dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+
+            yield from bps.mv(piezo.x, xs)
+            counter = 0
+
+            for k, ais in enumerate(ai_list):
+                yield from bps.mv(piezo.th, ai0 + ais)
+
+                name_fmt = "{sample}_pos1_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}"
+                for e in energies:
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                    if xbpm2.sumX.get() < 50:
+                        yield from bps.sleep(2)
+                        yield from bps.mv(energy, e)
+                        yield from bps.sleep(2)
+                    yield from bps.mv(piezo.x, xs - counter * 30)
+                    counter += 1
+                    
+                    bpm = xbpm2.sumX.get()
+                    sample_name = name_fmt.format(sample=name, energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm)
+                    sample_id(user_name="NS", sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
+                    yield from bp.count(dets, num=1)
+
+
+                name_fmt = "{sample}_pos2_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}"
+                for e in energies[::-1]:
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                    if xbpm2.sumX.get() < 50:
+                        yield from bps.sleep(2)
+                        yield from bps.mv(energy, e)
+                        yield from bps.sleep(2)
+                    yield from bps.mv(piezo.x, xs - counter * 30)
+                    counter += 1
+
+                    bpm = xbpm2.sumX.get()
+                    sample_name = name_fmt.format(sample=name,energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm)
+                    sample_id(user_name="NS", sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
+                    yield from bp.count(dets, num=1)
+
+
+            yield from bps.mv(piezo.th, ai0)            
+
+
+def bpmvspindiode_Sedge_2024_2_Stingelin(t=1):
+    dets = [pil1M]
+    det_exposure_time(t, t)
+
+    name = 'Stingelin_direct_beam_Sedge_scannormal'
+
+
+    energies = [2450.0,2455.0,2460.0,2465.0,2470.0,2473.0,2475.0,2475.5,2476.0,2476.5,2477.0,2477.5,2478.0,2478.5,2479.0,2479.5,
+    2480.0,2480.5,2481.0,2481.5,2482.0,2482.5,2483.0,2483.5,2484.0,2484.5,2485.0,2485.5,2486.0,2487.0,2488.0,2489.0,2490.0,2491.0,2492.5,2495.0,2500.0,2510.0,2515.0]
+
+
+    
+    # yield from bp.list_scan([energy, xbpm2, xbpm3, pdcurrent2], energy, list_ener)
+
+    for e in energies:
+        yield from bps.mv(energy, e)
+        yield from bps.sleep(2)
+        if xbpm2.sumX.get() < 50:
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+
+        fs.open()
+        yield from bps.sleep(2)
+        bpm2 = xbpm2.sumX.get()
+        bpm3 = xbpm3.sumX.get()
+        pdc = pdcurrent2.get()
+        fs.close()
+
+        name_fmt = "{sample}_pos1_{energy}eV_bpm2_{xbpm2}_bpm3_{xbpm3}_pd_{pd}"
+
+        sample_name = name_fmt.format(sample=name, energy="%6.2f"%e, xbpm2="%4.3f"%bpm2, xbpm3="%4.3f"%bpm3, pd="%4.3f"%pdc)
+        sample_id(user_name="LR", sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+
+        yield from bp.count([pil1M], num=1)
+
+
+    for e in energies[::-1]:
+        yield from bps.mv(energy, e)
+        yield from bps.sleep(2)
+        if xbpm2.sumX.get() < 50:
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+
+        fs.open()
+        yield from bps.sleep(2)
+        bpm2 = xbpm2.sumX.get()
+        bpm3 = xbpm3.sumX.get()
+        pdc = pdcurrent2.get()
+        fs.close()
+
+        name_fmt = "{sample}_pos2_{energy}eV_bpm2_{xbpm2}_bpm3_{xbpm3}_pd_{pd}"
+
+        sample_name = name_fmt.format(sample=name, energy="%6.2f"%e, xbpm2="%4.3f"%bpm2, xbpm3="%4.3f"%bpm3, pd="%4.3f"%pdc)
+        sample_id(user_name="LR", sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+
+        yield from bp.count([pil1M], num=1)

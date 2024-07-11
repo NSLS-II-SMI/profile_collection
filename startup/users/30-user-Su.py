@@ -1635,3 +1635,726 @@ def swaxs_Ce_edge_greg_2024_1(t=1):
             yield from bps.sleep(2)
             yield from bps.mv(energy, 5700)
             yield from bps.sleep(2)
+
+
+
+def swaxs_S_edge_nafion_2024_2(t=1):
+    """
+    307830_Su June 23, 2024
+    """
+
+    dets = [pil900KW, pil1M]
+
+    names = [ 'kapton', 'ppion_zrox01', 'ppion_zrox02', 'nafion212', 'P25-0p25',  'P25-0p5',    'P25-1',      'P25-2', 
+              'P25-4',    'AHPP25-0p5',  'AHPP25-0p25',  'AHPP25-1', 'AHPP25-2', 'AHPP25-4',    'P5A-4',
+               'P5A-2',        'P5A-1',      'P5A-0p5',  'P5A-0p25', 'AHPP5A-4',  'AHPP5-2', 'AHPP5A-1', 'AHPP5A-0p5', 
+         'AHPP5A-0p25',        'LK-01',        'LK-02',     'LK-03',    'LK-04',    'LK-05']
+    x =     [    42000,          33000,          26000,       18000,      12000,       5000,          0,        -5000,
+                -10000,         -15000,         -19000,      -24000,     -29000,     -33000,     -38000,
+                 45000,          40000,          35000,       30000,      26000,      21500,      16000,        11000,
+                  6000,              0,          -5000,      -10000,     -18000,     -25000]
+    y =     [    -8000,          -8000,          -8000,       -8000,      -8000,      -8000,      -8000,        -8000,
+                 -8000,          -8000,          -8000,       -8000,      -8000,      -8000,      -8000,
+                  4500,           4500,           4500,        4500,       4500,       4500,       4500,         4500,
+                  4500,           4900,           4900,        4900,       4900,       4900]
+    z =     [     2000,           2000,           2000,        1500,       1500,       1000,       1000,         1000,
+                   500,            500,            500,           0,          0,          0,          0,
+                  2000,           2000,           2000,        2000,       1500,       1500,       1000,         1000,
+                  1000,            500,            500,           0,          0,          0]
+
+
+    # energies = np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.5).tolist() + np.arange(2480, 2490, 2).tolist()+ np.arange(2490, 2501, 5).tolist()
+    energies = 7 + np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()
+                              + np.arange(2490, 2501, 5).tolist())
+    
+    waxs_arc = [0, 20]
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1500, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_1.8m_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.3f"%bpm)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+
+def bpmvspindiode_Sedge_2024_2(t=1):
+    dets = [pil1M]
+    det_exposure_time(t, t)
+
+    name = 'Greg_Su_direct_beam_Sedge_scannormal'
+
+
+    energies = 7 + np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()
+                              + np.arange(2490, 2501, 5).tolist())
+    
+    # yield from bp.list_scan([energy, xbpm2, xbpm3, pdcurrent2], energy, list_ener)
+
+    for e in energies:
+        yield from bps.mv(energy, e)
+        yield from bps.sleep(2)
+        if xbpm2.sumX.get() < 50:
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+
+        fs.open()
+        yield from bps.sleep(2)
+        bpm2 = xbpm2.sumX.get()
+        bpm3 = xbpm3.sumX.get()
+        pdc = pdcurrent2.get()
+        fs.close()
+
+        name_fmt = "{sample}_{energy}eV_bpm2_{xbpm2}_bpm3_{xbpm3}_pd_{pd}"
+
+        sample_name = name_fmt.format(sample=name, energy="%6.2f"%e, xbpm2="%4.3f"%bpm2, xbpm3="%4.3f"%bpm3, pd="%4.3f"%pdc)
+        sample_id(user_name="LR", sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+
+        yield from bp.count([pil1M], num=1)
+
+        yield from bps.mv(energy, 2470)
+        yield from bps.mv(energy, 2450)
+
+
+
+
+def swaxs_hardxray_nafion_2024_2(t=1):
+    """
+    307830_Su June 23, 2024
+    """
+
+    dets = [pil900KW, pil1M]
+
+    names = [ 'kapton', 'ppion_zrox01', 'ppion_zrox02', 'nafion212', 'P25-0p25',  'P25-0p5',    'P25-1',      'P25-2', 
+              'P25-4',    'AHPP25-0p5',  'AHPP25-0p25',  'AHPP25-1', 'AHPP25-2', 'AHPP25-4',    'P5A-4',
+               'P5A-2',        'P5A-1',      'P5A-0p5',  'P5A-0p25', 'AHPP5A-4',  'AHPP5-2', 'AHPP5A-1', 'AHPP5A-0p5', 
+         'AHPP5A-0p25',        'LK-01',        'LK-02',     'LK-03',    'LK-04',    'LK-05']
+    x =     [    42000,          33000,          26000,       18000,      12000,       5000,          0,        -5000,
+                -10000,         -15000,         -19000,      -24000,     -29000,     -33000,     -38000,
+                 45000,          40000,          35000,       30000,      26000,      21500,      16000,        11000,
+                  6000,              0,          -5000,      -10000,     -18000,     -25000]
+    y =     [    -8000,          -8000,          -8000,       -8000,      -8000,      -8000,      -8000,        -8000,
+                 -8000,          -8000,          -8000,       -8000,      -8000,      -8000,      -8000,
+                  4500,           4500,           4500,        4500,       4500,       4500,       4500,         4500,
+                  4500,           4900,           4900,        4900,       4900,       4900]
+    z =     [     2000,           2000,           2000,        1500,       1500,       1000,       1000,         1000,
+                   500,            500,            500,           0,          0,          0,          0,
+                  2000,           2000,           2000,        2000,       1500,       1500,       1000,         1000,
+                  1000,            500,            500,           0,          0,          0]
+
+
+    waxs_arc = [0, 20, 40]
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_1.8m_16100.0eV_wa{wax}"
+
+            sample_name = name_fmt.format(sample=name, wax=wa)
+            sample_id(user_name="GS", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+
+            yield from bp.count(dets, num=1)
+
+
+
+
+
+
+
+# 3 pm on Monday 24 June
+# matt's bar w/ 9 samples for hard x-ray saxs/waxs (10 measurements since one sample has two positions)
+
+def swaxs_hardxray_mrl_2024_2(t=1):
+    """
+    307830_Su June 23, 2024
+    """
+
+    dets = [pil900KW, pil1M]
+
+    names = [             'xle-ctrl',               'xle-01',       'xle-02',           'xle-03',    'xle-04',    'xle-05',
+              'alaska-filter1a-pos1', 'alaska-filter1a-pos2',  'kapton-ctrl',  'kapton-filter1b']
+        
+    x =     [                  43000,                  34000,          27000,              19000,       13000,      5000, 
+                              -14300,                 -17300,         -26300,             -36300]
+    y =     [                  -8500,                  -8500,          -8500,              -8500,       -8500,     -8500, 
+                               -7900,                  -7900,          -7600,              -7600]
+    z =     [                   2000,                   2000,           2000,               2000,        2000,      2000, 
+                                2000,                   2000,           2000,               2000]
+
+
+    waxs_arc = [0, 20, 40]
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_1.8m_16100.0eV_wa{wax}"
+
+            sample_name = name_fmt.format(sample=name, wax=wa)
+            sample_id(user_name="GS", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+
+            yield from bp.count(dets, num=1)
+
+
+
+
+
+def saxs_hardxray_capillaries_2024_2(t=0.1):
+    """
+    307830_Su June 24, 2024
+    """
+
+    dets = [pil1M]
+
+    #names = [  'capillary-AgB', '144D7-20CuAc', '144D6-20CuAc', '144D5-20CuAc', '144Z-20CuAc', '144A-20CuAc',
+     #          '93N-24', '109I-12CuAc', '109I-12CuAc-cloudy', '124Z6-20', '105D6-20CuAc', '105D5-20CuAc',
+      #         '105Z-20CuAc', '107-Adam-SV', 'Adam-SAN15']
+        
+    #x =     [ -42000, -35500,  -29000, -22700, -16400, -10000, -3800, 2800, 9100, 15600 , 21700 , 28500, 34500 ,41100, 47600   ]
+    #y =     [ -2500, -2500, -2500, -2500, -2500, -2500, -2500 , -2500 , -2500,  -2500 , -2500, -2500,  -2500 ,-2500 ,      -2500   ]
+    #z =     [ 2000, 2000, 2000, 2000, 2000, 2000, 2000 , 2000, 2000,  2000 , 2000, 2000,  2000 ,2000,  2000 ]
+
+
+    names = [  'capillary-AgB']
+    
+    x =     [ -42000  ]
+    y =     [ -2500   ]
+    z =     [ 2000    ]
+
+
+
+    waxs_arc = [40]
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_1.8m_16100.0eV_wa{wax}"
+
+            sample_name = name_fmt.format(sample=name, wax=wa)
+            sample_id(user_name="GS", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+
+            yield from bp.count(dets, num=1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def saxs_hardxray_mrl_capillaries_2024_2(t=1):
+    """
+    307830_Su June 24, 2024
+    """
+
+    dets = [pil1M]
+    #names = [  'capillary-AgB']
+    
+   # x =     [ -42000  ]
+    #y =     [ -8200   ]
+    #z =     [ 2000    ]
+    #sample names for bar 1, measured under vacuum, may have popped, may need to redo 
+    names = [  '144D7-20CuAc', '144D6-20CuAc', '144D5-20CuAc', '144Z-20CuAc', '144A-20CuAc',
+               '93N-24', '109I-12CuAc', '109I-12CuAc-cloudy', '124Z6-20', '105D6-20CuAc', '105D5-20CuAc',
+               '105Z-20CuAc', '107-Adam-SV', 'Adam-SAN15']
+        
+    x =     [ -35500,  -29000, -22700, -16400, -10000, -3800, 2800, 9100, 15600 , 21700 , 28500, 34500 ,41100, 47600   ]
+    y =     [ -2500, -2500, -2500, -2500, -2500, -2500 , -2500 , -2500,  -2500 , -2500, -2500,  -2500 ,-2500 ,      -2500   ]
+    z =     [  2000, 2000, 2000, 2000, 2000, 2000 , 2000, 2000,  2000 , 2000, 2000,  2000 ,2000,  2000 ]
+
+
+
+
+    #Sample names for bar 2
+    names = ['Adam-SAN25', 'N-blend', '91N1', '91N1-MgAc02', '91N1-MgAc04',
+            '91N1-MgAc1', '91N1-MgAc17','91N1-MgAc2', '91N1-CuAc03','91N1-CuAc05',
+            '91N1-CuAc08', '91N1-CuAc11', '91N1-CuAc18']
+    
+    #positions
+    x =     [ -42000, -35500, -29400, -22800, -16300,    -10000, -3500, 2600, 8900, 15400, 21900,  28200, 34400  ]
+    y =     [ -2500, -2500, -2500, -2500, -2500, -2500 , -2500 , -2500,  -2500 , -2500, -2500,  -2500 ,-2500  ]
+    z =     [  2000, 2000, 2000, 2000, 2000, 2000 , 2000, 2000,  2000 , 2000, 2000,  2000 ,2000 ]
+
+   
+    # sample names for bar 3
+    names = ['tulasi-water', 'tulasi-01a', 'tulasi-01b', 'tulasi-02a', 'tulasi-02b', 'tulasi-03a', 'tulasi-03b']
+    x = [             21200,        15800,         7800,         1300,        -6300,        -9900,      -17900 ]
+    y = [             -1000,         -500,        -1000,        -1000,        -1000,        -1000,       -1000 ]
+    z = [              2000,         2000,         2000,         2000,         2000,         2000,        2000 ]
+
+
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        det_exposure_time(t, t)
+
+        name_fmt = "{sample}_1.8m_16100.0eV"
+
+        sample_name = name_fmt.format(sample=name)
+        sample_id(user_name="ML", sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+
+        yield from bp.count([pil1M], num=1)
+
+
+
+'''  notes from eliot for 2024-2 blade coating
+thorlabs_su is the thorlabs motor, it's a normal motor record, so you can set .velocity
+
+syringe_pu is the syringe pump, but I would suggest changing the component names to volume, rate and run rather than x1, x2, x3
+
+
+matt notes:
+- "value" parameters dont seem to work on syringe pump, but the start/stop commands do, so we'll use time and the syringe diameter (defined manually on the syringe pump) to control our rate and volume dispensing
+- files are not saved properly, we'll deal with that later
+
+'''
+
+
+
+def alignment_blade_coating_2024_2(coating_start_pos, measurement_pos,th):
+
+    yield from bps.mv(thorlabs_su, measurement_pos)
+    yield from alignement_gisaxs_hex(angle=th)
+
+    yield from bps.mvr(stage.th, th)
+    yield from bps.mvr(stage.y, 0.05)
+
+    yield from bps.mv(thorlabs_su, coating_start_pos)
+
+
+
+
+
+
+
+def blade_coating_2024_2(sample_name='bladecoating', coating_start_pos=10, measurement_pos=87, th=0.16, dets = [pil1M, pil900KW]):
+    # dets = ['pil900KW','pil1M']
+
+    yield from shopen()
+    yield from bps.sleep(1)
+    yield from shopen()
+    yield from bps.sleep(1)
+    yield from shopen()
+    yield from bps.sleep(2)
+    
+    yield from bps.mv(thorlabs_su, thorlabs_su.position)
+    yield from alignment_blade_coating_2024_2(coating_start_pos, measurement_pos,th)
+
+    #det_exposure_time(0.5,300)
+    det_exposure_time(2, 600)
+    sample_id(user_name='ML', sample_name=sample_name)
+    yield from bps.mv(syringe_pu.x3, 1) 
+    yield from bps.sleep(2.5)
+    yield from bps.mv(syringe_pu.x4, 1)
+    
+    yield from bps.mv(thorlabs_su, measurement_pos)
+    
+    
+    yield from bp.count(dets)
+
+    yield from shclose()
+    yield from bps.sleep(1)
+    yield from shclose()
+    yield from bps.sleep(1)
+    yield from shclose()
+
+
+
+def take_data():
+    
+    det_exposure_time(0.5,10)
+    yield from bp.count([pil1M])
+
+
+
+    
+def syringe_pump_testing():
+    yield from bps.mv(syringe_pu.x3, 1) 
+    yield from bps.sleep(2.5)
+    yield from bps.mv(syringe_pu.x4, 1)
+
+
+def thorlabs_testing():
+    yield from bps.mv(thorlabs_su, thorlabs_su.position)
+    yield from bps.mv(thorlabs_su, 87)
+    yield from bps.mv(thorlabs_su, 10)
+
+
+def saxs_hardxray_inair_capillaries_2024_2(t=0.5):
+    """
+    307830_Su June 25, 2024
+    MRL, in-air environemtn (same AgB as blade coating stage)
+    moving the hexapod stage instead of SmarAct
+
+    more capillaries and thin films on the morning (2am) of june 27, MRL
+    """
+
+    dets = [pil1M]
+
+ 
+    # sample names
+    names = ['tulasi03a-pos1', 'tulasi03a-pos2',  'tulasi02b-pos1', 'tulasi02b-pos2', 'tulasi02a-pos1', 'tulasi02a-pos2']
+    x_hexa = [            1.0,              1.2,               7.5,              7.5,             13.7,             13.7]
+    y_hexa = [            0.2,              1.5,                 0,              1.5,                0,              2.2]
+    z_hexa = [            0.1,                0,                 0,                0,                0,                0]
+
+    names = ['tulasi01b-pos1', 'tulasi01b-pos2',  'tulasi01a-pos1', 'tulasi01a-pos2', 'tulasi01a-pos3']
+    x_hexa = [            1.2,              1.2,               7.0,              7.4,              7.7]
+    y_hexa = [            0.2,              2.0,               1.4,             -7.5,             -8.8]
+    z_hexa = [            0.1,                0,                 0,                0,                0]
+
+    names     = [         'mostafa00',       'mostafa01', 'mostafa02', 'mostafa03', 'mostafa04', 'mostafa05', 'mostafa06', 'mostafa07', 
+                 'tulasi-kapton-ctrl', 'tulasi-kapton-01a', 'tulasi-kapton-01b', 'tulasi-kapton-02a' ]
+    x_smaract = [               19000,              8000,        1000,       -7000,      -14000,      -22000,      -27000,      -33000,
+                               -37000,              -40000,              -46500,              -54500 ]
+    y_smaract = [               -7000,             -7000,       -7000,       -7000,       -7000,       -7000,       -7000,       -7000,
+                                -7000,               -7000,               -6500,               -5500 ]
+   
+
+    for name, xs_smaract, ys_smaract in zip(names, x_smaract, y_smaract):
+        #yield from bps.mv(stage.x, xs_hexa)
+        #yield from bps.mv(stage.y, ys_hexa)
+
+        yield from bps.mv(piezo.x, xs_smaract)
+        yield from bps.mv(piezo.y, ys_smaract)
+
+        det_exposure_time(t, t)
+
+        name_fmt = "{sample}_8.3m_16100.0eV"
+
+        sample_name = name_fmt.format(sample=name)
+        sample_id(user_name="ML", sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+
+        yield from bp.count([pil1M], num=1)
+
+
+
+
+
+
+
+
+
+
+def alignment_static_swaxs_2024_2(th=0.16):
+
+    yield from bps.mv(thorlabs_su, thorlabs_su.position)
+    yield from alignement_gisaxs_hex(angle=th)
+
+    yield from bps.mvr(stage.th, th)
+    yield from bps.mvr(stage.y, 0.05)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def waxs_hardxray_inair_2024_2(t=1):
+
+
+    dets = [pil900KW]
+
+ 
+    # sample names
+    names     = ['tulasi-kapton-ctrl', 'tulasi-kapton-01a', 'tulasi-kapton-01b', 'tulasi-kapton-02a' ]
+    x_smaract = [              -37000,              -40000,              -46500,              -54500 ]
+    y_smaract = [               -7000,               -7000,               -6500,               -5500 ]
+    
+    
+    names =     ['alaska-filter1a', 'alaska-filter1a-acid', 'alaska-filter1b', 'alaska-filter3a-pristine',       
+                 'alaska-filter3b-fouled', 'alaska-filter3b-acid' ]
+    x_smaract = [            17000,                    3000,             -5000,                     -18500,
+                                   -27000,                 -33500 ]
+    y_smaract = [            -1000,                   -1000,             -1000,                      -1000,
+                                    -1000,                  -1000 ]
+
+
+    names = ['AgB-thinfilm']
+    x_smaract = [-40000]
+    y_smaract = [-500]
+
+
+
+    waxs_arc = [0, 20, 40]
+    
+    
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+
+        for name, xs_smaract, ys_smaract in zip(names, x_smaract, y_smaract):
+            #yield from bps.mv(stage.x, xs_hexa)
+            #yield from bps.mv(stage.y, ys_hexa)
+
+            yield from bps.mv(piezo.x, xs_smaract)
+            yield from bps.mv(piezo.y, ys_smaract)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_8.3m_16100.0eV_wa{wax}"
+
+            sample_name = name_fmt.format(sample=name, wax=wa)
+            sample_id(user_name="ML", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+
+            yield from bp.count([pil900KW], num=1)
+
+
+
+def saxs_hardxray_inair_june27_2024_2(t=1):
+
+
+    dets = [pil1M]
+
+ 
+    # sample names
+    names =     ['kapton-psp4vp-ctrl', 'kapton-psp4vp-20wt', 'kapton-ctrl']
+    x_smaract = [              -35000,                -5000,         20000]
+    y_smaract = [               -1500,                -1500,         -1500]
+
+
+
+    names     = ['105D6-20CuAc',  '105D5-20CuAc',      '105Z-20CuAc']
+    x_smaract = [-46000, -22000, 7000 ]
+    y_smaract = [-6500, -7500, -7000 ]
+
+
+    waxs_arc = [40]
+    
+    
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+
+        for name, xs_smaract, ys_smaract in zip(names, x_smaract, y_smaract):
+            #yield from bps.mv(stage.x, xs_hexa)
+            #yield from bps.mv(stage.y, ys_hexa)
+
+            yield from bps.mv(piezo.x, xs_smaract)
+            yield from bps.mv(piezo.y, ys_smaract)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_8.3m_16100.0eV_wa{wax}"
+
+            sample_name = name_fmt.format(sample=name, wax=wa)
+            sample_id(user_name="ML", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+
+            yield from bp.count([pil1M], num=1)
+
+
+
+
+
+def acq_delay(dets,exp_time,delay,num):
+    det_exposure_time(exp_time,exp_time)
+    yield from bp.count(dets,num,delay)
+
+
+def blade_coating_acqdelay_2024_2(sample_name='bladecoating', coating_start_pos=10, measurement_pos=87, th=0.16, dets = [pil1M, pil900KW]):
+    # dets = ['pil900KW','pil1M']
+
+    yield from shopen()
+    yield from bps.sleep(1)
+    yield from shopen()
+    yield from bps.sleep(1)
+    yield from shopen()
+    yield from bps.sleep(2)
+    
+    yield from bps.mv(thorlabs_su, thorlabs_su.position)
+    yield from alignment_blade_coating_2024_2(coating_start_pos, measurement_pos,th)
+
+    #det_exposure_time(0.5,300)
+    
+    sample_id(user_name='ML', sample_name=sample_name)
+    yield from bps.mv(syringe_pu.x3, 1) # start pump
+    yield from bps.sleep(2.5)
+    yield from bps.mv(syringe_pu.x4, 1) # stop pump
+    
+    yield from bps.mv(thorlabs_su, measurement_pos)
+    
+    yield from acq_delay(dets=dets, exp_time=1, delay=4, num= 120)
+
+    yield from shclose()
+    yield from bps.sleep(1)
+    yield from shclose()
+    yield from bps.sleep(1)
+    yield from shclose()
+
+
+
+
+
+
+
+
+
+
+
+def swaxs_Br_edge_capillaries_2024_2(t=1):
+    """
+    315602 June 28, 2024
+    MRL
+    """
+
+    dets = [pil900KW]
+
+    names = [ 'carly01', 'carly02', 'carly03', 'carly04', 'carly05', 'carly06', 'carly07', 'carly08', 'carly09']
+    x =     [    -43700,    -37400,    -31100,    -24800,    -18500,    -12000,     -5700,       700,     7050 ]
+    y =     [     -6000,     -4620,     -4620,     -4620,     -4620,     -4620,     -4620,     -4620,    -4620 ]
+    z =     [      2000,      2000,      2000,      2000,      2000,      2000,      2000,      2000,     2000 ]
+ 
+    energies_swaxs = np.asarray(np.arange(13440, 13460, 5).tolist() +
+                          np.arange(13460, 13480, 2).tolist() +
+                          np.arange(13490, 13520, 10).tolist() )
+    
+    energies_swaxs_add = np.asarray([13420, 13480, 13485 ])
+    
+    energies_nexafs = np.asarray(np.arange(13440, 13520, 2))
+
+
+
+    waxs_arc_swaxs = [0, 20, 40]
+    waxs_arc_nexafs = [40]
+
+    waxs_arc = waxs_arc_swaxs
+    energies = energies_swaxs_add
+
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+
+        for name, xs, ys in zip(names, x, y):
+            # changing ys to allow for more room during dense energy scan
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+
+            yss = np.linspace(ys, ys + 1500, len(energies))
+            xss = np.array([xs])
+
+            yss, xss = np.meshgrid(yss, xss)
+            yss = yss.ravel()
+            xss = xss.ravel()
+
+
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_4.0m_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.3f"%bpm)
+                sample_id(user_name="ML", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 13480)
+            yield from bps.mv(energy, 13440)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
