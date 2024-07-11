@@ -102,7 +102,13 @@ def get_symlink_pairs(target_path, *, det_map, root_map=None):
             output_path = Path(*Path(doc["path"]).parts[-2:])
 
             target_template = f'{output_path}/{{det_name}}/{doc["user_name"]}_{doc["sample_name"]}_id{doc["scan_id"]}_{{N:06d}}_{{det_type}}.tif'
-
+            # add some metadata ('smi_data_spec': 'saxs_v1') and branch to different writer here
+            # just dimensiality? 
+            # include hints of which keys should be used?
+            # multiple kinds of plans mingh produce the same data_spec
+            # ONLY ADD TO MD= IN SCANS / COUNTS ETC
+            # tOM : "MAKE CRANKY PLANS" - USERS GET SIMPLIFIED PLANS THAT DON'T SET THE METADTA
+            
         elif name == "resource":
             # we only handle AD TIFF
             if doc["spec"] != "AD_TIFF":
@@ -127,7 +133,7 @@ def get_symlink_pairs(target_path, *, det_map, root_map=None):
             for k, v in doc["data_keys"].items():
                 if "external" in v:
                     target_keys.add(k)
-        elif "event" in name:
+        elif "event" in name: # continue building the target_template here adding the event level thigns (motor positions)
             if name == "event":
                 doc = event_model.pack_event_page(doc)
             for key in target_keys:
@@ -138,7 +144,7 @@ def get_symlink_pairs(target_path, *, det_map, root_map=None):
 
                 if key not in doc["data"]:
                     continue
-                for datum_id in doc["data"][key]:
+                for datum_id in doc["data"][key]: # pulling out the image column
                     resource_vals, point_number = datum_info[datum_id]
                     orig_template = resource_vals["kwargs"]["template"]
                     fpp = resource_vals["kwargs"]["frame_per_point"]
