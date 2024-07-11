@@ -513,7 +513,7 @@ def zihan_giwaxs_2023_2(t=0.5, name='test', dist='unspecified'):
     do x scan
     RE(mvr(stage.y, 0.05)) 
     (not needed for inverted sample)
-    RE(rel_scan([pil1M], stage.x, -2, 2, 31))
+    RE(rel_scan([pil1M], stage.x, -1.5, 1.5, 21))
     RE(mv(stage.x, NEGPEAKCENT)) 
     #sometimes there will be two adjacent neg peak, go in the center between them
     RE(mvr(stage.y, -0.05))
@@ -523,18 +523,18 @@ def zihan_giwaxs_2023_2(t=0.5, name='test', dist='unspecified'):
     RE(mv(stage.y, TOPINFLECTION))
 
     do theta scan
-    RE(rel_scan([pil1M], stage.th, -0.2, 0.2, 31))
+    RE(rel_scan([pil1M], stage.th, -0.2, 0.2, 21))
     RE(mv(stage.th, PEAK))
 
     optional if you see reflected peak (I think you should):
 
     # change angle to where you want to align at
     
-    RE(alignment_start_angle(angle=0.1))
-    RE(mvr(stage.th, 0.1))
-    RE(rel_scan([pil1M], stage.th, -0.2, 0.2, 31))
+    RE(alignment_start_angle(angle=0.2))
+    RE(mvr(stage.th, 0.2))
+    RE(rel_scan([pil1M], stage.th, -0.2, 0.2, 21))
     RE(mv(stage.th, PEAK))
-    RE(mvr(stage.th, -0.1))
+    p
 
     measure
     RE(alignment_stop())
@@ -1752,3 +1752,126 @@ def P_edge_measurments_2024_1_Toney(t=1):
             yield from bps.mv(piezo.th, ai0)
             yield from bps.mv(stage.th, stage_th_0)
 
+def grazing_swaxs_2024_2(t=1):
+    """
+    standard GI-S/WAXS
+    """
+    
+    names   = [  'FH02_reanneal_4h',  'FH03_reanneal_4h']
+    piezo_x = [ -8500,   47000]
+    piezo_y = [   2000 for n in names ]          
+    piezo_z = [   3300,   3300   ]
+    hexa_x =  [  -7.7,  -8.22]
+    
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+    assert len(piezo_x) == len(hexa_x), msg
+
+    waxs_arc = [ 0, 20 ]
+    x_off = [0]
+    incident_angles = [ 0.5, 2.25, 4.5]
+    user_name = 'ZZ'
+
+    for name, x, y, z, hx in zip(names, piezo_x, piezo_y, piezo_z, hexa_x):
+
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y,
+                          piezo.z, z,
+                          stage.x, hx)
+
+        # Align the sample
+        try:
+            yield from alignement_gisaxs(0.1) #0.1 to 0.15
+        except:
+            print('\n\n\n\n\n\n\n\n\n\nCould not align, remeasure!!!\n\n\n\n\n\n\n\n\n\n')
+
+        # Sample flat at ai0
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+
+            # problems with the beamstop
+            yield from bps.mv(waxs.bs_y, -3)
+
+            for xx, x_of in enumerate(x_off):
+                yield from bps.mv(piezo.x, x + x_of)
+                for ai in incident_angles:
+                    yield from bps.mv(piezo.th, ai0 + ai)
+
+                    sample_name = f'{name}{get_scan_md()}_loc{xx}_ai{ai}'
+
+                    sample_id(user_name=user_name, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+        yield from bps.mv(piezo.th, ai0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)
+
+def grazing_swaxs_2024_2_bg(t=1):
+    """
+    standard GI-S/WAXS
+    """
+    
+    names   = [  'Copper_stage_bg1',  'Copper_stage_bg2']
+    piezo_x = [ 2000,   38000]
+    piezo_y = [   1200 for n in names ]          
+    piezo_z = [   3300,   3300   ]
+    hexa_x =  [  -8.22,  -8.22]
+    
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+    assert len(piezo_x) == len(hexa_x), msg
+
+    waxs_arc = [ 0, 20 ]
+    x_off = [0]
+    incident_angles = [ 0.5, 2.25, 4.5]
+    user_name = 'ZZ'
+
+    for name, x, y, z, hx in zip(names, piezo_x, piezo_y, piezo_z, hexa_x):
+
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y,
+                          piezo.z, z,
+                          stage.x, hx)
+
+        # Align the sample
+        try:
+            yield from alignement_gisaxs(0.1) #0.1 to 0.15
+        except:
+            print('\n\n\n\n\n\n\n\n\n\nCould not align, remeasure!!!\n\n\n\n\n\n\n\n\n\n')
+
+        # Sample flat at ai0
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+
+            # problems with the beamstop
+            yield from bps.mv(waxs.bs_y, -3)
+
+            for xx, x_of in enumerate(x_off):
+                yield from bps.mv(piezo.x, x + x_of)
+                for ai in incident_angles:
+                    yield from bps.mv(piezo.th, ai0 + ai)
+
+                    sample_name = f'{name}{get_scan_md()}_loc{xx}_ai{ai}'
+
+                    sample_id(user_name=user_name, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+        yield from bps.mv(piezo.th, ai0)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)
