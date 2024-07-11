@@ -145,10 +145,10 @@ except ImportError:
 runengine_metadata_dir = appdirs.user_data_dir(appname="bluesky") / Path(
     "runengine-metadata"
 )
-
+print('starting RE.md link')
 # PersistentDict will create the directory if it does not exist
 RE.md = PersistentDict(runengine_metadata_dir)
-
+print('finished RE.md link')
 RE.md["beamline_name"] = "SMI"
 RE.md["facility"] = "NSLS-II"
-RE.md["optinal_comments"] = ""  # Any comment can be added if needed
+RE.md["optional_comments"] = ""  # Any comment can be added if needed
