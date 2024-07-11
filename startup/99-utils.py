@@ -557,7 +557,7 @@ def purge_cryo():
     caput('XF:12ID-UT{Cryo:1-IV:11}Pos-SP', 0)
     caput('XF:12ID-UT{Cryo:1-IV:17_35}Cmd:Cls-Cmd', 1) #V17.2
     caput('XF:12ID-UT{Cryo:1-IV:17_100}Cmd:Cls-Cmd', 1)  #V17.1
-    print('purging step 1/3, taking 30 min \n current time: '+str(datetime.now()))
+    print('purging step 1/3, taking 30 min \n current time: '+str(datetime.datetime.now()))
     caput('XF:12ID-UT{Cryo:1-IV:20}Cmd:Opn-Cmd', 1)
     caput('XF:12ID-UT{Cryo:1-IV:09}Cmd:Opn-Cmd', 1)
     caput('XF:12ID-UT{Cryo:1-IV:10}Pos-SP', 100)
@@ -568,7 +568,7 @@ def purge_cryo():
     print('purging step 1/3 complete....proceeding to 2/3!')
     caput('XF:12ID-UT{Cryo:1-IV:09}Cmd:Cls-Cmd', 1)
     caput('XF:12ID-UT{Cryo:1-IV:11}Pos-SP', 100)
-    print('purging step 2/3, taking 15 min \n current time: '+str(datetime.now()))
+    print('purging step 2/3, taking 15 min \n current time: '+str(datetime.datetime.now()))
     for i in range(3):
        print('time left on purging step 2/3: '+str(15-i*5)+'min \n')
        yield from bps.sleep(300)
@@ -576,7 +576,7 @@ def purge_cryo():
     caput('XF:12ID-UT{Cryo:1-IV:11}Pos-SP', 0)
     caput('XF:12ID-UT{Cryo:1-IV:17_35}Cmd:Opn-Cmd', 1)
     caput('XF:12ID-UT{Cryo:1-IV:17_100}Cmd:Opn-Cmd', 1)
-    print('purging step 3/3, taking 15 min \n current time: '+str(datetime.now()))
+    print('purging step 3/3, taking 15 min \n current time: '+str(datetime.datetime.now()))
     for i in range(3):
        print('time left on purging step 3/3: '+str(15-i*5)+'min \n')
        yield from bps.sleep(300)
@@ -613,6 +613,20 @@ def get_scan_md(tender=False):
             sdd = "%.1f" % sdd,
         )
     return scan_md
+
+def get_more_md(tender=True, bpm=True):
+    """
+    Add XBPM2 readings into the scan metadata
+    """
+
+    more_md = f'{get_scan_md(tender=tender)}'
+
+    if bpm:
+        xbpm = xbpm2.sumX.get()
+        xbpm = str(np.round(float(xbpm), 3)).zfill(5)
+        more_md = f'{more_md}_xbpm{xbpm}'
+
+    return more_md
 
 def atten_move_in(x4=True, x2=True):
     """
