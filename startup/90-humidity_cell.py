@@ -13,7 +13,7 @@ def readHumidity(temperature=25, voltage_supply=5, verbosity=3):
         print(
             "T-corrected RH = {:.3f} pct at {:.3f} degC.".format(true_RH, temperature)
         )
-    return true_RH
+    return np.round(true_RH, 2)
 
 
 def readHumidity2(temperature=25, voltage_supply=5, verbosity=3):
@@ -28,7 +28,7 @@ def readHumidity2(temperature=25, voltage_supply=5, verbosity=3):
         print(
             "T-corrected RH = {:.3f} pct at {:.3f} degC.".format(true_RH, temperature)
         )
-    return true_RH
+    return np.round(true_RH, 2)
 
 
 # moxa_in.ch4_sp.put(5)

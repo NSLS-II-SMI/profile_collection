@@ -533,5 +533,5 @@ class LinkamTensile(LinkamThermal):
     # velocity = Cpt(EpicsSignal, 'TST_MTR_VEL')
 
 #XF:12ID-ES{LINKAM}:TEMP
-LThermal = LinkamThermal("XF:12ID-ES:{LINKAM}:", name="LinkamThermal")
+LThermal = LinkamThermal("XF:12ID-ES{LINKAM}:", name="LinkamThermal")
 #LTensile = LinkamTensile("XF:12ID-ES:{LINKAM}:", name="LinkamTensile")
