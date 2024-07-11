@@ -8,9 +8,21 @@ bc_smaract = bladecoater_smaract("XF:12ID2-ES{DDSM100-Ax:", name="bc_smaract")
 
 
 class syringe_pump(Device):
-    x1 = Cpt(EpicsSignal, "Val:Vol-SP", labels=["piezo1"])
+    x1 = Cpt(EpicsSignal, "Val:Vol-SP", labels=["piezo1"]) 
     x2 = Cpt(EpicsSignal, "Val:Rate-SP", labels=["piezo2"])
     x3 = Cpt(EpicsSignal, "Cmd:Run-Cmd", labels=["piezo3"])
+    x4 = Cpt(EpicsSignal, "Cmd:Stop-Cmd", labels=["piezo4"])
+    x5 = Cpt(EpicsSignal, "Val:Dia-RB", labels=['piezo5'] )
 
-syringe_pu = syringe_pump("XF:12ID2-ES{Pmp:1}", name="syringe_pu")
+
+class syringe_pump_eliot(Device):
+    vol = Cpt(EpicsSignal, "Val:Vol-SP",) 
+    rate = Cpt(EpicsSignal, "Val:Rate-SP", )
+    go = Cpt(EpicsSignal, "Cmd:Run-Cmd",)
+    stop_flow = Cpt(EpicsSignal, "Cmd:Stop-Cmd",)
+    dia = Cpt(EpicsSignal, "Val:Dia-RB")
+    dir = Cpt(EpicsSignal, "Val:Dir-Sel",) 
+
+syringe_pu = syringe_pump_eliot("XF:12ID2-ES{Pmp:1}", name="syringe_pu")
+# XF:12ID2-ES{Pmp:1}Val:Vol-SP
 
