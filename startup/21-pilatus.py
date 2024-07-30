@@ -32,6 +32,11 @@ from nslsii.ad33 import SingleTriggerV33
 import pandas as pds
 
 
+
+class StatsWCentroid(StatsPluginV33):
+    centroid_total = Cpt(EpicsSignalRO,'CentroidTotal_RBV')
+
+
 class PilatusDetectorCamV33(PilatusDetectorCam):
     """This is used to update the Pilatus to AD33."""
 
@@ -124,11 +129,12 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
     roi2 = Cpt(ROIPlugin, "ROI2:")
     roi3 = Cpt(ROIPlugin, "ROI3:")
     roi4 = Cpt(ROIPlugin, "ROI4:")
-
-    stats1 = Cpt(StatsPluginV33, "Stats1:", read_attrs=["total"])
-    stats2 = Cpt(StatsPluginV33, "Stats2:", read_attrs=["total"])
-    stats3 = Cpt(StatsPluginV33, "Stats3:", read_attrs=["total"])
-    stats4 = Cpt(StatsPluginV33, "Stats4:", read_attrs=["total"])
+ 
+    stats1 = Cpt(StatsWCentroid, "Stats1:", read_attrs=["total"])
+    stats2 = Cpt(StatsWCentroid, "Stats2:", read_attrs=["total"])
+    stats3 = Cpt(StatsWCentroid, "Stats3:", read_attrs=["total"])
+    stats4 = Cpt(StatsWCentroid, "Stats4:", read_attrs=["total"])
+    stats5 = Cpt(StatsWCentroid, "Stats5:", read_attrs=["total"])
 
     over1 = Cpt(OverlayPlugin, "Over1:")
     trans1 = Cpt(TransformPlugin, "Trans1:")

@@ -18,7 +18,7 @@ def get_scan_md_tender():
     )
     return scan_md
 
-
+'''
 def test_gi_tender(t=0.5):
     """
     Grazing incidence tender
@@ -118,3 +118,212 @@ def test_gi_tender(t=0.5):
         yield from inner()
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.5, 0.5)
+'''
+'''
+Sample    piezo_x: min     max    cen   piezo_y    piezo_z   th_0    stage_x
+-----------------------------------------------------------------------
+Fl screen       -51000                   6000
+6.0             -46000  -38000 -42000    6646.7       800      2.920      o
+5.0             -34000  -26000 -30000    6616.7       800      2.927      0
+4.0             -22000  -16000 -19000    6628.1       800      2.930      0
+0                -9000   -1000  -5000    6544.6       800      2.943      0
+0                 3000   13000   8000    6574.1       800      2.930      0
+3.0              18000   25000  21500    6571.1       800      2.930      0
+2.5              29000   37000  33000    6536.7       800      2.452      0
+2.25             42000   50000  45000    6554.9       800      2.939      0
+Si               53000   57000  54000    6713.0       200      2.943      0
+
+Si
+----------
+angle   roi_min_Y      attenuators
+0           1253         att2_6, att2_5 
+0.1         1247
+0.2         1241
+0.3         1236
+0.4         1230
+0.5         1225
+0.75        1211         att2_6, att2_12
+1           1197            
+1.25                 att2_6
+1.5         1167         att2_5, att2_12
+1.75                
+2           1139         att2_5
+2.25                 att2_12
+2.5         1112         att2_12
+3           1082         att2_12
+3.5         1053         att2_12
+4           1026         att2_12
+
+'''
+
+def att6(angle):
+    if angle < 1.3:
+        return 1
+    else:
+        return 0
+def att5(angle):
+    if angle < 0.5:
+        return 1
+    elif angle < 1.3:
+        return 0
+    elif angle <2.2:
+        return 1
+    else:
+        return 0
+    
+def att12(angle):
+    if angle < 0.5:
+        return 0
+    elif angle < 0.9 :
+        return 1
+    elif angle < 1.3:
+        return 0
+    elif angle < 1.9:
+        return 1
+    elif angle < 2.2:
+        return 0
+    else:
+        return 1
+
+
+def roiy(angle):
+    return int(1252.855 -1620.548*np.tan(np.deg2rad(angle)*2)) 
+
+def goto_angle(angle,th0_si):
+    yield from bps.mv(
+        att2_6.open_cmd, att6(angle),
+        att2_6.close_cmd, 1-att6(angle),
+        att2_5.open_cmd, att5(angle),
+        att2_5.close_cmd, 1-att5(angle),
+        att2_12.open_cmd, att12(angle),
+        att2_12.close_cmd, 1-att12(angle),
+        pil900KW.roi4.min_xyz.min_y,roiy(angle),
+        piezo.th,th0_si+angle
+    )
+
+
+
+
+def reflectivity_multisample():
+    sample_names = ['IBMSi1',    'IBM6p0',  'IBM5p0',  'IBM4p0',  'IBM0p01',    'IBM0p02', 'IBM3p0',  'IBM2p5',     'IBM2p25', 'IBMSi2']
+    x_piezos =     [55000,      -43000,    -31000,     -20000,     -6000,      -9000,      22000,      33000,      47000,     55000]
+    y_piezos =     [6713.0,     6646.7,    6616.7,     6628.1,     6544.6,     6574.1,     6571.1,     6536.7,     6554.9,    6713.0]
+    th0s     =     [2.943,      2.920,     2.927,      2.930,      2.943,      2.930,      2.930,      2.452 ,     2.939,     2.943]
+
+
+
+    angles = np.linspace(0,4,800)
+    
+    attenuator6o = [att6(angle) for angle in angles]
+    attenuator6c = [1-att6(angle)for angle in angles]
+    attenuator5o = [att5(angle) for angle in angles]
+    attenuator5c = [1-att5(angle) for angle in angles]
+    attenuator12o = [att12(angle) for angle in angles]
+    attenuator12c = [1-att12(angle) for angle in angles]
+
+    roi_centers = [roiy(angle) for angle in angles]
+
+
+    pil900KW.stats4.centroid.x.kind = 'hinted'
+    pil900KW.stats4.centroid.y.kind = 'hinted'
+    pil900KW.stats4.centroid_total.kind = 'hinted'
+    pil900KW.stats4.total.kind = 'hinted'
+    pil900KW.stats4.kind = 'hinted'
+    
+    for sample, xp, yp, th0 in zip(sample_names, x_piezos, y_piezos, th0s):
+        angles0 = [th0 + angle for angle in angles]
+
+
+        yield from bps.mv(  piezo.x, xp,
+                            piezo.y, yp)
+        sample_id(user_name="Eliot", sample_name=sample)
+
+        yield from bp.list_scan([pil900KW,pil900KW.stats4.centroid_total,pil900KW.stats4.total],
+                                piezo.th,angles0,
+                                pil900KW.roi4.min_xyz.min_y,roi_centers,
+                                att2_6,attenuator6o,
+                                att2_5,attenuator5o,
+                                att2_12,attenuator12o,
+                                )
+
+
+
+
+
+### In case useful ###
+
+def atten_move_in():
+    """
+    Move 4x + 2x Sn 60 um attenuators in
+    """
+    print('Moving attenuators in')
+
+    while att1_7.status.get() != 'Open':
+        yield from bps.mv(att1_7.open_cmd, 1)
+        yield from bps.sleep(1)
+    while att1_6.status.get() != 'Open':
+        yield from bps.mv(att1_6.open_cmd, 1)
+        yield from bps.sleep(1)
+
+def atten_move_out():
+    """
+    Move 4x + 2x Sn 60 um attenuators out
+    """
+    print('Moving attenuators out')
+    while att1_7.status.get() != 'Not Open':
+        yield from bps.mv(att1_7.close_cmd, 1)
+        yield from bps.sleep(1)
+    while att1_6.status.get() != 'Not Open':
+        yield from bps.mv(att1_6.close_cmd, 1)
+        yield from bps.sleep(1)
+
+### In case useful ###
+def reflectivity_multisample_segment():
+    sample_names = ['IBMSi']#,    'IBM6p0',  'IBM5p0',  'IBM4p0',  'IBM0p01',    'IBM0p02', 'IBM3p0',  'IBM2p5',     'IBM2p25', 'IBMSi']
+    x_piezos =     [55000]#,      -43000,    -31000,     -20000,     -6000,      -9000,      22000,      33000,      47000,     55000]
+    y_piezos =     [6713.0]#,     6646.7,    6616.7,     6628.1,     6544.6,     6574.1,     6571.1,     6536.7,     6554.9,    6713.0]
+    th0s     =     [2.943]#,      2.920,     2.927,      2.930,      2.943,      2.930,      2.930,      2.452 ,     2.939,     2.943]
+
+    angles_1 = np.linspace(0.0,  0.7,  71)[:-1]
+    angles_2 = np.linspace(0.7,  0.9,  21)[:-1]
+    angles_3 = np.linspace(0.9,  1.3,  41)[:-1]
+    angles_4 = np.linspace(1.3,  1.9,  61)[:-1]
+    angles_5 = np.linspace(1.9,  2.2,  31)[:-1]
+    angles_6 = np.linspace(2.2,  4.0,  181)[:-1]
+
+    angles = np.linspace(0,4,20)
+    
+    attenuator6o = [att6(angle) for angle in angles]
+    attenuator6c = [1-att6(angle)for angle in angles]
+    attenuator5o = [att5(angle) for angle in angles]
+    attenuator5c = [1-att5(angle) for angle in angles]
+    attenuator12o = [att12(angle) for angle in angles]
+    attenuator12c = [1-att12(angle) for angle in angles]
+
+    roi_centers = [roiy(angle) for angle in angles]
+
+
+    pil900KW.stats4.centroid.x.kind = 'hinted'
+    pil900KW.stats4.centroid.y.kind = 'hinted'
+    pil900KW.stats4.centroid_total.kind = 'hinted'
+    pil900KW.stats4.total.kind = 'hinted'
+    
+    for sample, xp, yp, th0 in zip(sample_names, x_piezos, y_piezos, th0s):
+        angles0 = [th0 + angle for angle in angles]
+
+
+        yield from bps.mv(  piezo.x, xp,
+                            piezo.y, yp)
+        sample_id(user_name="Eliot", sample_name=sample)
+
+        yield from bp.list_scan([pil900KW,pil900KW.stats4.centroid_total,pil900KW.stats4.total],
+                                piezo.th,angles0,
+                                pil900KW.roi4.min_xyz.min_y,roi_centers,
+                                att2_6.open_cmd,attenuator6o,
+                                att2_6.close_cmd,attenuator6c,
+                                att2_5.open_cmd,attenuator5o,
+                                att2_5.close_cmd,attenuator5c,
+                                att2_12.open_cmd,attenuator12o,
+                                att2_12.close_cmd,attenuator12c,
+                                )
+
