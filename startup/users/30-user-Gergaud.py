@@ -1368,3 +1368,250 @@ def cdsaxs_IBM_2024_1(t=1):
         yield from bps.mv(piezo.x, xs)
         yield from bps.mv(piezo.y, ys)
         yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name)
+
+
+
+
+
+
+def cdsaxsG_2024_2(t=1):
+    det = [pil1M]
+    det_exposure_time(t, t)
+
+
+
+    phi_offest = -2
+
+    names = [ 'w07_c00']
+    x =     [      -21600]
+    x_hexa =[       0.3]
+    y=      [      -1650]
+    z=      [     6700]
+    chi=    [       0.9]
+    th =    [       5.0]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+    for i in range(1):
+        for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+            yield from bps.mv(stage.x, xs_hexa)
+            # yield from bps.mv(stage.y, ys_hexa)
+
+            yield from bps.mv(piezo.z, zs)
+            yield from bps.mv(piezo.ch, chis)
+            yield from bps.mv(piezo.th, ths)
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            # yield from bp
+            #yield from cd_saxs_new(phi_offest, phi_offest, 1, exp_t=t, sample=name+'measure_ref-A%s'%(i+1), nume=1)
+            #yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name+'Ref_measure%s'%(i+1), nume=1)
+            #phi_offest=0
+            #yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name+'phioff_measure%s'%(i+1), nume=1)
+            #phi_offest=-2
+            #yield from bps.mv(piezo.z, zs+50)
+            #yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name+'zoff0pO5_measure%s'%(i+1), nume=1)
+            #yield from bps.mv(piezo.z, zs+100)
+            #yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name+'zoff0p1_measure%s'%(i+1), nume=1)
+            #yield from bps.mv(piezo.z, zs+200)
+            #yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name+'zoff0p2_measure%s'%(i+1), nume=1)
+            #yield from bps.mv(piezo.z, zs)
+            yield from bps.mv(piezo.ch, chis+0.2)
+            yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name+'chioff0p2_measure%s'%(i+1), nume=1)
+            yield from bps.mv(piezo.ch, chis+0.5)
+            yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name+'chioff0p5_measure%s'%(i+1), nume=1)
+            yield from bps.mv(piezo.ch, chis)
+            yield from cd_saxs_new(phi_offest, phi_offest, 1, exp_t=t, sample=name+'measure_ref-B%s'%(i+1), nume=1)
+
+
+
+
+    phi_offest = -2
+
+    names = [ 'w07_c00', 'w07_c00_bkg', 'w07_c10', 'w07_c10_bkg', 'w07_c10', 'w07_c01_bkg']
+    x =     [    -21600,        -21600,     -6700,         -6700,     10400,         10400]
+    x_hexa =[       0.3,           0.3,       0.3,           0.3,       0.3,           0.3]
+    y=      [     -1650,          -250,      -450,           750,      -650,         -1650]
+    z=      [      6700,          6700,      6100,          6100,      5600,          5600]
+    chi=    [       0.9,           0.9,      -0.6,          -0.6,      -0.2,          -0.2]
+    th =    [        5,              5,        5,              5,       5.7,           5.7]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+    '''
+    for i in range(5):
+        for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+            yield from bps.mv(stage.x, xs_hexa)
+            # yield from bps.mv(stage.y, ys_hexa)
+
+            yield from bps.mv(piezo.z, zs)
+            yield from bps.mv(piezo.ch, chis)
+            yield from bps.mv(piezo.th, ths)
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            # yield from bp
+            if 'bkg' not in name:
+                yield from cd_saxs_new(phi_offest, phi_offest, 1, exp_t=t, sample=name+'measure_ref-A%s'%(i+1), nume=1)
+                yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name+'measure%s'%(i+1), nume=5)
+                yield from cd_saxs_new(phi_offest, phi_offest, 1, exp_t=t, sample=name+'measure_ref-B%s'%(i+1), nume=1)
+            else:
+                if i ==0:
+                    yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name+'measure%s'%(i+1), nume=5)
+    '''
+    for i in range(2):
+        for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+            yield from bps.mv(stage.x, xs_hexa)
+            # yield from bps.mv(stage.y, ys_hexa)
+
+            yield from bps.mv(piezo.z, zs)
+            yield from bps.mv(piezo.ch, chis)
+            yield from bps.mv(piezo.th, ths)
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            # yield from bp
+            if 'bkg' not in name:
+                yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name+'measure%s'%(2+i+1), nume=1)
+
+
+def mesure_rugo(exp_t=1, nume=100):
+    phi_offest = -2
+
+    '''
+    names =  'w07_c00'
+    x =           -21600
+    x_hexa =       0.3
+    y=            -1650
+    z=           6700
+    chi=           0.9
+    th =           5.0
+    
+    names =  'w07_c00_bkg'
+    x =           -21600
+    x_hexa =       0.3
+    y=            -250
+    z=           6700
+    chi=           0.9
+    th =           5.0
+    '''
+
+    '''
+    names = [ 'w25_c2', 'w25_c2_bkg', 'w25_c3', 'w25_c3_bkg',  'w25_c4',  'w25_c4_bkg',  'w16_c2',  'w16_c2_bkg',  'w16_c3',  'w16_c3_bkg',  'w16_c4',  'w16_c4_bkg']
+    x =     [   -22600,       -22700,     3400,         3400,     29400,         29400,    -26000,        -26000,         0,             0,     26100,         26100]
+    x_hexa =[      0.3,          0.3,      0.3,          0.3,       0.3,           0.3,       0.3,           0.3,       0.3,           0.3,       0.3,           0.3]
+    y=      [    -8350,        -7350,    -8450,        -7350,     -8550,         -7550,      6200,          7200,      6200,          7200,      6100,          7100]
+    z=      [     6500,         6500,     5600,         5600,      5000,          5000,      6700,          6700,      5900,          5900,      5000,          5000]
+    chi=    [     -0.1,         -0.1,     -0.1,         -0.1,      -0.1,          -0.1,      -0.1,          -0.1,      -0.1,          -0.1,      -0.1,          -0.1]
+    th =    [      5.4,          5.4,      5.4,          5.4,       5.4,           5.4,       5.4,           5.4,       5.4,           5.4,       5.4,           5.4]
+    '''
+ 
+
+    names = [ 'w25_c1', 'w25_c1_bkg', 'w25_c0', 'w25_c0_bkg', 'w25_cm1', 'w25_cm1_bkg', 'w25_cm4', 'w25_cm4_bkg', 'w25_cm3', 'w25_cm3_bkg', 'w25_cm2', 'w25_cm2_bkg']
+    x =     [   -23900,       -23900,     3100,         3100,     29100,         29100,    -24500,        -26000,      1500,          1500,     27500,         27500]
+    x_hexa =[      0.3,          0.3,      0.3,          0.3,       0.3,           0.3,       0.3,           0.3,       0.3,           0.3,       0.3,           0.3]
+    y=      [    -8350,        -7350,    -8350,        -7350,     -8550,         -7550,      6500,          7500,      6500,          7500,      6500,          7500]
+    z=      [     6700,         6700,     5700,         5700,      4700,          4700,      6500,          6500,      5500,          5500,      4900,          4900]
+    chi=    [     -0.1,         -0.1,     -0.1,         -0.1,      -0.1,          -0.1,      -0.1,          -0.1,      -0.1,          -0.1,      -0.1,          -0.1]
+    th =    [      5.4,          5.4,      5.4,          5.4,       5.4,           5.4,       5.6,           5.6,       5.6,           5.6,       5.6,           5.6]
+
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+    yield from bps.mv(prs, phi_offest)
+    det_exposure_time(exp_t, exp_t)
+
+    for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.ch, chis)
+        yield from bps.mv(piezo.th, ths)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        name_fmt = "{sample}_rugo_up_sdd8p30"
+        sample_name = name_fmt.format(sample=name)
+        print(sample_name)
+        sample_id(user_name="PG", sample_name=sample_name)
+        yield from bp.count([pil1M], num=nume)
+
+        yield from bps.mvr(pil1m_pos.y, 4.3)
+        name_fmt = "{sample}_rugo_down_sdd8p30"
+        sample_name = name_fmt.format(sample=name)
+        sample_id(user_name="PG", sample_name=sample_name)
+        yield from bp.count([pil1M], num=nume)
+        yield from bps.mvr(pil1m_pos.y, -4.3)
+
+
+
+
+def cdsaxsstd_2024_2(t=1):
+    det = [pil1M]
+    det_exposure_time(t, t)
+
+    phi_offest = -2
+    '''
+    Forgot to change the name and position. Position are close enough to work
+    names = [ 'w16_c1', 'w16_c1_bkg', 'w16_c0', 'w16_c0_bkg', 'w16_cm1', 'w16_cm1_bkg', 'w16_cm4', 'w16_cm4_bkg', 'w16_cm3', 'w16_cm3_bkg', 'w16_cm2', 'w16_cm2_bkg']
+    x =     [   -22700,       -22700,     3400,         3400,     29400,         29400,    -24800,        -24800,      1200,          1200,     27200,         27200]
+    x_hexa =[      0.3,          0.3,      0.3,          0.3,       0.3,           0.3,       0.3,           0.3,       0.3,           0.3,       0.3,           0.3]
+    y=      [    -8350,        -7550,    -8350,        -7400,     -8350,         -7450,      6400,          7400,      6400,          7400,      6400,          7400]
+    z=      [     6700,         6700,     6100,         6100,      5300,          5300,      6700,          6700,      6000,          6000,      5300,          5300]
+    chi=    [      0.1,          0.1,      0.1,          0.1,       0.1,           0.1,      -0.1,          -0.1,      -0.1,          -0.1,      -0.1,          -0.1]
+    th =    [      6.0,          6.0,      6.0,          6.0,       6.0,           6.0,       5.4,           5.4,       5.4,           5.4,       5.4,           5.4]
+    
+    
+    names = [ 'w25_c2', 'w25_c2_bkg', 'w25_c3', 'w25_c3_bkg',  'w25_c4',  'w25_c4_bkg',  'w16_c2',  'w16_c2_bkg',  'w16_c3',  'w16_c3_bkg',  'w16_c4',  'w16_c4_bkg']
+    x =     [   -22600,       -22700,     3400,         3400,     29400,         29400,    -26000,        -26000,         0,             0,     26100,         26100]
+    x_hexa =[      0.3,          0.3,      0.3,          0.3,       0.3,           0.3,       0.3,           0.3,       0.3,           0.3,       0.3,           0.3]
+    y=      [    -8350,        -7350,    -8450,        -7350,     -8550,         -7550,      6200,          7200,      6200,          7200,      6100,          7100]
+    z=      [     6500,         6500,     5600,         5600,      5000,          5000,      6700,          6700,      5900,          5900,      5000,          5000]
+    chi=    [     -0.1,         -0.1,     -0.1,         -0.1,      -0.1,          -0.1,      -0.1,          -0.1,      -0.1,          -0.1,      -0.1,          -0.1]
+    th =    [      5.4,          5.4,      5.4,          5.4,       5.4,           5.4,       5.4,           5.4,       5.4,           5.4,       5.4,           5.4]
+    '''
+
+    names = [ 'w25_c1_bkg', 'w25_c0', 'w25_c0_bkg', 'w25_cm1', 'w25_cm1_bkg', 'w25_cm4', 'w25_cm4_bkg', 'w25_cm3', 'w25_cm3_bkg', 'w25_cm2', 'w25_cm2_bkg']
+    x =     [       -23900,     3100,         3100,     29100,         29100,    -24500,        -26000,      1500,          1500,     27500,         27500]
+    x_hexa =[          0.3,      0.3,          0.3,       0.3,           0.3,       0.3,           0.3,       0.3,           0.3,       0.3,           0.3]
+    y=      [        -7350,    -8350,        -7350,     -8550,         -7550,      6500,          7500,      6500,          7500,      6500,          7500]
+    z=      [         6700,     5700,         5700,      4700,          4700,      6500,          6500,      5500,          5500,      4900,          4900]
+    chi=    [         -0.1,     -0.1,         -0.1,      -0.1,          -0.1,      -0.1,          -0.1,      -0.1,          -0.1,      -0.1,          -0.1]
+    th =    [          5.4,      5.4,          5.4,       5.4,           5.4,       5.6,           5.6,       5.6,           5.6,       5.6,           5.6]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+    
+    for i in range(1):
+        for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+            yield from bps.mv(stage.x, xs_hexa)
+            yield from bps.mv(piezo.z, zs)
+            yield from bps.mv(piezo.ch, chis)
+            yield from bps.mv(piezo.th, ths)
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            # yield from bp
+            if 'bkg' not in name:
+                yield from cd_saxs_new(phi_offest, phi_offest, 1, exp_t=t, sample=name+'measure_ref-A%s'%(i+1), nume=1)
+                yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 61, exp_t=t, sample=name+'measure%s'%(i+1), nume=1)
+                yield from cd_saxs_new(phi_offest, phi_offest, 1, exp_t=t, sample=name+'measure_ref-B%s'%(i+1), nume=1)
+            else:
+                yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 61, exp_t=t, sample=name+'measure%s'%(i+1), nume=1)
+
+ 

@@ -533,7 +533,7 @@ def clear_md():
             print(f'No {k} key')
 
 
-def continous_run_prealigned_positions_2024_1(sname='20240408_op_Na_Cu_bar_a', t=2, wait=0, frames=1):
+def continous_run_prealigned_positions_2024_1(sname='20240408_op_Na_Cu_bar_a', t=2, wait=8, frames=1):
     """
     WAXS at each prealigned point
 
@@ -547,12 +547,13 @@ def continous_run_prealigned_positions_2024_1(sname='20240408_op_Na_Cu_bar_a', t
         alignment = RE.md['alignment_LUT']
     except:
         alignment =  {
-                      '0': {'x': 3999.71, 'y': -1442.75, 'z': 799.8, 'th': 1.00},
-                        '-250': {'x': 3749.71, 'y': -1437.84, 'z': 799.82, 'th': 1.00},
-                        '-500': {'x': 3499.71, 'y': -1437.94, 'z': 799.82, 'th': 1.00},
-                        '250': {'x': 4249.71, 'y': -1438.07, 'z': 799.82, 'th': 1.00},
-                        '500': {'x': 4499.71, 'y': -1438.41, 'z': 799.81, 'th': 1.00}
+                      '0': {'x': 814.46, 'y': 5918.27, 'z': 3400, 'th': 0.185},
+                        '-500': {'x': 314.373, 'y': 5899.3, 'z': 3400, 'th': 0.185},
+                        '-1000': {'x': -185.627, 'y': 5894.043, 'z': 3400, 'th': 0.185},
+                        '500': {'x': 1314.373, 'y': 5926.778, 'z': 3400, 'th': 0.185},
+                        '1000': {'x': 1814.373, 'y': 5938.7, 'z': 3400, 'th': 0.185}
         }
+        RE.md['alignment_LUT'] = alignment
 
     alignment = {int(k) : v for k, v in alignment.items()}
 
@@ -582,6 +583,65 @@ def continous_run_prealigned_positions_2024_1(sname='20240408_op_Na_Cu_bar_a', t
         # wait
         print(f'\nWaiting {wait} s')
         yield from bps.sleep(wait)
+
+def continous_run_change_xpos_thpos(
+        sname='20240524_operando_exp_b_echem',
+        t=2, wait=93, frames=5000,
+        x_off=[-600, -300, -250, 0, 250, 300, 600],
+        ai_off=[0.05, 0.10, 0.15, 0.20, 0.30],
+    ):
+    """
+    Take data continously
+    
+    Create timestamp in BlueSky before running this function as
+    create_timestamp()
+
+    Args:
+        sname (str): basic sample name,
+        t (float): camera exposure time is seconds,
+        wait (float): delay between frames,
+        frames(int): number of frames to take,
+        x_off (list of floats): relative x positions to take data at.
+    """
+    try:
+        tstamp = RE.md['tstamp']
+    except:
+        tstamp = time.time()
+        RE.md['tstamp'] = tstamp
+        print(f'Setting timestampt to {tstamp}')
+
+    try:
+        th0 = RE.md['th0']
+    except:
+        th0 = piezo.th.position
+        RE.md['th0'] = th0
+        print(f'Setting th0 to current position of {th0} deg')
+
+    det_exposure_time(t, t)
+    x_0 = piezo.x.position
+
+    for i in range(frames):
+
+        print(f'Taking {i + 1} / {frames} frames for {len(x_off)} x positions')
+    
+        for x_step in x_off:
+            yield from bps.mv(piezo.x, x_0 + x_step)
+
+            for ai in ai_off:
+                yield from bps.mv(piezo.th, th0 + ai)
+                # update sample name
+                name_sample(sname, tstamp)
+
+                # take one frame
+                yield from bp.count([pil900KW])
+        
+        yield from bps.mv(piezo.x, x_0,
+                          piezo.th, th0)
+
+        # don't wait
+        print(f'\nWaiting {wait} s')
+        yield from bps.sleep(wait)
+
 
 # Backup
 ''' {'0': {'x': 3648.04, 'y': -1263.1, 'z': 799.8, 'th': 2.19},
