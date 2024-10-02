@@ -35,8 +35,8 @@ def energy_to_gap(target_energy, undulator_harmonic=1, man_offset=0):
         0.28544 / (1 + 10 ** ((-10782.55855 - f) * 1.44995e-4))
         + (1 - 0.28544) / (1 + 10 ** ((7180.06758 - f) * 6.34167e-4))
     )
-    e_exp = np.array([ 2450, 2470, 3600, 4050, 6510, 6550, 7700, 8980, 9700, 12000, 12620, 14000, 14400, 16100,])
-    off_exp = np.array([-20,  -35,   29,   30,   -2,    55,   35,   19,   50,    45,    45,     45,     45,    45,])
+    e_exp = np.array([ 2450, 2470, 3600, 4050, 6400, 6510, 6550, 7700, 8980, 9700, 12000, 12620, 14000, 14400, 16100, 18000])
+    off_exp = np.array([-20,  -35,   29,   30,   25,   25,    25,   35,   19,   50,    35,    45,     45,     45,  35,  25])
 
 
     auto_offset = np.interp(target_energy, e_exp, off_exp, left=min(off_exp), right=max(off_exp))
@@ -48,6 +48,14 @@ def energy_to_gap(target_energy, undulator_harmonic=1, man_offset=0):
         #Cl edge -20
         gap = (gap_mm * 1000 -20)
         #gap = (gap_mm * 1000 -48)
+
+    # if target_energy > 17500:
+    #     #K edge -10
+    #     #Cl edge -20
+    #     gap = (gap_mm * 1000 -25)
+    #     #gap = (gap_mm * 1000 -48)
+
+
 
     # -30 for 12.62; -33 for 14 keV; -21 for 16.1 keV, 18.25keV; -50 for 9540eV; -20 for 2450eV; -30 for 4050eV
     # -29 for 9700 keV -- 11.150 keV, -55 for 6.55 keV, -35 for 7.7 kev;  -29 for 3.6 keV

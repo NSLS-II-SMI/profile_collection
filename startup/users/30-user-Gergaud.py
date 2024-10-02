@@ -1615,3 +1615,37 @@ def cdsaxsstd_2024_2(t=1):
                 yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 61, exp_t=t, sample=name+'measure%s'%(i+1), nume=1)
 
  
+
+
+
+def mesure_rugo_2024_16(exp_t=1, nume=100):
+
+    names = [ 'w25_c0', 'w25_c0_bkg']
+    x =     [      200,          200]
+    y=      [        0,         -700]
+
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+
+    # det_exposure_time(exp_t, exp_t)
+    for i in range(200):
+        for name, xs, ys in zip(names, x, y):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+
+            name_fmt = "{sample}_rugo_up_sdd9p20_16.1keV"
+            sample_name = name_fmt.format(sample=name)
+            print(sample_name)
+            sample_id(user_name="PG", sample_name=sample_name)
+            yield from bp.count([pil1M], num=1)
+
+
+
+            # yield from bps.mvr(pil1m_pos.y, 4.3)
+            # name_fmt = "{sample}_rugo_down_sdd9p20_16.1keV"
+            # sample_name = name_fmt.format(sample=name)
+            # sample_id(user_name="PG", sample_name=sample_name)
+            # yield from bp.count([pil1M], num=nume)
+            # yield from bps.mvr(pil1m_pos.y, -4.3)
+

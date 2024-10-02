@@ -26,9 +26,61 @@ def test_gi_tender(t=0.5):
 
     proposal_id('2023_2', '000001_Gann', analysis=True)
 
-    names   = ['subhSK1','subhSK2','subhSK3','subhSK4','subhSK6','subhSK7','subhSK8', ]
-    piezo_x = [  -55000 , -45000  , -31000  , -15000  , 18000   , 35000   , 47000, ]
-    piezo_y = [ 6648 for n in names ]
+def giwaxs_guillaume_2023_1(t=0.5):
+    """
+    GISAXS macro for 14 keV for Amalie sample
+    """
+    user_name = "GF"
+
+    names = [ 'giwaxssa01','giwaxssa02','giwaxssa03','giwaxssa04','giwaxssa05']
+    x_piezo = [      55000,       42000,       25000,        7000,      -10000]
+    y_piezo = [       5000,        5000,        5000,        5000,        5000]
+    z_piezo = [       7000,        7000,        7000,        7000,        7000]
+    x_hexa =  [         10,          10,          10,          10,          10]
+
+
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+    assert len(x_piezo) == len(x_hexa), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})"
+
+    waxs_angles = [0, 2, 20, 22]
+    inc_angles = [0.15, 0.20, 0.3]
+
+    for name, xs, zs, ys, xs_hexa in zip(names, x_piezo, z_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, -1)
+
+        yield from alignement_gisaxs(angle=0.15)
+        ai0 = piezo.th.position
+
+        det_exposure_time(t, t)
+        for wa in waxs_angles:
+            yield from bps.mv(waxs, wa)
+
+            dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+
+            for i, ai in enumerate(inc_angles):
+                yield from bps.mv(piezo.x, xs-500*i)
+                yield from bps.mv(piezo.th, ai0 + ai)
+                yield from bps.sleep(20)
+
+                bpm = xbpm3.sumX.get()
+                e = energy.energy.position / 1000
+                sdd = pil1m_pos.z.position / 1000
+
+                name_fmt = "{sample}_ai{ai}_{energy}eV_wa{wax}_sdd{sdd}m"
+                sample_name = name_fmt.format(sample=name, ai="%.2f"%ai, energy="%.1f"%e, sdd="%.1f"%sdd, wax="%.1f"%wa)
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+                yield from bps.sleep(2)
+
+            yield from bps.mv(piezo.th, ai0)
+
     piezo_z = [ 6600 for n in names ]
 
     energies = np.concatenate((np.arange(2445, 2470, 5),
@@ -327,3 +379,108 @@ def reflectivity_multisample_segment():
                                 att2_12.close_cmd,attenuator12c,
                                 )
 
+
+def giwaxs_eliot_2024_3(t=0.5):
+    """
+    GISAXS macro for 16 keV
+    """
+    user_name = "EG"
+
+    names =   [ 'linear3',    'Linear2side1', 'Linear2side2',  'Linear1side1','Linear1side2',]
+    x_piezo = [      -37650,       -10600,       -13000,        30300,          37300,]
+    y_piezo = [       2000,        -800,         -800,          800,            800,]
+    z_piezo = [       7600,        7600,         7600,          7600,           7600,]
+
+
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+    
+    waxs_angles = [0, 20,]
+    inc_angles = [0.05, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.25, 0.3]
+
+    for name, xs, zs, ys in zip(names, x_piezo, z_piezo, y_piezo):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        yield from bps.mv(piezo.th, 0)
+
+        yield from alignement_gisaxs(angle=0.15)
+        ai0 = piezo.th.position
+
+        det_exposure_time(t, t)
+        for wa in waxs_angles:
+            yield from bps.mv(waxs, wa)
+
+            dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+
+            for i, ai in enumerate(inc_angles):
+                yield from bps.mv(piezo.th, ai0 + ai)
+
+                bpm = xbpm3.sumX.get()
+                e = energy.energy.position / 1000
+                sdd = pil1m_pos.z.position / 1000
+
+                name_fmt = "{sample}_ai{ai}_{energy}eV_wa{wax}_sdd{sdd}m"
+                sample_name = name_fmt.format(sample=name, ai="%.2f"%ai, energy="%.1f"%e, sdd="%.1f"%sdd, wax="%.1f"%wa)
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+                yield from bps.sleep(2)
+
+            yield from bps.mv(piezo.th, ai0)
+
+
+def giwaxs_et_2024_3(ts=[0.5, 5, 15]):
+    """
+    GISAXS macro for 16 keV
+    """
+    user_name = "DG"
+
+    names =   [ 'T1',    'U1', ]
+    x_piezo = [      -5700,       5300,   ]
+    y_piezo = [       3773,        3773,    ]
+    z_piezo = [       7600,        7600,  ]
+
+
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+    
+    waxs_angles = [20,]
+    # inc_angles = [0.05, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.25, 0.3]
+    # inc_angles = np.arange(0.05, 0.152, 0.002) #51
+    inc_angles = np.arange(0.09, 0.106, 0.002) 
+
+    for name, xs, zs, ys in zip(names, x_piezo, z_piezo, y_piezo):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+        #yield from bps.mv(piezo.th, 0)
+
+        yield from alignement_gisaxs(angle=0.15)
+        ai0 = piezo.th.position
+
+        for t in  ts:
+            det_exposure_time(t, t)
+            for wa in waxs_angles:
+                yield from bps.mv(waxs, wa)
+
+                #dets = [pil900KW] if wa < 10 else [pil1M, pil900KW]
+                dets = [pil1M]
+
+                for i, ai in enumerate(inc_angles):
+                    yield from bps.mv(piezo.th, ai0 + ai)
+
+                    bpm = xbpm3.sumX.get()
+                    e = energy.energy.position / 1000
+                    sdd = pil1m_pos.z.position / 1000
+
+                    name_fmt = "{sample}_ai{ai}_{t}s_{energy}eV_wa{wax}_sdd{sdd}m"
+                    sample_name = name_fmt.format(sample=name, ai="%.3f"%ai, energy="%.1f"%e, sdd="%.1f"%sdd, t="%.1f"%t, wax="%.1f"%wa)
+                    sample_id(user_name=user_name, sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
+                    yield from bp.count(dets, num=1)
+                    yield from bps.sleep(2)
+
+                yield from bps.mv(piezo.th, ai0)

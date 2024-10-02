@@ -78,26 +78,35 @@ def measure_saxs_array(t=1, user_name="SF", sample='Ba4_d', xr_list = [-200, 0])
             yield from bp.count(dets, num=1)
 
 
-## RE(measure_waxs(t=0.5, waxs_angle=20, user_name="ZC", sample='Bar1_b1', xr_list = [-200, 0, 200]))
-def measure_waxs(t=1, waxs_angle=20, user_name="ZC", sample='test', xr_list = [-200, 0, 200]):
-    yield from bps.mv(waxs, waxs_angle)
+## RE(measure_waxs(t=1, waxs_angle=0, user_name="SM", sample='test', yr_list = np.arange(-200, 210, 20))
+def measure_waxs(t=1, waxs_angle=0, user_name="CK", sample='test', yr_list = [-50, 0, 50]):
     
+    #yield from bps.mv(waxs, waxs_angle)
+    #yield from bps.mv(piezo.y, 3880)
+
     x0_list = [piezo.x.position] #pos5, -17500
     #x0_list = np.arange(-43550, 40451, 6000)
+    # x0_list = [-42700] #, -36100, -29900, -23900, -17300, -10800, -4300, 8500, 15000, 21300, ]
+    x0_list = [-42750,     -33550, -24550, -16050,-7550, 1750,    10450, 19450, 28850 ] #37650, 46500 ]
+    #y0_list = [-10500, 2400, ] #19
+    # sam_list = ['s11',     's10', 's9', 's8','s7', 's6',     's5','s4','s3','s2',  's1']
+    sam_list = ['s12',     's13', 's14_sam1', 's15_sam2','s16_sam3', 's17_sam4',     's18_sam5','s19_sam6','s20_sam7',]
+  
+    for x0, sample in zip(x0_list, sam_list):
+        yield from bps.mv(piezo.x, x0)
 
-    for x0 in x0_list:
         y0 = piezo.y.position
         dets = [pil900KW]
         det_exposure_time(t, t)
 
-        for xr in xr_list:
-            x = x0+xr
-            yield from bps.mv(piezo.x, x0+xr)
+        for yr in yr_list:
+            y = y0+yr
+            yield from bps.mv(piezo.y, y0+yr)
 
             sample_name = "{sample}_x{x:06.0f}_y{y:06.0f}_waxs{waxs_angle:05.2f}_{t}s".format(
                 sample=sample,
-                x=x,
-                y=y0,
+                x=x0,
+                y=y,
                 waxs_angle = waxs_angle,
                 t=t,
             )

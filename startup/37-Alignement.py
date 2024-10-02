@@ -544,3 +544,43 @@ def alignement_xrr_xmotor(angle=0.15):
 
     # Deactivate the automated derivative calculation
     bec._calc_derivative_and_stats = False
+
+
+
+
+
+
+def alignement_gisaxs_short(angle=0.15):
+    """
+    Regular alignement routine for gisaxs and giwaxs. First, scan of the sample height and incident angle on the direct beam.
+    Then scan of teh incident angle, height and incident angle again on the reflected beam.
+
+    param angle: np.float. Angle at which the alignement on the reflected beam will be done
+
+    """
+
+    # Activate the automated derivative calculation
+    bec._calc_derivative_and_stats = True
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+    smi = SMI_Beamline()
+    yield from smi.modeAlignment(technique="gisaxs")
+
+    # Set direct beam ROI
+    yield from smi.setDirectBeamROI()
+
+    # Scan theta and height
+    yield from align_gisaxs_height(800, 21, der=True)
+    yield from align_gisaxs_th(1.5, 27)
+
+    yield from align_gisaxs_height(800, 21, der=True)
+    yield from align_gisaxs_th(1.5, 27)
+    
+    # Close all the matplotlib windows
+    plt.close("all")
+    yield from smi.modeMeasurement()
+
+    # Deactivate the automated derivative calculation
+    bec._calc_derivative_and_stats = False

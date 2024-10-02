@@ -2236,12 +2236,12 @@ def acq_delay(dets,exp_time,delay,num):
 def blade_coating_acqdelay_2024_2(sample_name='bladecoating', coating_start_pos=10, measurement_pos=87, th=0.16, dets = [pil1M, pil900KW]):
     # dets = ['pil900KW','pil1M']
 
-    yield from shopen()
-    yield from bps.sleep(1)
-    yield from shopen()
-    yield from bps.sleep(1)
-    yield from shopen()
-    yield from bps.sleep(2)
+    # yield from shopen()
+    # yield from bps.sleep(1)
+    # yield from shopen()
+    # yield from bps.sleep(1)
+    # yield from shopen()
+    # yield from bps.sleep(2)
     
     yield from bps.mv(thorlabs_su, thorlabs_su.position)
     yield from alignment_blade_coating_2024_2(coating_start_pos, measurement_pos,th)
@@ -2249,19 +2249,19 @@ def blade_coating_acqdelay_2024_2(sample_name='bladecoating', coating_start_pos=
     #det_exposure_time(0.5,300)
     
     sample_id(user_name='ML', sample_name=sample_name)
-    yield from bps.mv(syringe_pu.x3, 1) # start pump
+    yield from bps.mv(syringe_pu.go, 1) # start pump 
     yield from bps.sleep(2.5)
-    yield from bps.mv(syringe_pu.x4, 1) # stop pump
+    yield from bps.mv(syringe_pu.stop_flow, 1) # stop pump
     
     yield from bps.mv(thorlabs_su, measurement_pos)
     
-    yield from acq_delay(dets=dets, exp_time=1, delay=4, num= 120)
+    yield from acq_delay(dets=dets, exp_time=0.5, delay=5, num=300)
 
-    yield from shclose()
-    yield from bps.sleep(1)
-    yield from shclose()
-    yield from bps.sleep(1)
-    yield from shclose()
+    # yield from shclose()
+    # yield from bps.sleep(1)
+    # yield from shclose()
+    # yield from bps.sleep(1)
+    # yield from shclose()
 
 
 
@@ -2349,6 +2349,585 @@ def swaxs_Br_edge_capillaries_2024_2(t=1):
 
 
 
+def swaxs_hardxray_kelvin_2024_3(t=1):
+    """
+    314483_Freychet_03 Sept 16, 2024
+    """
+
+    dets = [pil1M, pil900KW]
+
+    names = [   'kl-blank',  'kl-nafion','kl-nf-p5-0.5', 'kl-nf-p5-2.0', 'kl-nf-p30-2.0', 'kl-nf-p30-0.5', 
+             'kl-ahpp25-4','kl-ahpp25-2', 'kl-ahpp25-1','kl-ahpp25-0.5','kl-ahpp25-0.25',
+             'kl-nf-p25-4','kl-nf-p25-2', 'kl-nf-p25-1','kl-nf-p25-0.5','kl-nf-p25-0.25', 
+              'sj-ppion-k','sj-ppionzrox-k', 'sj-bkg-k']
+        
+    x =     [        44700,        36300,         28300,          19900,           12500,            4800, 
+                     -3200,       -11000,        -19000,         -26600,          -34600, 
+                     44500,        36500,         28500,          21000,           13100,
+                      1100,       -15900,        -39900]
+    y =     [        -6400,        -6800,         -6900,          -7100,           -7300,           -7300, 
+                     -7300,        -7700,         -7700,          -8000,           -8000,
+                      6500,         6000,          5700,           5700,            5700,
+                      5700,         5700,          5700]
+    z =     [         2800,         2800,          2800,           2800,            2800,            2800, 
+                      2800,         2800,          2800,           2800,            2800,  
+                      2800,         2800,          2800,           2800,            2800,
+                      2800,         2800,          2800]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of y ({len(z)}) is different from number of samples ({len(names)})"
+
+    det_exposure_time(t, t)
+    waxs_arc = [0, 20, 40]
+
+    for name, xs, ys, zs in zip(names, x, y, z):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            for l, yy in enumerate([-100, 0, 100]):
+                yield from bps.mv(piezo.y, ys+yy)
+                yield from bps.sleep(1)
+
+                name_fmt = "{sample}_3.0m_16100.0eV_pos{pos}_wa{wax}"
+
+                sample_name = name_fmt.format(sample=name, pos=l, wax=wa)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+
+def swaxs_sedge_kelvin_2024_3(t=1):
+    """
+    314483_Freychet_03 Sept 16, 2024
+    """
+
+    dets = [pil1M, pil900KW]
+
+    names = [   'kl-blank',  'kl-nafion','kl-nf-p5-0.5', 'kl-nf-p5-2.0', 'kl-nf-p30-2.0', 'kl-nf-p30-0.5', 
+             'kl-ahpp25-4','kl-ahpp25-2', 'kl-ahpp25-1','kl-ahpp25-0.5','kl-ahpp25-0.25',
+             'kl-nf-p25-4','kl-nf-p25-2', 'kl-nf-p25-1','kl-nf-p25-0.5','kl-nf-p25-0.25']
+        
+    x =     [        44700,        36100,         28300,          19900,           12500,            4800, 
+                     -3200,       -11000,        -19000,         -26600,          -34600, 
+                     44500,        36500,         28500,          21000,           13100]
+    y =     [        -7200,        -7300,         -7500,          -7700,           -7600,           -7600, 
+                     -7300,        -7700,         -7700,          -7800,           -7800,
+                      5700,         5700,          5200,           5200,            5200]
+    z =     [         2800,         2800,          2800,           2800,            2800,            2800, 
+                      2800,         2800,          2800,           2800,            2800,  
+                      2800,         2800,          2800,           2800,            2800]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of y ({len(z)}) is different from number of samples ({len(names)})"
+
+    det_exposure_time(t, t)
+
+    energies = 7 + np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.25).tolist() + np.arange(2480, 2490, 1).tolist()
+                              + np.arange(2490, 2500, 5).tolist()+ np.arange(2500, 2521, 10).tolist())
+    
+    waxs_arc = [0, 20]
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1000, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_3.0m_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.3f"%bpm)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.mv(energy, 2450)
+
+
+def nexafs_Zr_edge_greg_2024_1(t=1):
+    """
+    307830_Su Feb 2, 2024
+    """
+
+    dets = [pil900KW, pil1M]
+
+    names = ['sj-ppionzrox-k', 'sj-ppion-k']
+    x =     [          -15900,        -8900]
+    y =     [            5700,         5700]
+
+    names = ['sj-bkg-k']
+    x =     [          -39900]
+    y =     [            5700]
+
+
+    det_exposure_time(t, t)
+
+    energies = np.linspace(17970, 18070, 51)
+    
+    waxs_arc = [0, 20, 40]
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 0, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(5)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.4f"%bpm)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 18030)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 18000)
+            yield from bps.sleep(2)
+
+
+
+
+def Zr_edge_giswaxs_measurments_2024_3(t=1):
+    dets = [pil900KW, pil1M]
+    det_exposure_time(t, t)
+
+    names = ['sj-ppionzrox-m-post', 'sj-ppionzrox-m-ox', 'sj-ppionzrox-m-pre', 'sj-ppion-m-ox', 
+                 'sj-bkg-m-coated',     'sj-bkg-m-bare',    'sj-ppionzrox-si',   'sj-ppion-si', 'sj-bkg-si']
+    x_piezo = [              55000,                55000,                48000,          37700,
+                             26700,               17400,                 2500,          -13500,      -30500]
+    x_hexa = [                  14,                 4.3,                    0,               0,
+                                0,                    0,                    0,               0,           0]
+    y_piezo = [               8400,                8200,                 8000,            7800,
+                              7700,                7500,                 6500,            6300,        6000]
+    z_piezo = [               2700,                2700,                 2700,            2700,
+                              2700,                2700,                 2700,            2700,        2700]
+       
+    names = ['sj-ppionzrox-si',   'sj-ppion-si', 'sj-bkg-si']
+    x_piezo = [           2500,          -13500,      -30500]
+    x_hexa = [               0,               0,           0]
+    y_piezo = [           6500,            6300,        6000]
+    z_piezo = [           2700,            2700,        2700]
+       
+
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(z_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(z_piezo)})"
+    assert len(x_piezo) == len(x_hexa), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})"
+
+    energies = np.linspace(17970, 18070, 51)
+
+    waxs_arc = [0, 20, 40]
+    ai0_all = 0
+    ai_list = [0.15]
+
+    for name, xs, ys, zs, xs_hexa in zip(names, x_piezo, y_piezo, z_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+        yield from bps.mv(piezo.th, ai0_all)
+        yield from alignement_gisaxs_rough(0.1)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            # Do not take SAXS when WAXS detector in the way
+
+            yield from bps.mv(piezo.x, xs)
+
+            for k, ais in enumerate(ai_list):
+                yield from bps.mv(piezo.th, ai0 + ais)
+
+                name_fmt = "{sample}_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}"
+                for e in energies:
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                    if xbpm2.sumX.get() < 5:
+                        yield from bps.sleep(2)
+                        yield from bps.mv(energy, e)
+                        yield from bps.sleep(2)
+                    
+                    bpm = xbpm3.sumX.get()
+                    sample_name = name_fmt.format(sample=name, energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm)
+                    sample_id(user_name="LR", sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
+                    yield from bp.count(dets, num=1)
+                
+                yield from bps.mv(energy, 18030)
+                yield from bps.sleep(2)
+                yield from bps.mv(energy, 18000)
+                yield from bps.sleep(2)
+
+            yield from bps.mv(piezo.th, ai0)
+
+
+
+
+def giwaxs_S_edge_Su_2024_3(t=1):
+ 
+
+    names = [  'GI_P25_4', 'GI_P25_2', 'GI_P25_1', 'GI_P25_0p5', 'GI_P25_0p25', 'GI_AHPP25_4', 'GI_AHPP25_2', 'GI_AHPP25_1', 'GI_AHPP25_0p5', 'GI_AHPP25_0p25',
+               'GI_P5A_4', 'GI_P5A_2', 'GI_P5A_1', 'GI_P5A_0p5', 'GI_P5A_0p25', 'GI_AHPP5A_4', 'GI_AHPP5A_2', 'GI_AHPP5A_1', 'GI_AHPP5A_0p5', 'GI_AHPP5A_0p25']             
+    x_piezo = [     54000,      54000,      40000,        25000,         15000,         -2000,        -15000,        -29000,          -42000,           -48000, 
+                    55000,      52000,      40000,        25000,         15000,          4000,         -8000,        -24000,          -37000,           -48000]  
+    x_hexa = [         15,          0,          0,            0,             0,             0,             0,             0,                0,              -8, 
+                       15,          0,          0,            0,             0,             0,             0,             0,                0,              -8] 
+    y_piezo = [      6800,       6800,       6800,         6800,          6800,          6800,          6800,          6800,             6800,            6800,
+                    -2700,      -2700,      -2700,        -2700,         -2700,         -2700,         -2700,         -2700,            -2700,           -2700] 
+    
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(x_hexa), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})"
+
+    waxs_arc = [7, 20]
+    ai0_all = 0
+    ai_list = [1.0]
+
+    energies = 7 + np.asarray(np.arange(2445, 2470, 5).tolist() + np.arange(2470, 2480, 0.5).tolist() + np.arange(2480, 2490, 2).tolist()
+                            + np.arange(2490, 2500, 5).tolist()+ np.arange(2500, 2521, 10).tolist())
+
+    xstep = 20
+
+    for name, xs, ys, xs_hexa in zip(names, x_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa,
+                          piezo.x, xs,
+                          piezo.y, ys)
+
+        yield from bps.mv(piezo.th, ai0_all)
+        yield from alignement_gisaxs_doblestack(0.3)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+        
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+
+            if wa ==0:
+                dets = [pil900KW]
+            else:
+                dets = [pil900KW, pil1M]
+
+            # Do not take SAXS when WAXS detector in the way
+
+            counter = 0
+            for k, ais in enumerate(ai_list):
+    
+
+                yield from bps.mv(piezo.th, ai0 + ais)
+
+                name_fmt = "{sample}_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}"
+                
+                for e in energies:
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                    if xbpm2.sumX.get() < 50:
+                        yield from bps.sleep(2)
+                        yield from bps.mv(energy, e)
+                        yield from bps.sleep(2)
+                    
+                    yield from bps.mv(piezo.x, xs - counter * xstep)
+                    counter += 1
+                    bpm = xbpm2.sumX.get()
+                    sample_name = name_fmt.format(sample=name,energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm)
+                    sample_id(user_name="GS", sample_name=sample_name)
+                    print(f"\n\t=== Sample: {sample_name} ===\n")
+                    yield from bp.count(dets, num=1)
+                
+                yield from bps.mv(energy, 2500)
+                yield from bps.sleep(2)
+                yield from bps.mv(energy, 2480)
+                yield from bps.sleep(2)
+                yield from bps.mv(energy, 2445)
+
+            yield from bps.mv(piezo.th, ai0)
+
+
+
+
+
+def giwaxs_hardxray_Kelvin_2024_3(t=1):
+
+    # In Freychet_11
+    # names = [  'GI_P25_4', 'GI_P25_2', 'GI_P25_1', 'GI_P25_0p5', 'GI_P25_0p25', 'GI_AHPP25_4', 'GI_AHPP25_2', 'GI_AHPP25_1', 'GI_AHPP25_0p5', 'GI_AHPP25_0p25',
+    #            'GI_P5A_4', 'GI_P5A_2', 'GI_P5A_1', 'GI_P5A_0p5', 'GI_P5A_0p25', 'GI_AHPP5A_4', 'GI_AHPP5A_2', 'GI_AHPP5A_1', 'GI_AHPP5A_0p5', 'GI_AHPP5A_0p25']             
+    # x_piezo = [     54000,      54000,      40000,        25000,         15000,         -2000,        -15000,        -29000,          -42000,           -48000, 
+    #                 55000,      52000,      40000,        25000,         15000,          4000,         -8000,        -24000,          -37000,           -48000]  
+    # x_hexa = [         15,          0,          0,            0,             0,             0,             0,             0,               0,               -8, 
+    #                    15,          0,          0,            0,             0,             0,             0,             0,               0,               -8] 
+    # y_piezo = [      6800,       6800,       6800,         6800,          6800,          6800,          6800,          6800,            6800,             6800,
+    #                 -1500,      -1500,      -1500,        -1500,         -1500,         -1500,         -1500,         -1500,           -1500,            -1500] 
+    
+    names = ['sj-ppionzrox-m-post', 'sj-ppionzrox-m-ox', 'sj-ppionzrox-m-pre', 'sj-ppion-m-ox', 
+                 'sj-bkg-m-coated',     'sj-bkg-m-bare']
+    x_piezo = [              53800,               53900,                48700,           37900,
+                             26900,               16400]
+    x_hexa = [                  14,                 4.3,                    0,               0,
+                                0,                    0]
+    y_piezo = [               7300,                7300,                 7300,            7300,
+                              7300,                7200]
+
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(x_hexa), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})"
+
+    waxs_arc = [7, 20]
+    ai0_all = -1
+    ai_list = [0.10, 0.12, 0.15, 0.20]
+    xstep = 0
+
+
+    for name, xs, ys, xs_hexa in zip(names, x_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa,
+                          piezo.x, xs,
+                          piezo.y, ys)
+
+        yield from bps.mv(piezo.th, ai0_all)
+        yield from alignement_gisaxs_doblestack(0.15)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+        
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+
+            if wa ==0:
+                dets = [pil900KW]
+            else:
+                dets = [pil900KW, pil1M]
+
+            # Do not take SAXS when WAXS detector in the way
+
+            counter = 0
+            for k, ais in enumerate(ai_list):
+                yield from bps.mv(piezo.th, ai0 + ais)
+
+                name_fmt = "{sample}_{energy}eV_ai{ai}_wa{wax}"
+                
+                yield from bps.mv(piezo.x, xs - counter * xstep)
+                counter += 1
+                e=energy.energy.position
+                sample_name = name_fmt.format(sample=name,energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(piezo.th, ai0)
+
+
+
+def nexafs_As_edge_matt_2024_1(t=1):
+    """
+    307830_Su Feb 2, 2024
+    """
+
+    dets = [pil900KW]
+
+
+    names = ['sludge_filter_pristine',        'sludge_filter_1C',       'sludge_filter_2C','jartest_filter_ctrl_0.2',
+            'jartest_filter_expD_0.2','jartest_filter_expD_0.45','jartest_filter_expD_1.2',  'jartest_filter_expD_5',
+               'housefilter_pristine',        'housefilter_H2F1',       'housefilter_H2F2',       'housefilter_H6F1',
+                   'housefilter_H6F2',       'housefilter_H11F2']
+    x =     [                   42000,                     36000,                    31000,                    25000, 
+                                20000,                     15000,                     9500,                     4000,
+                                -4000,                    -13000,                   -19000,                   -27000,
+                               -35000,                    -39000]
+    y =     [                   -2000,                     -2000,                    -2000,                    -2000,
+                                -2000,                     -2000,                    -2000,                    -2000,
+                                -2000,                     -2000,                    -2000,                    -2000,
+                                -2000,                     -2000]
+
+    det_exposure_time(t, t)
+
+    # waxs_arc = [0, 20, 40]
+
+
+    # for wa in waxs_arc:
+    #     yield from bps.mv(waxs, wa)
+
+    #     if wa==0:
+    #         dets = [pil900KW]
+
+    #     else:
+    #         dets = [pil900KW, pil1M]
+
+    #     det_exposure_time(t, t)
+    
+    #     for name, xs, ys in zip(names, x, y):
+    #         yield from bps.mv(piezo.x, xs)
+    #         yield from bps.mv(piezo.y, ys)
+
+    #         name_fmt = "{sample}_{energy}eV_wa{wax}_bpm{xbpm}"
+    #         bpm = xbpm3.sumX.get()
+
+    #         e = energy.energy.position
+    #         sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.4f"%bpm)
+    #         sample_id(user_name="GS", sample_name=sample_name)
+    #         print(f"\n\t=== Sample: {sample_name} ===\n")
+
+    #         yield from bp.count(dets, num=1)
+
+
+    dets = [pil900KW]
+
+    energies = np.asarray(np.arange(11850, 11865, 5).tolist() + np.arange(11865, 11873, 1).tolist() 
+    + np.arange(11873, 11885, 0.5).tolist() + np.arange(11885, 11895, 1).tolist()+ np.arange(11895, 11930, 5).tolist())
+    
+    waxs_arc = [40]
+
+    for name, xs, ys in zip(names[3:], x[3:], y[3:]):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 0, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "nexafs_{sample}_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+
+                energy.move(e)
+                yield from bps.sleep(5)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.4f"%bpm)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+            
+            energy.move(11870)
+            yield from bps.sleep(5)
+            energy.move(11850)
+            yield from bps.sleep(5)
+
+
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs+100)
+        yield from bps.mv(piezo.y, ys+200)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "nexafs_pos2_{sample}_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+
+                energy.move(e)
+                yield from bps.sleep(5)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.4f"%bpm)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+            
+            energy.move(11870)
+            yield from bps.sleep(5)
+            energy.move(11850)
+            yield from bps.sleep(5)
+
+
+    for name, xs, ys in zip(names, x, y):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs-100)
+        yield from bps.mv(piezo.y, ys-200)
+
+        yss = np.linspace(ys, ys + 0, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "nexafs_pos3_{sample}_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+
+                energy.move(e)
+                yield from bps.sleep(5)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.4f"%bpm)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+            
+            energy.move(11870)
+            yield from bps.sleep(5)
+            energy.move(11850)
+            yield from bps.sleep(5)
 
 
 
@@ -2356,5 +2935,590 @@ def swaxs_Br_edge_capillaries_2024_2(t=1):
 
 
 
+
+# ----------------------------------------------------------------
+# 2024-3
+
+
+def alignment_blade_coating_2024_3(coating_start_pos, measurement_pos,th):
+
+    yield from bps.mv(thorlabs_su, measurement_pos)
+    yield from alignement_gisaxs_hex(angle=th)
+
+    yield from bps.mvr(stage.th, th)
+    yield from bps.mvr(stage.y, 0.05)
+
+    yield from bps.mv(thorlabs_su, coating_start_pos)
+
+
+
+
+def blade_coating_2024_3(sample_name='bladecoating', coating_start_pos=10, measurement_pos=87, th=0.12, dets = [pil1M, pil900KW]):
+    # dets = ['pil900KW','pil1M']
+
+    #yield from shopen()
+    #yield from bps.sleep(1)
+    #yield from shopen()
+    #yield from bps.sleep(1)
+    #yield from shopen()
+    #yield from bps.sleep(2)
+    
+    yield from bps.mv(thorlabs_su, thorlabs_su.position)
+    yield from alignment_blade_coating_2024_2(coating_start_pos, measurement_pos,th)
+
+    det_exposure_time(0.5,300)
+    #det_exposure_time(2, 600)
+    sample_id(user_name='ML', sample_name=sample_name)
+    yield from bps.mv(syringe_pu.go, 1) # start pump 
+    yield from bps.sleep(2.5)
+    yield from bps.mv(syringe_pu.stop_flow, 1) # stop pump
+    
+    yield from bps.mv(thorlabs_su, measurement_pos)
+    
+    
+    yield from bp.count(dets)
+
+    #yield from shclose()
+    #yield from bps.sleep(1)
+    #yield from shclose()
+    yield from bps.sleep(2)
+    yield from shclose()
+
+
+
+
+
+def saxs_hardxray_capillaries_2024_3(t=0.1):
+    """
+    315602, Sept 29, 2024
+    """
+
+    dets = [pil1M]
+
+    #names = [   '91N1MgAc1',  '91N1MgAc17','91N1MgAc2', '91N1CuAc01', '91N1CuAc02']
+    #x =     [        -49150,        -42850,         -36550,          -30350,           -23750            ]
+    #y =     [        9200,        9200,         9200,          9200,           9200           ]
+    #z =     [        4800,        4800,         4800,          4800,           4800]
+    #names = [   '91N1CuAc03',  '91N1CuAc04','91N1CuAc07', '27N15', '27N15CuAc']
+    #x =     [        -49150,        -42850,         -36550,          -30350,           -23750            ]
+    #y =     [        9200,        9200,         9200,          9200,           9200           ]
+    #z =     [        4800,        4800,         4800,          4800,           4800] 
+    #names = [   'Nblank',  '91N1MgAc02','91N1MgAc04','27N15CuAc3', '27N15CuAc1']
+    #x =     [        -49150,        -42850,         -36550,          -30350,           -23750            ]
+    #y =     [        9200,        9200,         9200,          9200,           9200           ]
+    #z =     [        4800,        4800,         4800,          4800,           4800]
+    #names = [   '27N15CuAc45',  '27N15CuAc6','27N1CuAc04','27N1CuAc07', '124D420']
+    #x =     [        -49150,        -42850,         -36550,          -30350,           -23750            ]
+    #y =     [        9200,        9200,         9200,          9200,           9200           ]
+    #z =     [        4800,        4800,         4800,          4800,           4800]
+    #names = [   '124D620','124D220','124D820', '124D429', '124D423']
+    #x =     [        -49150,        -42850,         -36550,          -30350,           -23750            ]
+    #y =     [        9200,        9200,         9200,          9200,           9200           ]
+    #z =     [        4800,        4800,         4800,          4800,           4800]
+    #names = [   '27N1CuA01','124D420','124D417', '124D520', '124D426']
+    #x =     [        -49150,        -42850,         -36550,          -30350,           -23750            ]
+    #y =     [        9200,        9200,         9200,          9200,           9200           ]
+    #z =     [        4800,        4800,         4800,          4800,           4800]
+    #names = [   '27N1CuA02','27N1CuAc03']
+    #x =     [        -49150,        -42850]
+    #y =     [        9200,        9200]
+    #z =     [        4800,        4800]
+    names = [   'AgB']
+    x =     [        -49150]
+    y =     [        9200]
+    z =     [        4800]
+
+
+
+
+
+
+    
+    
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of y ({len(z)}) is different from number of samples ({len(names)})"
+
+    det_exposure_time(t, t)
+
+    for name, xs, ys, zs in zip(names, x, y, z):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+        
+
+        name_fmt = "{sample}_9.2m_16100.0eV_"
+
+        sample_name = name_fmt.format(sample=name)
+        sample_id(user_name="ML", sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+
+        yield from bp.count(dets, num=1)
+
+
+
+
+
+
+
+
+
+
+
+# switch from blade coating to ex situ samples
+
+
+
+
+
+def swaxs_hardxray_mrl_2024_3(t=1):
+    """
+    315602_Su_8    Sept 30, 2024
+    """
+
+    dets = [pil1M, pil900KW]
+
+    names = [   'capillary-jd11',  'capillary-jd10', 'capillary-jd9', 'capillary-jd8', 'capillary-jd7', 'capillary-jd6',
+                'capillary-jd5',  'capillary-jd4', 'capillary-jd3', 'capillary-jd2', 'capillary-jd1', 'capillary-AgB']
+        
+    x =     [             -40149,       -34150,        -27650,         -21649,          -15149,          -9149,
+                          -1950,         4050,          10050,         17250,            22649,           29250
+                     ]
+    y =     [              7200,         7200,         7200,            7100,             7200,           7200,
+                           7200,         7200,         7200,            7200,             7200,           7700
+                     ]
+    z =     [              4801,         4801,          4801,           4801,            4801,            4801, 
+                           4801,         4801,          4801,           4801,            4801,            4801
+                     ]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of y ({len(z)}) is different from number of samples ({len(names)})"
+
+    det_exposure_time(t, t)
+    waxs_arc = [0, 20, 40]
+
+    for name, xs, ys, zs in zip(names, x, y, z):
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+        yield from bps.mv(piezo.z, zs)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            for l, yy in enumerate([-100, 0, 100]):
+                yield from bps.mv(piezo.y, ys)
+                yield from bps.sleep(1)
+
+                name_fmt = "{sample}_6.0m_16100.0eV_pos{pos}_wa{wax}"
+
+                sample_name = name_fmt.format(sample=name, pos=l, wax=wa)
+                sample_id(user_name="ML", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+
+
+def swaxs_hardxray_mrl_v2_2024_3(t=1):
+    """
+    315602_Su_8    Sept 30, 2024
+    switched for loops for sample position and waxs arc to make scans faster (go to one waxs position, run all samples, then move waxs arc)
+    """
+
+    dets = [pil1M, pil900KW]
+
+    #names = [   'capillary-jd11',  'capillary-jd10', 'capillary-jd9', 'capillary-jd8', 'capillary-jd7', 'capillary-jd6',
+    #            'capillary-jd5',  'capillary-jd4', 'capillary-jd3', 'capillary-jd2', 'capillary-jd1', 'capillary-AgB']
+    #x =     [             -40149,       -34150,        -27650,         -21649,          -15149,          -9149,
+    #                      -1950,         4050,          10050,         17250,            22649,           29250]
+    #y =     [              7200,         7200,         7200,            7100,             7200,           7200,
+    #                       7200,         7200,         7200,            7200,             7200,           7700]
+    #z =     [              4801,         4801,          4801,           4801,            4801,            4801, 
+    #                       4801,         4801,          4801,           4801,            4801,            4801]
+
+    # mrl alaska bar 1 
+    #names = ['sludge_filter_pristine',        'sludge_filter_1C',       'sludge_filter_2C','jartest_filter_ctrl_0.2',
+    #        'jartest_filter_expD_0.2','jartest_filter_expD_0.45','jartest_filter_expD_1.2',  'jartest_filter_expD_5',
+    #           'housefilter_pristine',        'housefilter_H2F1',       'housefilter_H2F2',       'housefilter_H6F1',
+    #               'housefilter_H6F2',       'housefilter_H11F2']
+    #x =     [                   33000,                     26000,                    21000,                    15000, 
+    #                            10000,                     5000,                     -500,                     -6000,
+    #                            -14000,                    -21000,                   -30000,                   -38000,
+    #                           -45000,                    -49000]
+    #y =     [                   -2500,                     -2500,                    -2500,                    -2500,
+    #                            -2500,                     -2500,                    -2500,                    -2500,
+    #                            -2500,                     -3000,                    -3000,                    -3000,
+    #                            -3000,                     -3000]
+    #z =     [                   4800,                     4800,                    4800,                    4800,
+    #                            4800,                     4800,                    4800,                    4800,
+    #                            4800,                     4800,                    4800,                    4800,
+    #                            4800,                     4800]
+
+
+    # mrl alaska bar 2 
+    #names = [      'housefilter_H8F1',        'housefilter_H8F2',       'housefilter_H7F1',      'housefilter_H7F2',
+     #              'housefilter_H5F1',        'housefilter_H5F2',       'housefilter_H4F1',       'housefilter_H4F2',
+     #              'housefilter_H3F1',        'housefilter_H3F2',       'housefilter_H9F1',       'housefilter_H10F4',
+     #              'housefilter_H10F1',  'jartest_filter_expG_02um', 'jartest_filter_expF_02um']
+    #x =     [                   32000,                     24300,                    18700,                    12100, 
+    #                            6700,                     1100,                     -3100,                     -8900,
+    #                            -14200,                    -18700,                   -26200,                   -33900,
+    #                           -39900,                    -45900,                      -52000    ]
+
+   # y =     [                   500,                     500,                    500,                    500,
+   #                             500,                     500,                    500,                    500,
+   #                             500,                     500,                    500,                    500,
+   #                             500,                     500,                    500       ]
+
+  #  z =     [                   4800,                     4800,                    4800,                    4800,
+  #                              4800,                     4800,                    4800,                    4800,
+  #                              4800,                     4800,                    4800,                    4800,
+  #                              4800,                     4800,                    4800       ]
+
+
+
+    # supriya transmission bar
+    names = [      'SG1',        'SG2',       'SG3',      'SG4',
+                   'SG5',        'SG6',       'SG7',       'SG8',
+                   'SG9',     ]
+    
+
+    x =     [      33600,       26400,        18600,       13200, 
+                    5900,       -2100,        -10100,     -17900,
+                   -26000    ]
+    
+    y =     [      -200,       -200,        700,       700, 
+                    700,        700,        500,      1200,
+                   1200    ]
+    
+    z =     [      4800,       4800,        4800,       4800, 
+                   4800,       4800,        4800,       4800,
+                   4800    ]
+
+
+
+
+
+
+
+
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of y ({len(z)}) is different from number of samples ({len(names)})"
+
+    det_exposure_time(t, t)
+    waxs_arc = [0, 20, 40]
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+    
+        for name, xs, ys, zs in zip(names, x, y, z):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            yield from bps.mv(piezo.z, zs)
+
+            for l, yy in enumerate([-100, 0, 100]):
+                yield from bps.mv(piezo.y, ys)
+                yield from bps.sleep(1)
+
+                name_fmt = "{sample}_6.0m_16100.0eV_pos{pos}_wa{wax}_1sec"
+
+                sample_name = name_fmt.format(sample=name, pos=l, wax=wa)
+                sample_id(user_name="ML", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+
+
+
+
+def nexafs_Ag_edge_Su_2024_3(t=0.2):
+    """
+    NEXAFS and SAXS at 40 deg across Ag L3 edge
+    """
+
+    user_name = "ML"
+
+    # fourth bar: final bar, scattering and some additional scans for other edges
+    # names = ["Ag_poly","AgNO3_ref"]
+    # piezo_x = [-26000, -39000]
+    # piezo_y = [  1000,    900]
+
+
+    names = ["rough_nexafs_redo_AgNO3_ref"]
+    piezo_x = [ -38200]
+    piezo_y = [900]
+
+    names = ["Ag_poly"]
+    piezo_x = [-26000]
+    piezo_y = [  1000]
+
+    waxs_arc = [40]
+    # to move piezo x slightly for different waxs angles
+    waxs_piezo_x_offset = 200  # um
+    det_exposure_time(t, t)
+
+    assert len(piezo_x) == len(names), f"Number of piezo x coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})"
+    assert len(piezo_x) == len(piezo_y), f"Number of piezo x coordinates ({len(piezo_x)}) is different tan number of piezo y coordinates ({len(piezo_y)})"
+    assert len(piezo_y) == len(names), f"Number of piezo y coordinates ({len(piezo_y)}) is different from number of samples ({len(names)})"
+
+    # Check and correct sample names just in case
+    names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+
+    # Energies for silver L3 edge nexafs resolution
+    energies = np.concatenate((np.arange(3300, 3340, 5), np.arange(3340, 3350, 2), np.arange(3350, 3390, 1), 
+                               np.arange(3390, 3400, 2), np.arange(3400, 3450, 5)))
+
+
+    # Go over WAXS arc positions as the sloest motor
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+
+        # Do not read SAXS if WAXS is in the way
+        dets = [pil900KW]
+
+        # Go over samples
+        for name, xs, ys in zip(names, piezo_x, piezo_y):
+
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+
+            # Cover a range of 1.0 mm in y to avoid damage
+            yss = np.linspace(ys, ys + 0, len(energies))
+
+            # Scan over energies
+            for e, ysss in zip(energies, yss):
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+
+                # Metadata
+                bpm = xbpm3.sumX.get()
+                sdd = pil1m_pos.z.position / 1000
+                wa = str(np.round(float(wa), 1)).zfill(4)
+
+                # Detector file name
+                name_fmt = "{sample}_{energy}eV_wa{wax}_sdd{sdd}m_bpm{xbpm}"
+                sample_name = name_fmt.format(
+                    sample=name,
+                    energy="%6.2f" % e,
+                    wax=wa,
+                    sdd="%.1f" % sdd,
+                    xbpm="%4.3f" % bpm,
+                )
+                sample_id(user_name=user_name, sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 3400)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 3350)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 3300)
+            yield from bps.sleep(2)
+
+
+
+
+
+def nexafs_Fe_edge_mrl_2024_3(t=1):
+    """
+    315602_Su_10         Sept 30, 2024
+    """
+
+    dets = [pil900KW]
+
+
+    #names = ['sludge_filter_pristine',        'sludge_filter_1C',       'sludge_filter_2C','jartest_filter_ctrl_0.2',
+    #        'jartest_filter_expD_0.2','jartest_filter_expD_0.45','jartest_filter_expD_1.2',  'jartest_filter_expD_5',
+    #           'housefilter_pristine',        'housefilter_H2F1',       'housefilter_H2F2',       'housefilter_H6F1',
+    #               'housefilter_H6F2',       'housefilter_H11F2']
+    #x =     [                   42000,                     36000,                    31000,                    25000, 
+    #                            20000,                     15000,                     9500,                     4000,
+    #                            -4000,                    -13000,                   -19000,                   -27000,
+    #                           -35000,                    -39000]
+    #y =     [                   -2000,                     -2000,                    -2000,                    -2000,
+    #                            -2000,                     -2000,                    -2000,                    -2000,
+    #                            -2000,                     -2000,                    -2000,                    -2000,
+    #                            -2000,                     -2000]
+    
+
+
+    # mrl alaska bar 2 
+    names = [      'housefilter_H8F1',        'housefilter_H8F2',       'housefilter_H7F1',      'housefilter_H7F2',
+                   'housefilter_H5F1',        'housefilter_H5F2',       'housefilter_H4F1',       'housefilter_H4F2',
+                  'housefilter_H3F1',        'housefilter_H3F2',       'housefilter_H9F1',       'housefilter_H10F4',
+                   'housefilter_H10F1',  'jartest_filter_expG_02um', 'jartest_filter_expF_02um']
+    x =     [                  41300 ,                     33300,                    28300,                    22300, 
+                                16300,                     10700,                     6700,                     700,
+                                -4800,                    -9400,                   -16700,                   -24700,
+                               -30600,                    -36600,                      -41600    ]
+
+    y =     [                   1000,                     1000,                    1000,                    1000,
+                                1000,                     1000,                    1000,                    1000,
+                                1000,                     1000,                    1000,                    1000,
+                                1000,                     1000,                    1000       ]
+
+
+
+
+    # mrl Fe K-edge 
+    energies = np.concatenate((np.arange(7070, 7110, 5), 
+                               np.arange(7110, 7150, 1),
+                               np.arange(7150, 7160, 2), 
+                               np.arange(7160, 7240, 5) ))
+
+
+
+    waxs_arc = [40]
+
+    for name, xs, ys in zip(names[:], x[:], y[:]):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 0, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "nexafs_{sample}_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+
+                energy.move(e)
+                yield from bps.sleep(5)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.4f"%bpm)
+                sample_id(user_name="GS", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+            
+            energy.move(7240)
+            yield from bps.sleep(5)
+            energy.move(7070)
+            yield from bps.sleep(5)
+
+
+
+
+
+
+
+def nexafs_Mn_edge_mrl_2024_3(t=2):
+    """
+    315602_Su_11         Sept 30, 2024
+    """
+
+    dets = [pil900KW]
+
+
+    #names = ['sludge_filter_pristine',        'sludge_filter_1C',       'sludge_filter_2C','jartest_filter_ctrl_0.2',
+    #        'jartest_filter_expD_0.2','jartest_filter_expD_0.45','jartest_filter_expD_1.2',  'jartest_filter_expD_5',
+    #           'housefilter_pristine',        'housefilter_H2F1',       'housefilter_H2F2',       'housefilter_H6F1',
+    #               'housefilter_H6F2',       'housefilter_H11F2']
+    #x =     [                   42000,                     36000,                    31000,                    25000, 
+    #                            20000,                     15000,                     9500,                     4000,
+    #                            -4000,                    -13000,                   -19000,                   -27000,
+    #                           -35000,                    -39000]
+    #y =     [                   -2000,                     -2000,                    -2000,                    -2000,
+    #                            -2000,                     -2000,                    -2000,                    -2000,
+    #                            -2000,                     -2000,                    -2000,                    -2000,
+    #                            -2000,                     -2000]
+    
+#    names = ['sludge_filter_2C', 'jartest_filter_ctrl_0.2',
+#            'jartest_filter_expD_0.2','jartest_filter_expD_0.45','jartest_filter_expD_1.2',  'jartest_filter_expD_5',
+#               'housefilter_pristine',        'housefilter_H2F1',       'housefilter_H2F2',       'housefilter_H6F1',
+#                   'housefilter_H6F2',       'housefilter_H11F2']
+#    x =     [           31000,                    25000, 
+#                        20000,                     15000,                     9500,                     4000,
+#                        -4000,                    -13000,                   -19000,                   -27000,
+#                        -35000,                    -39000]
+#    y =     [          -2000,                    -2000,
+#                        -2000,                     -2000,                    -2000,                    -2000,
+#                        -2000,                     -2000,                    -2000,                    -2000,
+#                        -2000,                     -2000]
+    
+
+    # mrl alaska bar 2 
+    names = [      'KMnO4_ref', 'housefilter_H8F1',        'housefilter_H8F2',       'housefilter_H7F1',      'housefilter_H7F2',
+                   'housefilter_H5F1',        'housefilter_H5F2',       'housefilter_H4F1',       'housefilter_H4F2',
+                  'housefilter_H3F1',        'housefilter_H3F2',       'housefilter_H9F1',       'housefilter_H10F4',
+                   'housefilter_H10F1' ]
+    x =     [                  -37600, 41300 ,                     33300,                    28300,                    22300, 
+                                16300,                     10700,                     6700,                     700,
+                                -4800,                    -9400,                   -16700,                   -24700,
+                               -30600    ]
+
+    y =     [                   1000, 1000,                     1000,                    1000,                    1000,
+                                1000,                     1000,                    1000,                    1000,
+                                1000,                     1000,                    1000,                    1000,
+                                1000  ]
+
+
+
+
+    # mrl Mn K-edge 
+    energies = np.concatenate((np.arange(6510, 6530, 5), 
+                               np.arange(6530, 6535, 1),
+                               np.arange(6535, 6555, 0.5),
+                               np.arange(6555, 6570, 1),  
+                               np.arange(6570, 6580, 2), 
+                               np.arange(6580, 6640, 5) ))
+
+
+
+    waxs_arc = [40]
+
+    for name, xs, ys in zip(names[1:], x[1:], y[1:]):
+        # changing ys to allow for more room during dense energy scan
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 0, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+
+            det_exposure_time(t, t)
+
+            name_fmt = "nexafs_{sample}_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+
+                energy.move(e)
+                yield from bps.sleep(5)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.4f"%bpm)
+                sample_id(user_name="ML", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+            
+            energy.move(6640)
+            yield from bps.sleep(5)
+            energy.move(6510)
+            yield from bps.sleep(5)
 
 
