@@ -71,9 +71,11 @@ class PilatusDetector(PilatusDetector):
 
 
 class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, md=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self._md = md
         self.__stage_cache = {}
+        self._asset_path = ''
 
     def describe(self):
         ret = super().describe()
@@ -104,7 +106,18 @@ class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
         print('get_frames_per_point returns', ret)
         return ret
 
+    def _update_paths(self):
+        self.write_path_template = self.root_path_str
+        self.read_path_template = self.root_path_str
+
+    @property
+    def root_path_str(self):
+        root_path = f"/nsls2/data/smi/proposals/{self._md['cycle']}/{self._md['data_session']}/assets/{self._asset_path}/%Y/%m/%d/"
+        return root_path
+
+
     def stage(self):
+        self._update_paths(self)
         self.__stage_cache['file_path'] = self.file_path.get()
         self.__stage_cache['file_name'] = self.file_name.get()
         self.__stage_cache['next_file_num'] = self.file_number.get()
@@ -124,10 +137,16 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
     tiff = Cpt(
         TIFFPluginWithFileStore,
         suffix="TIFF1:",
+        md=RE.md,
         # write_path_template="/GPFS/xf12id1/data/PLACEHOLDER",  # override this on instances using instance.tiff.write_file_path
         write_path_template="/ramdisk/PLACEHOLDER",
         root="/",
     )
+
+    def __init__(self, *args, **kwargs):
+        self.asset_path = kwargs.pop("asset_path", 'pilatus')
+        super().__init__(*args, **kwargs)
+        self.tiff._asset_path = self.asset_path
 
     roi1 = Cpt(ROIPlugin, "ROI1:")
     roi2 = Cpt(ROIPlugin, "ROI2:")
@@ -326,12 +345,12 @@ fd = FakeDetector(name="fd")
 #####################################################
 # Pilatus 1M definition
 
-pil1M = Pilatus("XF:12IDC-ES:2{Det:1M}", name="pil1M")  # , detector_id="SAXS")
+pil1M = Pilatus("XF:12IDC-ES:2{Det:1M}", name="pil1M", asset_path="Pilatus1M-1")  # , detector_id="SAXS")
 pil1M.set_primary_roi(1)
 
-pil1M.tiff.write_path_template = (
-    pil1M.tiff.read_path_template
-) = "/nsls2/data/smi/legacy/results/raw/1M/%Y/%m/%d/"
+# pil1M.tiff.write_path_template = (
+#     pil1M.tiff.read_path_template
+# ) = "/nsls2/data/smi/legacy/results/raw/1M/%Y/%m/%d/"
 # pil1M.tiff.write_path_template = pil1M.tiff.read_path_template = '/nsls2/data/smi/assets/default/%Y/%m/%d/'
 
 # pil1M.tiff.write_path_template = pil1M.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/1M/%Y/%m/%d/'
