@@ -97,7 +97,7 @@ class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
 
 
         return ret
-    
+
     def get_frames_per_point(self):
         ret = super().get_frames_per_point()
         print('get_frames_per_point returns', ret)
@@ -150,7 +150,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
     roi2 = Cpt(ROIPlugin, "ROI2:")
     roi3 = Cpt(ROIPlugin, "ROI3:")
     roi4 = Cpt(ROIPlugin, "ROI4:")
- 
+
     stats1 = Cpt(StatsWCentroid, "Stats1:", read_attrs=["total"])
     stats2 = Cpt(StatsWCentroid, "Stats2:", read_attrs=["total"])
     stats3 = Cpt(StatsWCentroid, "Stats3:", read_attrs=["total"])
@@ -207,7 +207,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
 
     def read_threshold(self):
         return self.energy_read, self.threshold_read, self.gain_read
-    
+
     def trigger(self):
         "Trigger one acquisition."
         if self._staged != Staged.yes:
@@ -222,15 +222,15 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
             #print(data)
             #print(data.alarm_status)
             if data.alarm_status is not AlarmStatus.NO_ALARM:
- 
+
                 if fail_count < 5:
                     # chosen after testing and it failing 2x per cam server restart so
                     # so two extra tries seems reasonable
                     print('\n\n\n\nYOL0(or twice): retrying detector failure')
                     print('Reset detector camserver if this is the start of the macro\n\n\n\n\n')
-                    self._acquisition_signal.put(1, use_complete=True, callback=_acq_done, 
+                    self._acquisition_signal.put(1, use_complete=True, callback=_acq_done,
                                      callback_data=self.cam.detector_state)
-                
+
                     fail_count += 1
                     time.sleep(0.1)
                 else:
@@ -240,7 +240,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
             else:
                 self._status._finished()
 
-        self._acquisition_signal.put(1, use_complete=True, callback=_acq_done, 
+        self._acquisition_signal.put(1, use_complete=True, callback=_acq_done,
                                      callback_data=self.cam.detector_state)
         self.dispatch(self._image_name, ttime.time())
         return self._status
@@ -460,7 +460,7 @@ class WAXS(Device):
         # bsx_pos =-20.92 + 264 * np.tan(np.deg2rad(arc_value))
         # bsx_pos = -17.1 - 252*np.tan(np.deg2rad(arc_value)) # until 29-Mar-2022 when the waxs-arc failed , and MZ also raised the BS maually.
         # bsx_pos = -16.64 - 252 * np.tan(np.deg2rad(arc_value))  # new zero position
-        # bsx_pos = -9.07561 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Oct 24, refining after WAXS arc died 
+        # bsx_pos = -9.07561 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Oct 24, refining after WAXS arc died
         # bsx_pos = -7.5756 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Nov 8, bumped?
         # bsx_pos = -50.1 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Nov 14, After changing the motor by ZY and Brian
         # bsx_pos = -50.1 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 May 5, discovering it was bumped somehow
