@@ -10,6 +10,7 @@ from ophyd import (
     EpicsMotor,
     ROIPlugin,
     ImagePlugin,
+    TIFFPlugin,
     TransformPlugin,
     SingleTrigger,
     PilatusDetector,
@@ -71,7 +72,7 @@ class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
         super().__init__(*args, **kwargs)
         self._md = md
         self.__stage_cache = {}
-        self._asset_path = ''
+        self._asset_path = None
 
     def describe(self):
         ret = super().describe()
@@ -113,7 +114,8 @@ class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
 
 
     def stage(self):
-        self._update_paths(self)
+        if self._asset_path:
+            self._update_paths(self)
         self.__stage_cache['file_path'] = self.file_path.get()
         self.__stage_cache['file_name'] = self.file_name.get()
         self.__stage_cache['next_file_num'] = self.file_number.get()
@@ -140,7 +142,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
     )
 
     def __init__(self, *args, **kwargs):
-        self.asset_path = kwargs.pop("asset_path", 'pilatus')
+        self.asset_path = kwargs.pop("asset_path", None)
         super().__init__(*args, **kwargs)
         self.tiff._asset_path = self.asset_path
 
@@ -364,7 +366,7 @@ for detpos in [pil1m_pos]:
 #####################################################
 # Pilatus 300kw definition
 
-# pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW")  # , detector_id="WAXS")
+# pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW", asset_path="pilatus300kw-1")  # , detector_id="WAXS")
 # pil300KW.set_primary_roi(1)
 
 
@@ -395,7 +397,7 @@ pil300KW = None
 #####################################################
 # Pilatus 900KW definition
 
-pil900KW = Pilatus("XF:12IDC-ES:2{Det:900KW}", name="pil900KW")
+pil900KW = Pilatus("XF:12IDC-ES:2{Det:900KW}", name="pil900KW", asset_path="pilatus900kw-1")
 pil900KW.set_primary_roi(1)
 
 pil900KW.tiff.write_path_template = (

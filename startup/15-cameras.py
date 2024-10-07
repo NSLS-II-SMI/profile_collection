@@ -64,8 +64,24 @@ VFMcamera = EpicsSignal("XF:12IDA-BI{Cam:VFM}TIFF1:WriteFile", name="VFMcamera")
 
 
 class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
-    pass
+    def __init__(self, *args, md=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._md = md
+        self._asset_path = None
 
+    def _update_paths(self):
+        self.write_path_template = self.root_path_str
+        self.read_path_template = self.root_path_str
+
+    @property
+    def root_path_str(self):
+        root_path = f"/nsls2/data/smi/proposals/{self._md['cycle']}/{self._md['data_session']}/assets/{self._asset_path}/%Y/%m/%d/"
+        return root_path
+
+    def stage(self):
+        if self._asset_path:
+            self._update_paths(self)
+        return super().stage()
 
 class HDF5PluginWithFileStore(HDF5Plugin, FileStoreHDF5IterativeWrite):
     def get_frames_per_point(self):
@@ -93,6 +109,7 @@ class StandardRayonix(SingleTrigger, RayonixDetector):
     tiff = Cpt(
         TIFFPluginWithFileStore,
         suffix="TIFF1:",
+        md=RE.md,
         write_path_template="/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/",  # override this on instances using instance.tiff.write_file_path
         root="/GPFS",  # /xf12id1/data/MAXS/images/',
     )
@@ -107,6 +124,11 @@ class StandardRayonix(SingleTrigger, RayonixDetector):
     roi2 = Cpt(ROIPlugin, "ROI2:")
     roi3 = Cpt(ROIPlugin, "ROI3:")
     roi4 = Cpt(ROIPlugin, "ROI4:")
+
+    def __init__(self, *args, **kwargs):
+        self.asset_path = kwargs.pop("asset_path", None)
+        super().__init__(*args, **kwargs)
+        self.tiff._asset_path = self.asset_path
 
 
 # rayonix = StandardRayonix('XF:12IDC-ES:2{Det:MAXS}', name='rayonix')
@@ -148,13 +170,22 @@ class StandardProsilicaWithTIFF(StandardProsilica):
     tiff = Cpt(
         TIFFPluginWithFileStore,
         suffix="TIFF1:",
+        md=RE.md,
+#        asset_path='prosilica',  # TODO:
         write_path_template="/tmp/%Y/%m/%d/",
         read_path_template="/tmp/%Y/%m/%d/",
         root="/tmp/",
     )
 
+    def __init__(self, *args, **kwargs):
+        self.asset_path = kwargs.pop("asset_path", None)
+        super().__init__(*args, **kwargs)
+        self.tiff._asset_path = self.asset_path
 
-FS = StandardProsilica("XF:12IDA-BI{Cam:FS}", name="FS")
+# If asset_path is not defined, TIFFPluginWithFileStore will fall back to hardcoded paths
+FS = StandardProsilica("XF:12IDA-BI{Cam:FS}", name="FS", asset_path="webcam-3")
+
+#FS = StandardProsilica("XF:12IDA-BI{Cam:FS}", name="FS")
 FS.read_attrs = ["stats1", "stats2", "stats3", "stats4"]
 FS.stats1.read_attrs = ["total"]
 FS.stats2.read_attrs = ["total"]
