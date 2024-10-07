@@ -62,7 +62,6 @@ class PilatusDetectorCamV33(PilatusDetectorCam):
     file_name = Cpt(SignalWithRBV, "FileName", string=True)
     file_template = Cpt(SignalWithRBV, "FileName", string=True)
     file_number = Cpt(SignalWithRBV, "FileNumber")
-    energy = Cpt(SignalWithRBV, "Energy")
 
 from ophyd.utils.epics_pvs import AlarmStatus
 
@@ -75,7 +74,7 @@ class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
         super().__init__(*args, **kwargs)
         self._md = md
         self.__stage_cache = {}
-        self._asset_path = ''
+        self._asset_path = None
 
     def describe(self):
         ret = super().describe()
@@ -117,7 +116,8 @@ class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
 
 
     def stage(self):
-        self._update_paths(self)
+        if self._asset_path:
+            self._update_paths(self)
         self.__stage_cache['file_path'] = self.file_path.get()
         self.__stage_cache['file_name'] = self.file_name.get()
         self.__stage_cache['next_file_num'] = self.file_number.get()
@@ -144,7 +144,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
     )
 
     def __init__(self, *args, **kwargs):
-        self.asset_path = kwargs.pop("asset_path", 'pilatus')
+        self.asset_path = kwargs.pop("asset_path", None)
         super().__init__(*args, **kwargs)
         self.tiff._asset_path = self.asset_path
 
@@ -167,7 +167,6 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
     gain = Cpt(EpicsSignal, "cam1:GainMenu")
     apply = Cpt(EpicsSignal, "cam1:ThresholdApply")
 
-    
     threshold_read = Cpt(EpicsSignal, "cam1:ThresholdEnergy_RBV")
     energy_read = Cpt(EpicsSignal, "cam1:Energy_RBV")
     gain_read = Cpt(EpicsSignal, "cam1:GainMenu_RBV")
@@ -262,24 +261,23 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
         return self._status
 
 
-def det_exposure_time(exp_t, meas_t=1, period_delay=0.001):
+def det_exposure_time(exp_t, meas_t=1):
     """
     Waits broke pilatus exposure set when setting burst mode
     and hitting ctrl+c
     """
-
     try:
         for j in range(2):
             waits = []
             waits.append(pil1M.cam.acquire_time.set(exp_t))
-            waits.append(pil1M.cam.acquire_period.set(exp_t + period_delay))
+            waits.append(pil1M.cam.acquire_period.set(exp_t + 0.001))
             waits.append(pil1M.cam.num_images.set(int(meas_t / exp_t)))
             if pil300KW is not None:
                 waits.append(pil300KW.cam.acquire_time.set(exp_t))
-                waits.append(pil300KW.cam.acquire_period.set(exp_t + period_delay))
+                waits.append(pil300KW.cam.acquire_period.set(exp_t + 0.001))
                 waits.append(pil300KW.cam.num_images.set(int(meas_t / exp_t)))
             waits.append(pil900KW.cam.acquire_time.set(exp_t))
-            waits.append(pil900KW.cam.acquire_period.set(exp_t + period_delay))
+            waits.append(pil900KW.cam.acquire_period.set(exp_t + 0.001))
             waits.append(pil900KW.cam.num_images.set(int(meas_t / exp_t)))
             for w in waits:
                 w.wait()
@@ -383,7 +381,7 @@ for detpos in [pil1m_pos]:
 #####################################################
 # Pilatus 300kw definition
 
-# pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW")  # , detector_id="WAXS")
+# pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW", asset_path="pilatus300kw-1")  # , detector_id="WAXS")
 # pil300KW.set_primary_roi(1)
 
 
@@ -414,7 +412,7 @@ pil300KW = None
 #####################################################
 # Pilatus 900KW definition
 
-pil900KW = Pilatus("XF:12IDC-ES:2{Det:900KW}", name="pil900KW")
+pil900KW = Pilatus("XF:12IDC-ES:2{Det:900KW}", name="pil900KW", asset_path="pilatus900kw-1")
 pil900KW.set_primary_roi(1)
 
 pil900KW.tiff.write_path_template = (
@@ -485,9 +483,9 @@ class WAXS(Device):
         # bsx_pos = -48.2 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Sep 21, bumped diagonaly by last users
         # bsx_pos = -50.2 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Oct 20, bumped again please be careful people!!
         # bsx_pos = -54.65 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Nov 02, bumped again with 3d printer.
-        bsx_pos = -36.1 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2024 May 20, changing script rather than dial as previously...
-        bsx_pos = -27.7 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2024 May 20, changing script rather than dial as previously...
-        bsx_pos = -96.74 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2025 Feb 05, changing script rather than dial as previously...
+        # bsx_pos = -36.1 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2024 May 20, changing script rather than dial as previously...
+        # bsx_pos = -27.7 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2024 May 20, changing script rather than dial as previously...
+        # bsx_pos = -96.74 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2025 Feb 05, changing script rather than dial as previously...
         bsx_pos = -117.487 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2025 Feb 11, changing script rather than dial as previously...
 
         return bsx_pos
