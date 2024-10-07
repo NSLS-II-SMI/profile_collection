@@ -56,7 +56,6 @@ class PilatusDetectorCamV33(PilatusDetectorCam):
                 continue
             if hasattr(cpt, "ensure_nonblocking"):
                 cpt.ensure_nonblocking()
-
     energyset = Cpt(Signal, name="Beamline Energy") # remember the energy of the beamline
     file_path = Cpt(SignalWithRBV, "FilePath", string=True)
     file_name = Cpt(SignalWithRBV, "FileName", string=True)
@@ -99,7 +98,7 @@ class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
 
 
         return ret
-    
+
     def get_frames_per_point(self):
         ret = super().get_frames_per_point()
         print('get_frames_per_point returns', ret)
@@ -152,7 +151,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
     roi2 = Cpt(ROIPlugin, "ROI2:")
     roi3 = Cpt(ROIPlugin, "ROI3:")
     roi4 = Cpt(ROIPlugin, "ROI4:")
- 
+
     stats1 = Cpt(StatsWCentroid, "Stats1:", read_attrs=["total"])
     stats2 = Cpt(StatsWCentroid, "Stats2:", read_attrs=["total"])
     stats3 = Cpt(StatsWCentroid, "Stats3:", read_attrs=["total"])
@@ -209,7 +208,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
 
     def read_threshold(self):
         return self.energy_read, self.threshold_read, self.gain_read
-    
+
     def trigger(self):
         "Trigger one acquisition."
         if self._staged != Staged.yes:
@@ -224,6 +223,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
             #print(data)
             #print(data.alarm_status)
             if data.alarm_status is not AlarmStatus.NO_ALARM:
+
  
                 if fail_count < 4:
                     # chosen after testing and it failing 2x per cam server restart so
@@ -248,6 +248,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
                     #reset the threshold 
                     set_energy_cam(self.cam,self.cam.energyset.get())
                     time.sleep(5)
+
                 else:
                     self._status.set_exception(
                         RuntimeError(f"FAILED {pvname}: {data.alarm_status}: {data.alarm_severity}")
@@ -468,6 +469,7 @@ class WAXS(Device):
             )
         else:
             calc_value = -44
+
         st_x = self.bs_x.set(calc_value)
         return st_arc & st_x
 
@@ -483,6 +485,7 @@ class WAXS(Device):
         # bsx_pos = -48.2 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Sep 21, bumped diagonaly by last users
         # bsx_pos = -50.2 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Oct 20, bumped again please be careful people!!
         # bsx_pos = -54.65 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Nov 02, bumped again with 3d printer.
+
         # bsx_pos = -36.1 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2024 May 20, changing script rather than dial as previously...
         # bsx_pos = -27.7 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2024 May 20, changing script rather than dial as previously...
         # bsx_pos = -96.74 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2025 Feb 05, changing script rather than dial as previously...
@@ -508,3 +511,4 @@ def set_energy_cam(cam,en_ev):
      cam.gain_menu.put(gain)
      cam.threshold_apply.put(1)
      cam.energyset.set(en) # store so it remembers on failure and resets
+
