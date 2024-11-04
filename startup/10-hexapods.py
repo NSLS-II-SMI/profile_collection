@@ -43,8 +43,11 @@ class SMARACT(Device):
     x = Cpt(EpicsMotor, "0}Mtr", labels=["piezo"])
     y = Cpt(EpicsMotor, "3}Mtr", labels=["piezo"])
     z = Cpt(EpicsMotor, "6}Mtr", labels=["piezo"])
-    th = Cpt(EpicsMotor, "4}Mtr", labels=["piezo"])
-    ch = Cpt(EpicsMotor, "1}Mtr", labels=["piezo"])
+    # swapping Th and ch as of Oct 2024 when old th motor seems to fail it's sensor
+    #th = Cpt(EpicsMotor, "4}Mtr", labels=["piezo"])
+    #ch = Cpt(EpicsMotor, "1}Mtr", labels=["piezo"])
+    ch = Cpt(EpicsMotor, "4}Mtr", labels=["piezo"])
+    th = Cpt(EpicsMotor, "1}Mtr", labels=["piezo"])
 
 
 class BDMStage(Device):

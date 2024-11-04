@@ -97,7 +97,11 @@ def beamstop_save():
 
     # load the previous config file
     smi_config = pds.read_csv(SMI_CONFIG_FILENAME, index_col=0)
-    smi_config_update = smi_config.append(current_config_DF, ignore_index=True)
+    #smi_config_update = smi_config.append(current_config_DF, ignore_index=True)
+    #YZ changed here on Octa 24, 2024
+    smi_config_update = pds.concat([smi_config, current_config_DF ], ignore_index=True)  
+   
+
 
     # save to file
     smi_config_update.to_csv(SMI_CONFIG_FILENAME)

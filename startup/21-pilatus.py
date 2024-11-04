@@ -10,6 +10,7 @@ from ophyd import (
     EpicsMotor,
     ROIPlugin,
     ImagePlugin,
+    TIFFPlugin,
     TransformPlugin,
     SingleTrigger,
     PilatusDetector,
@@ -225,23 +226,24 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
         return self._status
 
 
-def det_exposure_time(exp_t, meas_t=1):
+def det_exposure_time(exp_t, meas_t=1, period_delay=0.001):
     """
     Waits broke pilatus exposure set when setting burst mode
     and hitting ctrl+c
     """
+
     try:
         for j in range(2):
             waits = []
             waits.append(pil1M.cam.acquire_time.set(exp_t))
-            waits.append(pil1M.cam.acquire_period.set(exp_t + 0.001))
+            waits.append(pil1M.cam.acquire_period.set(exp_t + period_delay))
             waits.append(pil1M.cam.num_images.set(int(meas_t / exp_t)))
             if pil300KW is not None:
                 waits.append(pil300KW.cam.acquire_time.set(exp_t))
-                waits.append(pil300KW.cam.acquire_period.set(exp_t + 0.001))
+                waits.append(pil300KW.cam.acquire_period.set(exp_t + period_delay))
                 waits.append(pil300KW.cam.num_images.set(int(meas_t / exp_t)))
             waits.append(pil900KW.cam.acquire_time.set(exp_t))
-            waits.append(pil900KW.cam.acquire_period.set(exp_t + 0.001))
+            waits.append(pil900KW.cam.acquire_period.set(exp_t + period_delay))
             waits.append(pil900KW.cam.num_images.set(int(meas_t / exp_t)))
             for w in waits:
                 w.wait()

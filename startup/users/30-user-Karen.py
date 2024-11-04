@@ -343,7 +343,8 @@ def alignment_off():
     yield from smi.modeMeasurement()
     yield from bps.mv(waxs, 0)
 
-def continous_run_change_xpos(sname='20240524_operando_exp_b_echem', t=2, wait=8, frames=5000, x_off=[-250, 0, 250]):
+def continous_run_change_xpos(sname='echem_20241030_op_Na_Cu_bar_c', t=2, wait=100, frames=5000, x_off=[-500, -400, -300, -250, -200,-150, -100, -50, 0, 50, 
+                                                                  100,150, 200, 250, 300, 400, 500]):
     """
     Take data continously
     
@@ -385,7 +386,8 @@ def continous_run_change_xpos(sname='20240524_operando_exp_b_echem', t=2, wait=8
         print(f'\nWaiting {wait} s')
         yield from bps.sleep(wait)
 
-def take_data_across_x(sname='20240408_op_Na_Cu_bar_b_interrupted_fresh', t=2, x_off=[-550, -500, -450, -300, -250, -200, -50, 0, 50, 200, 250, 300, 450, 500, 550]):
+def take_data_across_x(sname='20241030_op_Na_Cu_bar_b', t=2, x_off=[-500, -400, -300, -250, -200,-150, -100, -50, 0, 50, 
+                                                                  100,150, 200, 250, 300, 400, 500]):
 
     try:
         tstamp = RE.md['tstamp']

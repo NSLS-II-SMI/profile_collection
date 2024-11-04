@@ -468,7 +468,7 @@ def zihan_giwaxs_2023_2(t=0.5, name='test', dist='unspecified'):
     """
 
     incident_angles = [0.5, 1.5, 4.5, 6.5]
-    waxs_arc = [0, 20]
+    waxs_arc = [0,7,20]
     user_name = "ZZ"
 
     # Sample flat at ai0
@@ -1874,4 +1874,81 @@ def grazing_swaxs_2024_2_bg(t=1):
         yield from bps.mv(piezo.th, ai0)
 
     sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)
+
+
+def zihan_giwaxs_line_samplebar_2024_3(t=0.5):
+    """
+    Hard X-ray GIWAXS, samples on regular GI stage
+    """
+
+    names =   [ 'ZZ_Reannal_1p5h_01']
+    piezo_x = [  -43000]  # -43000, -800 , 40500
+    piezo_y = [  2600]
+    piezo_z = [ 0 for n in names ]
+    # stage_x = [  -11, ..., 0, 0, 0, ..., 11]
+    stage_x = [0 for n in names ]
+    # piezo_z = [4200, 4100, ]
+
+    msg = "Wrong number of coordinates"
+    assert len(names)   == len(piezo_x), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_y) == len(piezo_z), msg
+    assert len(piezo_z) == len(stage_x), msg
+
+    user_name = "ZZ"
+    ai0 = piezo.th.position
+    waxs_arc = [0, 7, 20]
+    incident_angles = [0.5,1.5,3,4.5]
+    # x_off = np.arange(0, 25 * 20 + 1, 25) - 250
+    # x_off = [-250, -225, -200, -175, -150, -125, -100,  -75,  -50,  -25,    0,
+    #            25,   50,   75,  100,  125,  150,  175,  200,  225,  250]
+    # x_off = [-250,   -150,-50,0,50,  150,  250]
+    x_off=[0]
+    unaligned_samples = []
+
+
+    for name, x, y, z, hx in zip(names, piezo_x, piezo_y, piezo_z, stage_x):
+        yield from bps.mv(piezo.x, x,
+                          piezo.y, y,
+                          piezo.z, z,
+                          piezo.th, ai0,
+                          stage.x, hx,
+        )
+        # Align sample
+        try:
+            yield from alignement_gisaxs(0.1)
+        except:
+            unaligned_samples.append(name)
+            print('\n\n\n\Could not align, remeasure!!!\n\n\n')
+            break
+        
+        # Sample flat at ai0
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+
+            for xx, x_of in enumerate(x_off):
+                yield from bps.mv(piezo.x, x + x_of)
+
+                for ai in incident_angles:
+                    yield from bps.mv(piezo.th, ai0 + ai)
+
+                    sample_name = f'{name}_{get_scan_md()}_loc{xx}_ai{ai}'
+                    sample_id(user_name=user_name, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+    if unaligned_samples:
+        f = RE.md['path'] + '/unaligned_samples.txt'
+        with open(f, 'w') as file:
+            for row in unaligned_samples:
+                s = " ".join(map(str, row))
+                file.write(s + '\n')
+
+    yield from bps.mv(piezo.th, ai0)
+    sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.5, 0.5)

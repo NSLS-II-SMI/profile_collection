@@ -331,10 +331,10 @@ def atten_move_out():
 
 ### In case useful ###
 def reflectivity_multisample_segment():
-    sample_names = ['IBMSi']#,    'IBM6p0',  'IBM5p0',  'IBM4p0',  'IBM0p01',    'IBM0p02', 'IBM3p0',  'IBM2p5',     'IBM2p25', 'IBMSi']
-    x_piezos =     [55000]#,      -43000,    -31000,     -20000,     -6000,      -9000,      22000,      33000,      47000,     55000]
-    y_piezos =     [6713.0]#,     6646.7,    6616.7,     6628.1,     6544.6,     6574.1,     6571.1,     6536.7,     6554.9,    6713.0]
-    th0s     =     [2.943]#,      2.920,     2.927,      2.930,      2.943,      2.930,      2.930,      2.452 ,     2.939,     2.943]
+    sample_names = ['IBMSi',    'IBM6p0',  'IBM5p0',  'IBM4p0',  'IBM0p01',    'IBM0p02', 'IBM3p0',  'IBM2p5',     'IBM2p25', 'IBMSi']
+    x_piezos =     [55000,      -43000,    -31000,     -20000,     -6000,      -9000,      22000,      33000,      47000,     55000]
+    y_piezos =     [6713.0,     6646.7,    6616.7,     6628.1,     6544.6,     6574.1,     6571.1,     6536.7,     6554.9,    6713.0]
+    th0s     =     [2.943,      2.920,     2.927,      2.930,      2.943,      2.930,      2.930,      2.452 ,     2.939,     2.943]
 
     angles_1 = np.linspace(0.0,  0.7,  71)[:-1]
     angles_2 = np.linspace(0.7,  0.9,  21)[:-1]
@@ -484,3 +484,372 @@ def giwaxs_et_2024_3(ts=[0.5, 5, 15]):
                     yield from bps.sleep(2)
 
                 yield from bps.mv(piezo.th, ai0)
+
+
+def nikhil_S_edge_spectroscopy(t=1,ai=0.5):
+
+
+    names = ["ZnS_pristinehr", "ZnS_annealedhr",
+             "CdS_pristinehr", "CdS_annealedhr",
+             "BiS_pristinehr", "BiS_annealedhr"]
+    x = [-40000, -28000, -18000,  -4000,  12000,  25000]
+    y = [  6700,   6700,   6700,   6700,   6700,   6700]
+
+    
+    yield from bps.mv(waxs, 52)
+    dets = [pil1M, pil900KW]
+
+
+    energies = (np.arange(2445, 2470, 5).tolist()+ np.arange(2470, 2480, 0.25).tolist()+ np.arange(2480, 2490, 1).tolist()
+                + np.arange(2490, 2500, 5).tolist()+ np.arange(2500, 2560, 10).tolist())
+    
+    yield from bps.mv(energy,energies[0])
+
+    det_exposure_time(t, t)
+    name_fmt = "{sample}_{energy}eV_xbpm{xbpm}"
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs,
+                          piezo.y, ys,
+                          piezo.th,0)
+        
+        yield from alignement_gisaxs(0.5)
+
+        yield from bps.mvr(piezo.th,ai)
+        
+        for e in energies:
+            try:
+                yield from bps.mv(energy, e)
+            except:
+                print("energy failed to move, sleep for 30 s")
+                yield from bps.sleep(30)
+                print("Slept for 30 s, try move energy again")
+                yield from bps.mv(energy, e)
+            yield from bps.sleep(1)
+            yield from bps.mvr(piezo.x,20)
+            sample_name = name_fmt.format(
+                sample=name, energy="%6.2f" % e, xbpm="%3.1f" % xbpm3.sumY.get()
+            )
+            sample_id(user_name="NT", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+            yield from bp.count(dets, num=1)
+
+        yield from bps.mv(energy, 2470)
+        yield from bps.mv(energy, 2450)
+
+
+
+
+def nikhil_Zn_edge_spectroscopy(t=1,ai=0.2):
+
+
+    names = [
+             "ZnS_pristinehr", "ZnS_annealedhr",
+             #"CdS_pristinehr", "CdS_annealedhr",
+             #"BiS_pristinehr", "BiS_annealedhr"
+             ]
+    x = [
+         -38000, -25000,
+         #-18000,  -4000,
+         #12000,  25000
+         ]
+    y = [
+          6900,   6900,
+         # 6700,   6700,
+         # 6700,   6700
+          ]
+
+    
+    yield from bps.mv(waxs, 52)
+    dets = [pil1M, pil900KW]
+
+
+    #energies = (np.arange(2445, 2470, 5).tolist()+ np.arange(2470, 2480, 0.25).tolist()+ np.arange(2480, 2490, 1).tolist()
+    #            + np.arange(2490, 2500, 5).tolist()+ np.arange(2500, 2560, 10).tolist())
+    
+    energies = (np.arange(9600, 9650, 5).tolist()+ 
+                np.arange(9650, 9700, 1).tolist()+
+                np.arange(9700, 2750, 5).tolist())
+
+    yield from bps.mv(energy,energies[0])
+
+    det_exposure_time(t, t)
+    name_fmt = "{sample}_{energy}eV_xbpm{xbpm}"
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs,
+                          piezo.y, ys,
+                          piezo.th,0)
+        
+        yield from alignement_gisaxs(0.2)
+
+        yield from bps.mvr(piezo.th,ai)
+        
+        for e in energies:
+            try:
+                yield from bps.mv(energy, e)
+            except:
+                print("energy failed to move, sleep for 30 s")
+                yield from bps.sleep(30)
+                print("Slept for 30 s, try move energy again")
+                yield from bps.mv(energy, e)
+            yield from bps.sleep(1)
+            yield from bps.mvr(piezo.x,20)
+            sample_name = name_fmt.format(
+                sample=name, energy="%6.2f" % e, xbpm="%3.1f" % xbpm3.sumY.get()
+            )
+            sample_id(user_name="NT", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+            yield from bp.count(dets, num=1)
+
+
+
+def nikhil_Bi_edge_spectroscopy(t=1,ai=0.2):
+
+
+    names = [
+             #"ZnS_pristinehr", "ZnS_annealedhr",
+             #"CdS_pristinehr", "CdS_annealedhr",
+             "BiS_pristinehr", "BiS_annealedhr"
+             ]
+    x = [
+         #-40000, -28000,
+         #-18000,  -4000,
+         14000,  30000
+         ]
+    y = [
+         # 6700,   6700,
+         # 6700,   6700,
+          6900,   6900
+          ]
+
+    
+    yield from bps.mv(waxs, 52)
+    dets = [pil1M, pil900KW]
+
+
+    #energies = (np.arange(2445, 2470, 5).tolist()+ np.arange(2470, 2480, 0.25).tolist()+ np.arange(2480, 2490, 1).tolist()
+    #            + np.arange(2490, 2500, 5).tolist()+ np.arange(2500, 2560, 10).tolist())
+    
+    energies = (np.arange(13300, 9650, 10).tolist()+ 
+                np.arange(13400, 13500, 2).tolist()+
+                np.arange(13500, 13600, 10).tolist())
+
+    det_exposure_time(t, t)
+    name_fmt = "{sample}_{energy}eV_xbpm{xbpm}"
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs,
+                          piezo.y, ys,
+                          piezo.th,0)
+        
+        yield from alignement_gisaxs(0.2)
+
+        yield from bps.mvr(piezo.th,ai)
+        
+        for e in energies:
+            try:
+                yield from bps.mv(energy, e)
+            except:
+                print("energy failed to move, sleep for 30 s")
+                yield from bps.sleep(30)
+                print("Slept for 30 s, try move energy again")
+                yield from bps.mv(energy, e)
+            yield from bps.sleep(1)
+            yield from bps.mvr(piezo.x,20)
+            sample_name = name_fmt.format(
+                sample=name, energy="%6.2f" % e, xbpm="%3.1f" % xbpm3.sumY.get()
+            )
+            sample_id(user_name="NT", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+            yield from bp.count(dets, num=1)
+
+
+def Nikhil_hard_NEXAFS():
+    yield from nikhil_Zn_edge_spectroscopy()
+    yield from nikhil_Bi_edge_spectroscopy()
+
+
+
+def nikhil_S_edge_spectroscopy_2(t=1,ai=0.5):
+
+
+    names = ["BiS_exphr"]
+    x = [-10000]
+    y = [  6700]
+
+    
+    yield from bps.mv(waxs, 52)
+    dets = [pil1M, pil900KW]
+
+
+    energies = (np.arange(2445, 2470, 5).tolist()+ np.arange(2470, 2480, 0.25).tolist()+ np.arange(2480, 2490, 1).tolist()
+                + np.arange(2490, 2500, 5).tolist()+ np.arange(2500, 2560, 10).tolist())
+    
+    yield from bps.mv(energy,energies[0])
+
+    det_exposure_time(t, t)
+    name_fmt = "{sample}_{energy}eV_xbpm{xbpm}"
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs,
+                          piezo.y, ys,
+                          piezo.th,0)
+        
+        yield from alignement_gisaxs(ai)
+
+        yield from bps.mvr(piezo.th,ai)
+        
+        for e in energies:
+            try:
+                yield from bps.mv(energy, e)
+            except:
+                print("energy failed to move, sleep for 30 s")
+                yield from bps.sleep(30)
+                print("Slept for 30 s, try move energy again")
+                yield from bps.mv(energy, e)
+            yield from bps.sleep(1)
+            yield from bps.mvr(piezo.x,20)
+            sample_name = name_fmt.format(
+                sample=name, energy="%6.2f" % e, xbpm="%3.1f" % xbpm3.sumY.get()
+            )
+            sample_id(user_name="NT", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+            yield from bp.count(dets, num=1)
+
+        yield from bps.mv(energy, 2470)
+        yield from bps.mv(energy, 2450)
+
+
+def nikhil_Zn_edge_spectroscopy2(t=1,ai=0.2):
+
+
+    names = [   "ZnO_pristinehr",   "ZnO_annealedhr",   ]
+    x =     [   21000,             3000,             ]
+    y =     [   6900,               6900,               ]
+
+    
+    yield from bps.mv(waxs, 52)
+    dets = [pil1M, pil900KW]
+
+
+    #energies = (np.arange(2445, 2470, 5).tolist()+ np.arange(2470, 2480, 0.25).tolist()+ np.arange(2480, 2490, 1).tolist()
+    #            + np.arange(2490, 2500, 5).tolist()+ np.arange(2500, 2560, 10).tolist())
+    
+    energies = (np.arange(9600, 9650, 5).tolist()+ 
+                np.arange(9650, 9700, 1).tolist()+
+                np.arange(9700, 2750, 5).tolist())
+
+    yield from bps.mv(energy,energies[0])
+
+    det_exposure_time(t, t)
+    name_fmt = "{sample}_{energy}eV_xbpm{xbpm}"
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs,
+                          piezo.y, ys,
+                          piezo.th,0)
+        
+        yield from alignement_gisaxs(ai)
+
+        yield from bps.mvr(piezo.th,ai)
+        
+        for e in energies:
+            try:
+                yield from bps.mv(energy, e)
+            except:
+                print("energy failed to move, sleep for 30 s")
+                yield from bps.sleep(30)
+                print("Slept for 30 s, try move energy again")
+                yield from bps.mv(energy, e)
+            yield from bps.sleep(1)
+            yield from bps.mvr(piezo.x,20)
+            sample_name = name_fmt.format(
+                sample=name, energy="%6.2f" % e, xbpm="%3.1f" % xbpm3.sumY.get()
+            )
+            sample_id(user_name="NT", sample_name=sample_name)
+            print(f"\n\t=== Sample: {sample_name} ===\n")
+            yield from bp.count(dets, num=1)
+
+
+
+
+
+
+# IBM reflectivity Oct 27 2024
+def reflectivity_multisample_2024():
+    sample_names = ['IBMSi1',    'IBM6p0',  'IBM5p0',  'IBM4p0',  'IBM0p01',    'IBM0p02', 'IBM3p0',  'IBM2p5',     'IBM2p25', 'IBMSi2']
+    x_piezos =     [55000,      -43000,    -31000,     -20000,     -6000,      7000,      22000,      33000,      47000,     55000]
+    y_piezos =     [4500,     4500.7,    4500.7,     4500.1,     4500.6,     4500.1,     4500.1,     4500.7,     4500.9,    4500.0]
+    th0s     =     [-1,      -1,     0,      -1,      -1,      -1,      -1,      -1 ,     -1,     -1]
+
+
+
+    angles = np.linspace(0,6,600)
+    energies = [2450,2470,2475,2480]
+
+    attenuator9o = [att9(angle) for angle in angles]
+    attenuator10o = [att10(angle) for angle in angles]
+    attenuator11o = [att11(angle) for angle in angles]
+
+    #roi_centers = [roiy(angle) for angle in angles]
+
+
+    pil900KW.stats4.centroid.x.kind = 'hinted'
+    pil900KW.stats4.centroid.y.kind = 'hinted'
+    pil900KW.stats4.centroid_total.kind = 'hinted'
+    pil900KW.stats4.total.kind = 'hinted'
+    pil900KW.stats4.kind = 'hinted'
+    
+    for sample, xp, yp, thp in zip(sample_names, x_piezos, y_piezos, th0s):
+       
+
+
+        yield from bps.mv(  piezo.x, xp,
+                            piezo.y, yp,
+                            piezo.th, thp)
+        
+        yield from alignement_gisaxs(.2)
+        yield from bps.mv(waxs,6)
+        th0 = piezo.th.user_readback.get()
+
+        angles0 = [th0 + angle for angle in angles]
+        for en in energies:
+            sample_id(user_name="EG", sample_name=f'{sample}_{en}eV')
+
+            yield from bp.list_scan([pil900KW,pil900KW.stats4.centroid_total,pil900KW.stats4.total],
+                                    piezo.th,angles0,
+                                    att2_11,attenuator11o,
+                                    att2_10,attenuator10o,
+                                    att2_9,attenuator9o,
+                                    )
+
+
+# attenuators for Oct27 2024
+
+
+def att11(angle):
+    if angle < 0.6:
+        return 1
+    else:
+        return 0
+def att10(angle):
+    if angle < 0.6:
+        return 0
+    elif angle < 2:
+        return 1 
+    else:
+        return 0
+    
+def att9(angle):
+    if angle < 0.6:
+        return 0
+    elif angle < 1.2 :
+        return 1
+    elif angle < 2:
+        return 0
+    elif angle < 4:
+        return 1
+    else:
+        return 0
+    

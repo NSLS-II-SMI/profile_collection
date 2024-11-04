@@ -119,7 +119,7 @@ class InsertionDevice(EpicsMotor):
     )
 
     def move(self, *args, **kwargs):
-        set_and_wait(self.brake, 1)
+        self.brake.set(1).wait() # changed from set_and_wait Oct 2024 - Eliot
         return super().move(*args, **kwargs)
 
 
