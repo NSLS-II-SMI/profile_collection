@@ -42,10 +42,20 @@ class PilatusDetectorCamV33(PilatusDetectorCam):
     """This is used to update the Pilatus to AD33."""
 
     wait_for_plugins = Cpt(EpicsSignal, "WaitForPlugins", string=True, kind="config")
+    file_path = Cpt(SignalWithRBV, "FilePath", string=True)
+    file_name = Cpt(SignalWithRBV, "FileName", string=True)
+    file_template = Cpt(SignalWithRBV, "FileTemplate", string=True)
+    file_number = Cpt(SignalWithRBV, "FileNumber")
+    auto_increment = Cpt(SignalWithRBV, "AutoIncrement")
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.stage_sigs["wait_for_plugins"] = "Yes"
+        self.stage_sigs["file_template"] = "%s%s_%6.6d_SAXS.tif"
+        self.stage_sigs["auto_increment"] = 1
+        self.stage_sigs["file_number"] = 0
+
 
     def ensure_nonblocking(self):
         self.stage_sigs["wait_for_plugins"] = "Yes"
@@ -56,10 +66,10 @@ class PilatusDetectorCamV33(PilatusDetectorCam):
             if hasattr(cpt, "ensure_nonblocking"):
                 cpt.ensure_nonblocking()
 
-    file_path = Cpt(SignalWithRBV, "FilePath", string=True)
-    file_name = Cpt(SignalWithRBV, "FileName", string=True)
-    file_template = Cpt(SignalWithRBV, "FileName", string=True)
-    file_number = Cpt(SignalWithRBV, "FileNumber")
+
+    def stage(self):
+        self.file_name.set(str(uuid.uuid4()))
+        super().stage()
 
 from ophyd.utils.epics_pvs import AlarmStatus
 
@@ -68,9 +78,15 @@ class PilatusDetector(PilatusDetector):
 
 
 class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, md=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self._md = md
+<<<<<<< Updated upstream
         self.__stage_cache = {}
+        self._asset_path = None
+=======
+        self._asset_path = ''
+>>>>>>> Stashed changes
 
     def describe(self):
         ret = super().describe()
@@ -93,27 +109,33 @@ class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
         if cam_dtype in type_map:
             ret[key].setdefault('dtype_str', type_map[cam_dtype])
 
-
         return ret
-    
+
     def get_frames_per_point(self):
         ret = super().get_frames_per_point()
         print('get_frames_per_point returns', ret)
         return ret
 
+    def _update_paths(self):
+        self.write_path_template = self.root_path_str + "%Y/%m/%d/"
+        self.read_path_template = self.root_path_str + "%Y/%m/%d/"
+        self.reg_root = self.root_path_str
+
+    @property
+    def root_path_str(self):
+        return f"/nsls2/data/smi/proposals/{self._md['cycle']}/{self._md['data_session']}/assets/{self._asset_path}/"
+
     def stage(self):
+<<<<<<< Updated upstream
+        if self._asset_path:
+            self._update_paths(self)
         self.__stage_cache['file_path'] = self.file_path.get()
         self.__stage_cache['file_name'] = self.file_name.get()
         self.__stage_cache['next_file_num'] = self.file_number.get()
+=======
+        self._update_paths()
+>>>>>>> Stashed changes
         return super().stage()
-
-    def unstage(self):
-
-        ret = super().unstage()
-        self.file_path.set(self.__stage_cache['file_path']).wait()
-        self.file_name.set(self.__stage_cache['file_name']).wait()
-        self.file_number.set(self.__stage_cache['next_file_num']).wait()
-        return ret
 
 
 
@@ -121,16 +143,26 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
     tiff = Cpt(
         TIFFPluginWithFileStore,
         suffix="TIFF1:",
-        # write_path_template="/GPFS/xf12id1/data/PLACEHOLDER",  # override this on instances using instance.tiff.write_file_path
+        md=RE.md,
         write_path_template="/ramdisk/PLACEHOLDER",
         root="/",
     )
+
+<<<<<<< Updated upstream
+    def __init__(self, *args, **kwargs):
+        self.asset_path = kwargs.pop("asset_path", None)
+=======
+    def __init__(self, *args, asset_path, **kwargs):
+        self.asset_path = asset_path
+>>>>>>> Stashed changes
+        super().__init__(*args, **kwargs)
+        self.tiff._asset_path = self.asset_path
 
     roi1 = Cpt(ROIPlugin, "ROI1:")
     roi2 = Cpt(ROIPlugin, "ROI2:")
     roi3 = Cpt(ROIPlugin, "ROI3:")
     roi4 = Cpt(ROIPlugin, "ROI4:")
- 
+
     stats1 = Cpt(StatsWCentroid, "Stats1:", read_attrs=["total"])
     stats2 = Cpt(StatsWCentroid, "Stats2:", read_attrs=["total"])
     stats3 = Cpt(StatsWCentroid, "Stats3:", read_attrs=["total"])
@@ -187,7 +219,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
 
     def read_threshold(self):
         return self.energy_read, self.threshold_read, self.gain_read
-    
+
     def trigger(self):
         "Trigger one acquisition."
         if self._staged != Staged.yes:
@@ -202,15 +234,15 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
             #print(data)
             #print(data.alarm_status)
             if data.alarm_status is not AlarmStatus.NO_ALARM:
- 
+
                 if fail_count < 5:
                     # chosen after testing and it failing 2x per cam server restart so
                     # so two extra tries seems reasonable
                     print('\n\n\n\nYOL0(or twice): retrying detector failure')
                     print('Reset detector camserver if this is the start of the macro\n\n\n\n\n')
-                    self._acquisition_signal.put(1, use_complete=True, callback=_acq_done, 
+                    self._acquisition_signal.put(1, use_complete=True, callback=_acq_done,
                                      callback_data=self.cam.detector_state)
-                
+
                     fail_count += 1
                     time.sleep(0.1)
                 else:
@@ -220,7 +252,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
             else:
                 self._status._finished()
 
-        self._acquisition_signal.put(1, use_complete=True, callback=_acq_done, 
+        self._acquisition_signal.put(1, use_complete=True, callback=_acq_done,
                                      callback_data=self.cam.detector_state)
         self.dispatch(self._image_name, ttime.time())
         return self._status
@@ -309,15 +341,8 @@ fd = FakeDetector(name="fd")
 #####################################################
 # Pilatus 1M definition
 
-pil1M = Pilatus("XF:12IDC-ES:2{Det:1M}", name="pil1M")  # , detector_id="SAXS")
+pil1M = Pilatus("XF:12IDC-ES:2{Det:1M}", name="pil1M", asset_path="pilatus1m-1")  # , detector_id="SAXS")
 pil1M.set_primary_roi(1)
-
-pil1M.tiff.write_path_template = (
-    pil1M.tiff.read_path_template
-) = "/nsls2/data/smi/legacy/results/raw/1M/%Y/%m/%d/"
-# pil1M.tiff.write_path_template = pil1M.tiff.read_path_template = '/nsls2/data/smi/assets/default/%Y/%m/%d/'
-
-# pil1M.tiff.write_path_template = pil1M.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/1M/%Y/%m/%d/'
 
 pil1mroi1 = EpicsSignal("XF:12IDC-ES:2{Det:1M}Stats1:Total_RBV", name="pil1mroi1")
 pil1mroi2 = EpicsSignal("XF:12IDC-ES:2{Det:1M}Stats2:Total_RBV", name="pil1mroi2")
@@ -347,14 +372,8 @@ for detpos in [pil1m_pos]:
 #####################################################
 # Pilatus 300kw definition
 
-# pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW")  # , detector_id="WAXS")
+# pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW", asset_path="pilatus300kw-1")  # , detector_id="WAXS")
 # pil300KW.set_primary_roi(1)
-
-
-# pil300KW.tiff.write_path_template = (
-#     pil300KW.tiff.read_path_template
-# ) = "/nsls2/xf12id2/data/300KW/images/%Y/%m/%d/"
-# # pil300KW.tiff.write_path_template = pil300KW.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/300KW/%Y/%m/%d/'
 
 # pil300kwroi1 = EpicsSignal(
 #     "XF:12IDC-ES:2{Det:300KW}Stats1:Total_RBV", name="pil300kwroi1"
@@ -375,18 +394,12 @@ for detpos in [pil1m_pos]:
 # pil300KW.cam.ensure_nonblocking()
 pil300KW = None
 
+
 #####################################################
 # Pilatus 900KW definition
 
-pil900KW = Pilatus("XF:12IDC-ES:2{Det:900KW}", name="pil900KW")
+pil900KW = Pilatus("XF:12IDC-ES:2{Det:900KW}", name="pil900KW", asset_path="pilatus900kw-1")
 pil900KW.set_primary_roi(1)
-
-pil900KW.tiff.write_path_template = (
-    pil900KW.tiff.read_path_template
-# ) = "/nsls2/xf12id2/data/900KW/images/%Y/%m/%d/"
-) = "/nsls2/data/smi/legacy/results/raw/900KW/%Y/%m/%d/"
-
-# pil900KW.tiff.write_path_template = pil900KW.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/900KW/%Y/%m/%d/'
 
 pil900kwroi1 = EpicsSignal(
     "XF:12IDC-ES:2{Det:900KW}Stats1:Total_RBV", name="pil900kwroi1"
@@ -441,7 +454,7 @@ class WAXS(Device):
         # bsx_pos =-20.92 + 264 * np.tan(np.deg2rad(arc_value))
         # bsx_pos = -17.1 - 252*np.tan(np.deg2rad(arc_value)) # until 29-Mar-2022 when the waxs-arc failed , and MZ also raised the BS maually.
         # bsx_pos = -16.64 - 252 * np.tan(np.deg2rad(arc_value))  # new zero position
-        # bsx_pos = -9.07561 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Oct 24, refining after WAXS arc died 
+        # bsx_pos = -9.07561 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Oct 24, refining after WAXS arc died
         # bsx_pos = -7.5756 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Nov 8, bumped?
         # bsx_pos = -50.1 - 247.9278 * np.tan(np.deg2rad(arc_value))  # 2022 Nov 14, After changing the motor by ZY and Brian
         # bsx_pos = -50.1 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 May 5, discovering it was bumped somehow

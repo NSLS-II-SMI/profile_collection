@@ -57,6 +57,7 @@ def proposal_id(cycle_id, proposal_id, analysis=False):
 
     # RE.md['path'] = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id)
     RE.md["path"] = ("/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id))
+    # RE.md["path"] = (f"{proposal_path}/{RE.md["proposal_id"]}")
 
     # Create folder for the Rayonix MAXS detector
     # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
