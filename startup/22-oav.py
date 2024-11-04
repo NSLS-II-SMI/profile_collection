@@ -24,32 +24,49 @@ from collections import OrderedDict
 
 from nslsii.ad33 import SingleTriggerV33, StatsPluginV33, CamV33Mixin
 
-class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
-    """Add this as a component to detectors that write TIFFs."""
-    ## LUTZ THIS MAY BE BROKEN NUKE IF XRAY EYES DO NOT WORK
-    def describe(self):
-        ret = super().describe()
-        key = self.parent._image_name
-        color_mode = self.parent.cam.color_mode.get(as_string=True)
-        if color_mode == 'Mono':
-            ret[key]['shape'] = [
-                self.parent.cam.num_images.get(),
-                self.array_size.height.get(),
-                self.array_size.width.get()
-                ]
+# class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
+#     """Add this as a component to detectors that write TIFFs."""
 
-        elif color_mode in ['RGB1', 'Bayer']:
-            ret[key]['shape'] = [self.parent.cam.num_images.get(), *self.array_size.get()]
-        else:
-            raise RuntimeError("SHould never be here")
+#     def __init__(self, *args, md=None, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self._md = md
+#         self._asset_path = ''
 
-        cam_dtype = self.parent.cam.data_type.get(as_string=True)
-        type_map = {'UInt8': '|u1', 'UInt16': '<u2', 'Float32':'<f4', "Float64":'<f8'}
-        if cam_dtype in type_map:
-            ret[key].setdefault('dtype_str', type_map[cam_dtype])
+#     def describe(self):
+#         ret = super().describe()
+#         key = self.parent._image_name
+#         color_mode = self.parent.cam.color_mode.get(as_string=True)
+#         if color_mode == 'Mono':
+#             ret[key]['shape'] = [
+#                 self.parent.cam.num_images.get(),
+#                 self.array_size.height.get(),
+#                 self.array_size.width.get()
+#                 ]
 
+#         elif color_mode in ['RGB1', 'Bayer']:
+#             ret[key]['shape'] = [self.parent.cam.num_images.get(), *self.array_size.get()]
+#         else:
+#             raise RuntimeError("SHould never be here")
 
-        return ret
+#         cam_dtype = self.parent.cam.data_type.get(as_string=True)
+#         type_map = {'UInt8': '|u1', 'UInt16': '<u2', 'Float32':'<f4', "Float64":'<f8'}
+#         if cam_dtype in type_map:
+#             ret[key].setdefault('dtype_str', type_map[cam_dtype])
+
+#         return ret
+    
+#     def _update_paths(self):
+#         self.write_path_template = self.root_path_str + "%Y/%m/%d/"
+#         self.read_path_template = self.root_path_str + "%Y/%m/%d/"
+#         self.reg_root = self.root_path_str
+
+#     @property
+#     def root_path_str(self):
+#         return f"/nsls2/data/smi/proposals/{self._md['cycle']}/{self._md['data_session']}/assets/{self._asset_path}/"
+
+#     def stage(self):
+#         self._update_paths()
+#         return super().stage()
 
 
 class TIFFPluginEnsuredOff(TIFFPlugin):
@@ -78,28 +95,6 @@ process
             if hasattr(cpt, 'ensure_nonblocking'):
                 cpt.ensure_nonblocking()
 
-# class StandardProsilica(SingleTrigger, ProsilicaDetector):
-#     image = Cpt(ImagePlugin, 'image1:')
-#     stats1 = Cpt(StatsPlugin, 'Stats1:')
-#     stats2 = Cpt(StatsPlugin, 'Stats2:')
-#     stats3 = Cpt(StatsPlugin, 'Stats3:')
-#     stats4 = Cpt(StatsPlugin, 'Stats4:')
-#     stats5 = Cpt(StatsPlugin, 'Stats5:')
-#     trans1 = Cpt(TransformPlugin, 'Trans1:')
-#     roi1 = Cpt(ROIPlugin, 'ROI1:')
-#     roi2 = Cpt(ROIPlugin, 'ROI2:')
-#     roi3 = Cpt(ROIPlugin, 'ROI3:')
-#     roi4 = Cpt(ROIPlugin, 'ROI4:')
-#     proc1 = Cpt(ProcessPlugin, 'Proc1:')
-#     over1 = Cpt(OverlayPlugin, 'Over1:')
-
-#     # This class does not save TIFFs. We make it aware of the TIFF plugin
-#     # only so that it can ensure that the plugin is not auto-saving.
-#     tiff = Cpt(TIFFPluginEnsuredOff, suffix='TIFF1:')
-
-#     @property
-#     def hints(self):
-#         return {'fields': [self.stats1.total.name]}
 
 class StandardProsilicaV33(SingleTriggerV33, ProsilicaDetector):
     cam = Cpt(ProsilicaDetectorCamV33, 'cam1:')
@@ -126,45 +121,34 @@ class StandardProsilicaV33(SingleTriggerV33, ProsilicaDetector):
         return {'fields': [self.stats1.total.name]}
 
 
-# class StandardProsilicaWithTIFF(StandardProsilica):
-#     tiff = Cpt(TIFFPluginWithFileStore,
-#                suffix='TIFF1:',
-#                write_path_template='/nsls2/data/chx/legacy/data/%Y/%m/%d/',
-#                root='/nsls2/data/chx/legacy/data')
-
 class StandardProsilicaWithTIFFV33(StandardProsilicaV33):
     tiff = Cpt(TIFFPluginWithFileStore,
                suffix='TIFF1:',
-               write_path_template='/nsls2/data/smi/legacy/data/%Y/%m/%d/',
-               root='/nsls2/data/smi/legacy/data')
-               #root='/XF11ID/data')
+               md = RE.md,
+               write_path_template='',
+               root='')
+
+    def __init__(self, *args, asset_path, **kwargs):
+        self.asset_path = asset_path
+        super().__init__(*args, **kwargs)
+        self.tiff._asset_path = self.asset_path
 
 # OnAxis camera
 OAV = StandardProsilicaV33('XF:12IDC-BI{Cam:SAM}', name='OAV')
 OAV.stage_sigs[OAV.cam.trigger_mode] = 'Fixed Rate' # was OFF
 #OAV_writing = StandardProsilicaWithTIFFV33('XF:12IDC-BI{Cam:SAM}', name='OAV')
-OAV_writing = StandardProsilicaWithTIFFV33('XF:12IDC-BI{Cam:SAM}', name='OAV_writing')
-OAV_writing.tiff.write_path_template = '/nsls2/data/smi/legacy/results/raw/OAV/%Y/%m/%d/'
-OAV_writing.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/OAV/%Y/%m/%d/'
-OAV_writing.tiff.reg_root = '/nsls2/data/smi/legacy/results/raw/OAV/'
-
-
- 
-
-
- 
-
-
-
+OAV_writing = StandardProsilicaWithTIFFV33('XF:12IDC-BI{Cam:SAM}', name='OAV_writing', asset_path='webcam-1')
+# OAV_writing.tiff.write_path_template = '/nsls2/data/smi/legacy/results/raw/OAV/%Y/%m/%d/'
+# OAV_writing.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/OAV/%Y/%m/%d/'
+# OAV_writing.tiff.reg_root = '/nsls2/data/smi/legacy/results/raw/OAV/'
 
 # Hex (top) camera
 OAV2 = StandardProsilicaV33('XF:12IDC-BI{Cam:HEX}', name='OAV2')
 OAV2.stage_sigs[OAV.cam.trigger_mode] = 'Fixed Rate' # was OFF
-OAV2_writing = StandardProsilicaWithTIFFV33('XF:12IDC-BI{Cam:HEX}', name='OAV2')
-
-OAV2_writing.tiff.write_path_template = '/nsls2/data/smi/legacy/results/raw/OAV2/%Y/%m/%d/'
-OAV2_writing.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/OAV2/%Y/%m/%d/'
-OAV2_writing.tiff.reg_root = '/nsls2/data/smi/legacy/results/raw/OAV2/'
+OAV2_writing = StandardProsilicaWithTIFFV33('XF:12IDC-BI{Cam:HEX}', name='OAV2', asset_path='webcam-2')
+# OAV2_writing.tiff.write_path_template = '/nsls2/data/smi/legacy/results/raw/OAV2/%Y/%m/%d/'
+# OAV2_writing.tiff.read_path_template = '/nsls2/data/smi/legacy/results/raw/OAV2/%Y/%m/%d/'
+# OAV2_writing.tiff.reg_root = '/nsls2/data/smi/legacy/results/raw/OAV2/'
 
 all_standard_pros = [OAV, OAV_writing, OAV2, OAV2_writing]
 

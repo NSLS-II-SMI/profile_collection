@@ -70,4 +70,7 @@ RE.md = RedisJSONDict(redis_client, prefix="")
 RE.md["beamline_name"] = "SMI"
 RE.md["facility"] = "NSLS-II"
 RE.md["optional_comments"] = ""  # Any comment can be added if needed
+
+proposal_path = f"/nsls2/data/smi/proposals/{RE.md['cycle']}/{RE.md['data_session']}"
+
 print('Finished linking RE.md to Redis')
