@@ -817,7 +817,8 @@ def reflectivity_multisample_2024():
         for en in energies:
             sample_id(user_name="EG", sample_name=f'{sample}_{en}eV')
 
-            yield from bp.list_scan([pil900KW,pil900KW.stats1.centroid_total,pil900KW.stats1.total],
+
+            yield from bp.list_scan([pil900KW,pil900KW.stats4.centroid_total,pil900KW.stats4.total],
                                     piezo.th,angles0,
                                     att2_11,attenuator11o,
                                     att2_10,attenuator10o,
@@ -880,28 +881,34 @@ def reflectivity_multisample_2024():
 #         return 0
 def att11(angle):
     if angle < 0.5:
+
         return 1
     else:
         return 0
 def att10(angle):
+
     if angle < 0.5:
         return 0
     elif angle < 1.5:
+
         return 1 
     else:
         return 0
     
 def att9(angle):
+
     if angle < 0.5:
         return 0
     elif angle < 1 :
         return 1
     elif angle < 1.5:
+
         return 0
     elif angle < 4:
         return 1
     else:
         return 0
+
 
 def xrr_sedge_2025_1():
     #List of incident angles clustured in subsection for attenuators
