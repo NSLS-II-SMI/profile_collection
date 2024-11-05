@@ -47,54 +47,61 @@ def sample_id(*, user_name, sample_name, tray_number=None):
     #pil900KW.cam.file_name.put("acq")
     # pil900KW.cam.file_number.put(1)
     
+def proposal_swap(new_proposal):
+    switch_proposal(new_proposal)
 
 
-def proposal_id(cycle_id, proposal_id, analysis=False):
-    RE.md["cycle"] = cycle_id
-    RE.md["proposal_number"] = proposal_id.split("_")[0]
-    RE.md["main_proposer"] = proposal_id.split("_")[1]
-    RE.md["proposal_id"] = proposal_id
+def new_project(project_name):
+    RE.md['project_name'] = project_name
 
-    # RE.md['path'] = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id)
-    RE.md["path"] = ("/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id))
-    # RE.md["path"] = (f"{proposal_path}/{RE.md["proposal_id"]}")
+def proposal_id(cycle_id, proposal_id, *args, **kwargs):
+    warnings.warn(":use the new proposal_set or project_set functions")
+    proposal_swap(proposal_id)
+    # RE.md["cycle"] = cycle_id
+    # RE.md["proposal_number"] = proposal_id.split("_")[0]
+    # RE.md["main_proposer"] = proposal_id.split("_")[1]
+    # RE.md["proposal_id"] = proposal_id
 
-    # Create folder for the Rayonix MAXS detector
-    # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
-    # newDir = ("/nsls2/data/smi/legacy/results/data/"+ str(cycle_id)+ "/"+ str(proposal_id)) + "/MAXS"
+    # # RE.md['path'] = "/nsls2/xf12id2/data/images/users/" + str(cycle_id) + "/" + str(proposal_id)
+    # RE.md["path"] = ("/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id))
+    # # RE.md["path"] = (f"{proposal_path}/{RE.md["proposal_id"]}")
+
+    # # Create folder for the Rayonix MAXS detector
+    # # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/MAXS"
+    # # newDir = ("/nsls2/data/smi/legacy/results/data/"+ str(cycle_id)+ "/"+ str(proposal_id)) + "/MAXS"
+    # # if not os.path.exists(newDir):
+    # #     os.makedirs(newDir)
+    # #     os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
+
+    # # Create folder for the Pilatus 1M SAXS detector
+    # # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/1M"
+    # newDir = ("/nsls2/data/smi/legacy/results/data/"+ str(cycle_id)+ "/"+ str(proposal_id)) + "/1M"
     # if not os.path.exists(newDir):
     #     os.makedirs(newDir)
     #     os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-    # Create folder for the Pilatus 1M SAXS detector
-    # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/1M"
-    newDir = ("/nsls2/data/smi/legacy/results/data/"+ str(cycle_id)+ "/"+ str(proposal_id)) + "/1M"
-    if not os.path.exists(newDir):
-        os.makedirs(newDir)
-        os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-
-    # Create folder for the Pilatus 900KW WAXS detector
-    # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/900KW"
-    newDir = ("/nsls2/data/smi/legacy/results/data/"+ str(cycle_id)+ "/"+ str(proposal_id)) + "/900KW"
-    if not os.path.exists(newDir):
-        os.makedirs(newDir)
-        os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
-
-
-    # Create folder for the Pilatus 300KW WAXS detector
-    # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
-    # newDir = ("/nsls2/data/smi/legacy/results/data/"+ str(cycle_id)+ "/"+ str(proposal_id)) + "/300KW"
+    # # Create folder for the Pilatus 900KW WAXS detector
+    # # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/900KW"
+    # newDir = ("/nsls2/data/smi/legacy/results/data/"+ str(cycle_id)+ "/"+ str(proposal_id)) + "/900KW"
     # if not os.path.exists(newDir):
     #     os.makedirs(newDir)
     #     os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
-    # Create folder for the analysis
-    if analysis:
-        newDir = ("/nsls2/data/smi/legacy/results/analysis/"+ str(cycle_id)+ "/"+ str(proposal_id))
-        if not os.path.exists(newDir):
-            os.makedirs(newDir)
-            os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
+
+    # # Create folder for the Pilatus 300KW WAXS detector
+    # # newDir = "/nsls2/data/smi/legacy/results/data/" + str(cycle_id) + "/" + str(proposal_id) + "/300KW"
+    # # newDir = ("/nsls2/data/smi/legacy/results/data/"+ str(cycle_id)+ "/"+ str(proposal_id)) + "/300KW"
+    # # if not os.path.exists(newDir):
+    # #     os.makedirs(newDir)
+    # #     os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
+
+    # # Create folder for the analysis
+    # if analysis:
+    #     newDir = ("/nsls2/data/smi/legacy/results/analysis/"+ str(cycle_id)+ "/"+ str(proposal_id))
+    #     if not os.path.exists(newDir):
+    #         os.makedirs(newDir)
+    #         os.chmod(newDir, stat.S_IRWXU + stat.S_IRWXG + stat.S_IRWXO)
 
 
 def beamline_mode(mode=None):

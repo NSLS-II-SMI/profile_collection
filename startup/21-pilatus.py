@@ -5,34 +5,23 @@ from ophyd import (
     ADComponent,
     Signal,
     Device,
-    PseudoPositioner,
     EpicsSignal,
     EpicsSignalRO,
     EpicsMotor,
     ROIPlugin,
-    ImagePlugin,
-    TIFFPlugin,
     TransformPlugin,
-    SingleTrigger,
     PilatusDetector,
     OverlayPlugin,
-    FilePlugin,
 )
 
-from ophyd.areadetector.filestore_mixins import FileStoreTIFFIterativeWrite
+
 from ophyd.areadetector.cam import PilatusDetectorCam
 from ophyd.areadetector.detectors import PilatusDetector
 from ophyd.areadetector.base import EpicsSignalWithRBV as SignalWithRBV
 
-from ophyd.utils import set_and_wait
-from databroker.assets.handlers_base import HandlerBase
-import os
 import bluesky.plans as bp
 import time
-from nslsii.ad33 import StatsPluginV33
-from nslsii.ad33 import SingleTriggerV33
-import pandas as pds
-
+from nslsii.ad33 import StatsPluginV33, SingleTriggerV33
 
 
 class StatsWCentroid(StatsPluginV33):
@@ -142,7 +131,6 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
         root="/",
     )
 
-
     def __init__(self, *args, asset_path, **kwargs):
         self.asset_path = asset_path
         super().__init__(*args, **kwargs)
@@ -221,8 +209,6 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
         def _acq_done(*, data, pvname):
             nonlocal fail_count
             data.get()
-            #print(data)
-            #print(data.alarm_status)
             if data.alarm_status is not AlarmStatus.NO_ALARM:
 
  
@@ -284,9 +270,6 @@ def det_exposure_time(exp_t, meas_t=1, period_delay=0.001):
             waits.append(pil900KW.cam.num_images.set(int(meas_t / exp_t)))
             for w in waits:
                 w.wait()
-            # rayonix.cam.acquire_time.put(exp_t)
-            # rayonix.cam.acquire_period.put(exp_t+0.01)
-            # rayonix.cam.num_images.put(int(meas_t/exp_t))
     except:
         print('Problem with new exposure set, using old method')
         pil1M.cam.acquire_time.put(exp_t)
@@ -375,6 +358,7 @@ for detpos in [pil1m_pos]:
 
 
 #####################################################
+# ------ NOT TESTED AFTER DATA SECURITY CHANGES -----
 # Pilatus 300kw definition
 
 # pil300KW = Pilatus("XF:12IDC-ES:2{Det:300KW}", name="pil300KW", asset_path="pilatus300kw-1")  # , detector_id="WAXS")
