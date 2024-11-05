@@ -118,16 +118,16 @@ def scan_gi_1motor_waxsscan(
 ):
     det_exposure_time(t, t)
 
-    if motor is "energy":
+    if motor == "energy":
         name_fmt = "{sample}_ai{ai}deg_{motor}eV"
         mot_name = energy
-    elif motor is "x":
+    elif motor == "x":
         name_fmt = "{sample}_ai{ai}deg_x{motor}"
         mot_name = piezo.x
-    elif motor is "y":
+    elif motor == "y":
         name_fmt = "{sample}_ai{ai}deg_y{motor}"
         mot_name = piezo.y
-    elif motor is "th":
+    elif motor == "th":
         name_fmt = "{sample}_ai{motor}deg"
         mot_name = piezo.th
     else:
@@ -145,7 +145,7 @@ def scan_gi_1motor_waxsscan(
 
         if i == 0 or reali:
             alignement_gisaxs(angle=alphai)
-            if motor is "th":
+            if motor == "th":
                 yield from bps.mvr(piezo.th, mot_pos)
                 sample_name = name_fmt.format(sample=sam_nam, motor=mot_pos)
             else:
@@ -171,13 +171,13 @@ def scan_trans_1motor_waxsscan(
 ):
     det_exposure_time(t, t)
 
-    if motor is "energy":
+    if motor == "energy":
         name_fmt = "{sample}_{motor}eV"
         mot_name = energy
-    elif motor is "x":
+    elif motor == "x":
         name_fmt = "{sample}_x{motor}"
         mot_name = piezo.x
-    elif motor is "y":
+    elif motor == "y":
         name_fmt = "{sample}_y{motor}"
         mot_name = piezo.y
     else:
@@ -212,13 +212,13 @@ def scan_trans_1motor(
 ):
     det_exposure_time(t, t)
 
-    if motor is "energy":
+    if motor == "energy":
         name_fmt = "{sample}_{motor}eV"
         mot_name = energy
-    elif motor is "x":
+    elif motor == "x":
         name_fmt = "{sample}_x{motor}"
         mot_name = piezo.x
-    elif motor is "y":
+    elif motor == "y":
         name_fmt = "{sample}_y{motor}"
         mot_name = piezo.y
     else:
