@@ -37,6 +37,7 @@ class PilatusDetectorCamV33(PilatusDetectorCam):
     file_template = Cpt(SignalWithRBV, "FileTemplate", string=True)
     file_number = Cpt(SignalWithRBV, "FileNumber")
     auto_increment = Cpt(SignalWithRBV, "AutoIncrement")
+    energy = Cpt(SignalWithRBV, "Energy")
 
 
     def __init__(self, *args, **kwargs):
