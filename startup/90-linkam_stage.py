@@ -42,6 +42,8 @@ class LinkamThermal(Device):
     temperature_setpoint = Cpt(EpicsSignal, "SETPOINT:SET")
     temperature_rate_setpoint = Cpt(EpicsSignal, "RAMPRATE:SET")
 
+    SysReset = Cpt(EpicsSignal, "SysReset")
+
     # Read-Only signals
     status_power = Cpt(EpicsSignalRO, "STARTHEAT")
     status_code = Cpt(EpicsSignalRO, "STATUS")

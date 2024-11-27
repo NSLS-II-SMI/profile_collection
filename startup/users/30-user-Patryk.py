@@ -2114,3 +2114,100 @@ def take_bkg(name='bkg4-N2', t=2):
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5, 0.5)
+
+def rh(prefix='_RH'):
+    rh  = str(np.round(readHumidity(verbosity=0), 2)).zfill(4)
+    return f'{prefix}{rh}'
+
+
+def run_Ray_swaxs_2024_3(t=1):
+    """
+    SWAXS on humidity cell point
+    Make sample names unique for each scan point
+    """
+
+    names =   ['CEC-Anneal','CEC-WT','CEC-L44A',]
+    #stage_x = [ -7.4 , -1.0, 5.3,]
+    #stage_x = [-13.7 , -7.4 , -1.0, 5.3, 11.6, 17.9, 24.3, 30.548]
+    # stage-x limits = [-10, 25] 
+    #stage_x = [ -0.9, 5.6, 11.8, 18.1]
+    stage_x = [ -0.9, 5.6, 11.8]
+
+    #stage_y = [   2.2,     2.2, ]
+    stage_y = [ 2.2 for n in names]
+    
+
+    msg = "Wrong number of coordinates"
+    assert len(stage_x) == len(names), msg
+    assert len(stage_x) == len(stage_y), msg
+
+    #waxs_arc = [ 0 , 20]
+    waxs_arc = [ 0 ]
+    #use just [0] if we just want to run quick WAXS with no SAXS
+
+    det_exposure_time(t, t)
+
+    for name, x, y in zip(names, stage_x, stage_y):
+        
+        rh_val = rh()
+        yield from bps.mv(
+            stage.x, x,
+            stage.y, y,
+        )
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 14.9 else [pil900KW, pil1M]
+
+            sample_name = f'{name}{rh_val}{get_scan_md()}'
+            sample_id(user_name='RT', sample_name=sample_name)
+            print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            yield from bp.count(dets)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)
+
+
+def run_Ray_swaxs_2024_3_single(t=1):
+    """
+    SWAXS on humidity cell point
+    Make sample names unique for each scan point
+    """
+
+    # names =   ['LP-Can-XT-UnT-a', 'LP-Can-XT-MeOH-a', 'LP-Can-T-UnT-a','LP-Can-T-MeOH-a','LP-Can-M-UnT-a','LP-Can-M-MeOH-a','LP-Can-S-UnT-a','LP-Can-S-MeOH-a', ]
+    # stage_x = [-13.7 , -7.4 , -1.0, 5.3, 11.6, 17.9, 24.3, 30.548]
+    names =   ['LP-Can-S-MeOH-a' ]
+    stage_x = [30.548]
+    #stage_y = [   2.2,     2.2, ]
+    stage_y = [ 2.2 for n in names]
+    
+
+    msg = "Wrong number of coordinates"
+    assert len(stage_x) == len(names), msg
+    assert len(stage_x) == len(stage_y), msg
+
+    waxs_arc = [ 0 , 20]
+    #waxs_arc = [ 0 ]
+    #use this if we just want to run quick WAXS with no SAXS
+
+    det_exposure_time(t, t)
+
+    for name, x, y in zip(names, stage_x, stage_y):
+        
+        rh_val = rh()
+        # yield from bps.mv(
+        #     # stage.x, x,
+        #     stage.y, y,
+        # )
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            dets = [pil900KW] if waxs.arc.position < 14.9 else [pil900KW, pil1M]
+
+            sample_name = f'{name}{rh_val}{get_scan_md()}'
+            sample_id(user_name='RT', sample_name=sample_name)
+            print(f"\n\n\n\t=== Sample: {sample_name} ===")
+            yield from bp.count(dets)
+
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)

@@ -60,6 +60,7 @@ class PilatusDetectorCamV33(PilatusDetectorCam):
     file_name = Cpt(SignalWithRBV, "FileName", string=True)
     file_template = Cpt(SignalWithRBV, "FileName", string=True)
     file_number = Cpt(SignalWithRBV, "FileNumber")
+    energy = Cpt(SignalWithRBV, "Energy")
 
 from ophyd.utils.epics_pvs import AlarmStatus
 
@@ -455,3 +456,19 @@ class WAXS(Device):
         return bsx_pos
 
 waxs = WAXS("XF:12IDC-ES:2{", name="waxs")
+
+def set_energy_cam(cam,en_ev):
+     en = en_ev / 1000 # change to kev
+     thresh = max(en/2,1.6)
+     if en<4:
+             gain = 3
+     elif en < 7:
+             gain = 2
+     elif en < 20:
+             gain = 1
+     else:
+             gain = 0
+     cam.threshold_energy.set(thresh)
+     cam.energy.set(en)
+     cam.gain_menu.set(gain)
+     cam.threshold_apply.set(1)
