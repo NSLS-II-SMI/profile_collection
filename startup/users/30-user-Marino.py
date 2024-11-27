@@ -2,6 +2,7 @@
 # ref: Chopra, Clark
 #
 # ======================================================================
+# proposal_id('2024_3', '315975_Gonzalez', analysis=True)
 #
 ### To complie this file
 #
@@ -101,6 +102,28 @@ def test_pdcurrent(Natt=2, add_att1_9=1, add_att1_10=0, add_att1_11=0, add_att1_
             yield from bps.mv(att1_12.close_cmd, 1)
             yield from bps.sleep(1)
 
+def measure_EM(t=1, name='in-situ', extra='check'):
+    det_exposure_time(t, t)
+
+    dets = [pil1M]
+    curr_tempC = LThermal.temperature()
+    print("---------  Current temperature (degC)\n {}".format(curr_tempC))
+
+    #### Define sample name & Measure
+    t1 = time.time()
+    name_fmt = "{sample}_{extra}_{temperature}C_x{}_y{}{md}"
+    sample_name = name_fmt.format(
+        sample=name,
+        extra=extra,
+        temperature="%3.1f" % (curr_tempC),
+        # pd_curr="%5.5d" % (pd_curr),
+        x = "%.2f" % (stage.x.position),
+        y = "%.2f" % (stage.y.position),
+        md = get_scan_md()
+    )
+    print(f"\n\t=== Sample: {sample_name} ===\n")
+    sample_id(user_name="EM", sample_name=sample_name)
+
 
 def insitu_EM(
     t=1,
@@ -108,8 +131,8 @@ def insitu_EM(
     wait_time_sec=30,
     Natt=2,
     add_att1_9=1,
-    add_att1_10=0,
-    add_att1_11=0,
+    add_att1_10=1,
+    add_att1_11=1,
     add_att1_12=0,
     add_att=0,
     number_start=1,
@@ -123,9 +146,13 @@ def insitu_EM(
     t0 = time.time()
     number = number_start
 
-    pil1M.cam.file_path.put(
-        f"/nsls2/xf12id2/data/images/users/2022_1/309930_Murray/1M/EM_%s" % name
-    )
+    # pil1M.cam.file_path.put(
+    #     f"/nsls2/xf12id2/data/images/users/2024_3/315975_Gonzalez/1M/EM_%s" % name
+    # )
+
+    # pil1M.cam.file_path.put(
+    #     f"/nsls2/data/smi/legacy/results/data/2024_3/315975_Gonzalez/1M/EM_%s" % name
+    # )
     while number < 9000:
         # yield from bps.mv(stage.y, yss[number])
         # yield from bps.mv(stage.x, xss[number])
@@ -198,12 +225,13 @@ def insitu_EM(
         dets = [pil1M]
 
         #### Get temperature reading
-        curr_tempC = ls.input_A_celsius.value
-        ii = 1
-        while curr_tempC > 200 and ii < 50:  # Sometimes reading can be off
-            yield from bps.sleep(0.2)
-            curr_tempC = ls.input_A_celsius.value
-            ii = ii + 1
+        # curr_tempC = ls.input_A_celsius.value
+        # ii = 1
+        # while curr_tempC > 200 and ii < 50:  # Sometimes reading can be off
+        #     yield from bps.sleep(0.2)
+        #     curr_tempC = ls.input_A_celsius.value
+        #     ii = ii + 1
+        curr_tempC = LThermal.temperature()
         print("---------  Current temperature (degC)\n {}".format(curr_tempC))
 
         #### Take a waxs every 10 measurements / Unused
@@ -218,13 +246,16 @@ def insitu_EM(
 
         #### Define sample name & Measure
         t1 = time.time()
-        name_fmt = "{sample}_{number}_{temperature}C_t{time}_pd{pd_curr}"
+        name_fmt = "{sample}_{number}_{temperature}C_t{time}_pd{pd_curr}_x{x}_y{y}{md}"
         sample_name = name_fmt.format(
             sample=name,
             number=number,
             temperature="%3.1f" % (curr_tempC),
             time="%3.1f" % (t1 - t0),
             pd_curr="%5.5d" % (pd_curr),
+            x = "%.2f" % (stage.x.position),
+            y = "%.2f" % (stage.y.position),
+            md = get_scan_md()
         )
         print(f"\n\t=== Sample: {sample_name} ===\n")
         sample_id(user_name="EM", sample_name=sample_name)
