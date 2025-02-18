@@ -103,6 +103,8 @@ class SMIBeam(object):
             target_state = [att1_6, att1_7]
         elif 14700 < self.dcm.energy.position < 16100:
             target_state = [att1_5, att1_6, att1_7]
+            #For microfiocusing
+            # target_state = [att1_7, att1_6]
         elif 16100 < self.dcm.energy.position < 17500:
             target_state = [att1_8]
         elif 17500 < self.dcm.energy.position < 18500:
@@ -208,7 +210,7 @@ class SMI_Beamline(Beamline):
         self.SAXS = SMI_SAXS_Det()
 
         self.attenuators_state()
-        self.crl_state()
+        # self.crl_state()
         self.pressure_measurments()
 
         self.update_md()
@@ -438,7 +440,7 @@ class SMI_Beamline(Beamline):
     def update_md(self, prefix="beamline_", **md):
         md_beamline = self.md.copy()
 
-        RE.md[prefix + "beamsize"] = self.crl_state
+        # RE.md[prefix + "beamsize"] = self.crl_state
         RE.md[prefix + "sample_environment"] = self.pressure_state
         RE.md[prefix + "attenuators"] = self.att_state
 

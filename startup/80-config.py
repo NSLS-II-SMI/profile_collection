@@ -154,13 +154,15 @@ def feedback(action=None):
     allowed_actions = ["on", "off"]
     assert (
         action in allowed_actions
-    ), f'Wrong action: {mode}, must choose: {" or ".join(allowed_actions)}'
+    ), f'Wrong action: {action}, must choose: {" or ".join(allowed_actions)}'
     if action == "off":
         manual_PID_disable_pitch.set("1")
         manual_PID_disable_roll.set("1")
     elif action == "on":
         manual_PID_disable_pitch.set("0")
         manual_PID_disable_roll.set("0")
+
+        #XF:12IDB-BI:2{EM:BPM3}fast_pidX.FBON N
 
 
 def read_current_config_position():

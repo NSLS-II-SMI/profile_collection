@@ -155,11 +155,18 @@ class StandardProsilicaWithTIFF(StandardProsilica):
 
 
 FS = StandardProsilica("XF:12IDA-BI{Cam:FS}", name="FS")
-FS.read_attrs = ["stats1", "stats2", "stats3", "stats4"]
+FS.read_attrs = ["stats1", "stats2", "stats3", "stats4", "stats5"]
 FS.stats1.read_attrs = ["total"]
 FS.stats2.read_attrs = ["total"]
 FS.stats3.read_attrs = ["total"]
 FS.stats4.read_attrs = ["total"]
+FS.stats5.read_attrs = ["total"]
+
+FS.stats2.total.kind = "hinted"
+FS.stats3.total.kind = "hinted"
+FS.stats5.total.kind = "hinted"
+
+
 # FS.configuration_attrs = ['cam.acquire_time']
 
 # VFM = StandardProsilica('XF:12IDA-BI{Cam:VFM}', name='VFM')

@@ -2211,3 +2211,48 @@ def run_Ray_swaxs_2024_3_single(t=1):
 
     sample_id(user_name='test', sample_name='test')
     det_exposure_time(0.5, 0.5)
+
+
+def andrew_mapping_2025_1(t=3):
+    """
+    Grid mapping on samples
+    """
+    names =   [         'Claw',        'bkg-Claw',          'Club1',      'bkg-Club1',         'Chitin',         'Club2',       'bkg-Club2', ]
+    piezo_x = [          23500,             24250,            -2230,            -2980,            42450,           13790,             14540, ]
+    piezo_y = [           -570,              -570,              110,              110,             -650,            -260,              -260, ]
+    piezo_z = [           9800,              9800,             9800,             9800,             9400,            9800,              9800, ]
+
+    y_range = [[-375, 375, 301], [-125, 125,  11], [-175, 175, 141], [-125, 125,  11], [-125, 125,  21], [-175, 175, 141], [-125, 125,  11], ]
+    x_range = [[-250, 250,  21], [-125, 125,  11], [-175, 175,  15], [-125, 125,  11], [-125, 125,  11], [-150, 150,  13], [-125, 125,  11], ]
+    
+
+    msg = "Wrong number of coordinates"
+    assert len(piezo_x) == len(names), msg
+    assert len(piezo_x) == len(piezo_y), msg
+    assert len(piezo_x) == len(piezo_z), msg
+    assert len(piezo_x) == len(y_range), msg
+    assert len(piezo_x) == len(x_range), msg
+
+    waxs_arc = [ 0 ]
+    det_exposure_time(t, t)
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+        dets = [pil900KW] if waxs.arc.position < 14.9 else [pil900KW, pil1M]
+
+        for name, x, y, z, y_r, x_r in zip(names, piezo_x, piezo_y, piezo_z, y_range, x_range):
+
+            yield from bps.mv(
+                piezo.x, x,
+                piezo.y, y,
+                piezo.z, z,
+            )
+
+            sample_name = f'{name}_{get_scan_md()}'
+            sample_id(user_name='AN', sample_name=sample_name)
+            print(f"\n\n\n\t=== Sample: {sample_name} ===")
+
+            yield from bp.rel_grid_scan(dets, piezo.y, *y_r, piezo.x, *x_r, 0)
+            
+            sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.5, 0.5)

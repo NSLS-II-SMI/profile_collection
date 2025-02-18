@@ -4633,3 +4633,297 @@ def bpmvspindiode_Cledge_2024_2(t=1):
 
         yield from bp.count([pil1M], num=1)
 
+
+
+def giwaxs_amanda_2025_1(t=0.5, name='test'):
+    """
+    Grazing incidence measurement with microfoused beam on small capa
+    """
+
+    # name   = 'sample2_puce1'
+    waxs_range = [0, 2, 20, 22, 40]
+    det_exposure_time(t, t)
+
+    dets = [pil900KW]
+
+    for wa in waxs_range:
+
+        yield from bps.mv(waxs, wa)
+        sample_name = f'{name}_ai5.0deg_{get_scan_md()}'
+        sample_id(user_name='GF', sample_name=sample_name)
+        print(f"\n\n\n\t=== Sample: {sample_name} ===")
+        yield from bp.count(dets)
+        
+    
+    #Retour position alignement
+    sample_id(user_name='test', sample_name='test')
+    det_exposure_time(0.3, 0.3)
+    yield from bps.mv(waxs, 0)
+
+
+def giwaxs_amanda_bigsamples_2025_1(t=0.5):
+    """
+    Grazing incidence measurement with microfoused beam on fullsheet
+    """
+
+    dets = [pil900KW]
+    det_exposure_time(t, t)
+
+    names = ['sample8', 'sample9', 'sample10', 'sample11']
+    x_piezo = [ -24906,    -34900,     -44900,     -54000]
+    y_piezo = [   4660,      4660,       4660,       4660]
+    x_hexa =  [      0,         0,          0,         -3]
+
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(x_hexa), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})"
+
+    waxs_arc = [0, 2, 20, 22, 40]
+    ai0 = 0
+    ai_list = [5.0]
+
+    for name, xs, ys, xs_hexa in zip(names, x_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yield from bps.mv(piezo.th, ai0)
+        yield from alignement_gisaxs(angle=0.15)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for k, ais in enumerate(ai_list):
+            yield from bps.mv(piezo.th, ai0 + ais)
+
+            for i, wa in enumerate(waxs_arc):
+                yield from bps.mv(waxs, wa)
+
+                yield from bps.mv(piezo.x, xs)
+                yield from bps.sleep(1)
+                
+                sample_name = f'{name}_ai5.0deg_{get_scan_md()}'
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+                yield from bps.sleep(1)
+
+        yield from bps.mv(piezo.th, ai0)
+
+
+
+def giswaxs_fbarbier_2025_1(t=0.5):
+    """
+    Grazing incidence measurement for Fred Barbier, sdd = 9.2 m, E = 16.1keV LowDiv
+    """
+
+    dets = [pil1M]
+    det_exposure_time(t, t)
+
+    # names = [  'sa02', 'sa03', 'sa04_poreux', 'sa04_bord', 'sa05', 'sa06', 'sa07']
+    # x_piezo = [ 48000,  24000,          4000,      -12000, -26000, -38000, -50000]
+    # y_piezo = [  -300,    -300,          -300,        -300,   -300,   -300,   -300]
+    # x_hexa =  [     0,      0,             0,           0,      0,      0,      0]
+
+    names = [  'sa01', 'sa08', 'sa09', 'sa10', 'sa11', 'sa12']
+    x_piezo = [ 55000,  43000,  25000,   1000, -19000, -43000]
+    y_piezo = [  -300,   -300,   -300,   -300,   -300,   -300]
+    x_hexa =  [     2,      0,      0,      0,      0,      0]
+
+
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+    assert len(x_piezo) == len(x_hexa), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(x_hexa)})"
+
+    waxs_arc = [20]
+    ai0 = 0
+    ai_list = [0.15, 0.20, 0.30, 0.45, 0.77]
+
+    for name, xs, ys, xs_hexa in zip(names, x_piezo, y_piezo, x_hexa):
+        yield from bps.mv(stage.x, xs_hexa)
+        yield from bps.mv(piezo.x, xs)
+        yield from bps.mv(piezo.y, ys)
+
+        yield from bps.mv(piezo.th, ai0)
+        yield from alignement_gisaxs(angle=0.15)
+
+        ai0 = piezo.th.position
+        det_exposure_time(t, t)
+
+        for i, wa in enumerate(waxs_arc):
+            yield from bps.mv(waxs, wa)
+            
+            for k, ais in enumerate(ai_list):
+                if ais == 0.1:
+                    yield from bps.mv(att1_5.open_cmd, 1)
+                    yield from bps.sleep(1)
+                    yield from bps.mv(att1_5.open_cmd, 1)
+                elif ais == 0.85:
+                    yield from bps.mv(att1_5.close_cmd, 1)
+                    yield from bps.sleep(1)
+                    yield from bps.mv(att1_5.close_cmd, 1)
+
+                yield from bps.mv(piezo.th, ai0 + ais)
+
+
+                sample_name = f'{name}_ai{ais}deg_pos1_{get_scan_md()}'
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.x, xs-1000)
+                yield from bps.sleep(1)
+
+                sample_name = f'{name}_ai{ais}deg_pos1_{get_scan_md()}'
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+                yield from bps.sleep(1)
+
+        yield from bps.mv(piezo.th, ai0)
+
+
+
+def giwaxs_flavien_2025_1(t=0.5, name='test'):
+    """
+    Grazing incidence measurement with microfoused beam on small capa
+    """
+    
+    x = piezo.x.position
+    ai0 = piezo.th.position
+    yield from bps.mv(piezo.th, ai0+5.0)
+    
+    # name   = 'sample2_puce1'
+    if waxs.arc.position > 20:
+        waxs_range = [0, 2, 20, 22, 40][::-1]
+    else:
+        waxs_range = [0, 2, 20, 22, 40]
+
+    det_exposure_time(t, t)
+    dets = [pil900KW]
+
+    for wa in waxs_range:
+        yield from bps.mv(waxs, wa)
+        sample_name = f'{name}_ai5.0deg_pos1_{get_scan_md()}'
+        sample_id(user_name='GF', sample_name=sample_name)
+        print(f"\n\n\n\t=== Sample: {sample_name} ===")
+        yield from bp.count(dets)
+
+        yield from bps.mv(piezo.x, x+2000)
+        yield from bps.sleep(1)
+
+        sample_name = f'{name}_ai5.0deg_pos2_{get_scan_md()}'
+        sample_id(user_name='GF', sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+        yield from bp.count(dets, num=1)
+        yield from bps.sleep(1)
+        yield from bps.mv(piezo.x, x)
+
+    yield from bps.mv(piezo.th, ai0)
+
+    # #Retour position alignement
+    # sample_id(user_name='test', sample_name='test')
+    # det_exposure_time(0.3, 0.3)
+    # yield from bps.mv(waxs, 0)
+
+
+
+
+def giwaxs_chene_2025_1(t=0.5):
+    """
+    Grazing incidence measurement with microfoused beam on small capa
+    """
+    
+    det_exposure_time(t, t)
+    dets = [pil900KW]
+
+    # names = [  '611_A4_par', '611_A4_per', '611_C2_par', '616_C1_per', '616_A4_par']
+    # x_piezo = [      -10000,        -7500,        -4500,         -200,         4000]
+    # y_piezo = [        1350,         1300,         1270,         1248,         1200]
+    # ais0 =   [        0.087,        0.074,            0,         0.46,         0.36]
+
+    names = [  '611_A4_par_redo', '611_A4_per_redo', '616_A4_per', '616_C2_par', '616_C2_per']
+    x_piezo = [           -10000,             -6900,        -4500,         -200,         4000]
+    y_piezo = [              350,               300,          270,          250,          220]
+    ais0 =   [             0.087,             -0.11,         0.35,        -0.27,        -0.68]
+
+    assert len(x_piezo) == len(names), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(names)})"
+    assert len(x_piezo) == len(y_piezo), f"Number of X coordinates ({len(x_piezo)}) is different from number of samples ({len(y_piezo)})"
+
+    # ai0 = 0.59
+    waxs_range = [0, 2, 20, 22]
+
+    # temperatures = [24, 0, -50, -100, -150, -180, 25, 100, 200]
+
+    temperatures = [-50, -100, -150, -180, 25, 100, 200]
+    for temp in temperatures:
+        if temp==0:
+            names = [  '616_C2_per']
+            x_piezo = [        4000]
+            y_piezo = [                 220]
+            ais0 =   [               -0.5]
+        else:
+            names = [  '611_A4_par_redo', '611_A4_per_redo', '616_A4_per', '616_C2_par', '616_C2_per']
+            x_piezo = [           -10000,             -6900,        -4500,         -200,         4000]
+            y_piezo = [              350,               300,          270,          250,          220]
+            ais0 =   [             0.087,             -0.11,         0.35,        -0.27,        -0.5]
+
+            LThermal.setTemperature(temp)
+            
+            while abs(LThermal.temperature() - temp) > 10:
+                yield from bps.sleep(60)
+                print('temp not at there yet')
+
+            print('At temp equal ', temp)
+            print('Wainting for 5 min')
+
+            yield from bps.sleep(300)
+
+        temp_real = LThermal.temperature()
+        for name, xs, ys, ai0 in zip(names, x_piezo, y_piezo, ais0):
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            yield from bps.mv(piezo.th, ai0)
+
+            if name != '611_A4_par_redo':
+                yield from alignement_gisaxs_doblestack(angle=0.15)
+                ai0 = piezo.th.position
+
+            else:
+                ai0=-0.43
+                yield from bps.mv(waxs, 0,
+                                  piezo.th, ai0 + 4.0,
+                                  piezo.y, 256)
+                det_exposure_time(0.5, 0.5)
+
+                yield from bp.rel_scan([pil900KW], piezo.y, -300 , 300, 51)
+                ps(der=False, plot=False)
+                yield from bps.mv(piezo.y, ps.cen)
+            
+            det_exposure_time(t, t)
+
+            yield from bps.mv(piezo.th, ai0 + 4.0)
+            for i, wa in enumerate(waxs_range):
+                yield from bps.mv(waxs, wa)
+                
+                tem = '%.01f'%temp
+                tem_real = '%.01f'%temp_real
+
+                sample_name = f'{name}_{tem}_ai4.0deg_pos1_{get_scan_md()}_{tem_real}'
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+                yield from bps.sleep(1)
+
+                yield from bps.mv(piezo.x, xs+200)
+                yield from bps.sleep(1)
+
+                sample_name = f'{name}_{temp}_ai4.0deg_pos2_{get_scan_md()}'
+                sample_id(user_name='GF', sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+                yield from bps.sleep(1)
+                yield from bps.mv(piezo.x, xs)
+
+            yield from bps.mv(piezo.th, ai0)
