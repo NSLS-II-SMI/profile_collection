@@ -2630,3 +2630,140 @@ def run_swaxs_Fei_2024_3(t=1):
 
     sample_id(user_name="test", sample_name="test")
     det_exposure_time(0.3, 0.3)
+
+
+
+
+
+def run_swaxs_Fei_2025_1(t=1):
+    """
+    Take WAXS and SAXS at nine sample positions for averaging
+
+    Specify central positions on the samples with xlocs and ylocs,
+    then offsets from central positions with x_off and y_off. Run
+    WAXS arc as the slowest motor. SAXS sdd 4.0 m.
+    """
+
+    # names   = [  'A6',  'A5',  'A4',  'A3',  'A2',  'A1',  
+    #              'B6',  'B5',  'B4',  'B3',  'B2',  'B1',
+    #              'C6',  'C5',  'C4',  'C3',  'C2',  'C1',
+    #              'D6',  'D5',  'D4',  'D3',  'D2',  'D1',
+                  
+    #              'E6',  'E5',  'E4',  'E3',  'E2',  'E1',  
+    #              'F6',  'F5',  'F4',  'F3',  'F2',  'F1',
+    #              'G6',  'G5',  'G4',  'G3',  'G2',  'G1',
+    #              'H6',  'H5',  'H4',  'H3',  'H2',  'H1']
+    
+    # piezo_x = [ 45500, 37000, 28000, 19500, 10500,  1500, 
+    #             45500, 37000, 28000, 19500, 10500,  1500,
+    #             45500, 37000, 27500, 19000, 10000,  1500,
+    #             45500, 37000, 28000, 19700, 10500,  1500,
+                
+    #            -10500,-19200,-28200,-37000,-45800,-54300, 
+    #            -10500,-19200,-28200,-37300,-45800,-54300,
+    #            -10500,-19200,-28200,-37300,-45800,-54300,
+    #            -10500,-19200,-28200,-37300,-45800,-54300]
+    
+    # piezo_y = [ -8800, -8800, -8800, -8500,  -8500,-8500,
+    #             -3500, -3500, -3500, -3500,  -3500,-3500,
+    #              2000,  2000,  2000,  2000,   2000, 1700,
+    #               700,   700,   700,  1500,    700,  700,
+                  
+    #             -8800, -8800, -8800, -8500,  -8500,-8500,
+    #             -3500, -3500, -3500, -3500,  -3500,-3500,
+    #              1700,  1700,  1700,  1700,   1700, 1700,
+    #               700,   700,   700,  1500,    700, 1000]
+    
+    # hexa_y =  [     0,     0,     0,     0,      0,    0,
+    #                 0,     0,     0,     0,      0,    0,
+    #                 0,     0,     0,     0,      0,    0,
+    #                 6,     6,     6,     6,      6,    6,
+
+    #                 0,     0,     0,     0,      0,    0,
+    #                 0,     0,     0,     0,      0,    0,
+    #                 0,     0,     0,     0,      0,    0,
+    #                 6,     6,     6,     6,      6,    6]
+    
+    # hexa_x =  [     0,     0,     0,     0,      0,    0,
+    #                 0,     0,     0,     0,      0,    0,
+    #                 0,     0,     0,     0,      0,    0,
+    #                 0,     0,     0,     0,      0,    0,
+
+    #                 0,     0,     0,     0,      0,   -1,
+    #                 0,     0,     0,     0,      0,   -1,
+    #                 0,     0,     0,     0,      0,   -1,
+    #                 0,     0,     0,     0,      0,   -1]
+
+    # namess   = [[  'I1',  'I2',  'I3',  'I4',  'I5',  'I6',  'M2',  'N2',  'O2',  'P2',  'H1',],
+    #              ['J1',  'J2',  'J3',  'J4',  'J5',  'J6',  'G1',],
+    #              ['K1',  'K2',  'K3',  'K4',  'K5',  'K6',  'M1',  'N1',  'O1',  'P1',  'F1',],
+    #              ['L1',  'L2',  'L3',  'L4',  'L5',  'L6',  'E1']]
+    
+    # piezo_xs = [[ 46500, 38000, 29500, 20000, 11200,  2500, -7500,-13000,-18000,-23200,-34500,],
+    #             [46500, 38000, 29500, 20000, 11200,  2500,-34500,],
+    #             [46500, 38000, 29500, 20000, 11200,  2500, -7500,-13000,-18200,-23200,-35000,],
+    #             [46500, 38000, 29500, 20000, 11200,  2700,-35000]]
+    
+    # piezo_ys = [ [-8500, -8500, -8500, -8500, -8500, -8500, -8500, -8500, -8500, -8500, -8500,],
+    #             [-3700, -3700, -3700, -3700, -3700, -3700, -3700,],
+    #              [1500,  1500,  1500,  1500,  1500,  1500,   500,   500,   500,   500,  1500,],
+    #               [900,   900,   900,   900,   900,   900,   900]]
+    
+    # hexa_ys =  [     [0,     0,     0,     0,      0,    0,     0,     0,     0,     0,     0,],
+    #                 [0,     0,     0,     0,      0,    0,     0,],
+    #                 [0,     0,     0,     0,      0,    0,     0,     0,     0,     0,     0,],
+    #                 [6,     6,     6,     6,      6,    6,     6]]
+
+    names   = [  'G1',  'G2',  'G3',  'G4',  'G5',  'G6', 'C6',   'C5',  'C4',  'C3',  'C2',  'C1']
+    piezo_x = [ 14200, 23200, 32200, 41200, 50200, 50000,-24000,-33000,-42500,-51000,-51000,-54000]
+    piezo_y = [ -7500, -7500, -7500, -7500, -7500, -7500, -8000, -8000, -8000, -8000, -8000, -8000]
+    hexa_y =  [     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0]
+    hexa_x =  [   0.1,   0.1,   0.1,   0.1,   0.1,   9.1,   0.1,   0.1,   0.1,   0.1,  -8.9,   -14]
+
+    # Offsets for taking a few points per sample
+    x_off = [-400, 0, 400]
+    y_off = [-400, 0, 400]
+
+    waxs_arc = [40, 20, 0]
+    user = "FY"
+
+
+    # for names, piezo_x, piezo_y, hexa_y in zip(namess, piezo_xs, piezo_ys, hexa_ys):
+    #     # Check and correct sample names just in case
+    #     names = [n.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ "}) for n in names]
+
+    #     # Check if the length of xlocs, ylocs and names are the same
+    #     assert len(piezo_x) == len(names), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(names)})"
+    #     assert len(piezo_x) == len(piezo_y), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(piezo_y)})"
+    #     assert len(piezo_x) == len(hexa_y), f"Number of X coordinates ({len(piezo_x)}) is different from number of samples ({len(hexa_y)})"
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+        # Detectors, disable SAXS when WAXS in the way
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil900KW, pil1M]
+        det_exposure_time(t, t)
+
+        for name, x, y, x_hexa in zip(names, piezo_x, piezo_y, hexa_x):
+
+            yield from bps.mv(stage.x, x_hexa)
+
+            for yy, y_of in enumerate(y_off):
+                yield from bps.mv(piezo.y, y + y_of)
+
+                for xx, x_of in enumerate(x_off):
+                    yield from bps.mv(piezo.x, x + x_of)
+                    yield from bps.sleep(1)
+
+                    loc = f'{yy}{xx}'
+                    sample_name = f'{name}{get_scan_md()}_loc{loc}'
+                    sample_id(user_name='FY', sample_name=sample_name)
+
+                    sample_id(user_name=user, sample_name=sample_name)
+                    print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                    yield from bp.count(dets)
+
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.3, 0.3)
+
+    

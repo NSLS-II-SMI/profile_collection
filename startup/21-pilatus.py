@@ -3,6 +3,7 @@ print(f"Loading {__file__}")
 from ophyd import (
     Component as Cpt,
     ADComponent,
+    Signal,
     Device,
     PseudoPositioner,
     EpicsSignal,
@@ -56,6 +57,7 @@ class PilatusDetectorCamV33(PilatusDetectorCam):
             if hasattr(cpt, "ensure_nonblocking"):
                 cpt.ensure_nonblocking()
 
+    energyset = Cpt(Signal, name="Beamline Energy") # remember the energy of the beamline
     file_path = Cpt(SignalWithRBV, "FilePath", string=True)
     file_name = Cpt(SignalWithRBV, "FileName", string=True)
     file_template = Cpt(SignalWithRBV, "FileName", string=True)
@@ -146,6 +148,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
     gain = Cpt(EpicsSignal, "cam1:GainMenu")
     apply = Cpt(EpicsSignal, "cam1:ThresholdApply")
 
+    
     threshold_read = Cpt(EpicsSignal, "cam1:ThresholdEnergy_RBV")
     energy_read = Cpt(EpicsSignal, "cam1:Energy_RBV")
     gain_read = Cpt(EpicsSignal, "cam1:GainMenu_RBV")
@@ -204,7 +207,7 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
             #print(data.alarm_status)
             if data.alarm_status is not AlarmStatus.NO_ALARM:
  
-                if fail_count < 5:
+                if fail_count < 4:
                     # chosen after testing and it failing 2x per cam server restart so
                     # so two extra tries seems reasonable
                     print('\n\n\n\nYOL0(or twice): retrying detector failure')
@@ -213,7 +216,20 @@ class Pilatus(SingleTriggerV33, PilatusDetector):
                                      callback_data=self.cam.detector_state)
                 
                     fail_count += 1
-                    time.sleep(0.1)
+                    time.sleep(1)
+                elif fail_count < 7:
+                    # chosen after testing and it failing 2x per cam server restart so
+                    # so two extra tries seems reasonable
+                    print('\n\n\n\nYOL0(or twice): retrying detector failure')
+                    print('Reset detector camserver if this is the start of the macro\n\n\n\n\n')
+                    self._acquisition_signal.put(1, use_complete=True, callback=_acq_done, 
+                                     callback_data=self.cam.detector_state)
+                
+                    fail_count += 1
+                    time.sleep(60)
+                    #reset the threshold 
+                    set_energy_cam(self.cam,self.cam.energyset.get())
+                    time.sleep(5)
                 else:
                     self._status.set_exception(
                         RuntimeError(f"FAILED {pvname}: {data.alarm_status}: {data.alarm_severity}")
@@ -434,7 +450,7 @@ class WAXS(Device):
                 )
             )
         else:
-            calc_value = 40
+            calc_value = -44
         st_x = self.bs_x.set(calc_value)
         return st_arc & st_x
 
@@ -452,6 +468,8 @@ class WAXS(Device):
         # bsx_pos = -54.65 -249.69871 * np.tan(np.deg2rad(arc_value))  # 2023 Nov 02, bumped again with 3d printer.
         bsx_pos = -36.1 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2024 May 20, changing script rather than dial as previously...
         bsx_pos = -27.7 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2024 May 20, changing script rather than dial as previously...
+        bsx_pos = -96.74 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2025 Feb 05, changing script rather than dial as previously...
+        bsx_pos = -117.487 -249.69871 * np.tan(np.deg2rad(arc_value))    # 2025 Feb 11, changing script rather than dial as previously...
 
         return bsx_pos
 
@@ -468,7 +486,8 @@ def set_energy_cam(cam,en_ev):
              gain = 1
      else:
              gain = 0
-     cam.threshold_energy.set(thresh)
-     cam.energy.set(en)
-     cam.gain_menu.set(gain)
-     cam.threshold_apply.set(1)
+     cam.threshold_energy.put(thresh)
+     cam.energy.put(en)
+     cam.gain_menu.put(gain)
+     cam.threshold_apply.put(1)
+     cam.energyset.set(en) # store so it remembers on failure and resets

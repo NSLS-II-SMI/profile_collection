@@ -1704,3 +1704,89 @@ def night_guorong(t=1):
     yield from bps.sleep(10800)
     
     yield from guorong_temperature_2023_2_redo(t=1, prefix='RT_afterheating')
+
+
+
+
+
+
+
+
+
+
+
+
+def wang_temperature_tender_2025_1(t=5):
+    """
+    Tender X-ray WAXS and SAXS Lakeshore heating stage, coarse energies
+    For reference: 2470 eV, low divergence, in vacuum, SAXS sdd 1.6 m
+    """
+    
+    # names =   ['sa00', 'sa04',  'sa10',  'sa15',  'sa06',   'sa16',  'sa03',  'sa13', 'sa05', 'sa14','empty']       
+    # piezo_x = [ 44800,  37200,   26100,   17300,    9600,      700,   -6500,  -16100, -26400, -35400, -42000]   
+    # piezo_y = [ -5500,  -4500,   -5200,   -5200,   -4500,    -4700,   -3800,   -4400,  -4700,  -4000,  -4700]
+
+    
+    names =   ['sa03']       
+    piezo_x = [   -6500]   
+    piezo_y = [   -3800]
+
+
+    assert len(names)   == len(piezo_x), f"Wrong list lenghts"
+    assert len(piezo_x) == len(piezo_y), f"Wrong list lenghts"
+
+    user_name = "YW"
+    temperatures = [180, 190, 200, 210, 220] #[25, 180]
+    waxs_arc = [20, 0]
+
+    # energies = [2470]
+    energies = [2470, 2472, 2474, 2475, 2476, 2477, 2478, 2480]
+
+    # Read T and convert to deg C
+    temp_degC = ls.input_A.get() - 273.15
+
+    for wa in waxs_arc:
+        yield from bps.mv(waxs, wa)
+
+        dets = [pil900KW] if waxs.arc.position < 15 else [pil1M, pil900KW]
+        det_exposure_time(t, t)
+
+        for name, x, y in zip(names, piezo_x, piezo_y):
+            # if name == 
+            yield from bps.mv(piezo.x, x,
+                              piezo.y, y)
+
+            for e in energies:
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+            
+                # Metadata
+                #e = energy.position.energy / 1000
+                temp = str(np.round(float(temp_degC), 1)).zfill(5)
+                wa = str(np.round(float(wa), 1)).zfill(4)
+                sdd = pil1m_pos.z.position / 1000
+
+                # Sample name
+                name_fmt = ("{sample}_{temp}degC_{energy}eV_wa{wax}_sdd{sdd}m_expt{t}s")
+                sample_name = name_fmt.format(sample = name,energy = "%.2f" % e ,temp = temp,
+                                              wax = wa, sdd = "%.1f" % sdd, t = t,)
+                sample_name = sample_name.translate({ord(c): "_" for c in "!@#$%^&*{}:/<>?\|`~+ =, "})
+                print(f"\n\n\n\t=== Sample: {sample_name} ===")
+                sample_id(user_name=user_name, sample_name=sample_name)
+                
+                yield from bp.count(dets)
+
+            yield from bps.mv(energy, 2470)
+            yield from bps.sleep(2)
+
+
+
+    sample_id(user_name="test", sample_name="test")
+    det_exposure_time(0.5, 0.5)
+
+    # Turn off the heating and set temperature to 23 deg C
+    yield from turn_off_heating()

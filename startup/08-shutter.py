@@ -92,8 +92,6 @@ def shopen():
     yield from bps.mv(ph_shutter.open_cmd, 1)
     yield from bps.sleep(1)
 
-    # Disabled because of problems with XBPM3 in microfocus
-    
     yield from bps.mv(manual_PID_disable_pitch, "0")
     yield from bps.mv(manual_PID_disable_roll, "0")
 

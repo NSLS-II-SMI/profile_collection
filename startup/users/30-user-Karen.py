@@ -343,8 +343,8 @@ def alignment_off():
     yield from smi.modeMeasurement()
     yield from bps.mv(waxs, 0)
 
-def continous_run_change_xpos(sname='echem_20241030_op_Na_Cu_bar_c', t=2, wait=100, frames=5000, x_off=[-500, -400, -300, -250, -200,-150, -100, -50, 0, 50, 
-                                                                  100,150, 200, 250, 300, 400, 500]):
+def continous_run_change_xpos(sname='20250205_op_b_echem', t=2, wait=100, frames=5000,
+        x_off=[-150, -100, -50, 0, 50, 100,150]):
     """
     Take data continously
     
@@ -371,6 +371,7 @@ def continous_run_change_xpos(sname='echem_20241030_op_Na_Cu_bar_c', t=2, wait=1
         print(f'Taking {i + 1} / {frames} frames for {len(x_off)} x positions')
 
         x_0 = piezo.x.position
+        # this could change because of drift.
 
         for x_step in x_off:
             yield from bps.mv(piezo.x, x_0 + x_step)

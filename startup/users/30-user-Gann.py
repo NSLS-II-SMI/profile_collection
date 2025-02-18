@@ -817,7 +817,7 @@ def reflectivity_multisample_2024():
         for en in energies:
             sample_id(user_name="EG", sample_name=f'{sample}_{en}eV')
 
-            yield from bp.list_scan([pil900KW,pil900KW.stats4.centroid_total,pil900KW.stats4.total],
+            yield from bp.list_scan([pil900KW,pil900KW.stats1.centroid_total,pil900KW.stats1.total],
                                     piezo.th,angles0,
                                     att2_11,attenuator11o,
                                     att2_10,attenuator10o,
@@ -828,28 +828,228 @@ def reflectivity_multisample_2024():
 # attenuators for Oct27 2024
 
 
+# def att11(angle):
+#     if angle < 0.6:
+#         return 1
+#     else:
+#         return 0
+# def att10(angle):
+#     if angle < 0.6:
+#         return 0
+#     elif angle < 2:
+#         return 1 
+#     else:
+#         return 0
+    
+# def att9(angle):
+#     if angle < 0.6:
+#         return 0
+#     elif angle < 1.2 :
+#         return 1
+#     elif angle < 2:
+#         return 0
+#     elif angle < 4:
+#         return 1
+#     else:
+#         return 0
+    
+
+# def att11(angle):
+#     if angle < 0.5:
+#         return 1
+#     else:
+#         return 0
+# def att10(angle):
+#     if angle < 0.5:
+#         return 0
+#     elif angle < 1.5:
+#         return 1 
+#     else:
+#         return 0
+    
+# def att9(angle):
+#     if angle < 0.5:
+#         return 0
+#     elif angle < 1 :
+#         return 1
+#     elif angle < 1.5:
+#         return 0
+#     elif angle < 4:
+#         return 1
+#     else:
+#         return 0
 def att11(angle):
-    if angle < 0.6:
+    if angle < 0.5:
         return 1
     else:
         return 0
 def att10(angle):
-    if angle < 0.6:
+    if angle < 0.5:
         return 0
-    elif angle < 2:
+    elif angle < 1.5:
         return 1 
     else:
         return 0
     
 def att9(angle):
-    if angle < 0.6:
+    if angle < 0.5:
         return 0
-    elif angle < 1.2 :
+    elif angle < 1 :
         return 1
-    elif angle < 2:
+    elif angle < 1.5:
         return 0
     elif angle < 4:
         return 1
     else:
         return 0
+
+def xrr_sedge_2025_1():
+    #List of incident angles clustured in subsection for attenuators
+    # sample_names = ['IBM2p25_2', 'IBM2p5', 'IBM3p0', 'IBM4p0', 'IBM5p0', 'IBM6p0', ]
+    # x_piezos =     [      30000,     17000,    1000,    -15000,    -32000,    -50000,    ]
+    # y_piezos =     [       -200,      0,        0,       232,       432,       452,     ]
+    # th0s     =     [         -2,        -2,        -2,        -2,        -2,        -2,    ]
+
+
+    # sample_names = [ 'IBM0p0_2', 'IBM2p25_2', 'IBM2p5', 'IBM3p0', 'IBM4p0', 'IBM5p0', 'IBM6p0', ]
+    # x_piezos =     [      43000,       29000,    16000,     1000,    -15000,    -33000,    -50000,    ]
+    # y_piezos =     [       -400,        -200,     -200,        0,       232,       432,       452,     ]
+    # th0s     =     [         -2,          -2,       -2,       -2,        -2,        -2,    -2]
+
+    sample_names = [ 'IBM0p0_0_1', 'IBM0p0_0_2',]
+    x_piezos =     [      23000,      -30000,   ]
+    y_piezos =     [      -1000,        -1000,  ]
+    th0s     =     [         -2,          -2,   ]
+
+
     
+    angles = np.linspace(0.03, 1.03, 76).tolist()
+    angles +=            np.linspace(1.05,  2.01, 41).tolist()
+    angles +=            np.linspace(2.01,  2.51, 35).tolist()
+    angles +=            np.linspace(2.55, 4, 50).tolist()
+    angles +=            np.linspace(4, 6, 41).tolist()
+    angles +=            np.linspace(6, 8, 41).tolist()
+    
+    # energies = [2450,2460,2500,2475,2477,2478,2479,2480,2481,2482,2483,2485,2487,2520]
+
+    energies = [2450,2477,2480,2482,2520]
+
+    attenuator9o = [att9(angle) for angle in angles]
+    attenuator10o = [att10(angle) for angle in angles]
+    attenuator11o = [att11(angle) for angle in angles]
+
+    #roi_centers = [roiy(angle) for angle in angles]
+
+
+    pil900KW.stats1.centroid.x.kind = 'hinted'
+    pil900KW.stats1.centroid.y.kind = 'hinted'
+    pil900KW.stats1.centroid_total.kind = 'hinted'
+    pil900KW.stats1.total.kind = 'hinted'
+    pil900KW.stats1.kind = 'hinted'
+
+    set_energy_cam(pil900KW.cam,energies[0])
+    set_energy_cam(pil1M.cam,energies[0])
+    # yield from bps.mv(energy,energies[0])
+    yield from bps.sleep(5)
+
+    
+    for sample, xp, yp, thp in zip(sample_names, x_piezos, y_piezos, th0s):
+        # if sample == 'IBM6p0':
+        #     energies = [2481,2483,2487,2520]
+        # else:
+        #     energies = [2450,2475,2477.5,2481,2483,2487,2520]
+
+
+        yield from bps.mv(  piezo.x, xp,
+                            piezo.y, yp,
+                            piezo.th, thp)
+        
+
+        yield from bps.mv(energy,energies[0])
+        yield from bps.sleep(5)
+
+        yield from alignement_gisaxs(.5)
+        
+        yield from bps.mv(waxs.arc,7)
+        th0 = piezo.th.user_readback.get()
+
+        angles0 = [th0 + angle for angle in angles]
+        for en in energies:
+            print('The sample measured is ', sample)
+            print('The energy is ', en)
+
+
+            yield from bps.mv(energy,en)
+            yield from bps.mvr(piezo.x, 500)
+            yield from bps.sleep(5)
+            sample_id(user_name="EG", sample_name=f'{sample}_{en}eV')
+
+            yield from bp.list_scan([pil900KW,pil900KW.stats1.centroid_total,pil900KW.stats1.total],
+                                    piezo.th,angles0,
+                                    att2_11,attenuator11o,
+                                    att2_10,attenuator10o,
+                                    att2_9,attenuator9o,
+                                    )
+        yield from bps.mv(energy,2475)
+        yield from bps.sleep(5)
+
+    
+
+    
+def att11(angle):
+    if angle < 0.5:
+        return 1
+    else:
+        return 0
+def att10(angle):
+    if angle < 0.5:
+        return 0
+    elif angle < 1.5:
+        return 1 
+    else:
+        return 0
+    
+def att9(angle):
+    if angle < 0.5:
+        return 0
+    elif angle < 1 :
+        return 1
+    elif angle < 1.5:
+        return 0
+    elif angle < 4:
+        return 1
+    else:
+        return 0
+
+
+
+def nexafs_sedge_2025_1():
+    dets = [pil900KW]
+    # energies1 =   np.asarray([2810.0, 2820.0, 2830.0, 2832.0, 2834.0, 2834.5, 2835.0, 2835.5, 2836.0, 2836.5, 2837.0, 2837.5, 2838.0, 2838.5, 2839.0,
+    # 2839.5, 2840.0, 2840.5, 2841.0, 2841.5, 2845.0, 2850.0, 2855.0, 2860.0, 2865.0, 2870.0, 2875.0, 2880.0, 2890.0])
+    name='IBM6p0NEXAFS'
+    energies = np.asarray(np.arange(2445, 2475, 5).tolist() + np.arange(2475, 2490, 0.25).tolist()
+                            + np.arange(2490, 2500, 5).tolist()+ np.arange(2500, 2521, 10).tolist())
+    for i, e in enumerate(energies):
+        yield from bps.mv(energy, e)
+        yield from bps.sleep(2)
+
+        if xbpm2.sumX.get() < 120:
+            yield from bps.sleep(5)
+            yield from bps.mv(energy, e)
+            yield from bps.sleep(2)
+
+        bpm = xbpm3.sumX.value
+        
+        name_fmt = "{sample}_{energy}eV_wa{wax}_bpm{xbpm}"
+
+        sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=20, xbpm="%4.3f" % bpm)
+        sample_id(user_name="JJS", sample_name=sample_name)
+        print(f"\n\t=== Sample: {sample_name} ===\n")
+
+        yield from bp.count(dets, num=1)
+
+    yield from bps.mv(energy, 2475)
+    yield from bps.sleep(3)
+    yield from bps.mv(energy, 2450)
+    yield from bps.sleep(3)

@@ -1649,3 +1649,51 @@ def mesure_rugo_2024_16(exp_t=1, nume=100):
             # yield from bp.count([pil1M], num=nume)
             # yield from bps.mvr(pil1m_pos.y, -4.3)
 
+
+
+
+
+def cdsaxsstd_2025_1(t=1):
+    det = [pil1M]
+    det_exposure_time(t, t)
+
+    phi_offest = -2
+
+    names = [  'c5',  'c5_bkg',  'c4',  'c4_bkg',  'c3',  'c3_bkg',  'c2',  'c2_bkg',  'c1',  'c1_bkg',  'c0', 'c0_bkg', 
+              'cm1', 'cm1_bkg', 'cm2', 'cm2_bkg', 'cm3', 'cm3_bkg', 'cm4', 'cm4_bkg', 'cm5', 'cm5_bkg']
+    x =     [-54000,    -54000,-39600,    -39600,-29800,    -29800,-20200,    -20200, -9900,     -9900, -2100,    -2100,
+              13100,     13100, 22000,     22000, 29600,     29600, 42200,     42200, 54600,     54600]
+    x_hexa =[   0.1,       0.1,   0.1,       0.1,   0.1,       0.1,   0.1,       0.1,   0.1,       0.1,   0.1,      0.1,
+                0.1,       0.1,   0.1,       0.1,   0.1,       0.1,   0.1,       0.1,   0.1,       0.1]
+    y=      [ -5300,     -6800, -7900,     -9400, -7200,     -8700, -7200,     -8700, -7300,     -8800, -7100,   -8600,
+              -7100,     -8600, -7300,     -8800, -7600,     -9100, -7600,     -9100, -9000,    -10000]
+    z=      [  3540,      3540,  3000,      3000,  2740,      2740,  2700,      2700,  2500,      2500,  2300,    2300, 
+               2000,      2000,  1800,      1800,  1600,      1600,  1600,      1600,  1300,      1300]
+    chi=    [  1.79,      1.79,  -0.6,      -0.6,  -0.2,      -0.2,  -0.1,      -0.1,  -0.3,      -0.3,   1.4,     1.4,
+               -0.8,      -0.8,   0.3,       0.3,   0.3,       0.3,   0.8,       0.8,   1.8,       1.8]
+    th =    [   0.0,       0.0,   0.0,       0.0,   0.0,       0.0,   0.0,       0.0,   0.0,       0.0,   0.0,     0.0,
+                0.0,       0.0,   0.0,       0.0,   0.0,       0.0,   0.0,       0.0,   0.0,       0.0]
+
+    assert len(names) == len(x), f"len of x ({len(x)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(y), f"len of y ({len(y)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(x_hexa), f"len of x_hexa ({len(x_hexa)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(z), f"len of z ({len(z)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(chi), f"len of y ({len(chi)}) is different from number of samples ({len(names)})"
+    assert len(names) == len(th), f"len of z ({len(th)}) is different from number of samples ({len(names)})"
+
+    
+    for i in range(1):
+        for name, xs, xs_hexa, ys, zs, chis, ths in zip(names, x, x_hexa, y, z, chi, th):
+            yield from bps.mv(stage.x, xs_hexa)
+            yield from bps.mv(piezo.z, zs)
+            yield from bps.mv(piezo.ch, chis)
+            yield from bps.mv(piezo.th, ths)
+            yield from bps.mv(piezo.x, xs)
+            yield from bps.mv(piezo.y, ys)
+            # yield from bp
+            if 'bkg' not in name:
+                yield from cd_saxs_new(phi_offest, phi_offest, 1, exp_t=t, sample=name+'measure_ref-A%s'%(i+1), nume=1)
+                yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name+'measure%s'%(i+1), nume=4)
+                yield from cd_saxs_new(phi_offest, phi_offest, 1, exp_t=t, sample=name+'measure_ref-B%s'%(i+1), nume=1)
+            else:
+                yield from cd_saxs_new(-60+phi_offest, 60+phi_offest, 121, exp_t=t, sample=name+'measure%s'%(i+1), nume=1)

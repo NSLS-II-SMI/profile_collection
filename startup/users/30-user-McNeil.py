@@ -1993,7 +1993,7 @@ def incident_energy_scan_giwaxs_S_edge_2024_3(t=1, energies=2450, name="Test"):
         yield from bps.mv(piezo.th, ai0)
 
 
-def sevralai_giwaxs_S_edge_2024_3_v2(t=1, name="Test", ai_list: list[int] = [], xstep=10):
+def sevralai_giwaxs_S_edge_2024_3_v2(t=1, name="Test", ai_list: list[int] = [], xstep=10, waxs_arc = [0, 20]):
     '''
     Study the beam damage on 1 film to define the opti;am experimental conitions.
 
@@ -2008,7 +2008,6 @@ def sevralai_giwaxs_S_edge_2024_3_v2(t=1, name="Test", ai_list: list[int] = [], 
     energies = (np.arange(2445, 2470, 5).tolist()+ np.arange(2470, 2480, 0.25).tolist()+ np.arange(2480, 2490, 1).tolist()
                 + np.arange(2490, 2500, 5).tolist()+ np.arange(2500, 2560, 10).tolist())
     
-    waxs_arc = [0, 20]
     # ai_list = [0.2, 0.4, 0.6, 0.8, 4, 8]
 
     ai0 = piezo.th.position
@@ -2353,6 +2352,8 @@ def vert_sequence_scan_01():
         yield from bps.mv(GV7.close_cmd, 1)
         yield from bps.sleep(1)
 
+
+
         yield from vert_aiscan_giwaxs_S_edge_2024_3(t=1, energies=2450, name=sample, waxs_arc=wa)
         # beam is 30um.
         yield from bps.mv(piezo.y, y - 30)
@@ -2533,3 +2534,576 @@ def giwaxs_hardxray_Chris_2024_3(t=1):
                 yield from bp.count(dets, num=1)
 
         yield from bps.mv(piezo.th, ai0)
+
+
+
+def vert_sequence_scan_01():
+    """
+    Running multiple samples with various scans
+    """
+
+    # In McNeil_11
+    # samples = ["A1_02p", "A1_03p", "A1_04p", "A1_05p", "A2_01p", "A2_02p", "A2_03p", "A2_04p", "A2_05p", "A2_06p", "A3_04p", "A3_06p"]
+    # ys =   [      -4000,     5000,    -4000,     5000,    -4000,     5000,    -4000,     5000,    -4000,     5000,    -4000,     5000]
+    # xs =   [     -48600,   -48600,   -34000,   -34000,   -10100,   -10100,    16400,    16400,    42000,    42000,    55000,    55000]
+    # xshexa =   [    -10,      -10,        0,        0,        0,        0,        0,        0,        0,        0,       13,       13]
+    # Crash during night, repeat after first 3.
+
+    samples = ["A1_04p", "A2_01p", "A2_02p", "A2_03p", "A2_04p", "A2_05p", "A2_06p", "A3_04p", "A3_06p"]
+    ys =   [      -4000,    -5000,     5000,    -5000,     5000,    -5000,     5000,    -5000,     5000]
+    xs =   [     -34000,   -10100,   -10100,    16400,    16400,    42000,    42000,    55000,    55000]
+    xshexa =   [      0,        0,        0,        0,        0,        0,        0,       13,       13]
+    
+    samples = ["A2_02p", "A2_03p", "A2_04p", "A2_05p", "A2_06p", "A3_04p", "A3_06p"]
+    ys =   [       5000,    -5000,     5000,    -5000,     5000,    -5000,     5000]
+    xs =   [     -10100,    16400,    16400,    42000,    42000,    55000,    55000]
+    xshexa =   [      0,        0,        0,        0,        0,       13,       13]
+
+    det_exposure_time(1, 1)
+
+    for i, (sample, y, x, xhexa) in enumerate(zip(samples, ys, xs, xshexa)):
+        # Setup measurement for sample
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(stage.x, xhexa)
+
+        if sample == "A1_04p" or 'A3' in sample:
+            wa = [18]
+        else:
+            wa = [21]
+        yield from bps.mv(GV7.open_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(GV7.open_cmd, 1)
+        yield from bps.sleep(1)
+
+        yield from alignement_xrr_xmotor(angle=0.1)
+
+        yield from bps.mv(GV7.close_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(GV7.close_cmd, 1)
+        yield from bps.sleep(1)
+
+        yield from calibrate_ai(t=1, energies=2450, name=sample)
+
+        yield from vert_aiscan_giwaxs_S_edge_2024_3(t=1, energies=2450, name=sample, waxs_arc=wa)
+        # beam is 30um.
+        yield from bps.mv(piezo.y, y - 30)
+
+        # Run sample scan
+        yield from vert_giwaxs_S_edge_2024_3(
+            t=1, name=sample, ai_list = [0.4, 0.8, 8], ystep=20, waxs_arc=wa) # steps 63 energies
+            
+
+
+
+def calibrate_ai_ver(t=1, energies=2450, name="Test"):
+    '''
+    Take a direct and reflected beam to ensure that the sample alignemenbt was correct, i.e. ai accurate
+
+    '''
+    dets = [pil900KW]
+    det_exposure_time(t, t)
+    
+    yield from bps.mv(energy, energies)
+    yield from bps.sleep(2)
+
+    yield from bps.mv(att2_10.open_cmd, 1)
+    yield from bps.sleep(1)
+    yield from bps.mv(att2_10.open_cmd, 1)
+    yield from bps.sleep(1)
+
+    ai0 = prs.position
+    yield from bps.mv(prs, ai0 - 1.5)
+
+    yield from bps.mv(waxs, 0)
+    yield from bps.mv(waxs.bs_x, -87.48)
+
+    name_fmt = "calibrationai_{sample}_{energy}eV_ai{ai}_wa{wax}"
+    sample_name = name_fmt.format(sample=name,energy="%6.2f"%energies, ai="%3.3f"%1.5, wax=0)
+    sample_id(user_name="CM", sample_name=sample_name)
+    print(f"\n\t=== Sample: {sample_name} ===\n")
+    yield from bp.count(dets, num=1)
+
+    yield from bps.mv(waxs, 0)
+
+    yield from bps.mv(att2_10.close_cmd, 1)
+    yield from bps.sleep(1)
+    yield from bps.mv(att2_10.close_cmd, 1)
+    yield from bps.sleep(1)
+
+    yield from bps.mv(prs, ai0)
+
+
+
+
+def calibrate_ai_hor(t=1, energies=2450, name="Test"):
+    '''
+    Take a direct and reflected beam to ensure that the sample alignemenbt was correct, i.e. ai accurate
+
+    '''
+    dets = [pil900KW]
+    det_exposure_time(t, t)
+    
+    yield from bps.mv(energy, energies)
+    yield from bps.sleep(2)
+
+    yield from bps.mv(att2_10.open_cmd, 1)
+    yield from bps.sleep(1)
+    yield from bps.mv(att2_10.open_cmd, 1)
+    yield from bps.sleep(1)
+
+    ai0 = piezo.th.position
+    yield from bps.mv(piezo.th, ai0 + 1.5)
+
+    yield from bps.mv(waxs, 0)
+    yield from bps.mv(waxs.bs_x, -87.48)
+
+    name_fmt = "calibrationai_{sample}_{energy}eV_ai{ai}_wa{wax}"
+    sample_name = name_fmt.format(sample=name,energy="%6.2f"%energies, ai="%3.3f"%1.5, wax=0)
+    sample_id(user_name="CM", sample_name=sample_name)
+    print(f"\n\t=== Sample: {sample_name} ===\n")
+    yield from bp.count(dets, num=1)
+
+    yield from bps.mv(waxs, 0)
+
+    yield from bps.mv(att2_10.close_cmd, 1)
+    yield from bps.sleep(1)
+    yield from bps.mv(att2_10.close_cmd, 1)
+    yield from bps.sleep(1)
+
+    yield from bps.mv(piezo.th, ai0)
+
+
+
+
+def fixedposition_energysweep_ver(t=1, name="Test", ai_list: list[int] = [], waxs_arc=[18]):
+    '''
+    Study the beam damage on 1 film to define the opti;am experimental conitions.
+
+    '''
+    dets = [pil900KW]
+
+    energies = [2450, 2465, 2475, 2485, 2510, 2540, 2477.5]
+    
+    ai0 = prs.position
+    ys = piezo.y.position
+
+    det_exposure_time(1, 1)
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+
+        for k, ais in enumerate(ai_list):
+            yield from bps.mv(piezo.y, ys - k * 20)
+
+            yield from bps.mv(prs, ai0 - ais)
+            name_fmt = "fixedpossweep_{sample}_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}"
+            
+            for e in energies:
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(5)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                
+                bpm = xbpm2.sumX.get()
+                sample_name = name_fmt.format(sample=name,energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm)
+                sample_id(user_name="CM", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+            
+            yield from bps.mv(energy, 2445)
+            yield from bps.sleep(2)
+
+        yield from bps.mv(prs, ai0)
+
+
+
+
+def fixedposition_energysweep_hor(t=1, name="Test", ai_list: list[int] = [], waxs_arc=[18]):
+    '''
+    Study the beam damage on 1 film to define the opti;am experimental conitions.
+
+    '''
+    dets = [pil900KW]
+
+    energies = [2450, 2465, 2475, 2485, 2510, 2540, 2477.5]
+    
+    ai0 = piezo.th.position
+    xs = piezo.x.position
+
+    det_exposure_time(1, 1)
+
+    for i, wa in enumerate(waxs_arc):
+        yield from bps.mv(waxs, wa)
+
+        for k, ais in enumerate(ai_list):
+            yield from bps.mv(piezo.x, xs + k * 100)
+
+            yield from bps.mv(piezo.th, ai0 + ais)
+            name_fmt = "fixedpossweep_{sample}_{energy}eV_ai{ai}_wa{wax}_bpm{xbpm}"
+            
+            for e in energies:
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(5)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+                
+                bpm = xbpm2.sumX.get()
+                sample_name = name_fmt.format(sample=name,energy="%6.2f"%e, ai="%3.2f"%ais, wax=wa, xbpm="%4.3f"%bpm)
+                sample_id(user_name="CM", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+                yield from bp.count(dets, num=1)
+            
+            yield from bps.mv(energy, 2445)
+            yield from bps.sleep(2)
+
+        yield from bps.mv(piezo.th, ai0)
+
+
+def vert_sequence_scan_25_01_Si():
+    """
+    Measuring vertical Si wafer for reference, i.e. flux variation across the S-edge
+    """
+
+    # In McNeil_01
+    samples = ["clean_Si_rerun"]
+    ys =   [  -5000]
+    xs =   [ -53026]
+    xshexa =   [ -8]
+
+    det_exposure_time(1, 1)
+
+    for i, (sample, y, x, xhexa) in enumerate(zip(samples, ys, xs, xshexa)):
+        wa = [18]
+        # Setup measurement for sample
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(stage.x, xhexa)
+
+        yield from bps.mv(GV7.open_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(GV7.open_cmd, 1)
+        yield from bps.sleep(1)
+
+        yield from alignement_xrr_xmotor(angle=0.1)
+
+        yield from bps.mv(GV7.close_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(GV7.close_cmd, 1)
+        yield from bps.sleep(1)
+
+        yield from calibrate_ai_ver(t=1, energies=2450, name=sample)
+
+        # beam is 30um.
+        yield from bps.mv(piezo.y, y - 30)
+
+        # # Run sample scan
+        # yield from vert_giwaxs_S_edge_2024_3(
+        #     t=1, name=sample, ai_list = [0.4, 0.8, 4, 8], ystep=0, waxs_arc=wa) # steps 63 energies
+            
+         # Run sample scan
+        yield from vert_giwaxs_S_edge_2024_3(
+            t=1, name=sample, ai_list = [0.4], ystep=0, waxs_arc=wa) # steps 63 energies
+
+
+def vert_sequence_scan_25_01():
+    """
+    Measuring samples mounted vertically:
+    - Alignement in the vertical orientation
+    - Take a direct and reflected beam at ai = 3 deg to verify the alignement precision
+    - Take few energies without translation for an energy variation reference (no sample inhomogemetiy)
+    - Scan the incident angle at 2450 eV
+    - Fine energy scan at 0.4, 0.8, 4 and 8 deg incident angles
+    """
+
+    # In McNeil_03
+    # samples = ["A1_01", "A1_02", "A1_03", "A1_04", "A1_05", "A1_06"]
+    # ys =   [     -2500,   -2500,   -2500,   -2500,  -1000,    -4000]
+    # xs =   [    -35300,  -11326,   15300,   40300,  52000,    52000]
+    # xshexa =   [     0,       0,       0,       0,     14,       14]
+    # yshexa =   [    -5,       0,       0,       0,      4,     -6.5]
+
+
+    # In McNeil_04
+    # samples = ["A2_01p", "A2_04p", "A2_06p", "A4_06p", "A4_13p", "A5_06p",
+    #            "A2_02p", "A2_03p", "A2_05p", "A4_01p", "A4_08p", "A5_01p"]
+    # ys =   [      -3000,    -3000,    -3000,    -3000,    -3000,    -3000,
+    #               -2000,    -2000,    -2000,    -2000,    -2000,     5500]
+    # xs =   [     -53000,   -35000,   -11326,    15300,    40300,    52000,
+    #              -53000,   -35000,   -11326,    15300,    40300,    52000]
+    # xshexa =   [     -8,        0,        0,        0,        0,       14,
+    #                  -8,        0,        0,        0,        0,       14]
+    # yshexa =   [     -3,     -5.5,       -4,       -6,       -4,        3,
+    #                   4,        4,        4,        2,        4,        4]
+
+
+    # # In McNeil_09
+    # samples = ["S1_01p_b", "S1_02p_b", "A1_01p", "A1_06p", "A2_06p", "A4_05p",
+    #            "S1_01p_a", "S1_02p_a", "S1_03p", "A1_02p", "A2_01p", "A4_04p"]
+    # ys =   [      -3000,    -3000,    -3000,    -3000,    -3000,    -3000,
+    #                   0,    -1000,    -1000,        0,     1000,     3000]
+    # xs =   [     -53000,   -35000,   -11326,    15300,    40300,    52000,
+    #              -53000,   -35000,   -11326,    15300,    40300,    52000]
+    # xshexa =   [     -8,        0,        0,        0,        0,       14,
+    #                  -8,        0,        0,        0,        0,       14]
+    # yshexa =   [     -3,       -3,       -3,       -3,       -2,       -1,
+    #                   4,        6,        6,        6,      6.5,        4]
+
+
+
+    # In McNeil_11
+    samples = ["Y1_01p", "Y1_01rp", "Y1_03p", "Y1_03rp", "Y1_02p", "Y1_02rp",
+               "A4_04p", "A4_03p", "A3_12p", "Q1_01p", "Q1_02p", "Q1_03p"]
+    ys =   [      -3000,    -3000,    -3000,    -3000,    -3000,    -4000,
+                   2000,     2000,     2000,     2000,     2000,     3000]
+    xs =   [     -53000,   -35000,   -11326,    15300,    40300,    52000,
+                 -53000,   -35000,   -11326,    15300,    40300,    52000]
+    xshexa =   [     -8,        0,        0,        0,        0,       14,
+                     -8,        0,        0,        0,        0,       14]
+    yshexa =   [     -1,       -1,       -3,       -3,       -3,       -4,
+                      4,        5,        4,        4,        4,        4]
+
+
+    assert len(samples) == len(ys), f"Number of X coordinates ({len(samples)}) is different from number of samples ({len(y)})"
+    assert len(samples) == len(xs), f"Number of X coordinates ({len(samples)}) is different from number of samples ({len(names)})"
+    assert len(samples) == len(xshexa), f"Number of X coordinates ({len(samples)}) is different from number of samples ({len(names)})"
+    assert len(samples) == len(yshexa), f"Number of X coordinates ({len(samples)}) is different from number of samples ({len(names)})"
+
+
+    det_exposure_time(1, 1)
+
+    for i, (sample, y, x, xhexa, yhexa) in enumerate(zip(samples, ys, xs, xshexa, yshexa)):
+        if 'A4' in sample or 'Q1' in sample:
+            wa = [18]
+        elif 'Y1' in sample or 'A3' in sample:
+            wa = [20]
+
+        if sample!='Y1_01p':
+            # Setup measurement for sample
+            yield from bps.mv(piezo.y, y)
+            yield from bps.mv(piezo.x, x)
+            yield from bps.mv(stage.x, xhexa)
+            yield from bps.mv(stage.y, yhexa)
+
+            yield from bps.mv(GV7.open_cmd, 1)
+            yield from bps.sleep(1)
+            yield from bps.mv(GV7.open_cmd, 1)
+            yield from bps.sleep(1)
+
+            yield from alignement_xrr_xmotor(angle=0.1)
+
+            yield from bps.mv(GV7.close_cmd, 1)
+            yield from bps.sleep(1)
+            yield from bps.mv(GV7.close_cmd, 1)
+            yield from bps.sleep(1)
+
+            # beam is 30um.
+            yield from calibrate_ai_ver(t=1, energies=2450, name=sample)
+
+            # beam is 30um.
+            yield from bps.mv(piezo.y, y - 30)
+
+        # beam is 30um.
+        yield from fixedposition_energysweep_ver(t=1, name=sample, ai_list=[0.4, 0.8, 4, 8], waxs_arc=wa)
+
+        # beam is 30um.
+        yield from bps.mv(piezo.y, y - 30)
+
+        yield from vert_aiscan_giwaxs_S_edge_2024_3(t=1, energies=2450, name=sample, waxs_arc=wa)
+        
+        # beam is 30um.
+        yield from bps.mv(piezo.y, y - 30)
+
+        # Run sample scan
+        yield from vert_giwaxs_S_edge_2024_3(
+            t=1, name=sample, ai_list = [0.4, 0.8, 4, 8], ystep=20, waxs_arc=wa) # steps 63 energies
+            
+
+
+
+
+
+def hor_sequence_scan_25_01_Si():
+    """
+    Measuring vertical Si wafer for reference, i.e. flux variation across the S-edge
+    """
+
+    # In McNeil_01
+    samples = ["Si_redo"]
+    ys =      [0]
+    xs =   [ -46000]
+    xshexa =   [ -7]
+
+    det_exposure_time(1, 1)
+
+    for i, (sample, y, x, xhexa) in enumerate(zip(samples, ys, xs, xshexa)):
+        # Setup measurement for sample
+        yield from bps.mv(piezo.y, y)
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(stage.x, xhexa)
+
+        yield from bps.mv(GV7.open_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(GV7.open_cmd, 1)
+        yield from bps.sleep(1)
+
+        yield from alignement_gisaxs(angle=0.1)
+
+        yield from bps.mv(GV7.close_cmd, 1)
+        yield from bps.sleep(1)
+        yield from bps.mv(GV7.close_cmd, 1)
+        yield from bps.sleep(1)
+
+        yield from calibrate_ai_hor(t=1, energies=2450, name=sample)
+
+        # beam is 30um.
+        # yield from bps.mv(piezo.y, y)
+
+        # # Run sample scan
+        # yield from vert_giwaxs_S_edge_2024_3(
+        #     t=1, name=sample, ai_list = [0.4, 0.8, 4, 8], ystep=0, waxs_arc=wa) # steps 63 energies
+            
+         # Run sample scan
+        yield from sevralai_giwaxs_S_edge_2024_3_v2(
+            t=1, name=sample, ai_list = [8.0], xstep=0, waxs_arc=[0]) # steps 63 energies
+
+
+def hor_sequence_scan_25_01(): #_P3HT
+    """
+    Running multiple samples with various scans
+    """
+
+
+    # wa = [0, 20]
+    # samples = [  "Y1_01", "Y1_01R", "Y1_02", "Y1_02R", "Y1_03", "Y1_03R"]
+    # x_pos =   [   -35000,  -17000,     4000,    25000,   42000,    43000]
+    # x_step = [        25,      25,       25,       25,      15,       25]
+    # x_offset = [       0,       0,        0,        0,       0,        0]
+    # x_pos_hex = [      0,       0,        0,        0,       0,       12]
+
+    # samples = [  "Y1_03R"] #beam dump, didnt measure
+    # x_pos =   [     44000]
+    # x_step = [         25]
+    # x_offset = [        0]
+    # x_pos_hex = [      13]
+
+    wa = [0, 20]
+    # Q1_03 sample has spots, only x= 6000 realestate to move.
+    #
+    # samples = [  "S1_01a", "S1_01b", "S1_02a", "S1_02b", "Q1_01", "Q1_02",  "Q1_03"] 
+    # x_pos =   [   -53880,  -44880,   -24720,    -4560,   16040,    24600,   46600.]
+    # x_step = [        40,      40,       40,       40,      40,       30,   20]
+    # x_offset = [       0,       0,        0,        0,       0,        0,   0]
+    # x_pos_hex = [    -10,       0,        0,        0,       0,       13,   13]
+
+    #McNeill_10
+    samples = [  "Y1_03R"] 
+    x_pos =   [      8000]
+    x_step = [         35]
+    x_pos_hex = [       0]
+
+    for i, (sample, x, xstep, xhex) in enumerate(zip(samples, x_pos, x_step, x_pos_hex)):
+        
+        # Setup measurement for sample
+        det_exposure_time(1, 1)
+        yield from bps.mv(piezo.x, x)
+        yield from bps.mv(stage.x, xhex)
+
+        # Sample alignment - align at 0.3 because....
+        yield from alignement_gisaxs(angle=0.3)
+    
+        print('ai0 is ', piezo.th.position)
+
+        yield from calibrate_ai_hor(t=1, energies=2450, name=sample)
+    
+        # beam is 200um.
+        yield from fixedposition_energysweep_hor(t=1, name=sample, ai_list=[0.4, 0.8, 4, 8], waxs_arc=[0])
+
+        yield from bps.mvr(piezo.x, 300)
+        yield from incident_energy_scan_giwaxs_S_edge_2024_3(t=1, energies=2450, name=sample)
+        # beam is 200um.
+        yield from bps.mvr(piezo.x, 300)
+
+        yield from sevralai_giwaxs_S_edge_2024_3_v2(t=1, 
+                                                    name=sample, 
+                                                    ai_list = [0.4, 0.8, 4.0, 8.0], 
+                                                    xstep=xstep,
+                                                    waxs_arc=wa) # steps 63 energies
+        
+def waxs_S_edge_chris_2025_1(t=1):
+    dets = [pil900KW, pil1M]
+
+
+    names = [ "Y2_01_a","Y2_01r_a", "Y2_01_b","Y2_01r_b", "Y2_01_c","Y2_01r_r","Q2_03","Y2_02_a","Y2_02r_a","Y2_02_b",
+             "Y2_02r_b", "Y2_04_a","Y2_04r_a", "Y2_04_b","Y2_04r_b"]
+    x = [        42000,    36100,    30300,    25000,    19300,    14000,   8500,    3000,    -2300,   -8300,
+                -13600,   -21700,   -27300,   -33100,   -38300] 
+    y = [        -4800,    -4800,    -4800,    -4800,    -4800,    -4900,  -4900,   -4700,    -4800,   -4800,
+                 -4600,    -4600,    -4500,    -4700,    -4700]
+
+
+    names = [ "Q2_03","Y2_02_a","Y2_02r_a","Y2_02_b",
+             "Y2_02r_b", "Y2_04_a","Y2_04r_a", "Y2_04_b","Y2_04r_b"]
+    x = [           8500,    3000,    -2300,   -8300,
+                -13600,   -21700,   -27300,   -33100,   -38300] 
+    y = [          -4900,   -4700,    -4800,   -4800,
+                 -4600,    -4600,    -4500,    -4700,    -4700]
+
+
+    assert len(x) == len(y), f"Number of X coordinates ({len(x)}) is different from number of samples ({len(y)})"
+    assert len(x) == len(names), f"Number of X coordinates ({len(x)}) is different from number of samples ({len(names)})"
+
+    energies = (np.arange(2445, 2470, 5).tolist()+ np.arange(2470, 2480, 0.25).tolist()+ np.arange(2480, 2490, 1).tolist()
+                + np.arange(2490, 2500, 5).tolist()+ np.arange(2500, 2560, 10).tolist())
+    
+    waxs_arc = [0, 20]
+
+    for name, xs, ys in zip(names, x, y):
+        yield from bps.mv(piezo.x, xs,
+                          piezo.y, ys)
+
+        yss = np.linspace(ys, ys + 1500, len(energies))
+        xss = np.array([xs])
+
+        yss, xss = np.meshgrid(yss, xss)
+        yss = yss.ravel()
+        xss = xss.ravel()
+
+        for wa in waxs_arc:
+            yield from bps.mv(waxs, wa)
+            if wa == 0:
+                dets = [pil900KW]
+            else:
+                dets = [pil900KW, pil1M]
+
+            det_exposure_time(t, t)
+
+            name_fmt = "{sample}_{energy}eV_wa{wax}_bpm{xbpm}"
+            for e, xsss, ysss in zip(energies, xss, yss):
+                yield from bps.mv(energy, e)
+                yield from bps.sleep(2)
+                if xbpm2.sumX.get() < 50:
+                    yield from bps.sleep(2)
+                    yield from bps.mv(energy, e)
+                    yield from bps.sleep(2)
+
+                yield from bps.mv(piezo.y, ysss)
+                yield from bps.mv(piezo.x, xsss)
+
+                bpm = xbpm3.sumX.get()
+
+                sample_name = name_fmt.format(sample=name, energy="%6.2f" % e, wax=wa, xbpm="%4.3f" % bpm)
+                sample_id(user_name="CM", sample_name=sample_name)
+                print(f"\n\t=== Sample: {sample_name} ===\n")
+
+                yield from bp.count(dets, num=1)
+
+            yield from bps.mv(energy, 2500)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 2480)
+            yield from bps.sleep(2)
+            yield from bps.mv(energy, 2445)
