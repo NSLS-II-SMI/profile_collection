@@ -64,64 +64,29 @@ VFMcamera = EpicsSignal("XF:12IDA-BI{Cam:VFM}TIFF1:WriteFile", name="VFMcamera")
 
 
 class TIFFPluginWithFileStore(TIFFPlugin, FileStoreTIFFIterativeWrite):
-    pass
+    def __init__(self, *args, md=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._md = md
+        self._asset_path = None
 
+    def _update_paths(self):
+        self.write_path_template = self.root_path_str
+        self.read_path_template = self.root_path_str
+
+    @property
+    def root_path_str(self):
+        root_path = f"/nsls2/data/smi/proposals/{self._md['cycle']}/{self._md['data_session']}/assets/{self._asset_path}/%Y/%m/%d/"
+        return root_path
+
+    def stage(self):
+        if self._asset_path:
+            self._update_paths(self)
+        return super().stage()
 
 class HDF5PluginWithFileStore(HDF5Plugin, FileStoreHDF5IterativeWrite):
     def get_frames_per_point(self):
         return self.parent.cam.num_images.get()
 
-
-class RayonixDetectorCam(MarCCDDetectorCam):
-    file_path = Cpt(SignalWithRBV, "FilePath", string=True)
-    file_name = Cpt(SignalWithRBV, "FileName", string=True)
-    file_template = Cpt(SignalWithRBV, "FileName", string=True)
-    file_number = Cpt(SignalWithRBV, "FileNumber")
-
-
-class RayonixDetector(MarCCDDetector):
-    cam = Cpt(RayonixDetectorCam, "cam1:")
-
-
-# class StandardRayonix(SingleTrigger, MarCCDDetector):
-class StandardRayonix(SingleTrigger, RayonixDetector):
-
-    # hdf5 = Cpt(HDF5PluginWithFileStore, suffix='HDF1:',
-    # write_path_template='/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/',
-    # root='/GPFS/xf12id1/data/MAXS/images/')
-
-    tiff = Cpt(
-        TIFFPluginWithFileStore,
-        suffix="TIFF1:",
-        write_path_template="/GPFS/xf12id1/data/MAXS/images/%Y/%m/%d/",  # override this on instances using instance.tiff.write_file_path
-        root="/GPFS",  # /xf12id1/data/MAXS/images/',
-    )
-
-    stats1 = Cpt(StatsPlugin, "Stats1:")
-    stats2 = Cpt(StatsPlugin, "Stats2:")
-    stats3 = Cpt(StatsPlugin, "Stats3:")
-    stats4 = Cpt(StatsPlugin, "Stats4:")
-    stats5 = Cpt(StatsPlugin, "Stats5:")
-    trans1 = Cpt(TransformPlugin, "Trans1:")
-    roi1 = Cpt(ROIPlugin, "ROI1:")
-    roi2 = Cpt(ROIPlugin, "ROI2:")
-    roi3 = Cpt(ROIPlugin, "ROI3:")
-    roi4 = Cpt(ROIPlugin, "ROI4:")
-
-
-# rayonix = StandardRayonix('XF:12IDC-ES:2{Det:MAXS}', name='rayonix')
-##rayonix.read_attrs = ['hdf5', 'stats1', 'stats2', 'stats3', 'stats4', 'stats5']
-# rayonix.read_attrs = ['tiff', 'stats1', 'stats2', 'stats3', 'stats4', 'stats5']
-# rayonix.stats1.read_attrs = ['total']
-# rayonix.stats2.read_attrs = ['total']
-# rayonix.stats3.read_attrs = ['total']
-# rayonix.stats4.read_attrs = ['total']
-# rayonix.stats5.read_attrs = ['total']
-# rayonix.cam.configuration_attrs.append('num_images')
-# rayonix.configuration_attrs.append('roi1')
-
-# rayonix.stats1.total.kind = 'hinted'
-# rayonix.tiff.write_path_template = '/nsls2/xf12id2/data/MAXS/images/%Y/%m/%d/'
 
 
 class StandardProsilica(SingleTrigger, ProsilicaDetector):
@@ -148,13 +113,22 @@ class StandardProsilicaWithTIFF(StandardProsilica):
     tiff = Cpt(
         TIFFPluginWithFileStore,
         suffix="TIFF1:",
+        md=RE.md,
+#        asset_path='prosilica',  # TODO:
         write_path_template="/tmp/%Y/%m/%d/",
         read_path_template="/tmp/%Y/%m/%d/",
         root="/tmp/",
     )
 
+    def __init__(self, *args, **kwargs):
+        self.asset_path = kwargs.pop("asset_path", None)
+        super().__init__(*args, **kwargs)
+        self.tiff._asset_path = self.asset_path
 
-FS = StandardProsilica("XF:12IDA-BI{Cam:FS}", name="FS")
+# If asset_path is not defined, TIFFPluginWithFileStore will fall back to hardcoded paths
+FS = StandardProsilica("XF:12IDA-BI{Cam:FS}", name="FS", asset_path="webcam-3")
+
+#FS = StandardProsilica("XF:12IDA-BI{Cam:FS}", name="FS")
 FS.read_attrs = ["stats1", "stats2", "stats3", "stats4", "stats5"]
 FS.stats1.read_attrs = ["total"]
 FS.stats2.read_attrs = ["total"]
@@ -165,8 +139,6 @@ FS.stats5.read_attrs = ["total"]
 FS.stats2.total.kind = "hinted"
 FS.stats3.total.kind = "hinted"
 FS.stats5.total.kind = "hinted"
-
-
 # FS.configuration_attrs = ['cam.acquire_time']
 
 # VFM = StandardProsilica('XF:12IDA-BI{Cam:VFM}', name='VFM')

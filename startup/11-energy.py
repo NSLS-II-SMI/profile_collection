@@ -229,13 +229,13 @@ dcm_config = DCMInternals("", name="dcm_config")
 
 bragg.read_attrs = ["user_readback"]
 
-new_ivu_gap = EpicsMotor("SR:C12-ID:G1{IVU:1-Ax:Gap}-Mtr", name="new_ivu_gap")
+#new_ivu_gap = EpicsMotor("SR:C12-ID:G1{IVU:1-Ax:Gap}-Mtr", name="new_ivu_gap")
 
 
-def move_E(E, gap_off=0):
-    energy.move(E)
-    if gap_off != 0:
-        cur_gap = ivugap.user_readback.value
-        ivugap.move(cur_gap + gap_off)
+# def move_E(E, gap_off=0):
+#     energy.move(E)
+#     if gap_off != 0:
+#         cur_gap = ivugap.user_readback.value
+#         ivugap.move(cur_gap + gap_off)
 
 dcm_theta = EpicsMotor("XF:12ID:m65", name="dcm_theta")
